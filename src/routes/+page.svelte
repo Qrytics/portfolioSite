@@ -6,8 +6,21 @@
 	import Contact from '$lib/components/Contact.svelte';
 </script>
 
-<Hero />
-<ProjectList />
-<Bio />
-<Skills />
-<Contact />
+<div class="page">
+	<Hero />
+	<section id="projects" aria-label="Projects">
+		<ProjectList />
+	</section>
+	<section id="about" aria-label="About">
+		<Bio />
+		<Skills />
+	</section>
+	<Contact />
+</div>
+
+<style>
+	.page {
+		position: relative;
+		isolation: isolate;
+	}
+</style>

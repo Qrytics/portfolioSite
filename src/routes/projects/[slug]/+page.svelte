@@ -1,230 +1,333 @@
 <script lang="ts">
-	import type { PageData } from './$types';
+import type { PageData } from './$types';
 
-	let { data }: { data: PageData } = $props();
-	const project = $derived(data.project);
-
-	const statusColor: Record<typeof project.status, string> = {
-		active: 'var(--accent)',
-		wip: 'var(--yellow)',
-		archived: 'var(--text-dim)'
-	};
+let { data }: { data: PageData } = $props();
+const project = $derived(data.project);
 </script>
 
 <svelte:head>
-	<title>{project.title} — Project Detail</title>
-	<meta name="description" content={project.description} />
+<title>{project.title} — Project</title>
+<meta name="description" content={project.description} />
 </svelte:head>
 
 <div class="page">
-	<div class="page-inner">
-		<div class="breadcrumb">
-			<a href="/">home</a>
-			<span>/</span>
-			<a href="/#projects">projects</a>
-			<span>/</span>
-			<span class="current">{project.slug}</span>
-		</div>
+<div class="shell">
+<div class="breadcrumb">
+<a href="/">home</a>
+<span class="sep">/</span>
+<a href="/#projects">projects</a>
+<span class="sep">/</span>
+<span class="current">{project.slug}</span>
+</div>
 
-		<header class="project-header">
-			<div class="title-row">
-				<h1 class="title">{project.title}</h1>
-				<span class="status" style="color: {statusColor[project.status]}">
-					● {project.status}
-				</span>
-			</div>
-			<div class="meta-row">
-				<span class="year">{project.year}</span>
-				<div class="tags">
-					{#each project.tags as tag}
-						<span class="tag">{tag}</span>
-					{/each}
-				</div>
-			</div>
-		</header>
+<div class="card">
+<!-- Termbar -->
+<div class="termbar">
+<h1 class="termbar__title">{project.title}</h1>
+<span class="badge" data-type={project.type}>
+{project.type === 'open-source' ? 'open source' : project.type === 'closed-source' ? 'closed source' : project.type}
+</span>
+</div>
 
-		<div class="links-row">
-			{#if project.github}
-				<a href={project.github} target="_blank" rel="noopener noreferrer" class="ext-link">
-					github ↗
-				</a>
-			{/if}
-			{#if project.demo}
-				<a href={project.demo} target="_blank" rel="noopener noreferrer" class="ext-link">
-					live demo ↗
-				</a>
-			{/if}
-		</div>
+<!-- Media placeholder -->
+{#if project.image}
+<div class="media">
+<img class="media__img" src={project.image} alt="{project.title} preview" />
+</div>
+{:else}
+<div class="media">
+<div class="media__placeholder">
+<span class="media__placeholderText">{project.subtitle}</span>
+</div>
+</div>
+{/if}
 
-		<section class="content">
-			<div class="terminal-comment">// {project.description}</div>
-			{#if project.longDescription}
-				<div class="long-desc">
-					{project.longDescription}
-				</div>
-			{:else}
-				<p class="placeholder">Extended description coming soon.</p>
-			{/if}
-		</section>
+<!-- Content -->
+<div class="content">
+<div class="meta-row">
+<span class="year">{project.year}</span>
+<div class="tech-badges">
+{#each project.tags as tag}
+<span class="tech-badge" data-tech={tag.toLowerCase()}>{tag}</span>
+{/each}
+</div>
+</div>
 
-		<div class="back-link">
-			<a href="/#projects">← back to projects</a>
-		</div>
-	</div>
+<p class="subtitle">{project.subtitle}</p>
+<p class="desc">{project.description}</p>
+
+{#if project.longDescription}
+<div class="long-desc">{project.longDescription}</div>
+{/if}
+
+{#if project.note}
+<p class="note">{project.note}</p>
+{/if}
+
+<div class="links">
+{#if project.github}
+<a href={project.github} target="_blank" rel="noopener noreferrer" class="btn btn--primary">
+source ↗
+</a>
+{/if}
+{#if project.demo}
+<a href={project.demo} target="_blank" rel="noopener noreferrer" class="btn btn--ghost">
+live demo ↗
+</a>
+{/if}
+</div>
+</div>
+</div>
+
+<div class="back-link">
+<a href="/#projects">← back to projects</a>
+</div>
+</div>
 </div>
 
 <style>
-	.page {
-		padding: 7rem 2rem 5rem;
-	}
+.page {
+position: relative;
+z-index: 1;
+padding-top: 1.5rem;
+}
 
-	.page-inner {
-		max-width: 720px;
-		margin: 0 auto;
-	}
+.shell {
+max-width: 56rem;
+margin: 0 auto;
+padding: clamp(1.25rem, 4vw, 3rem);
+}
 
-	.breadcrumb {
-		font-family: var(--font-mono);
-		font-size: 0.75rem;
-		color: var(--text-dim);
-		display: flex;
-		align-items: center;
-		gap: 0.4rem;
-		margin-bottom: 2.5rem;
-		letter-spacing: 0.04em;
-	}
+.breadcrumb {
+font-family: var(--font-mono);
+font-size: 0.78rem;
+color: var(--muter);
+display: flex;
+align-items: center;
+gap: 0.4rem;
+margin-bottom: 1.75rem;
+letter-spacing: 0.04em;
+}
 
-	.breadcrumb a {
-		color: var(--text-dim);
-		text-decoration: none;
-		transition: color 0.15s;
-	}
+.breadcrumb a {
+color: var(--muter);
+text-decoration: none;
+transition: color 0.14s;
+}
 
-	.breadcrumb a:hover {
-		color: var(--accent);
-	}
+.breadcrumb a:hover {
+color: var(--accent);
+}
 
-	.breadcrumb .current {
-		color: var(--accent-dim);
-	}
+.current {
+color: rgba(54, 242, 194, 0.7);
+}
 
-	.project-header {
-		margin-bottom: 1.5rem;
-	}
+.sep {
+color: var(--border);
+}
 
-	.title-row {
-		display: flex;
-		align-items: center;
-		gap: 1rem;
-		flex-wrap: wrap;
-		margin-bottom: 0.75rem;
-	}
+.card {
+border: 1px solid var(--border);
+background: linear-gradient(180deg, rgba(255, 255, 255, 0.03), transparent 52%), var(--panel);
+overflow: hidden;
+margin-bottom: 1.5rem;
+}
 
-	.title {
-		font-size: clamp(1.8rem, 5vw, 2.5rem);
-		font-weight: 700;
-		letter-spacing: -0.02em;
-	}
+.termbar {
+display: flex;
+align-items: center;
+justify-content: space-between;
+gap: 0.85rem;
+padding: 0.75rem 0.9rem;
+border-bottom: 1px solid var(--border-2);
+background: rgba(0, 0, 0, 0.22);
+}
 
-	.status {
-		font-family: var(--font-mono);
-		font-size: 0.75rem;
-		letter-spacing: 0.05em;
-	}
+.termbar__title {
+margin: 0;
+font-size: clamp(1rem, 2vw, 1.25rem);
+letter-spacing: 0.02em;
+color: rgba(243, 246, 255, 0.9);
+font-weight: 700;
+}
 
-	.meta-row {
-		display: flex;
-		align-items: center;
-		gap: 1rem;
-		flex-wrap: wrap;
-	}
+.badge {
+font-size: 0.78rem;
+color: rgba(243, 246, 255, 0.72);
+border: 1px solid var(--border-2);
+padding: 0.2rem 0.55rem;
+background: rgba(255, 255, 255, 0.03);
+text-transform: lowercase;
+white-space: nowrap;
+flex-shrink: 0;
+}
 
-	.year {
-		font-family: var(--font-mono);
-		font-size: 0.8rem;
-		color: var(--text-dim);
-	}
+.badge[data-type='open-source'] { border-color: rgba(54,242,194,.25); color: rgba(54,242,194,.92); background: rgba(54,242,194,.05); }
+.badge[data-type='closed-source'] { border-color: rgba(246,193,119,.22); color: rgba(246,193,119,.92); background: rgba(246,193,119,.05); }
 
-	.tags {
-		display: flex;
-		gap: 0.4rem;
-		flex-wrap: wrap;
-	}
+.media {
+padding: 0.9rem;
+border-bottom: 1px solid var(--border-2);
+background: rgba(0, 0, 0, 0.12);
+}
 
-	.tag {
-		font-family: var(--font-mono);
-		font-size: 0.7rem;
-		color: var(--text-dim);
-		background: var(--surface);
-		border: 1px solid var(--border);
-		border-radius: 3px;
-		padding: 0.15rem 0.5rem;
-	}
+.media__img {
+display: block;
+width: 100%;
+max-height: 20rem;
+object-fit: cover;
+border: 1px solid var(--border-2);
+}
 
-	.links-row {
-		display: flex;
-		gap: 1.25rem;
-		margin-bottom: 3rem;
-	}
+.media__placeholder {
+display: grid;
+place-items: center;
+width: 100%;
+height: 10rem;
+border: 1px dashed rgba(243, 246, 255, 0.18);
+background: linear-gradient(180deg, rgba(54, 242, 194, 0.06), transparent 70%), rgba(255, 255, 255, 0.03);
+color: rgba(243, 246, 255, 0.7);
+}
 
-	.ext-link {
-		font-family: var(--font-mono);
-		font-size: 0.875rem;
-		color: var(--accent);
-		text-decoration: none;
-		border-bottom: 1px solid var(--accent-dim);
-		padding-bottom: 1px;
-		transition: color 0.15s, border-color 0.15s;
-	}
+.media__placeholderText {
+font-size: 0.9rem;
+letter-spacing: 0.02em;
+text-align: center;
+padding: 0 0.75rem;
+font-family: var(--font-mono);
+}
 
-	.ext-link:hover {
-		color: var(--accent-bright);
-		border-color: var(--accent-bright);
-	}
+.content {
+padding: 1.25rem;
+display: grid;
+gap: 1rem;
+}
 
-	.content {
-		border-top: 1px solid var(--border);
-		padding-top: 2rem;
-	}
+.meta-row {
+display: flex;
+align-items: center;
+gap: 1rem;
+flex-wrap: wrap;
+}
 
-	.terminal-comment {
-		font-family: var(--font-mono);
-		font-size: 0.8rem;
-		color: var(--text-dim);
-		margin-bottom: 1.5rem;
-		letter-spacing: 0.03em;
-	}
+.year {
+font-family: var(--font-mono);
+font-size: 0.8rem;
+color: var(--muter);
+}
 
-	.long-desc {
-		color: var(--text-muted);
-		font-size: 0.95rem;
-		line-height: 1.8;
-		white-space: pre-wrap;
-	}
+.tech-badges {
+display: flex;
+flex-wrap: wrap;
+gap: 0.4rem;
+}
 
-	.placeholder {
-		color: var(--text-dim);
-		font-family: var(--font-mono);
-		font-size: 0.85rem;
-		font-style: italic;
-	}
+.tech-badge {
+font-size: 0.72rem;
+font-weight: 500;
+color: rgba(243, 246, 255, 0.72);
+border: 1px solid var(--border-2);
+padding: 0.18rem 0.45rem;
+background: rgba(255, 255, 255, 0.03);
+text-transform: lowercase;
+letter-spacing: 0.02em;
+}
 
-	.back-link {
-		margin-top: 3rem;
-		border-top: 1px solid var(--border);
-		padding-top: 1.5rem;
-	}
+.tech-badge[data-tech='rust'] { border-color: rgba(222,165,132,.35); color: rgba(222,165,132,.95); background: rgba(222,165,132,.08); }
+.tech-badge[data-tech='postgres'] { border-color: rgba(51,78,131,.35); color: rgba(34,151,201,.95); background: rgba(60,74,184,.08); }
+.tech-badge[data-tech='svelte'] { border-color: rgba(255,62,0,.35); color: rgba(255,98,50,.95); background: rgba(255,62,0,.08); }
+.tech-badge[data-tech='kubernetes'], .tech-badge[data-tech='k8s'] { border-color: rgba(50,108,229,.35); color: rgba(80,138,255,.95); background: rgba(50,108,229,.08); }
+.tech-badge[data-tech='python'] { border-color: rgba(76,127,169,.35); color: rgba(74,151,213,.95); background: rgba(43,93,134,.08); }
+.tech-badge[data-tech='docker'] { border-color: rgba(0,123,255,.35); color: rgba(30,153,255,.95); background: rgba(9,117,233,.08); }
+.tech-badge[data-tech='go'] { border-color: rgba(0,173,216,.35); color: rgba(30,203,246,.95); background: rgba(0,173,216,.08); }
+.tech-badge[data-tech='typescript'] { border-color: rgba(49,120,198,.35); color: rgba(79,152,228,.95); background: rgba(49,120,198,.08); }
+.tech-badge[data-tech='wasm'], .tech-badge[data-tech='webassembly'] { border-color: rgba(101,79,240,.35); color: rgba(131,109,255,.95); background: rgba(101,79,240,.08); }
 
-	.back-link a {
-		font-family: var(--font-mono);
-		font-size: 0.8rem;
-		color: var(--text-dim);
-		text-decoration: none;
-		letter-spacing: 0.04em;
-		transition: color 0.15s;
-	}
+.subtitle {
+margin: 0;
+color: var(--muted);
+font-size: 1rem;
+line-height: 1.5;
+}
 
-	.back-link a:hover {
-		color: var(--accent);
-	}
+.desc {
+margin: 0;
+color: rgba(243, 246, 255, 0.78);
+line-height: 1.7;
+font-size: 0.97rem;
+}
+
+.long-desc {
+color: rgba(243, 246, 255, 0.75);
+font-size: 0.95rem;
+line-height: 1.8;
+white-space: pre-wrap;
+padding-top: 0.5rem;
+border-top: 1px solid var(--border-2);
+}
+
+.note {
+margin: 0;
+color: rgba(246, 193, 119, 0.88);
+font-size: 0.92rem;
+font-family: var(--font-mono);
+}
+
+.links {
+display: flex;
+flex-wrap: wrap;
+gap: 0.6rem;
+padding-top: 0.25rem;
+}
+
+.btn {
+display: inline-flex;
+align-items: center;
+gap: 0.5rem;
+padding: 0.55rem 0.75rem;
+border: 1px solid var(--border);
+text-decoration: none;
+font-size: 0.9rem;
+line-height: 1;
+transition: transform 0.14s ease, background-color 0.14s ease, border-color 0.14s ease, color 0.14s ease;
+font-family: var(--font-mono);
+}
+
+.btn:hover { transform: translateY(-1px); }
+
+.btn--primary {
+border-color: rgba(54,242,194,.32);
+background: rgba(54,242,194,.09);
+color: rgba(54,242,194,.95);
+}
+
+.btn--primary:hover {
+background: rgba(54,242,194,.13);
+border-color: rgba(54,242,194,.42);
+}
+
+.btn--ghost {
+background: rgba(255,255,255,.03);
+color: rgba(243,246,255,.8);
+border-color: rgba(243,246,255,.14);
+}
+
+.btn--ghost:hover {
+background: rgba(255,255,255,.06);
+border-color: rgba(243,246,255,.2);
+}
+
+.back-link a {
+font-family: var(--font-mono);
+font-size: 0.82rem;
+color: var(--muter);
+text-decoration: none;
+letter-spacing: 0.04em;
+transition: color 0.14s;
+}
+
+.back-link a:hover {
+color: var(--accent);
+}
 </style>

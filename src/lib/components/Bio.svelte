@@ -3,20 +3,17 @@
 </script>
 
 <section id="about" class="section">
-	<div class="section-inner">
-		<div class="label">
-			<span class="prompt">#</span> about
-		</div>
-
-		<div class="content">
-			<div class="bio-block">
-				<div class="terminal-comment">// {profile.name} — {profile.title}</div>
-				<p class="bio-text">{profile.bio}</p>
+	<div class="shell">
+		<div class="card">
+			<div class="termbar">
+				<h2 class="termbar__title">about</h2>
+				<span class="badge">readme</span>
+			</div>
+			<div class="content">
+				<p class="bio">{profile.bio}</p>
 				<div class="meta">
-					<span class="meta-item">
-						<span class="meta-key">location</span>
-						<span class="meta-val">{profile.location}</span>
-					</span>
+					<span class="meta-key">location</span>
+					<span class="meta-val">{profile.location}</span>
 				</div>
 			</div>
 		</div>
@@ -25,64 +22,77 @@
 
 <style>
 	.section {
-		padding: 5rem 2rem;
-		border-top: 1px solid var(--border);
+		position: relative;
+		z-index: 1;
+		padding: 0 clamp(1.25rem, 4vw, 3rem) clamp(2rem, 4vw, 3rem);
+		scroll-margin-top: clamp(4.25rem, 9vw, 5.75rem);
 	}
 
-	.section-inner {
-		max-width: 960px;
+	.shell {
+		max-width: 86rem;
 		margin: 0 auto;
 	}
 
-	.label {
-		font-family: var(--font-mono);
-		font-size: 1.25rem;
-		color: var(--text-muted);
-		letter-spacing: 0.04em;
-		margin-bottom: 2.5rem;
+	.card {
+		border: 1px solid var(--border);
+		background: linear-gradient(180deg, rgba(255, 255, 255, 0.03), transparent 52%), var(--panel);
+		overflow: hidden;
 	}
 
-	.prompt {
-		color: var(--accent);
+	.termbar {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		gap: 0.85rem;
+		padding: 0.75rem 0.9rem;
+		border-bottom: 1px solid var(--border-2);
+		background: rgba(0, 0, 0, 0.22);
+	}
+
+	.termbar__title {
+		margin: 0;
+		font-size: 0.92rem;
+		letter-spacing: 0.02em;
+		color: rgba(243, 246, 255, 0.82);
+		font-weight: 600;
+	}
+
+	.badge {
+		font-size: 0.78rem;
+		color: rgba(243, 246, 255, 0.72);
+		border: 1px solid var(--border-2);
+		padding: 0.2rem 0.55rem;
+		background: rgba(255, 255, 255, 0.03);
+		text-transform: lowercase;
 	}
 
 	.content {
-		max-width: 680px;
+		padding: 1rem 1.25rem;
+		display: grid;
+		gap: 0.75rem;
 	}
 
-	.terminal-comment {
-		font-family: var(--font-mono);
-		font-size: 0.8rem;
-		color: var(--text-dim);
-		margin-bottom: 1rem;
-		letter-spacing: 0.03em;
-	}
-
-	.bio-text {
-		color: var(--text-muted);
-		font-size: 1rem;
-		line-height: 1.75;
-		margin: 0 0 1.5rem;
+	.bio {
+		color: rgba(243, 246, 255, 0.78);
+		line-height: 1.7;
+		font-size: 0.97rem;
+		max-width: 80ch;
+		margin: 0;
 	}
 
 	.meta {
 		display: flex;
-		gap: 2rem;
-		flex-wrap: wrap;
-	}
-
-	.meta-item {
-		display: flex;
-		gap: 0.5rem;
-		font-family: var(--font-mono);
-		font-size: 0.8rem;
+		gap: 0.75rem;
+		font-size: 0.85rem;
+		align-items: center;
 	}
 
 	.meta-key {
-		color: var(--accent-dim);
+		color: rgba(54, 242, 194, 0.7);
 	}
 
 	.meta-val {
-		color: var(--text-dim);
+		color: var(--muted);
 	}
 </style>
+

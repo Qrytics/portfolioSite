@@ -1,88 +1,52 @@
 <script lang="ts">
 	import { projects } from '$lib/data/projects';
 	import ProjectCard from './ProjectCard.svelte';
-
-	let showAll = $state(false);
-
-	const featured = projects.filter((p) => p.featured);
-	const rest = projects.filter((p) => !p.featured);
-
-	const displayed = $derived(showAll ? projects : featured);
 </script>
 
 <section id="projects" class="section">
-	<div class="section-inner">
-		<div class="section-header">
-			<div class="label">
-				<span class="prompt">#</span> projects
-			</div>
-		</div>
-
+	<div class="shell">
 		<div class="grid">
-			{#each displayed as project (project.slug)}
+			{#each projects as project (project.slug)}
 				<ProjectCard {project} />
 			{/each}
 		</div>
-
-		{#if rest.length > 0}
-			<div class="show-more">
-				<button class="btn-text" onclick={() => (showAll = !showAll)}>
-					{showAll ? '↑ show less' : `↓ show ${rest.length} more project${rest.length > 1 ? 's' : ''}`}
-				</button>
-			</div>
-		{/if}
 	</div>
 </section>
 
 <style>
 	.section {
-		padding: 5rem 2rem;
+		position: relative;
+		z-index: 1;
+		margin-top: -30px;
+		padding-top: clamp(1rem, 2vw, 1.5rem);
+		scroll-margin-top: clamp(4.25rem, 9vw, 5.75rem);
 	}
 
-	.section-inner {
-		max-width: 960px;
+	.shell {
+		max-width: 86rem;
 		margin: 0 auto;
-	}
-
-	.section-header {
-		margin-bottom: 2.5rem;
-	}
-
-	.label {
-		font-family: var(--font-mono);
-		font-size: 1.25rem;
-		color: var(--text-muted);
-		letter-spacing: 0.04em;
-	}
-
-	.prompt {
-		color: var(--accent);
+		padding: 0 clamp(1.25rem, 4vw, 3rem);
+		padding-bottom: clamp(2.5rem, 5vw, 4rem);
 	}
 
 	.grid {
 		display: grid;
-		grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-		gap: 1.25rem;
+		grid-template-columns: 1fr;
+		gap: 1rem;
 	}
 
-	.show-more {
-		margin-top: 2rem;
-		text-align: center;
+	@media (min-width: 720px) {
+		.grid {
+			grid-template-columns: repeat(2, minmax(0, 1fr));
+			gap: 1.2rem;
+		}
 	}
 
-	.btn-text {
-		font-family: var(--font-mono);
-		font-size: 0.8rem;
-		color: var(--text-dim);
-		background: none;
-		border: none;
-		cursor: pointer;
-		letter-spacing: 0.04em;
-		transition: color 0.15s;
-		padding: 0.5rem 1rem;
-	}
-
-	.btn-text:hover {
-		color: var(--accent);
+	@media (min-width: 1100px) {
+		.grid {
+			grid-template-columns: repeat(3, minmax(0, 1fr));
+			gap: 1.25rem;
+		}
 	}
 </style>
+

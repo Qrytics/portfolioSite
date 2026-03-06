@@ -8,16 +8,16 @@
 </script>
 
 <svelte:head>
-	<meta name="description" content="{profile.title} — {profile.bio.slice(0, 120)}..." />
+	<meta name="description" content="{profile.tagline} — {profile.description}" />
 	<meta property="og:title" content="{profile.name} — Portfolio" />
-	<meta property="og:description" content="{profile.title} — {profile.bio.slice(0, 120)}..." />
-	<meta name="theme-color" content="#0a0a0a" />
+	<meta property="og:description" content="{profile.tagline} — {profile.description}" />
+	<meta name="theme-color" content="#0b0e12" />
 	<title>{profile.name} — Portfolio</title>
 </svelte:head>
 
 <Nav />
 
-<main>
+<main id="main">
 	{@render children()}
 </main>
 

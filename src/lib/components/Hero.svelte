@@ -1,147 +1,144 @@
 <script lang="ts">
 	import { profile } from '$lib/data/profile';
-
-	let visible = $state(false);
-
-	$effect(() => {
-		const t = setTimeout(() => (visible = true), 100);
-		return () => clearTimeout(t);
-	});
+	import EegBackground from './EegBackground.svelte';
 </script>
 
-<section class="hero" class:visible>
-	<div class="hero-inner">
-		<div class="terminal-line">
-			<span class="prompt">$</span>
-			<span class="command"> whoami</span>
-		</div>
-
-		<h1 class="name">{profile.name}</h1>
-		<p class="title">{profile.title}</p>
-
-		<div class="terminal-line mt">
-			<span class="prompt">$</span>
-			<span class="command"> cat bio.txt</span>
-		</div>
-
-		<p class="bio">{profile.bio}</p>
-
-		<div class="cta-row">
-			<a href="/#projects" class="btn btn-primary">view projects</a>
-			<a href={profile.github} target="_blank" rel="noopener noreferrer" class="btn btn-ghost">
-				github ↗
-			</a>
-		</div>
+<header class="header">
+	<div class="eeg-background" aria-hidden="true">
+		<EegBackground />
 	</div>
-</section>
+
+	<div class="header__content">
+		<h1 class="header__tagline">{profile.tagline}</h1>
+		<p class="header__description">{profile.description}</p>
+		<p class="header__teaser">
+			<a href="/#projects" class="link">View projects ↓</a>
+		</p>
+		<p class="header__meta">
+			<a href={profile.github} target="_blank" rel="noopener noreferrer" class="link link__mono">
+				{profile.github.replace('https://', '')}
+			</a>
+		</p>
+	</div>
+</header>
 
 <style>
-	.hero {
-		min-height: 100vh;
+	.header {
+		position: relative;
+		z-index: 1;
+		margin-top: 0;
+		margin-bottom: 0;
+		min-height: 280px;
+	}
+
+	.eeg-background {
+		position: absolute;
+		top: 0;
+		left: 0;
+		right: 0;
+		height: 100%;
+		z-index: 0;
+		pointer-events: none;
+	}
+
+	.header__content {
+		position: relative;
+		z-index: 1;
+		padding: clamp(2rem, 4vw, 3rem) clamp(2rem, 6vw, 5rem);
 		display: flex;
+		flex-direction: column;
+		justify-content: center;
 		align-items: center;
-		padding: 6rem 2rem 4rem;
-		opacity: 0;
-		transform: translateY(12px);
-		transition:
-			opacity 0.5s ease,
-			transform 0.5s ease;
+		text-align: center;
+		min-height: 280px;
 	}
 
-	.hero.visible {
-		opacity: 1;
-		transform: translateY(0);
+	.header__content::before {
+		content: '';
+		position: absolute;
+		inset: 50%;
+		transform: translate(-50%, -50%);
+		width: min(80ch, 80%);
+		height: 70%;
+		background: radial-gradient(
+			ellipse at center,
+			rgba(0, 0, 0, 0.8) 0%,
+			rgba(0, 0, 0, 0.7) 30%,
+			rgba(0, 0, 0, 0.5) 60%,
+			transparent 85%
+		);
+		filter: blur(16px);
+		z-index: -1;
+		pointer-events: none;
 	}
 
-	.hero-inner {
-		max-width: 720px;
-	}
-
-	.terminal-line {
-		font-family: var(--font-mono);
-		font-size: 0.875rem;
-		margin-bottom: 0.75rem;
-		display: flex;
-		align-items: center;
-		gap: 0.25rem;
-	}
-
-	.terminal-line.mt {
-		margin-top: 2rem;
-	}
-
-	.prompt {
-		color: var(--accent);
-	}
-
-	.command {
-		color: var(--text-dim);
-	}
-
-	.name {
-		font-size: clamp(2.5rem, 7vw, 4.5rem);
-		font-weight: 700;
-		letter-spacing: -0.02em;
+	.header__tagline {
+		position: relative;
+		margin: 0;
 		color: var(--text);
-		margin: 0 0 0.25rem;
-		line-height: 1.05;
+		font-size: clamp(1.4rem, 3vw, 1.85rem);
+		font-weight: 700;
+		max-width: 75ch;
+		line-height: 1.45;
+		padding-bottom: 16px;
+		text-shadow: 0 0 4px #000, 0 2px 12px #000, 0 0 50px #000;
 	}
 
-	.title {
-		font-family: var(--font-mono);
-		font-size: 1.125rem;
-		color: var(--accent);
-		margin: 0 0 0.5rem;
-		letter-spacing: 0.03em;
+	.header__tagline::before {
+		content: '';
+		position: absolute;
+		top: 50%;
+		left: 50%;
+		transform: translate(-50%, -50%);
+		width: calc(100% + 2rem);
+		height: calc(100% + 0.75rem);
+		background: rgba(0, 0, 0, 0.4);
+		filter: blur(12px);
+		z-index: -1;
+		pointer-events: none;
 	}
 
-	.bio {
-		color: var(--text-muted);
-		font-size: 1.05rem;
-		line-height: 1.7;
-		max-width: 600px;
-		margin: 0.5rem 0 0;
+	.header__description {
+		position: relative;
+		margin: 1rem 0 0;
+		color: var(--text);
+		font-size: clamp(0.9rem, 1.7vw, 1rem);
+		font-weight: 400;
+		max-width: 70ch;
+		line-height: 1.6;
+		text-shadow: 0 0 4px #000, 0 2px 12px #000, 0 0 50px #000;
 	}
 
-	.cta-row {
-		display: flex;
-		gap: 1rem;
-		margin-top: 2.5rem;
-		flex-wrap: wrap;
+	.header__teaser {
+		position: relative;
+		margin: 1.5rem 0 0;
+		font-size: clamp(1rem, 2vw, 1.15rem);
+		letter-spacing: 0.02em;
+		text-shadow: 0 0 4px #000, 0 2px 12px #000, 0 0 50px #000;
 	}
 
-	.btn {
-		font-family: var(--font-mono);
-		font-size: 0.875rem;
-		padding: 0.6rem 1.4rem;
-		border-radius: 4px;
+	.header__meta {
+		position: relative;
+		margin: 1.25rem 0 0;
+		font-size: clamp(0.95rem, 1.8vw, 1.1rem);
+		text-shadow: 0 0 4px #000, 0 2px 12px #000, 0 0 50px #000;
+	}
+
+	.link {
+		color: rgba(54, 242, 194, 0.94);
 		text-decoration: none;
-		letter-spacing: 0.04em;
-		transition:
-			background 0.15s,
-			color 0.15s,
-			border-color 0.15s;
+		border-bottom: 1px solid rgba(54, 242, 194, 0.3);
+		transition: border-color 0.14s ease, color 0.14s ease;
+		font-family: var(--font-mono);
 	}
 
-	.btn-primary {
-		background: var(--accent);
-		color: var(--bg);
-		border: 1px solid var(--accent);
-	}
-
-	.btn-primary:hover {
-		background: var(--accent-bright);
-		border-color: var(--accent-bright);
-	}
-
-	.btn-ghost {
-		background: transparent;
-		color: var(--text-muted);
-		border: 1px solid var(--border);
-	}
-
-	.btn-ghost:hover {
+	.link:hover {
 		color: var(--accent);
-		border-color: var(--accent);
+		border-color: rgba(54, 242, 194, 0.55);
 	}
+
+
+.link__mono {
+color: var(--text);
+}
 </style>

@@ -6,3 +6,4 @@ export { default as ProjectList } from './ProjectList.svelte';
 export { default as Skills } from './Skills.svelte';
 export { default as Contact } from './Contact.svelte';
 export { default as Footer } from './Footer.svelte';
+export { default as EegBackground } from './EegBackground.svelte';
