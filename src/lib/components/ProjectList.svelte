@@ -17,7 +17,7 @@
 	.section {
 		position: relative;
 		z-index: 1;
-		margin-top: -30px;
+		margin-top: -10px;
 		padding-top: clamp(1rem, 2vw, 1.5rem);
 		scroll-margin-top: clamp(4.25rem, 9vw, 5.75rem);
 	}
