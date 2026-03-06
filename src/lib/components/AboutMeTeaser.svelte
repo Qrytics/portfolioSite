@@ -1,4 +1,4 @@
-<section aria-label="About me" class="section">
+<section id="about-me" aria-label="About me" class="section">
 	<div class="shell">
 		<div class="termbar">
 			<h2 class="termbar__title">about me</h2>
@@ -9,7 +9,7 @@
 				<div class="card__inner">
 					<h3 class="title">photos</h3>
 					<p class="excerpt">
-						A quick look at life outside the keyboard — friends, family, and the moments that matter.
+						Here's a look into my life outside the keyboard. Friends, family, and the moments that matter.
 					</p>
 					<div class="cta">open gallery →</div>
 				</div>
