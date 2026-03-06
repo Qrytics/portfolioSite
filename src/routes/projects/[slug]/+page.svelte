@@ -45,7 +45,7 @@ const project = $derived(data.project);
 <!-- Content -->
 <div class="content">
 <div class="meta-row">
-<span class="year">{project.year}</span>
+<span class="year">{project.startMonth} {project.startYear} — {project.endMonth} {project.endYear}</span>
 <div class="tech-badges">
 {#each project.tags as tag}
 <span class="tech-badge" data-tech={tag.toLowerCase()}>{tag}</span>
@@ -60,22 +60,56 @@ const project = $derived(data.project);
 <div class="long-desc">{project.longDescription}</div>
 {/if}
 
-{#if project.note}
-<p class="note">{project.note}</p>
-{/if}
-
 <div class="links">
 {#if project.github}
 <a href={project.github} target="_blank" rel="noopener noreferrer" class="btn btn--primary">
+{#if project.github && (new URL(project.github).hostname === 'github.com' || new URL(project.github).hostname.endsWith('.github.com'))}
+GitHub Repo ↗
+{:else}
 source ↗
+{/if}
 </a>
 {/if}
 {#if project.demo}
+{#if /(\.mp4|\.webm|\.ogg)(\?|#|$)/i.test(project.demo) || /youtu\.be|youtube\.com/i.test(project.demo)}
+	<!-- video is embedded below -->
+{:else}
 <a href={project.demo} target="_blank" rel="noopener noreferrer" class="btn btn--ghost">
 live demo ↗
 </a>
 {/if}
+
+{#if project.note}
+<div class="resources">
+<p class="resources__title">Additional resources</p>
+<p class="note">
+	{@html project.note.replace(/(https?:\/\/[^\s]+)/g, '<a href="$1" target="_blank" rel="noopener noreferrer">$1</a>')}
+</p>
 </div>
+{/if}
+{/if}
+</div>
+
+{#if project.demo}
+	{#if /youtu\.be|youtube\.com/i.test(project.demo)}
+		<div class="video">
+			<iframe
+				class="video__frame"
+				title="{project.title} video"
+				src={`https://www.youtube-nocookie.com/embed/${project.demo.includes('youtu.be/') ? project.demo.split('youtu.be/')[1].split(/[?&#]/)[0] : new URL(project.demo).searchParams.get('v') ?? ''}`}
+				loading="lazy"
+				referrerpolicy="strict-origin-when-cross-origin"
+				allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+				allowfullscreen
+			></iframe>
+		</div>
+	{:else if /(\.mp4|\.webm|\.ogg)(\?|#|$)/i.test(project.demo)}
+		<div class="video">
+			<!-- svelte-ignore a11y_media_has_caption -->
+			<video class="video__native" controls preload="metadata" src={project.demo}></video>
+		</div>
+	{/if}
+{/if}
 </div>
 </div>
 
@@ -215,6 +249,42 @@ flex-wrap: wrap;
 font-family: var(--font-mono);
 font-size: 0.8rem;
 color: var(--muter);
+}
+
+.video {
+margin-top: 0.25rem;
+border-top: 1px solid var(--border-2);
+padding-top: 1rem;
+}
+
+.video__frame {
+display: block;
+width: 100%;
+aspect-ratio: 16 / 9;
+border: 1px solid var(--border-2);
+background: rgba(0, 0, 0, 0.25);
+}
+
+.video__native {
+display: block;
+width: 100%;
+border: 1px solid var(--border-2);
+background: rgba(0, 0, 0, 0.25);
+}
+
+.resources {
+margin-top: 1rem;
+border-top: 1px solid var(--border-2);
+padding-top: 0.75rem;
+}
+
+.resources__title {
+margin: 0 0 0.35rem;
+font-family: var(--font-mono);
+font-size: 0.8rem;
+letter-spacing: 0.08em;
+text-transform: uppercase;
+color: rgba(243, 246, 255, 0.7);
 }
 
 .tech-badges {

@@ -1,24 +1,30 @@
 <script lang="ts">
 	import { profile } from '$lib/data/profile';
-	import EegBackground from './EegBackground.svelte';
+	import WaveCheckeredBackground from './WaveCheckeredBackground.svelte';
 </script>
 
 <header class="header">
-	<div class="eeg-background" aria-hidden="true">
-		<EegBackground />
+	<div class="hero-background" aria-hidden="true">
+		<WaveCheckeredBackground />
 	</div>
 
 	<div class="header__content">
 		<h1 class="header__tagline">{profile.tagline}</h1>
 		<p class="header__description">{profile.description}</p>
-		<p class="header__teaser">
-			<a href="/#projects" class="link">View projects ↓</a>
-		</p>
-		<p class="header__meta">
+		{#if profile.heroCta}
+			<p class="header__cta">{profile.heroCta}</p>
+		{/if}
+		<div class="header__meta">
 			<a href={profile.github} target="_blank" rel="noopener noreferrer" class="link link__mono">
 				{profile.github.replace('https://', '')}
 			</a>
-		</p>
+			<span class="meta-sep">·</span>
+			<a href={`mailto:${profile.email}`} class="link link__mono">{profile.email}</a>
+			<span class="meta-sep">·</span>
+			<a href={profile.linkedin} target="_blank" rel="noopener noreferrer" class="link link__mono">
+				{profile.linkedin.replace('https://', '')}
+			</a>
+		</div>
 	</div>
 </header>
 
@@ -31,7 +37,7 @@
 		min-height: 280px;
 	}
 
-	.eeg-background {
+	.hero-background {
 		position: absolute;
 		top: 0;
 		left: 0;
@@ -109,11 +115,14 @@
 		text-shadow: 0 0 4px #000, 0 2px 12px #000, 0 0 50px #000;
 	}
 
-	.header__teaser {
+	.header__cta {
 		position: relative;
-		margin: 1.5rem 0 0;
-		font-size: clamp(1rem, 2vw, 1.15rem);
-		letter-spacing: 0.02em;
+		margin: 0.65rem 0 0;
+		color: rgba(243, 246, 255, 0.82);
+		font-size: clamp(0.9rem, 1.7vw, 1rem);
+		font-weight: 400;
+		max-width: 70ch;
+		line-height: 1.6;
 		text-shadow: 0 0 4px #000, 0 2px 12px #000, 0 0 50px #000;
 	}
 
@@ -122,6 +131,11 @@
 		margin: 1.25rem 0 0;
 		font-size: clamp(0.95rem, 1.8vw, 1.1rem);
 		text-shadow: 0 0 4px #000, 0 2px 12px #000, 0 0 50px #000;
+		display: flex;
+		flex-wrap: wrap;
+		align-items: center;
+		justify-content: center;
+		gap: 0.75rem;
 	}
 
 	.link {
@@ -137,8 +151,12 @@
 		border-color: rgba(54, 242, 194, 0.55);
 	}
 
+	.meta-sep {
+		color: rgba(243, 246, 255, 0.45);
+		font-family: var(--font-mono);
+	}
 
-.link__mono {
-color: var(--text);
-}
+	.link__mono {
+		color: var(--text);
+	}
 </style>

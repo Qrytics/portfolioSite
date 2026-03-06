@@ -24,7 +24,7 @@
 				<div class="link-row">
 					<span class="link-key">email</span>
 					<button class="email-btn link" onclick={copyEmail}>
-						{profile.email} (click to copy)
+						{profile.email} (copy to clipboard)
 					</button>
 				</div>
 				<div class="link-row">

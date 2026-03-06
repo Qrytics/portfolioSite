@@ -3,6 +3,7 @@ export interface Profile {
 	handle: string;
 	tagline: string;
 	description: string;
+	heroCta?: string;
 	bio: string;
 	location: string;
 	email: string;
@@ -18,32 +19,49 @@ export interface SkillGroup {
 }
 
 export const profile: Profile = {
-	name: 'Your Name',
-	handle: 'yourhandle',
-	tagline: 'Software Engineer',
-	description: 'Building high-performance systems and modern web experiences.',
-	bio: "I build things for the web and beyond. Passionate about systems programming, open-source software, and finding elegant solutions to hard problems. This is a placeholder bio — replace it with your own story.",
-	location: 'Your City, Country',
-	email: 'you@example.com',
-	github: 'https://github.com/yourhandle',
-	linkedin: 'https://linkedin.com/in/yourhandle',
+	name: 'Mario A. Belmonte',
+	handle: 'mario-belmonte',
+	tagline: 'Electrical & Computer Engineer | Full-Stack Developer',
+	description:
+		"I'm an electrical engineering student at Carnegie Mellon studying software engineering and full-stack web development in my own time. Learning about tech is a pastime of mine that I value to stay relevant with this estranged AI environment.",
+	heroCta: "Interested in hardware-software stacks or general system design? Let's\u00A0talk.",
+	bio: "I'm a senior at Carnegie Mellon studying Electrical and Computer Engineering (May 2026). I build full-stack apps, IoT systems, and ML pipelines—from ESP32 firmware and FastAPI backends to React dashboards and Dockerized deployments. I've shipped a fintech budget planner with Plaid and XRPL at TartanHacks, an AI content-authentication system with steganography and PKI, and automation tools for Docker and smart-home rules engines. I also have hands-on experience in AV integration and security systems from internships at Smarter Integrations and Soluciones Entelequia. Fluent in Spanish.",
+	location: 'Pittsburgh, PA',
+	email: 'mario4.belmonte@gmail.com',
+	github: 'https://github.com/Qrytics',
+	linkedin: 'https://www.linkedin.com/in/mario-belmonte/',
 	skills: [
 		{
 			category: 'Languages',
-			items: ['TypeScript', 'Python', 'Rust', 'Go', 'C++']
+			items: ['TypeScript', 'JavaScript', 'C', 'C++', 'Python', 'SystemVerilog', 'Assembly', 'HTML/CSS', 'SQL']
 		},
 		{
-			category: 'Frontend',
-			items: ['Svelte', 'React', 'CSS', 'HTML', 'WebGL']
+			category: 'Frontend & APIs',
+			items: ['React', 'Next.js', 'REST APIs', 'd3']
 		},
 		{
-			category: 'Backend',
-			items: ['Node.js', 'PostgreSQL', 'Redis', 'Docker', 'Kubernetes']
+			category: 'Backend & DevOps',
+			items: ['FastAPI', 'Docker', 'GitHub Actions', 'AWS', 'SQLite', 'PostgreSQL', 'Supabase']
+		},
+		{
+			category: 'Testing & QA',
+			items: ['Pytest', 'Jest', 'Vitest', 'Playwright']
+		},
+		{
+			category: 'Hardware & EDA',
+			items: ['Quartus', 'Cadence Virtuoso']
+		},
+		{
+			category: 'ML & Security',
+			items: ['PyTorch', 'ONNX Runtime', 'InsightFace', 'OpenCV', 'cryptography (PKI, AES, RSA)']
 		},
 		{
 			category: 'Tools',
-			items: ['Git', 'Linux', 'Neovim', 'GitHub Actions', 'Terraform']
+			items: ['Git', 'Linux', 'LiteLLM', 'MQTT']
+		},
+		{
+			category: 'Languages (spoken)',
+			items: ['Spanish (Fluent)', 'English']
 		}
 	]
 };
-

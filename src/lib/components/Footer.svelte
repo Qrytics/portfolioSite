@@ -13,6 +13,10 @@
 			toastTimer = setTimeout(() => (toastVisible = false), 2500);
 		});
 	}
+
+	function backToTop() {
+		window.scrollTo({ top: 0, behavior: 'smooth' });
+	}
 </script>
 
 <footer class="footer">
@@ -35,6 +39,7 @@
 			</a>
 		{/if}
 	</div>
+	<button class="back-to-top footer-link" type="button" onclick={backToTop}>back to top ↑</button>
 </footer>
 
 {#if toastVisible}
@@ -87,6 +92,22 @@
 		padding: 0;
 		font: inherit;
 		cursor: pointer;
+	}
+
+	.back-to-top {
+		position: absolute;
+		right: clamp(1.25rem, 4vw, 3rem);
+		top: 50%;
+		transform: translateY(-50%);
+		background: none;
+		border: none;
+		padding: 0;
+		cursor: pointer;
+	}
+
+	.back-to-top:focus-visible {
+		outline: 2px solid rgba(54, 242, 194, 0.6);
+		outline-offset: 4px;
 	}
 
 	.toast {
