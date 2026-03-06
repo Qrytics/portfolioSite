@@ -24,7 +24,8 @@
 
 	const navLinks: Array<{ href: string; label: string; external?: boolean }> = [
 		{ href: '/#projects', label: 'projects' },
-		{ href: '/#about-me', label: 'about me' }
+		{ href: '/#about-me', label: 'about me' },
+		{ href: '/resume', label: 'resume' }
 	];
 </script>
 
