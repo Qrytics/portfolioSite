@@ -1,0 +1,8 @@
+export { default as Nav } from './Nav.svelte';
+export { default as Hero } from './Hero.svelte';
+export { default as Bio } from './Bio.svelte';
+export { default as ProjectCard } from './ProjectCard.svelte';
+export { default as ProjectList } from './ProjectList.svelte';
+export { default as Skills } from './Skills.svelte';
+export { default as Contact } from './Contact.svelte';
+export { default as Footer } from './Footer.svelte';
