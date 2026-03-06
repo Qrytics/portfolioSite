@@ -9,23 +9,45 @@
 		'community / ecosystem': 'community / ecosystem',
 		'multi-site': 'multi-site'
 	};
+
+	function getYouTubeId(url: string): string | null {
+		try {
+			const u = new URL(url);
+			if (u.hostname === 'youtu.be') return u.pathname.replace('/', '') || null;
+			if (u.hostname.endsWith('youtube.com')) {
+				if (u.pathname.startsWith('/embed/')) return u.pathname.replace('/embed/', '') || null;
+				const v = u.searchParams.get('v');
+				return v || null;
+			}
+			return null;
+		} catch {
+			return null;
+		}
+	}
+
+	function isVideoDemo(url: string): boolean {
+		if (getYouTubeId(url)) return true;
+		return /\.(mp4|webm|ogg)(\?|#|$)/i.test(url);
+	}
+
+	function isGitHubRepo(url: string | undefined): boolean {
+		if (!url) return false;
+		try {
+			const u = new URL(url);
+			return u.hostname === 'github.com' || u.hostname.endsWith('.github.com');
+		} catch {
+			return false;
+		}
+	}
 </script>
 
 <article class="card">
 	<!-- Terminal title bar -->
 	<div class="termbar">
 		<h3 class="termbar__title">
-			{#if project.github}
-				<a href={project.github} target="_blank" rel="noopener noreferrer" class="termbar__titleLink">
-					{project.title}
-				</a>
-			{:else if project.demo}
-				<a href={project.demo} target="_blank" rel="noopener noreferrer" class="termbar__titleLink">
-					{project.title}
-				</a>
-			{:else}
-				{project.title}
-			{/if}
+			<a href="/projects/{project.slug}" class="termbar__titleLink">
+				{project.shortTitle ?? project.title}
+			</a>
 		</h3>
 		<span class="badge" data-type={project.type}>{typeLabelMap[project.type]}</span>
 	</div>
@@ -45,6 +67,7 @@
 
 	<!-- Content -->
 	<div class="content">
+		<p class="card__dates">{project.startMonth} {project.startYear} — {project.endMonth} {project.endYear}</p>
 		<p class="card__subtitle">{project.subtitle}</p>
 		<p class="card__desc">{project.description}</p>
 
@@ -54,17 +77,17 @@
 			{/each}
 		</div>
 
-		{#if project.note}
-			<p class="card__note">{project.note}</p>
-		{/if}
-
 		<div class="links">
 			{#if project.github}
 				<a href={project.github} target="_blank" rel="noopener noreferrer" class="btn btn--primary">
-					source ↗
+					{#if isGitHubRepo(project.github)}
+						GitHub Repo ↗
+					{:else}
+						Source ↗
+					{/if}
 				</a>
 			{/if}
-			{#if project.demo}
+			{#if project.demo && !isVideoDemo(project.demo)}
 				<a href={project.demo} target="_blank" rel="noopener noreferrer" class="btn btn--ghost">
 					demo ↗
 				</a>
@@ -82,6 +105,7 @@
 		background: linear-gradient(180deg, rgba(255, 255, 255, 0.03), transparent 52%), var(--panel);
 		box-shadow: 0 10px 26px rgba(0, 0, 0, 0.4);
 		overflow: hidden;
+		min-width: 0;
 		display: grid;
 		grid-template-rows: auto auto 1fr;
 		transition: border-color 0.16s ease, box-shadow 0.16s ease;
@@ -102,6 +126,7 @@
 		padding: 0.75rem 0.9rem;
 		border-bottom: 1px solid var(--border-2);
 		background: rgba(0, 0, 0, 0.22);
+		min-width: 0;
 	}
 
 	.termbar__title {
@@ -113,6 +138,8 @@
 		overflow: hidden;
 		text-overflow: ellipsis;
 		font-weight: 600;
+		min-width: 0;
+		flex: 1 1 auto;
 	}
 
 	.termbar__titleLink {
@@ -193,6 +220,7 @@
 		letter-spacing: 0.02em;
 		text-align: center;
 		padding: 0 0.75rem;
+		overflow-wrap: anywhere;
 	}
 
 	/* Content */
@@ -201,6 +229,7 @@
 		display: grid;
 		gap: 0.75rem;
 		align-content: start;
+		min-width: 0;
 	}
 
 	.card__subtitle {
@@ -208,6 +237,15 @@
 		color: var(--muted);
 		font-size: 0.92rem;
 		line-height: 1.45;
+		overflow-wrap: anywhere;
+	}
+
+	.card__dates {
+		margin: 0;
+		font-family: var(--font-mono);
+		font-size: 0.78rem;
+		color: rgba(243, 246, 255, 0.6);
+		letter-spacing: 0.02em;
 	}
 
 	.card__desc {
@@ -215,6 +253,7 @@
 		color: rgba(243, 246, 255, 0.78);
 		line-height: 1.6;
 		font-size: 0.97rem;
+		overflow-wrap: anywhere;
 	}
 
 	/* Tech badges */
@@ -255,15 +294,6 @@
 	.tech-badge[data-tech='react'] { border-color: rgba(97, 218, 251, 0.35); color: rgba(97, 218, 251, 0.95); background: rgba(97, 218, 251, 0.08); }
 	.tech-badge[data-tech='webrtc'] { border-color: rgba(255, 152, 0, 0.35); color: rgba(255, 172, 50, 0.95); background: rgba(255, 152, 0, 0.08); }
 	.tech-badge[data-tech='pytorch'] { border-color: rgba(238, 76, 44, 0.35); color: rgba(238, 106, 74, 0.95); background: rgba(238, 76, 44, 0.08); }
-
-	/* Card note */
-	.card__note {
-		margin: 0;
-		padding-top: 0.25rem;
-		color: rgba(246, 193, 119, 0.9);
-		font-size: 0.92rem;
-		font-family: var(--font-mono);
-	}
 
 	/* Action links */
 	.links {

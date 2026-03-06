@@ -22,10 +22,10 @@
 		};
 	});
 
-	const navLinks = [
+	const navLinks: Array<{ href: string; label: string; external?: boolean }> = [
 		{ href: '/#projects', label: 'projects' },
-		{ href: '/#about', label: 'about' },
-		{ href: '/#contact', label: 'contact' }
+		{ href: '/blog', label: 'blog' },
+		{ href: profile.github, label: 'github', external: true }
 	];
 </script>
 
@@ -52,7 +52,14 @@
 			<ul>
 				{#each navLinks as link}
 					<li>
-						<a href={link.href} onclick={() => (navOpen = false)}>{link.label}</a>
+						<a
+							href={link.href}
+							target={link.external ? '_blank' : undefined}
+							rel={link.external ? 'noopener noreferrer' : undefined}
+							onclick={() => (navOpen = false)}
+						>
+							{link.label}
+						</a>
 					</li>
 				{/each}
 			</ul>
