@@ -65,6 +65,7 @@ export const projects: Project[] = [
 		title: 'Visual Budget Planner (MosaicLedger)',
 		shortTitle: 'Visual Budget Planner',
 		subtitle: 'TartanHacks fintech app with Plaid, XRPL round-ups, and d3 treemaps',
+		image: '/gifs/mosaic-ledger-demo.gif',
 		description:
 			'Engineered a fintech budget planner in a team of 3 at TartanHacks using a pnpm monorepo (8 packages), Next.js, React, TypeScript, and Supabase auth/PostgreSQL with Vitest fuzz testing and Playwright E2E tests via CI/CD. Built a deterministic analysis pipeline with recurring charge detection (MAD-based confidence scoring), explorable d3-hierarchy treemap with glassmorphic SVG and PNG/SVG export, Plaid Link and Capital One Nessie API for real bank data, and XRPL blockchain round-up micro-savings with Testnet payments.',
 		longDescription: `TartanHacks 2026 project: budget visualization and round-up savings.
