@@ -199,7 +199,7 @@
 		display: block;
 		width: 100%;
 		height: 10rem;
-		object-fit: cover;
+		object-fit: contain;
 		border: 1px solid var(--border-2);
 		background: rgba(255, 255, 255, 0.03);
 	}
