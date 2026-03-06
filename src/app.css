@@ -1,0 +1,147 @@
+/* ============================================================
+   CSS Custom Properties — thavlik.dev-inspired Design System
+   ============================================================ */
+:root {
+	/* Background layers */
+	--bg: #0b0e12;
+	--panel: #0f141b;
+	--panel-2: #0c1016;
+
+	/* Borders */
+	--border: rgba(222, 232, 255, 0.14);
+	--border-2: rgba(222, 232, 255, 0.09);
+
+	/* Text scale */
+	--text: rgba(243, 246, 255, 0.92);
+	--muted: rgba(243, 246, 255, 0.68);
+	--muter: rgba(243, 246, 255, 0.52);
+
+	/* Accent colors — change --accent to your brand color */
+	--accent: #36f2c2;
+	--accent-2: #f6c177;
+	--hot: #ff5b57;
+	--warm: #febc2e;
+	--cool: #28c840;
+
+	/* Depth */
+	--shadow: 0 14px 40px rgba(0, 0, 0, 0.55);
+
+	/* Typography — all monospace like thavlik.dev */
+	--font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace;
+}
+
+/* ============================================================
+   Reset & Base
+   ============================================================ */
+*,
+*::before,
+*::after {
+	box-sizing: border-box;
+	margin: 0;
+	padding: 0;
+	border-radius: 0; /* sharp corners everywhere */
+}
+
+html {
+	background: var(--bg);
+	scroll-behavior: smooth;
+	scroll-padding-top: 5rem;
+	scrollbar-gutter: stable;
+}
+
+body {
+	background: linear-gradient(
+			180deg,
+			rgba(54, 242, 194, 0.08),
+			transparent 36%
+		),
+		linear-gradient(0deg, rgba(246, 193, 119, 0.06), transparent 30%),
+		var(--bg);
+	color: var(--text);
+	font-family: var(--font-mono);
+	font-size: 16px;
+	line-height: 1.6;
+	min-height: 100svh;
+	-webkit-font-smoothing: antialiased;
+	-moz-osx-font-smoothing: grayscale;
+}
+
+/* CSS grid overlay */
+body::before {
+	content: '';
+	position: fixed;
+	inset: 0;
+	pointer-events: none;
+	z-index: 0;
+	background-image:
+		linear-gradient(rgba(255, 255, 255, 0.035) 1px, transparent 1px),
+		linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+	background-size: 56px 56px;
+	opacity: 0.35;
+	-webkit-mask-image: radial-gradient(closest-side, rgba(0, 0, 0, 0.75), transparent 70%);
+	mask-image: radial-gradient(closest-side, rgba(0, 0, 0, 0.75), transparent 70%);
+}
+
+/* ============================================================
+   Selection
+   ============================================================ */
+::selection {
+	background: var(--accent);
+	color: var(--bg);
+}
+
+/* ============================================================
+   Scrollbar (Webkit)
+   ============================================================ */
+::-webkit-scrollbar {
+	width: 6px;
+}
+
+::-webkit-scrollbar-track {
+	background: var(--bg);
+}
+
+::-webkit-scrollbar-thumb {
+	background: rgba(222, 232, 255, 0.15);
+}
+
+::-webkit-scrollbar-thumb:hover {
+	background: rgba(222, 232, 255, 0.3);
+}
+
+/* ============================================================
+   Typography
+   ============================================================ */
+h1, h2, h3, h4, h5, h6 {
+	font-family: var(--font-mono);
+	color: var(--text);
+	line-height: 1.2;
+}
+
+a {
+	color: var(--accent);
+	font-family: var(--font-mono);
+}
+
+code, pre {
+	font-family: var(--font-mono);
+}
+
+/* ============================================================
+   Focus styles (accessibility)
+   ============================================================ */
+:focus-visible {
+	outline: 2px solid rgba(54, 242, 194, 0.55);
+	outline-offset: 3px;
+}
+
+/* ============================================================
+   Reduced motion
+   ============================================================ */
+@media (prefers-reduced-motion: reduce) {
+	* {
+		animation-duration: 0.01ms !important;
+		transition-duration: 0.01ms !important;
+	}
+}
+
