@@ -53,7 +53,7 @@ export const projects: Project[] = [
 		subtitle: 'Full-stack IoT system with ESP32, FastAPI, React, and real-time MQTT',
 		image: '/gifs/smart-home-iot-demo.gif',
 		description:
-			'Architected a full-stack IoT system with ESP32 firmware in C/C++, FastAPI backend with JWT auth and SQLite, and a React dashboard deployed via Docker Compose with GitHub Actions CI/CD and automated Pytest + Jest test suites. Implemented a rules engine with configurable threshold triggers and MQTT pub/sub for real-time sensor data (temperature, occupancy, light, door lock) with sub-second actuation latency.',
+			'Architected a full-stack IoT system for a smart home model meant to give full lighting, temperature, and security control through a React dashboard; built with ESP32 firmware in C/C++. Implemented a rules engine with configurable threshold triggers and MQTT pub/sub for real-time sensor data (temperature, occupancy, light, door lock) with sub-second actuation latency.',
 		longDescription: `Full-stack smart home platform spanning embedded firmware to web UI.
 
 • Firmware: ESP32 in C/C++ for sensors (temperature, occupancy, light, door lock) and actuators, with MQTT pub/sub for real-time data.
@@ -78,7 +78,7 @@ export const projects: Project[] = [
 		subtitle: 'TartanHacks fintech app with Plaid, XRPL round-ups, and d3 treemaps',
 		image: '/gifs/mosaic-ledger-demo.gif',
 		description:
-			'Engineered a fintech budget planner in a team of 3 at TartanHacks using a pnpm monorepo (8 packages), Next.js, React, TypeScript, and Supabase auth/PostgreSQL with Vitest fuzz testing and Playwright E2E tests via CI/CD. Built a deterministic analysis pipeline with recurring charge detection (MAD-based confidence scoring), explorable d3-hierarchy treemap with glassmorphic SVG and PNG/SVG export, Plaid Link and Capital One Nessie API for real bank data, and XRPL blockchain round-up micro-savings with Testnet payments.',
+			'Engineered a fintech budget planner in a team of 3 at TartanHacks using with Vitest fuzz testing and Playwright E2E tests via CI/CD. Built a deterministic analysis pipeline with recurring charge detection, explorable d3-hierarchy treemap with PNG/SVG export, Plaid Link and Capital One Nessie API for real bank data, and XRPL round-up micro-savings with Testnet payments.',
 		longDescription: `TartanHacks 2026 project: budget visualization and round-up savings.
 
 • Stack: pnpm monorepo (8 packages), Next.js, React, TypeScript, Supabase auth/PostgreSQL; Vitest fuzz testing and Playwright E2E in CI/CD.
@@ -126,13 +126,13 @@ export const projects: Project[] = [
 		slug: 'deep-live-cam',
 		title: 'Deep-Live-Cam: AI Content Authentication System',
 		shortTitle: 'Deep-Live-Cam Auth Sys',
-		subtitle: 'Dual-layer security with LSB watermarking, RSA-2048, and steganography',
+		subtitle: 'AI video/img LSB watermarking security layer using RSA-2048 and stenography',
 		image: '/gifs/deep-live-cam-demo.gif',
 		description:
-			'Built a dual-layer security system for a deepfake application using invisible LSB watermarking, RSA-2048 digital signatures, and a steganography module to embed cryptographic metadata into image pixels surviving JPEG compression. Developed PKI infrastructure with automated key generation, AES-256 encrypted private keys, and signature verification tools (ONNX Runtime, InsightFace, OpenCV, PyTorch); containerized the ML pipeline with Docker.',
+			'Built a dual-layer security system for a deepfake application using invisible LSB watermarking, RSA-2048 digital signatures, and a stenography module to embed cryptographic metadata into image pixels surviving JPEG compression. Developed PKI infrastructure with automated key generation, AES-256 encrypted private keys, and signature verification tools; containerized the ML pipeline with Docker for cross-platform use.',
 		longDescription: `Content authentication for deepfake detection via watermarking and PKI.
 
-• Watermarking: Invisible LSB embedding and steganography module so metadata survives JPEG compression.
+• Watermarking: Invisible LSB embedding and stenography module so metadata survives JPEG compression.
 • PKI: RSA-2048 digital signatures; automated key generation; AES-256 encrypted private keys; verification tools using Python's cryptography library.
 • ML: ONNX Runtime, InsightFace, OpenCV, PyTorch; pipeline containerized with Docker for cross-platform use.`,
 		type: 'closed-source',
@@ -192,11 +192,11 @@ export const projects: Project[] = [
 		slug: 'child-companion-robot-build18',
 		title: 'Child Companion Robot (CMU Build18)',
 		shortTitle: 'Child Companion Robot',
-		subtitle: 'Webcam + voice triggers, OCR pipeline, and text-to-speech',
+		subtitle: 'Webcam + voice triggers mannequin robot, OCR pipeline, and text-to-speech',
 		image: '/gifs/companion-robot-pic-demo.png',
 		mediaScale: 0.75,
 		description:
-			'Designed and built a mannequin-style robot that used a webcam and voice-command triggers to capture images, convert them to text via an API-based OCR pipeline, and generate human-like speech from the extracted text.',
+			'Designed a mannequin "robot" that used a webcam and voice-command triggers to capture images of books, convert them to text via an API-based OCR pipeline, and generate human-like speech from the extracted text.',
 		type: 'closed-source',
 		tags: ['Python', 'OCR', 'Speech Synthesis', 'OpenCV', 'API'],
 		demo: 'https://www.youtube.com/watch?v=-XVi3JBbilk',
