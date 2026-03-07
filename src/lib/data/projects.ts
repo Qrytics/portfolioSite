@@ -27,6 +27,8 @@ export interface Project {
 	github?: string;
 	demo?: string;
 	image?: string;
+	/** Multiple images shown side-by-side in one media slot (e.g. two DAC pics). */
+	images?: string[];
 	/** Preset for media aspect ratio: default (383×144), schematic (383×177), auto (383×189 taller). */
 	mediaAspect?: 'default' | 'schematic' | 'auto';
 	status: ProjectStatus;
@@ -43,6 +45,7 @@ export const projects: Project[] = [
 		slug: 'smart-home-iot-dashboard',
 		title: 'Smart Home IoT Dashboard',
 		subtitle: 'Full-stack IoT system with ESP32, FastAPI, React, and real-time MQTT',
+		image: '/gifs/smart-home-iot-demo.gif',
 		description:
 			'Architected a full-stack IoT system with ESP32 firmware in C/C++, FastAPI backend with JWT auth and SQLite, and a React dashboard deployed via Docker Compose with GitHub Actions CI/CD and automated Pytest + Jest test suites. Implemented a rules engine with configurable threshold triggers and MQTT pub/sub for real-time sensor data (temperature, occupancy, light, door lock) with sub-second actuation latency.',
 		longDescription: `Full-stack smart home platform spanning embedded firmware to web UI.
@@ -196,6 +199,7 @@ export const projects: Project[] = [
 		slug: 'mixed-signal-dac-system',
 		title: 'Mixed Signal DAC System',
 		subtitle: 'Full-custom 8-bit R-2R DAC with layout-level optimization',
+		images: ['/gifs/mixed-signal-dac-pic.png', '/gifs/mixed-signal-dac-pic2.png'],
 		description:
 			'Full custom design of an 8-bit R-2R Digital-to-Analog Converter (DAC) with control over gate placement, routing, and layout-level optimization; designed and sized an Operational Transconductance Amplifier (OTA).',
 		type: 'closed-source',
@@ -226,6 +230,7 @@ export const projects: Project[] = [
 		slug: 'dont-find-me-pytinker',
 		title: '"Don\'t Find Me" (PyTinker Game)',
 		subtitle: 'Minimalist evasion game built with Python + Tkinter',
+		image: '/gifs/pytinker-game-demo.gif',
 		description:
 			'Solo-built a minimalist evasion game in Python with Tkinter, implementing the main loop, keyboard controls, on-canvas rendering, collision checks, and clean state transitions.',
 		type: 'open-source',

@@ -1,5 +1,6 @@
 <script lang="ts">
 import type { PageData } from './$types';
+import MediaSection from '$lib/components/MediaSection.svelte';
 
 let { data }: { data: PageData } = $props();
 const project = $derived(data.project);
@@ -29,18 +30,8 @@ const project = $derived(data.project);
 </span>
 </div>
 
-<!-- Media placeholder -->
-{#if project.image}
-<div class="media">
-<img class="media__img" src={project.image} alt="{project.title} preview" />
-</div>
-{:else}
-<div class="media">
-<div class="media__placeholder">
-<span class="media__placeholderText">{project.subtitle}</span>
-</div>
-</div>
-{/if}
+<!-- Media -->
+<MediaSection {project} />
 
 <!-- Content -->
 <div class="content">
@@ -199,38 +190,6 @@ flex-shrink: 0;
 
 .badge[data-type='open-source'] { border-color: rgba(54,242,194,.25); color: rgba(54,242,194,.92); background: rgba(54,242,194,.05); }
 .badge[data-type='closed-source'] { border-color: rgba(246,193,119,.22); color: rgba(246,193,119,.92); background: rgba(246,193,119,.05); }
-
-.media {
-padding: 0.9rem;
-border-bottom: 1px solid var(--border-2);
-background: rgba(0, 0, 0, 0.12);
-}
-
-.media__img {
-display: block;
-width: 100%;
-max-height: 20rem;
-object-fit: cover;
-border: 1px solid var(--border-2);
-}
-
-.media__placeholder {
-display: grid;
-place-items: center;
-width: 100%;
-height: 10rem;
-border: 1px dashed rgba(243, 246, 255, 0.18);
-background: linear-gradient(180deg, rgba(54, 242, 194, 0.06), transparent 70%), rgba(255, 255, 255, 0.03);
-color: rgba(243, 246, 255, 0.7);
-}
-
-.media__placeholderText {
-font-size: 0.9rem;
-letter-spacing: 0.02em;
-text-align: center;
-padding: 0 0.75rem;
-font-family: var(--font-mono);
-}
 
 .content {
 padding: 1.25rem;
