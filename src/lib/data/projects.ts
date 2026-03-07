@@ -27,6 +27,8 @@ export interface Project {
 	github?: string;
 	demo?: string;
 	image?: string;
+	/** Preset for media aspect ratio: default (383×144), schematic (383×177), auto (383×189 taller). */
+	mediaAspect?: 'default' | 'schematic' | 'auto';
 	status: ProjectStatus;
 	startMonth: Month;
 	startYear: number;
