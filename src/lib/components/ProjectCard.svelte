@@ -67,7 +67,21 @@
 	</div>
 
 	<!-- Media: per-project aspect ratio (default, schematic, auto), cover fill -->
-	{#if project.image}
+	{#if project.images?.length}
+		<div class="media" aria-label="Project media">
+			<div
+				class="media__frame media__frame--multi {project.mediaAspect === 'schematic' ? 'media__frame--schematic' : project.mediaAspect === 'auto' ? 'media__frame--auto' : ''}"
+			>
+				{#each project.images as src}
+					<img
+						class="media__img media__img--multi"
+						src={src}
+						alt="{project.title} preview"
+					/>
+				{/each}
+			</div>
+		</div>
+	{:else if project.image}
 		<div class="media" aria-label="Project media">
 			<div
 				class="media__frame {project.mediaAspect === 'schematic' ? 'media__frame--schematic' : project.mediaAspect === 'auto' ? 'media__frame--auto' : ''}"
@@ -234,6 +248,17 @@
 
 	.media__frame--auto {
 		aspect-ratio: 383 / 189;
+	}
+
+	.media__frame--multi {
+		display: flex;
+		gap: 0.35rem;
+	}
+
+	.media__img--multi {
+		flex: 1;
+		min-width: 0;
+		min-height: 0;
 	}
 
 	.media__img {
