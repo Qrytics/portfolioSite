@@ -257,6 +257,28 @@
 	.tech-badge[data-tech='react'] { border-color: rgba(97, 218, 251, 0.35); color: rgba(97, 218, 251, 0.95); background: rgba(97, 218, 251, 0.08); }
 	.tech-badge[data-tech='webrtc'] { border-color: rgba(255, 152, 0, 0.35); color: rgba(255, 172, 50, 0.95); background: rgba(255, 152, 0, 0.08); }
 	.tech-badge[data-tech='pytorch'] { border-color: rgba(238, 76, 44, 0.35); color: rgba(238, 106, 74, 0.95); background: rgba(238, 76, 44, 0.08); }
+	.tech-badge[data-tech='javascript'] { border-color: rgba(247, 223, 30, 0.4); color: rgba(247, 233, 80, 0.95); background: rgba(247, 223, 30, 0.1); }
+	.tech-badge[data-tech='html'] { border-color: rgba(227, 76, 34, 0.35); color: rgba(255, 120, 80, 0.95); background: rgba(227, 76, 34, 0.08); }
+	.tech-badge[data-tech='chrome extension'] { border-color: rgba(66, 133, 244, 0.35); color: rgba(100, 163, 255, 0.95); background: rgba(66, 133, 244, 0.08); }
+	.tech-badge[data-tech='litellm'] { border-color: rgba(139, 92, 246, 0.35); color: rgba(167, 139, 255, 0.95); background: rgba(139, 92, 246, 0.08); }
+	.tech-badge[data-tech='rich'] { border-color: rgba(0, 191, 165, 0.35); color: rgba(0, 221, 195, 0.95); background: rgba(0, 191, 165, 0.08); }
+	.tech-badge[data-tech='argparse'] { border-color: rgba(76, 127, 169, 0.35); color: rgba(74, 151, 213, 0.95); background: rgba(43, 93, 134, 0.08); }
+	.tech-badge[data-tech='cadence virtuoso'] { border-color: rgba(0, 150, 136, 0.35); color: rgba(0, 180, 166, 0.95); background: rgba(0, 150, 136, 0.08); }
+	.tech-badge[data-tech='ota'] { border-color: rgba(156, 39, 176, 0.35); color: rgba(186, 104, 200, 0.95); background: rgba(156, 39, 176, 0.08); }
+	.tech-badge[data-tech='analog modeling'] { border-color: rgba(255, 152, 0, 0.35); color: rgba(255, 183, 77, 0.95); background: rgba(255, 152, 0, 0.08); }
+	.tech-badge[data-tech='parasitic simulation'] { border-color: rgba(121, 85, 72, 0.35); color: rgba(161, 136, 127, 0.95); background: rgba(121, 85, 72, 0.08); }
+	.tech-badge[data-tech='ocr'] { border-color: rgba(63, 81, 181, 0.35); color: rgba(92, 107, 192, 0.95); background: rgba(63, 81, 181, 0.08); }
+	.tech-badge[data-tech='speech synthesis'] { border-color: rgba(233, 30, 99, 0.35); color: rgba(244, 143, 177, 0.95); background: rgba(233, 30, 99, 0.08); }
+	.tech-badge[data-tech='opencv'] { border-color: rgba(0, 150, 199, 0.35); color: rgba(0, 180, 229, 0.95); background: rgba(0, 150, 199, 0.08); }
+	.tech-badge[data-tech='api'] { border-color: rgba(76, 175, 80, 0.35); color: rgba(129, 199, 132, 0.95); background: rgba(76, 175, 80, 0.08); }
+	.tech-badge[data-tech='fpga'] { border-color: rgba(183, 28, 28, 0.35); color: rgba(229, 115, 115, 0.95); background: rgba(183, 28, 28, 0.08); }
+	.tech-badge[data-tech='vga'] { border-color: rgba(93, 64, 55, 0.35); color: rgba(141, 110, 99, 0.95); background: rgba(93, 64, 55, 0.08); }
+	.tech-badge[data-tech='fsm'] { border-color: rgba(218, 165, 32, 0.35); color: rgba(255, 215, 0, 0.95); background: rgba(218, 165, 32, 0.08); }
+	.tech-badge[data-tech='rsa-2048'] { border-color: rgba(46, 125, 50, 0.35); color: rgba(102, 187, 106, 0.95); background: rgba(46, 125, 50, 0.08); }
+	.tech-badge[data-tech='fastapi'] { border-color: rgba(0, 191, 165, 0.35); color: rgba(38, 222, 196, 0.95); background: rgba(0, 191, 165, 0.08); }
+	.tech-badge[data-tech='mqtt'] { border-color: rgba(255, 121, 0, 0.35); color: rgba(255, 151, 30, 0.95); background: rgba(255, 121, 0, 0.08); }
+	.tech-badge[data-tech='next.js'] { border-color: rgba(0, 0, 0, 0.5); color: rgba(243, 246, 255, 0.95); background: rgba(255, 255, 255, 0.12); }
+	.tech-badge[data-tech='postgresql'] { border-color: rgba(51, 78, 131, 0.35); color: rgba(34, 151, 201, 0.95); background: rgba(60, 74, 184, 0.08); }
 
 	/* Action links */
 	.links {
