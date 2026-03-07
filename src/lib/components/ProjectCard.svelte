@@ -78,6 +78,11 @@
 					{/if}
 				</a>
 			{/if}
+			{#if project.siteUrl}
+				<a href={project.siteUrl} target="_blank" rel="noopener noreferrer" class="btn btn--primary">
+					Visit Site ↗
+				</a>
+			{/if}
 			{#if project.demo && !isVideoDemo(project.demo)}
 				<a href={project.demo} target="_blank" rel="noopener noreferrer" class="btn btn--ghost">
 					demo ↗
@@ -240,7 +245,9 @@
 	.tech-badge[data-tech='svelte'] { border-color: rgba(255, 62, 0, 0.35); color: rgba(255, 98, 50, 0.95); background: rgba(255, 62, 0, 0.08); }
 	.tech-badge[data-tech='kubernetes'], .tech-badge[data-tech='k8s'] { border-color: rgba(50, 108, 229, 0.35); color: rgba(80, 138, 255, 0.95); background: rgba(50, 108, 229, 0.08); }
 	.tech-badge[data-tech='zig'] { border-color: rgba(247, 164, 29, 0.35); color: rgba(247, 184, 69, 0.95); background: rgba(247, 164, 29, 0.08); }
-	.tech-badge[data-tech='c'] { border-color: rgba(85, 85, 255, 0.35); color: rgba(115, 115, 255, 0.95); background: rgba(85, 85, 255, 0.08); }
+	.tech-badge[data-tech='c'],
+	.tech-badge[data-tech='c/c++'] { border-color: rgba(85, 85, 255, 0.35); color: rgba(115, 115, 255, 0.95); background: rgba(85, 85, 255, 0.08); }
+	.tech-badge[data-tech='systemverilog'] { border-color: rgba(218, 165, 32, 0.35); color: rgba(255, 215, 0, 0.95); background: rgba(218, 165, 32, 0.08); }
 	.tech-badge[data-tech='wasm'], .tech-badge[data-tech='webassembly'] { border-color: rgba(101, 79, 240, 0.35); color: rgba(131, 109, 255, 0.95); background: rgba(101, 79, 240, 0.08); }
 	.tech-badge[data-tech='python'] { border-color: rgba(76, 127, 169, 0.35); color: rgba(74, 151, 213, 0.95); background: rgba(43, 93, 134, 0.08); }
 	.tech-badge[data-tech='docker'] { border-color: rgba(0, 123, 255, 0.35); color: rgba(30, 153, 255, 0.95); background: rgba(9, 117, 233, 0.08); }
