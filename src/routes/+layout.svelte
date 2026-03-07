@@ -11,6 +11,12 @@
 	<meta name="description" content="{profile.tagline} — {profile.description}" />
 	<meta property="og:title" content="{profile.name} — Portfolio" />
 	<meta property="og:description" content="{profile.tagline} — {profile.description}" />
+	<meta property="og:url" content="https://mario-belmonte.com/" />
+	<meta property="og:image" content="https://mario-belmonte.com/og.png" />
+	<meta property="og:image:width" content="1200" />
+	<meta property="og:image:height" content="630" />
+	<meta name="twitter:card" content="summary_large_image" />
+	<meta name="twitter:image" content="https://mario-belmonte.com/og.png" />
 	<meta name="theme-color" content="#0b0e12" />
 	<title>{profile.name} — Portfolio</title>
 </svelte:head>
