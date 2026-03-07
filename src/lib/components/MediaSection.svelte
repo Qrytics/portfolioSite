@@ -16,18 +16,27 @@
 			imageAspect = img.naturalWidth / img.naturalHeight;
 		}
 	}
+
+	function frameStyle(aspectRatio?: string) {
+		const parts: string[] = [];
+		if (aspectRatio) parts.push(`aspect-ratio: ${aspectRatio}`);
+		if (project.mediaScale != null) parts.push(`width: ${project.mediaScale * 100}%; margin: 0 auto`);
+		return parts.length ? parts.join('; ') : undefined;
+	}
 </script>
 
 {#if project.images?.length}
 	<div class="media" aria-label="Project media">
 		<div
 			class="media__frame media__frame--multi {project.mediaAspect === 'schematic' ? 'media__frame--schematic' : project.mediaAspect === 'auto' ? 'media__frame--auto' : ''}"
+			style={frameStyle()}
 		>
 			{#each project.images as src}
 				<img
 					class="media__img media__img--multi"
 					src={src}
 					alt="{project.title} preview"
+					loading="lazy"
 				/>
 			{/each}
 		</div>
@@ -36,12 +45,13 @@
 	<div class="media" aria-label="Project media">
 		<div
 			class="media__frame {project.mediaAspect === 'schematic' ? 'media__frame--schematic' : project.mediaAspect === 'auto' ? 'media__frame--auto' : ''}"
-			style={imageAspect != null ? `aspect-ratio: ${imageAspect}` : undefined}
+			style={frameStyle(imageAspect != null ? String(imageAspect) : undefined)}
 		>
 			<img
 				class="media__img"
 				src={project.image}
 				alt="{project.title} preview"
+				loading="lazy"
 				onload={onMediaImageLoad}
 			/>
 		</div>
@@ -50,6 +60,7 @@
 	<div class="media" aria-label="Project media">
 		<div
 			class="media__frame {project.mediaAspect === 'schematic' ? 'media__frame--schematic' : project.mediaAspect === 'auto' ? 'media__frame--auto' : ''}"
+			style={frameStyle()}
 		>
 			<div class="media__placeholder">
 				<span class="media__placeholderText">{project.subtitle}</span>

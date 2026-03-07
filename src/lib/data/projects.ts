@@ -26,11 +26,15 @@ export interface Project {
 	tags: string[];
 	github?: string;
 	demo?: string;
+	/** Live / deployed app URL; shows "Visit Site" button when set. */
+	siteUrl?: string;
 	image?: string;
 	/** Multiple images shown side-by-side in one media slot (e.g. two DAC pics). */
 	images?: string[];
 	/** Preset for media aspect ratio: default (383×144), schematic (383×177), auto (383×189 taller). */
 	mediaAspect?: 'default' | 'schematic' | 'auto';
+	/** Scale media frame (0–1) for smaller, padded layout; e.g. 0.75 = 3/4, 0.6 = 6/10. */
+	mediaScale?: number;
 	status: ProjectStatus;
 	startMonth: Month;
 	startYear: number;
@@ -38,6 +42,8 @@ export interface Project {
 	endYear: number;
 	year: number;
 	note?: string;
+	/** Google Slides presentation URL (edit or view); shown as embed below demo video. */
+	slides?: string;
 }
 
 export const projects: Project[] = [
@@ -61,7 +67,7 @@ export const projects: Project[] = [
 		status: 'active',
 		startMonth: 'Jan',
 		startYear: 2026,
-		endMonth: 'Dec',
+		endMonth: 'May',
 		endYear: 2026,
 		year: 2026
 	},
@@ -84,10 +90,11 @@ export const projects: Project[] = [
 		tags: ['Next.js', 'React', 'TypeScript', 'Supabase', 'PostgreSQL', 'd3', 'Plaid', 'XRPL', 'Vitest', 'Playwright'],
 		github: 'https://github.com/rilical/MosaicLedger',
 		demo: 'https://www.youtube.com/watch?v=5Ug0nv0nYEA',
+		siteUrl: 'https://mosaic-ledger-web.vercel.app/',
 		status: 'active',
-		startMonth: 'Jan',
+		startMonth: 'Feb',
 		startYear: 2026,
-		endMonth: 'Dec',
+		endMonth: 'Feb',
 		endYear: 2026,
 		year: 2026
 	},
@@ -96,6 +103,7 @@ export const projects: Project[] = [
 		title: 'Automated Docker Configuration Generator',
 		shortTitle: 'Auto Docker Config Gen',
 		subtitle: 'Python CLI for intelligent Dockerfile generation with self-healing builds',
+		image: '/gifs/autodocker-pic-demo.png',
 		description:
 			'Architected a containerization automation CLI in Python using LiteLLM for intelligent Dockerfile generation with a self-healing algorithm that auto-diagnoses and retries Docker API builds based on project-specific context. Logic-driven CLI using Rich and Argparse with real-time build status tracking, automated runtime stability testing, and support for distroless/Alpine multi-stage builds to minimize attack surface.',
 		longDescription: `CLI that generates and validates Dockerfiles using LLM reasoning and self-healing builds.
@@ -110,7 +118,7 @@ export const projects: Project[] = [
 		status: 'active',
 		startMonth: 'Jan',
 		startYear: 2026,
-		endMonth: 'Dec',
+		endMonth: 'Jan',
 		endYear: 2026,
 		year: 2026
 	},
@@ -119,6 +127,7 @@ export const projects: Project[] = [
 		title: 'Deep-Live-Cam: AI Content Authentication System',
 		shortTitle: 'Deep-Live-Cam Auth Sys',
 		subtitle: 'Dual-layer security with LSB watermarking, RSA-2048, and steganography',
+		image: '/gifs/deep-live-cam-demo.gif',
 		description:
 			'Built a dual-layer security system for a deepfake application using invisible LSB watermarking, RSA-2048 digital signatures, and a steganography module to embed cryptographic metadata into image pixels surviving JPEG compression. Developed PKI infrastructure with automated key generation, AES-256 encrypted private keys, and signature verification tools (ONNX Runtime, InsightFace, OpenCV, PyTorch); containerized the ML pipeline with Docker.',
 		longDescription: `Content authentication for deepfake detection via watermarking and PKI.
@@ -129,19 +138,20 @@ export const projects: Project[] = [
 		type: 'closed-source',
 		tags: ['Python', 'PyTorch', 'ONNX', 'InsightFace', 'OpenCV', 'Docker', 'Steganography', 'RSA', 'AES'],
 		status: 'archived',
-		startMonth: 'Jan',
+		startMonth: 'Oct',
 		startYear: 2025,
 		endMonth: 'Dec',
 		endYear: 2025,
 		year: 2025,
 		demo: 'https://www.youtube.com/watch?v=ch_LXkpjnIM',
-		note: 'Presentation slides: https://docs.google.com/presentation/d/1Son_yn0dr5vEIMwTeSbLOCbJg8lxHvQf/edit?usp=sharing'
+		slides: 'https://docs.google.com/presentation/d/1Son_yn0dr5vEIMwTeSbLOCbJg8lxHvQf/edit?usp=sharing'
 	},
 	{
 		slug: 'mono-pix-scout',
 		title: 'monoPix-scout: Tracking Pixel Chrome Extension',
 		shortTitle: 'Tracking Pixel Extension',
 		subtitle: 'Manifest V3 extension to detect, classify, and optionally block covert tracking',
+		image: '/gifs/tracking-pixel-demo.gif',
 		description:
 			'Architected and built a Chrome Manifest V3 extension to detect, classify, and optionally block multiple covert tracking mechanisms (1×1 pixels, navigator.sendBeacon, scripted network calls).',
 		longDescription: `Browser security project focused on identifying and reducing passive tracking.
@@ -154,26 +164,27 @@ export const projects: Project[] = [
 		github: 'https://github.com/Qrytics/monoPix-scout',
 		demo: 'https://www.youtube.com/watch?v=6szwvvma1QQ',
 		status: 'archived',
-		startMonth: 'Jan',
+		startMonth: 'Oct',
 		startYear: 2025,
 		endMonth: 'Dec',
 		endYear: 2025,
 		year: 2025,
-		note: 'Presentation slides: https://docs.google.com/presentation/d/18sVJu53sH0PjY2BkNtnu0TbnXKawLipJ0ArC-TDxM8I/edit?usp=sharing'
+		slides: 'https://docs.google.com/presentation/d/18sVJu53sH0PjY2BkNtnu0TbnXKawLipJ0ArC-TDxM8I/edit?usp=sharing'
 	},
 	{
 		slug: 'to-do-or-destroy',
 		title: 'To-Do or Destroy (HackCMU)',
 		subtitle: 'Gamified productivity web app built in a 24-hour hackathon',
+		image: '/gifs/todo-destroy-demo.gif',
 		description:
 			'Team lead on a 24-hour hackathon project: a gamified productivity web app where tasks are “bomb wires” that must be cut before detonation to reinforce accountability through task verification.',
 		type: 'open-source',
 		tags: ['Hackathon', 'Web App', 'Team Leadership'],
 		github: 'https://github.com/EatPotatoes/hackcmu25-bomb-todo',
 		status: 'archived',
-		startMonth: 'Jan',
+		startMonth: 'Sep',
 		startYear: 2025,
-		endMonth: 'Dec',
+		endMonth: 'Sep',
 		endYear: 2025,
 		year: 2025
 	},
@@ -182,6 +193,8 @@ export const projects: Project[] = [
 		title: 'Child Companion Robot (CMU Build18)',
 		shortTitle: 'Child Companion Robot',
 		subtitle: 'Webcam + voice triggers, OCR pipeline, and text-to-speech',
+		image: '/gifs/companion-robot-pic-demo.png',
+		mediaScale: 0.75,
 		description:
 			'Designed and built a mannequin-style robot that used a webcam and voice-command triggers to capture images, convert them to text via an API-based OCR pipeline, and generate human-like speech from the extracted text.',
 		type: 'closed-source',
@@ -190,7 +203,7 @@ export const projects: Project[] = [
 		status: 'archived',
 		startMonth: 'Jan',
 		startYear: 2025,
-		endMonth: 'Dec',
+		endMonth: 'Feb',
 		endYear: 2025,
 		year: 2025,
 		note: 'Additional demo clips are attached on LinkedIn (Prepped-up Demo / Prepped-up Demo 2).'
@@ -205,7 +218,7 @@ export const projects: Project[] = [
 		type: 'closed-source',
 		tags: ['Analog', 'Mixed-Signal', 'DAC', 'Cadence Virtuoso'],
 		status: 'archived',
-		startMonth: 'Jan',
+		startMonth: 'Nov',
 		startYear: 2024,
 		endMonth: 'Dec',
 		endYear: 2024,
@@ -215,14 +228,16 @@ export const projects: Project[] = [
 		slug: 'fpga-breakout-game',
 		title: 'FPGA Breakout Game',
 		subtitle: 'SystemVerilog game on FPGA with VGA output',
+		image: '/gifs/breakout-example-demo.gif',
+		mediaScale: 0.6,
 		description:
 			'Developed a hardware-accelerated Breakout-style game in SystemVerilog, deployed to an FPGA with VGA output. Designed paddle/ball movement, brick collision detection, and screen refresh logic.',
 		type: 'closed-source',
 		tags: ['SystemVerilog', 'FPGA', 'VGA', 'Digital Design'],
 		status: 'archived',
-		startMonth: 'Jan',
+		startMonth: 'Oct',
 		startYear: 2024,
-		endMonth: 'Dec',
+		endMonth: 'Nov',
 		endYear: 2024,
 		year: 2024
 	},
@@ -238,7 +253,7 @@ export const projects: Project[] = [
 		github: 'https://github.com/Qrytics/15-112-Term-Project',
 		demo: 'https://www.youtube.com/watch?v=I-haGKxNNX0',
 		status: 'archived',
-		startMonth: 'Jan',
+		startMonth: 'Nov',
 		startYear: 2022,
 		endMonth: 'Dec',
 		endYear: 2022,

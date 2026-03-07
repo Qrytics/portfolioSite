@@ -1,6 +1,7 @@
 <script lang="ts">
 import type { PageData } from './$types';
 import MediaSection from '$lib/components/MediaSection.svelte';
+import ReviewCta from '$lib/components/ReviewCta.svelte';
 
 let { data }: { data: PageData } = $props();
 const project = $derived(data.project);
@@ -61,6 +62,9 @@ source ↗
 {/if}
 </a>
 {/if}
+{#if project.siteUrl}
+<a href={project.siteUrl} target="_blank" rel="noopener noreferrer" class="btn btn--primary">Visit Site ↗</a>
+{/if}
 {#if project.demo}
 {#if /(\.mp4|\.webm|\.ogg)(\?|#|$)/i.test(project.demo) || /youtu\.be|youtube\.com/i.test(project.demo)}
 	<!-- video is embedded below -->
@@ -70,13 +74,13 @@ live demo ↗
 </a>
 {/if}
 
-{#if project.note}
-<div class="resources">
-<p class="resources__title">Additional resources</p>
-<p class="note">
-	{@html project.note.replace(/(https?:\/\/[^\s]+)/g, '<a href="$1" target="_blank" rel="noopener noreferrer">$1</a>')}
-</p>
-</div>
+{#if project.note && !project.slides}
+	<div class="resources">
+		<p class="resources__title">Additional resources</p>
+		<p class="note">
+			{@html project.note.replace(/(https?:\/\/[^\s]+)/g, '<a href="$1" target="_blank" rel="noopener noreferrer">$1</a>')}
+		</p>
+	</div>
 {/if}
 {/if}
 </div>
@@ -101,7 +105,27 @@ live demo ↗
 		</div>
 	{/if}
 {/if}
+
+{#if project.slides}
+	{@const slidesId = project.slides.match(/\/presentation\/d\/([a-zA-Z0-9_-]+)/)?.[1]}
+	{#if slidesId}
+		<div class="slides">
+			<iframe
+				class="slides__frame"
+				title="{project.title} presentation"
+				src="https://docs.google.com/presentation/d/{slidesId}/embed"
+				loading="lazy"
+				frameborder="0"
+				allowfullscreen
+			></iframe>
+		</div>
+	{/if}
+{/if}
 </div>
+</div>
+
+<div class="review-cta-wrap">
+	<ReviewCta />
 </div>
 
 <div class="back-link">
@@ -231,6 +255,21 @@ border: 1px solid var(--border-2);
 background: rgba(0, 0, 0, 0.25);
 }
 
+.slides {
+margin-top: 1rem;
+border-top: 1px solid var(--border-2);
+padding-top: 1rem;
+}
+
+.slides__frame {
+display: block;
+width: 100%;
+aspect-ratio: 16 / 9;
+min-height: 360px;
+border: 1px solid var(--border-2);
+background: rgba(0, 0, 0, 0.25);
+}
+
 .resources {
 margin-top: 1rem;
 border-top: 1px solid var(--border-2);
@@ -272,6 +311,8 @@ letter-spacing: 0.02em;
 .tech-badge[data-tech='go'] { border-color: rgba(0,173,216,.35); color: rgba(30,203,246,.95); background: rgba(0,173,216,.08); }
 .tech-badge[data-tech='typescript'] { border-color: rgba(49,120,198,.35); color: rgba(79,152,228,.95); background: rgba(49,120,198,.08); }
 .tech-badge[data-tech='wasm'], .tech-badge[data-tech='webassembly'] { border-color: rgba(101,79,240,.35); color: rgba(131,109,255,.95); background: rgba(101,79,240,.08); }
+.tech-badge[data-tech='c'], .tech-badge[data-tech='c/c++'] { border-color: rgba(85,85,255,.35); color: rgba(115,115,255,.95); background: rgba(85,85,255,.08); }
+.tech-badge[data-tech='systemverilog'] { border-color: rgba(218,165,32,.35); color: rgba(255,215,0,.95); background: rgba(218,165,32,.08); }
 
 .subtitle {
 margin: 0;
@@ -358,5 +399,9 @@ transition: color 0.14s;
 
 .back-link a:hover {
 color: var(--accent);
+}
+
+.review-cta-wrap {
+	margin-top: 1.5rem;
 }
 </style>
