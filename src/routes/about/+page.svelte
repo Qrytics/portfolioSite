@@ -46,7 +46,7 @@
 		{ src: '/about/61e28236-b3ed-4343-9375-61b7efb004f9.JPG' },
 		{ src: '/about/IMG_7040.jpeg', padding: { top: 10, bottom: 10 } },
 		{ src: '/about/IMG_4474.jpeg', fit: 'contain' },
-		{ src: '/about/cc8410d4-491c-41ba-a9c0-fb52ac5cc5bd.JPG' }
+		{ src: '/about/cc8410d4-491c-41ba-a9c0-fb52ac5cc5bd.JPG', fit: 'contain', padding: { left: 40, right: 40 } }
 	];
 </script>
 
@@ -71,12 +71,13 @@
 				{/each}
 			</div>
 
-			<div class="review-cta-wrap">
-				<ReviewCta />
-			</div>
-
-			<div class="back-link">
-				<a href="/">← back home</a>
+			<div class="bottom-row">
+				<div class="back-link">
+					<a href="/">← back home</a>
+				</div>
+				<div class="review-cta-wrap">
+					<ReviewCta />
+				</div>
 			</div>
 		</div>
 	</section>
@@ -175,12 +176,22 @@
 		transform: scale(1.05);
 	}
 
-	.review-cta-wrap {
+	.bottom-row {
+		display: grid;
+		grid-template-columns: 1fr auto 1fr;
+		align-items: center;
+		gap: 1rem;
 		margin-top: 1.5rem;
 	}
 
-	.back-link {
-		margin-top: 1.5rem;
+	.bottom-row .back-link {
+		grid-column: 1;
+	}
+
+	.bottom-row .review-cta-wrap {
+		grid-column: 2;
+		display: flex;
+		justify-content: center;
 	}
 
 	.back-link a {
