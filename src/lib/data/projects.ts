@@ -62,7 +62,7 @@ export const projects: Project[] = [
 • DevOps: GitHub Actions CI/CD, Pytest (backend) and Jest (frontend) test suites.
 • Real-time: MQTT messaging across the stack for sub-second actuation latency.`,
 		type: 'open-source',
-		tags: ['C/C++', 'ESP32', 'FastAPI', 'React', 'SQLite', 'Docker', 'MQTT', 'JWT', 'GitHub Actions', 'Pytest', 'Jest'],
+		tags: ['JavaScript', 'Python', 'React', 'FastAPI', 'Docker', 'MQTT'],
 		github: 'https://github.com/Qrytics/smartHome',
 		status: 'active',
 		startMonth: 'Jan',
@@ -87,7 +87,7 @@ export const projects: Project[] = [
 • Banking: Plaid Link and Capital One Nessie API for real transaction ingestion.
 • Crypto: XRPL blockchain round-up micro-savings with real Testnet payments via xrpl SDK and hex-encoded memo anchoring.`,
 		type: 'open-source',
-		tags: ['Next.js', 'React', 'TypeScript', 'Supabase', 'PostgreSQL', 'd3', 'Plaid', 'XRPL', 'Vitest', 'Playwright'],
+		tags: ['TypeScript', 'React', 'Next.js', 'PostgreSQL'],
 		github: 'https://github.com/rilical/MosaicLedger',
 		demo: 'https://www.youtube.com/watch?v=5Ug0nv0nYEA',
 		siteUrl: 'https://mosaic-ledger-web.vercel.app/',
@@ -136,7 +136,7 @@ export const projects: Project[] = [
 • PKI: RSA-2048 digital signatures; automated key generation; AES-256 encrypted private keys; verification tools using Python's cryptography library.
 • ML: ONNX Runtime, InsightFace, OpenCV, PyTorch; pipeline containerized with Docker for cross-platform use.`,
 		type: 'closed-source',
-		tags: ['Python', 'PyTorch', 'ONNX', 'InsightFace', 'OpenCV', 'Docker', 'Steganography', 'RSA', 'AES'],
+		tags: ['Python', 'OpenCV', 'PyTorch', 'Docker', 'RSA-2048'],
 		status: 'archived',
 		startMonth: 'Oct',
 		startYear: 2025,
@@ -160,7 +160,7 @@ export const projects: Project[] = [
 • Detection: 1×1 image pixels, navigator.sendBeacon usage, scripted network calls.
 • Controls: classify and optionally block tracking behavior in real browsing sessions.`,
 		type: 'open-source',
-		tags: ['TypeScript', 'Chrome Extension', 'Manifest V3', 'Web Security', 'Privacy'],
+		tags: ['TypeScript', 'Chrome Extension', 'HTML'],
 		github: 'https://github.com/Qrytics/monoPix-scout',
 		demo: 'https://www.youtube.com/watch?v=6szwvvma1QQ',
 		status: 'archived',
@@ -179,7 +179,7 @@ export const projects: Project[] = [
 		description:
 			'Team lead on a 24-hour hackathon project: a gamified productivity web app where tasks are “bomb wires” that must be cut before detonation to reinforce accountability through task verification.',
 		type: 'open-source',
-		tags: ['Hackathon', 'Web App', 'Team Leadership'],
+		tags: ['JavaScript', 'Python', 'HTML'],
 		github: 'https://github.com/EatPotatoes/hackcmu25-bomb-todo',
 		status: 'archived',
 		startMonth: 'Sep',
@@ -198,7 +198,7 @@ export const projects: Project[] = [
 		description:
 			'Designed and built a mannequin-style robot that used a webcam and voice-command triggers to capture images, convert them to text via an API-based OCR pipeline, and generate human-like speech from the extracted text.',
 		type: 'closed-source',
-		tags: ['Robotics', 'Speech', 'OCR', 'Computer Vision', 'APIs'],
+		tags: ['Python', 'OCR', 'Speech Synthesis', 'OpenCV', 'API'],
 		demo: 'https://www.youtube.com/watch?v=-XVi3JBbilk',
 		status: 'archived',
 		startMonth: 'Jan',
@@ -216,7 +216,7 @@ export const projects: Project[] = [
 		description:
 			'Full custom design of an 8-bit R-2R Digital-to-Analog Converter (DAC) with control over gate placement, routing, and layout-level optimization; designed and sized an Operational Transconductance Amplifier (OTA).',
 		type: 'closed-source',
-		tags: ['Analog', 'Mixed-Signal', 'DAC', 'Cadence Virtuoso'],
+		tags: ['Cadence Virtuoso', 'OTA', 'Analog Modeling', 'Parasitic Simulation'],
 		status: 'archived',
 		startMonth: 'Nov',
 		startYear: 2024,
@@ -233,7 +233,7 @@ export const projects: Project[] = [
 		description:
 			'Developed a hardware-accelerated Breakout-style game in SystemVerilog, deployed to an FPGA with VGA output. Designed paddle/ball movement, brick collision detection, and screen refresh logic.',
 		type: 'closed-source',
-		tags: ['SystemVerilog', 'FPGA', 'VGA', 'Digital Design'],
+		tags: ['SystemVerilog', 'FPGA', 'VGA', 'FSM'],
 		status: 'archived',
 		startMonth: 'Oct',
 		startYear: 2024,
@@ -249,7 +249,7 @@ export const projects: Project[] = [
 		description:
 			'Solo-built a minimalist evasion game in Python with Tkinter, implementing the main loop, keyboard controls, on-canvas rendering, collision checks, and clean state transitions.',
 		type: 'open-source',
-		tags: ['Python', 'Tkinter', 'Game Dev'],
+		tags: ['JavaScript', 'Chrome Extension', 'HTML'],
 		github: 'https://github.com/Qrytics/15-112-Term-Project',
 		demo: 'https://www.youtube.com/watch?v=I-haGKxNNX0',
 		status: 'archived',

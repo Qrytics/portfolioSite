@@ -303,7 +303,7 @@ letter-spacing: 0.02em;
 }
 
 .tech-badge[data-tech='rust'] { border-color: rgba(222,165,132,.35); color: rgba(222,165,132,.95); background: rgba(222,165,132,.08); }
-.tech-badge[data-tech='postgres'] { border-color: rgba(51,78,131,.35); color: rgba(34,151,201,.95); background: rgba(60,74,184,.08); }
+.tech-badge[data-tech='postgres'], .tech-badge[data-tech='postgresql'] { border-color: rgba(51,78,131,.35); color: rgba(34,151,201,.95); background: rgba(60,74,184,.08); }
 .tech-badge[data-tech='svelte'] { border-color: rgba(255,62,0,.35); color: rgba(255,98,50,.95); background: rgba(255,62,0,.08); }
 .tech-badge[data-tech='kubernetes'], .tech-badge[data-tech='k8s'] { border-color: rgba(50,108,229,.35); color: rgba(80,138,255,.95); background: rgba(50,108,229,.08); }
 .tech-badge[data-tech='python'] { border-color: rgba(76,127,169,.35); color: rgba(74,151,213,.95); background: rgba(43,93,134,.08); }
@@ -313,6 +313,29 @@ letter-spacing: 0.02em;
 .tech-badge[data-tech='wasm'], .tech-badge[data-tech='webassembly'] { border-color: rgba(101,79,240,.35); color: rgba(131,109,255,.95); background: rgba(101,79,240,.08); }
 .tech-badge[data-tech='c'], .tech-badge[data-tech='c/c++'] { border-color: rgba(85,85,255,.35); color: rgba(115,115,255,.95); background: rgba(85,85,255,.08); }
 .tech-badge[data-tech='systemverilog'] { border-color: rgba(218,165,32,.35); color: rgba(255,215,0,.95); background: rgba(218,165,32,.08); }
+.tech-badge[data-tech='react'] { border-color: rgba(97,218,251,.35); color: rgba(97,218,251,.95); background: rgba(97,218,251,.08); }
+.tech-badge[data-tech='pytorch'] { border-color: rgba(238,76,44,.35); color: rgba(238,106,74,.95); background: rgba(238,76,44,.08); }
+.tech-badge[data-tech='javascript'] { border-color: rgba(247,223,30,.4); color: rgba(247,233,80,.95); background: rgba(247,223,30,.1); }
+.tech-badge[data-tech='html'] { border-color: rgba(227,76,34,.35); color: rgba(255,120,80,.95); background: rgba(227,76,34,.08); }
+.tech-badge[data-tech='chrome extension'] { border-color: rgba(66,133,244,.35); color: rgba(100,163,255,.95); background: rgba(66,133,244,.08); }
+.tech-badge[data-tech='litellm'] { border-color: rgba(139,92,246,.35); color: rgba(167,139,255,.95); background: rgba(139,92,246,.08); }
+.tech-badge[data-tech='rich'] { border-color: rgba(0,191,165,.35); color: rgba(0,221,195,.95); background: rgba(0,191,165,.08); }
+.tech-badge[data-tech='argparse'] { border-color: rgba(76,127,169,.35); color: rgba(74,151,213,.95); background: rgba(43,93,134,.08); }
+.tech-badge[data-tech='cadence virtuoso'] { border-color: rgba(0,150,136,.35); color: rgba(0,180,166,.95); background: rgba(0,150,136,.08); }
+.tech-badge[data-tech='ota'] { border-color: rgba(156,39,176,.35); color: rgba(186,104,200,.95); background: rgba(156,39,176,.08); }
+.tech-badge[data-tech='analog modeling'] { border-color: rgba(255,152,0,.35); color: rgba(255,183,77,.95); background: rgba(255,152,0,.08); }
+.tech-badge[data-tech='parasitic simulation'] { border-color: rgba(121,85,72,.35); color: rgba(161,136,127,.95); background: rgba(121,85,72,.08); }
+.tech-badge[data-tech='ocr'] { border-color: rgba(63,81,181,.35); color: rgba(92,107,192,.95); background: rgba(63,81,181,.08); }
+.tech-badge[data-tech='speech synthesis'] { border-color: rgba(233,30,99,.35); color: rgba(244,143,177,.95); background: rgba(233,30,99,.08); }
+.tech-badge[data-tech='opencv'] { border-color: rgba(0,150,199,.35); color: rgba(0,180,229,.95); background: rgba(0,150,199,.08); }
+.tech-badge[data-tech='api'] { border-color: rgba(76,175,80,.35); color: rgba(129,199,132,.95); background: rgba(76,175,80,.08); }
+.tech-badge[data-tech='fpga'] { border-color: rgba(183,28,28,.35); color: rgba(229,115,115,.95); background: rgba(183,28,28,.08); }
+.tech-badge[data-tech='vga'] { border-color: rgba(93,64,55,.35); color: rgba(141,110,99,.95); background: rgba(93,64,55,.08); }
+.tech-badge[data-tech='fsm'] { border-color: rgba(218,165,32,.35); color: rgba(255,215,0,.95); background: rgba(218,165,32,.08); }
+.tech-badge[data-tech='rsa-2048'] { border-color: rgba(46,125,50,.35); color: rgba(102,187,106,.95); background: rgba(46,125,50,.08); }
+.tech-badge[data-tech='fastapi'] { border-color: rgba(0,191,165,.35); color: rgba(38,222,196,.95); background: rgba(0,191,165,.08); }
+.tech-badge[data-tech='mqtt'] { border-color: rgba(255,121,0,.35); color: rgba(255,151,30,.95); background: rgba(255,121,0,.08); }
+.tech-badge[data-tech='next.js'] { border-color: rgba(0,0,0,.5); color: rgba(243,246,255,.95); background: rgba(255,255,255,.12); }
 
 .subtitle {
 margin: 0;
