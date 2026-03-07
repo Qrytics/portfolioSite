@@ -72,6 +72,30 @@
 		color: rgba(243, 246, 255, 0.35);
 	}
 
+	@media (max-width: 36rem) {
+		.footer {
+			display: flex;
+			flex-direction: column;
+			align-items: center;
+			text-align: center;
+		}
+
+		.footer__inner {
+			flex-direction: column;
+			gap: 0.5rem;
+		}
+
+		.footer__sep {
+			display: none;
+		}
+
+		.back-to-top {
+			position: static;
+			transform: none;
+			margin-top: 1rem;
+		}
+	}
+
 	.footer-link {
 		color: rgba(54, 242, 194, 0.92);
 		text-decoration: none;
