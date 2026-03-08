@@ -29,12 +29,16 @@ export interface Project {
 	/** Live / deployed app URL; shows "Visit Site" button when set. */
 	siteUrl?: string;
 	image?: string;
+	/** Optional poster image (e.g. first frame); shown first, then main image/video when in view or on interaction. */
+	poster?: string;
 	/** Multiple images shown side-by-side in one media slot (e.g. two DAC pics). */
 	images?: string[];
 	/** Preset for media aspect ratio: default (383×144), schematic (383×177), auto (383×189 taller). */
 	mediaAspect?: 'default' | 'schematic' | 'auto';
 	/** Scale media frame (0–1) for smaller, padded layout; e.g. 0.75 = 3/4, 0.6 = 6/10. */
 	mediaScale?: number;
+	/** Optional inline CSS for the single video/image (e.g. { 'object-fit': 'cover', 'padding': '0' }). */
+	mediaStyle?: Record<string, string>;
 	status: ProjectStatus;
 	startMonth: Month;
 	startYear: number;
@@ -51,7 +55,8 @@ export const projects: Project[] = [
 		slug: 'smart-home-iot-dashboard',
 		title: 'Smart Home IoT Dashboard',
 		subtitle: 'Full-stack IoT system with ESP32, FastAPI, React, and real-time MQTT',
-		image: '/gifs/smart-home-iot-demo.gif',
+		image: '/gifs/smart-home-iot-demo.mp4',
+		poster: '/gifs/smart-home-iot-demo-poster.png',
 		description:
 			'Architected a full-stack IoT system for a smart home model meant to give full lighting, temperature, and security control through a React dashboard; built with ESP32 firmware in C/C++. Implemented a rules engine with configurable threshold triggers and MQTT pub/sub for real-time sensor data (temperature, occupancy, light, door lock) with sub-second actuation latency.',
 		longDescription: `Full-stack smart home platform spanning embedded firmware to web UI.
@@ -76,7 +81,16 @@ export const projects: Project[] = [
 		title: 'Visual Budget Planner (MosaicLedger)',
 		shortTitle: 'Visual Budget Planner',
 		subtitle: 'TartanHacks fintech app with Plaid, XRPL round-ups, and d3 treemaps',
-		image: '/gifs/mosaic-ledger-demo.gif',
+		image: '/gifs/mosaic-ledger-demo.mp4',
+		poster: '/gifs/mosaic-ledger-demo-poster.png',
+		mediaStyle: {
+			'object-fit': 'cover',
+			'width': '100%',
+			'height': '100%',
+			'margin': '0',
+			'padding': '0',
+			'display': 'block',
+		},
 		description:
 			'Engineered a fintech budget planner in a team of 3 at TartanHacks using with Vitest fuzz testing and Playwright E2E tests via CI/CD. Built a deterministic analysis pipeline with recurring charge detection, explorable d3-hierarchy treemap with PNG/SVG export, Plaid Link and Capital One Nessie API for real bank data, and XRPL round-up micro-savings with Testnet payments.',
 		longDescription: `TartanHacks 2026 project: budget visualization and round-up savings.
@@ -127,7 +141,8 @@ export const projects: Project[] = [
 		title: 'Deep-Live-Cam: AI Content Authentication System',
 		shortTitle: 'Deep-Live-Cam Auth Sys',
 		subtitle: 'AI video/img LSB watermarking security layer using RSA-2048 and stenography',
-		image: '/gifs/deep-live-cam-demo.gif',
+		image: '/gifs/deep-live-cam-demo.mp4',
+		poster: '/gifs/deep-live-cam-demo-poster.png',
 		description:
 			'Built a dual-layer security system for a deepfake application using invisible LSB watermarking, RSA-2048 digital signatures, and a stenography module to embed cryptographic metadata into image pixels surviving JPEG compression. Developed PKI infrastructure with automated key generation, AES-256 encrypted private keys, and signature verification tools; containerized the ML pipeline with Docker for cross-platform use.',
 		longDescription: `Content authentication for deepfake detection via watermarking and PKI.
@@ -151,7 +166,8 @@ export const projects: Project[] = [
 		title: 'monoPix-scout: Tracking Pixel Chrome Extension',
 		shortTitle: 'Tracking Pixel Extension',
 		subtitle: 'Manifest V3 extension to detect, classify, and optionally block covert tracking',
-		image: '/gifs/tracking-pixel-demo.gif',
+		image: '/gifs/tracking-pixel-demo.mp4',
+		poster: '/gifs/tracking-pixel-demo-poster.png',
 		description:
 			'Architected and built a Chrome Manifest V3 extension to detect, classify, and optionally block multiple covert tracking mechanisms (1×1 pixels, navigator.sendBeacon, scripted network calls).',
 		longDescription: `Browser security project focused on identifying and reducing passive tracking.
@@ -175,7 +191,8 @@ export const projects: Project[] = [
 		slug: 'to-do-or-destroy',
 		title: 'To-Do or Destroy (HackCMU)',
 		subtitle: 'Gamified productivity web app built in a 24-hour hackathon',
-		image: '/gifs/todo-destroy-demo.gif',
+		image: '/gifs/todo-destroy-demo.mp4',
+		poster: '/gifs/todo-destroy-demo-poster.png',
 		description:
 			'Team lead on a 24-hour hackathon project: a gamified productivity web app where tasks are “bomb wires” that must be cut before detonation to reinforce accountability through task verification.',
 		type: 'open-source',
@@ -228,7 +245,8 @@ export const projects: Project[] = [
 		slug: 'fpga-breakout-game',
 		title: 'FPGA Breakout Game',
 		subtitle: 'SystemVerilog game on FPGA with VGA output',
-		image: '/gifs/breakout-example-demo.gif',
+		image: '/gifs/breakout-example-demo.mp4',
+		poster: '/gifs/breakout-example-demo-poster.png',
 		mediaScale: 0.6,
 		description:
 			'Developed a hardware-accelerated Breakout-style game in SystemVerilog, deployed to an FPGA with VGA output. Designed paddle/ball movement, brick collision detection, and screen refresh logic.',
@@ -245,7 +263,8 @@ export const projects: Project[] = [
 		slug: 'dont-find-me-pytinker',
 		title: '"Don\'t Find Me" (PyTinker Game)',
 		subtitle: 'Minimalist evasion game built with Python + Tkinter',
-		image: '/gifs/pytinker-game-demo.gif',
+		image: '/gifs/pytinker-game-demo.mp4',
+		poster: '/gifs/pytinker-game-demo-poster.png',
 		description:
 			'Solo-built a minimalist evasion game in Python with Tkinter, implementing the main loop, keyboard controls, on-canvas rendering, collision checks, and clean state transitions.',
 		type: 'open-source',

@@ -1,7 +1,6 @@
 <script lang="ts">
 import type { PageData } from './$types';
 import MediaSection from '$lib/components/MediaSection.svelte';
-import ReviewCta from '$lib/components/ReviewCta.svelte';
 
 let { data }: { data: PageData } = $props();
 const project = $derived(data.project);
@@ -122,10 +121,6 @@ live demo ↗
 	{/if}
 {/if}
 </div>
-</div>
-
-<div class="review-cta-wrap">
-	<ReviewCta />
 </div>
 
 <div class="back-link">
@@ -422,9 +417,5 @@ transition: color 0.14s;
 
 .back-link a:hover {
 color: var(--accent);
-}
-
-.review-cta-wrap {
-	margin-top: 1.5rem;
 }
 </style>
