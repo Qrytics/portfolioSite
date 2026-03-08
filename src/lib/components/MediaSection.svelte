@@ -23,6 +23,17 @@
 		if (project.mediaScale != null) parts.push(`width: ${project.mediaScale * 100}%; margin: 0 auto`);
 		return parts.length ? parts.join('; ') : undefined;
 	}
+
+	function isVideo(src: string): boolean {
+		return /\.(mp4|webm)(\?|#|$)/i.test(src);
+	}
+
+	function mediaInlineStyle(): string | undefined {
+		if (!project.mediaStyle || Object.keys(project.mediaStyle).length === 0) return undefined;
+		return Object.entries(project.mediaStyle)
+			.map(([key, value]) => `${key}: ${value}`)
+			.join('; ');
+	}
 </script>
 
 {#if project.images?.length}
@@ -47,13 +58,29 @@
 			class="media__frame {project.mediaAspect === 'schematic' ? 'media__frame--schematic' : project.mediaAspect === 'auto' ? 'media__frame--auto' : ''}"
 			style={frameStyle(imageAspect != null ? String(imageAspect) : undefined)}
 		>
-			<img
-				class="media__img"
-				src={project.image}
-				alt="{project.title} preview"
-				loading="lazy"
-				onload={onMediaImageLoad}
-			/>
+			{#if isVideo(project.image)}
+				<video
+					class="media__img"
+					src={project.image}
+					poster={project.poster}
+					autoplay
+					loop
+					muted
+					playsinline
+					preload="metadata"
+					aria-label="{project.title} preview"
+					style={mediaInlineStyle()}
+				></video>
+			{:else}
+				<img
+					class="media__img"
+					src={project.image}
+					alt="{project.title} preview"
+					loading="lazy"
+					onload={onMediaImageLoad}
+					style={mediaInlineStyle()}
+				/>
+			{/if}
 		</div>
 	</div>
 {:else}
@@ -77,7 +104,6 @@
 	}
 
 	.media__frame {
-		aspect-ratio: 383 / 144;
 		width: 100%;
 		overflow: hidden;
 		background: rgba(255, 255, 255, 0.03);

@@ -1,6 +1,4 @@
 <script lang="ts">
-	import ReviewCta from '$lib/components/ReviewCta.svelte';
-
 	type PhotoPadding = { top?: number; right?: number; bottom?: number; left?: number };
 
 	type Photo = {
@@ -74,9 +72,6 @@
 			<div class="bottom-row">
 				<div class="back-link">
 					<a href="/">← back home</a>
-				</div>
-				<div class="review-cta-wrap">
-					<ReviewCta />
 				</div>
 			</div>
 		</div>
@@ -186,12 +181,6 @@
 
 	.bottom-row .back-link {
 		grid-column: 1;
-	}
-
-	.bottom-row .review-cta-wrap {
-		grid-column: 2;
-		display: flex;
-		justify-content: center;
 	}
 
 	.back-link a {
