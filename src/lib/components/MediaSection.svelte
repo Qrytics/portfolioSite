@@ -4,10 +4,25 @@
 	let { project }: { project: Project } = $props();
 
 	let imageAspect = $state<number | null>(null);
+	let videoEl = $state<HTMLVideoElement | undefined>(undefined);
 
 	$effect(() => {
 		project.image;
 		imageAspect = null;
+	});
+
+	$effect(() => {
+		if (!videoEl) return;
+		const video = videoEl;
+		const io = new IntersectionObserver((entries) => {
+			if (entries[0]?.isIntersecting) {
+				video.play().catch((err) => console.debug('Video autoplay failed:', err));
+			} else {
+				video.pause();
+			}
+		}, { threshold: 0.1 });
+		io.observe(video);
+		return () => io.disconnect();
 	});
 
 	function onMediaImageLoad(e: Event) {
@@ -70,6 +85,7 @@
 					preload="metadata"
 					aria-label="{project.title} preview"
 					style={mediaInlineStyle()}
+					bind:this={videoEl}
 				></video>
 			{:else}
 				<img
