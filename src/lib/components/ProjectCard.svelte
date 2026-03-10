@@ -105,6 +105,7 @@
 		display: grid;
 		grid-template-rows: auto auto 1fr;
 		transition: border-color 0.16s ease, box-shadow 0.16s ease;
+		contain: layout style paint;
 	}
 
 	.card:hover {

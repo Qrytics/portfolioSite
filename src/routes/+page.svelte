@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { projects } from '$lib/data/projects';
+	import { profile } from '$lib/data/profile';
 	import Hero from '$lib/components/Hero.svelte';
 	import AboutMeTeaser from '$lib/components/AboutMeTeaser.svelte';
 	import ProjectList from '$lib/components/ProjectList.svelte';
@@ -11,6 +12,7 @@
 </script>
 
 <svelte:head>
+	<title>{profile.name} — Portfolio</title>
 	{#if firstMediaHref}
 		<link rel="preload" href={firstMediaHref} as={isVideo ? 'video' : 'image'} />
 	{/if}

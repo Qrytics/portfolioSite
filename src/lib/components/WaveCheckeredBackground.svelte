@@ -11,6 +11,7 @@
 
 		let raf = 0;
 		let start = performance.now();
+		let visible = true;
 
 		function resize() {
 			if (!canvas || !container) return;
@@ -23,6 +24,7 @@
 
 		function draw(now: number) {
 			if (!canvas || !container) return;
+			if (!visible) { raf = 0; return; }
 
 			const w = canvas.width;
 			const h = canvas.height;
@@ -101,9 +103,18 @@
 		const ro = new ResizeObserver(resize);
 		ro.observe(container);
 
+		const io = new IntersectionObserver((entries) => {
+			visible = entries[0]?.isIntersecting ?? false;
+			if (visible && raf === 0) {
+				raf = requestAnimationFrame(draw);
+			}
+		}, { threshold: 0 });
+		io.observe(container);
+
 		return () => {
 			cancelAnimationFrame(raf);
 			ro.disconnect();
+			io.disconnect();
 		};
 	});
 </script>

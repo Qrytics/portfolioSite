@@ -24,6 +24,8 @@
 		z-index: 1;
 		padding-top: clamp(1rem, 2vw, 1.5rem);
 		padding-bottom: clamp(2.5rem, 5vw, 4rem);
+		content-visibility: auto;
+		contain-intrinsic-size: 0 400px;
 	}
 
 	.shell {

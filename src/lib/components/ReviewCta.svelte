@@ -13,6 +13,8 @@
 	.review-cta {
 		text-align: center;
 		padding: 0 clamp(1.25rem, 4vw, 3rem);
+		content-visibility: auto;
+		contain-intrinsic-size: 0 80px;
 	}
 
 	.review-cta__btn {
