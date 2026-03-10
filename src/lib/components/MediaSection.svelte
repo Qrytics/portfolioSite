@@ -16,7 +16,7 @@
 		const video = videoEl;
 		const io = new IntersectionObserver((entries) => {
 			if (entries[0]?.isIntersecting) {
-				video.play().catch(() => {});
+				video.play().catch((err) => console.debug('Video autoplay failed:', err));
 			} else {
 				video.pause();
 			}

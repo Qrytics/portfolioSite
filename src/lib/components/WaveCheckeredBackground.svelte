@@ -104,7 +104,8 @@
 		ro.observe(container);
 
 		const io = new IntersectionObserver((entries) => {
-			visible = entries[0]?.isIntersecting ?? false;
+			if (!entries.length) return;
+			visible = entries[0].isIntersecting;
 			if (visible && raf === 0) {
 				raf = requestAnimationFrame(draw);
 			}
