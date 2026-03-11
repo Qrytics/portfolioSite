@@ -36,14 +36,12 @@
 
 	function toggleTheme() {
 		darkMode = !darkMode;
-		const theme = darkMode ? 'dark' : 'light';
-		document.documentElement.setAttribute('data-theme', darkMode ? '' : 'light');
-		if (!darkMode) {
-			document.documentElement.setAttribute('data-theme', 'light');
-		} else {
+		if (darkMode) {
 			document.documentElement.removeAttribute('data-theme');
+		} else {
+			document.documentElement.setAttribute('data-theme', 'light');
 		}
-		localStorage.setItem('theme', theme);
+		localStorage.setItem('theme', darkMode ? 'dark' : 'light');
 	}
 
 	const navLinks: Array<{ href: string; label: string; external?: boolean }> = [

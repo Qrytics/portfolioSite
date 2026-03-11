@@ -6,7 +6,7 @@
 	let inputEl: HTMLInputElement = $state(undefined as unknown as HTMLInputElement);
 	let selectedIdx = $state(0);
 
-	const results = $derived(() => {
+	const results = $derived.by(() => {
 		const q = query.toLowerCase().trim();
 		if (!q) return [] as Project[];
 		return projects.filter(
@@ -55,15 +55,14 @@
 	}
 
 	function handleKey(e: KeyboardEvent) {
-		const res = results();
 		if (e.key === 'ArrowDown') {
 			e.preventDefault();
-			selectedIdx = Math.min(selectedIdx + 1, res.length - 1);
+			selectedIdx = Math.min(selectedIdx + 1, results.length - 1);
 		} else if (e.key === 'ArrowUp') {
 			e.preventDefault();
 			selectedIdx = Math.max(selectedIdx - 1, 0);
-		} else if (e.key === 'Enter' && res[selectedIdx]) {
-			navigate(res[selectedIdx].slug);
+		} else if (e.key === 'Enter' && results[selectedIdx]) {
+			navigate(results[selectedIdx].slug);
 		}
 	}
 
@@ -104,9 +103,9 @@
 			{/if}
 		</div>
 
-		{#if results().length > 0}
+		{#if results.length > 0}
 			<ul class="results" role="listbox" aria-label="Search results">
-				{#each results() as project, i}
+				{#each results as project, i}
 					<li
 						class="result"
 						class:result--selected={i === selectedIdx}
