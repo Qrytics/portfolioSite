@@ -5,7 +5,6 @@
 	import AboutMeTeaser from '$lib/components/AboutMeTeaser.svelte';
 	import ProjectList from '$lib/components/ProjectList.svelte';
 	import ReviewCta from '$lib/components/ReviewCta.svelte';
-	import Stats from '$lib/components/Stats.svelte';
 	import CurrentlyBuilding from '$lib/components/CurrentlyBuilding.svelte';
 	import Timeline from '$lib/components/Timeline.svelte';
 	import FunSection from '$lib/components/FunSection.svelte';
@@ -24,14 +23,13 @@
 
 <div class="page">
 	<Hero />
-	<Stats />
 	<section id="projects" aria-label="Projects">
 		<ProjectList />
 	</section>
 	<CurrentlyBuilding />
 	<Timeline />
-	<FunSection />
 	<AboutMeTeaser />
+	<FunSection />
 	<ReviewCta />
 </div>
 

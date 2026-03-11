@@ -7,6 +7,21 @@
 		accent?: boolean;
 	}
 
+	const monthIndex: Record<string, number> = {
+		Jan: 1,
+		Feb: 2,
+		Mar: 3,
+		Apr: 4,
+		May: 5,
+		Jun: 6,
+		Jul: 7,
+		Aug: 8,
+		Sep: 9,
+		Oct: 10,
+		Nov: 11,
+		Dec: 12
+	};
+
 	const events: TimelineEvent[] = [
 		{
 			year: 2026,
@@ -66,13 +81,20 @@
 			description: 'Solo-built a complete evasion game in Python + Tkinter as a CMU 15-112 term project — game loop, collision detection, difficulty ramping.'
 		}
 	];
+
+	const sortedEvents = [...events].sort((a, b) => {
+		if (a.year !== b.year) return b.year - a.year;
+		const am = a.month ? monthIndex[a.month] ?? 0 : 0;
+		const bm = b.month ? monthIndex[b.month] ?? 0 : 0;
+		return bm - am;
+	});
 </script>
 
 <section class="timeline" id="timeline" aria-label="Career timeline">
 	<div class="timeline__inner">
 		<h2 class="section-heading">Timeline</h2>
 		<div class="track">
-			{#each events as event, i}
+			{#each sortedEvents as event, i}
 				<div class="event" class:event--accent={event.accent}>
 					<div class="event__meta">
 						<span class="event__year">{event.year}</span>
@@ -82,7 +104,7 @@
 					</div>
 					<div class="event__connector" aria-hidden="true">
 						<div class="event__dot"></div>
-						{#if i < events.length - 1}
+						{#if i < sortedEvents.length - 1}
 							<div class="event__line"></div>
 						{/if}
 					</div>

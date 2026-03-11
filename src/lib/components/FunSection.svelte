@@ -21,7 +21,6 @@
 		<div class="grid">
 			<div class="card">
 				<div class="card__header">
-					<span class="card__icon" aria-hidden="true">⚡</span>
 					<h2 class="card__title">Things I Like</h2>
 				</div>
 				<ul class="list">
@@ -36,7 +35,6 @@
 
 			<div class="card">
 				<div class="card__header">
-					<span class="card__icon" aria-hidden="true">🔧</span>
 					<h2 class="card__title">Fun Facts</h2>
 				</div>
 				<ul class="list">
@@ -58,7 +56,7 @@
 	}
 
 	.fun__inner {
-		max-width: 56rem;
+		max-width: 86rem;
 		margin: 0 auto;
 	}
 

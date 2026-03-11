@@ -1,9 +1,54 @@
 <script lang="ts">
-	const items = [
-		'USB Host Controller in SystemVerilog',
-		'Smart Home IoT Dashboard (ESP32 + FastAPI + React)',
-		'MosaicLedger — fintech budget visualiser (TartanHacks)'
-	];
+	import { onMount } from 'svelte';
+	import { profile } from '$lib/data/profile';
+
+	type Repo = {
+		id: number;
+		name: string;
+		full_name: string;
+		html_url: string;
+		description: string | null;
+		pushed_at: string;
+		private: boolean;
+		fork: boolean;
+	};
+
+	const githubUser = new URL(profile.github).pathname.replace('/', '');
+	const githubProfileUrl = profile.github;
+
+	let loading = true;
+	let error: string | null = null;
+	let repos: Repo[] = [];
+
+	function isWithinLastWeek(iso: string): boolean {
+		const t = Date.parse(iso);
+		if (!Number.isFinite(t)) return false;
+		return t >= Date.now() - 7 * 24 * 60 * 60 * 1000;
+	}
+
+	onMount(async () => {
+		try {
+			loading = true;
+			error = null;
+
+			const res = await fetch(
+				`https://api.github.com/users/${githubUser}/repos?sort=pushed&per_page=30`,
+				{ headers: { Accept: 'application/vnd.github+json' } }
+			);
+			if (!res.ok) throw new Error(`GitHub API error (${res.status})`);
+			const data = (await res.json()) as Repo[];
+
+			repos = data
+				.filter((r) => !r.private && !r.fork)
+				.filter((r) => isWithinLastWeek(r.pushed_at))
+				.slice(0, 8);
+		} catch (e) {
+			error = e instanceof Error ? e.message : 'Failed to load GitHub activity.';
+			repos = [];
+		} finally {
+			loading = false;
+		}
+	});
 </script>
 
 <section class="currently" id="currently-building" aria-label="Currently building">
@@ -11,15 +56,39 @@
 		<div class="card">
 			<div class="termbar">
 				<span class="termbar__prompt">~</span>
-				<span class="termbar__label">currently building</span>
+				<a class="termbar__label" href={githubProfileUrl} target="_blank" rel="noopener noreferrer">
+					currently building ↗
+				</a>
 			</div>
 			<ul class="list">
-				{#each items as item}
+				{#if loading}
 					<li class="list__item">
 						<span class="bullet" aria-hidden="true">•</span>
-						{item}
+						Loading recent GitHub activity…
 					</li>
-				{/each}
+				{:else if error}
+					<li class="list__item">
+						<span class="bullet" aria-hidden="true">•</span>
+						{error}
+					</li>
+				{:else if repos.length === 0}
+					<li class="list__item">
+						<span class="bullet" aria-hidden="true">•</span>
+						No public repos pushed in the last week.
+					</li>
+				{:else}
+					{#each repos as repo (repo.id)}
+						<li class="list__item">
+							<span class="bullet" aria-hidden="true">•</span>
+							<a class="repo" href={repo.html_url} target="_blank" rel="noopener noreferrer">
+								{repo.name}
+							</a>
+							{#if repo.description}
+								<span class="repo__desc">— {repo.description}</span>
+							{/if}
+						</li>
+					{/each}
+				{/if}
 			</ul>
 		</div>
 	</div>
@@ -31,7 +100,7 @@
 	}
 
 	.currently__inner {
-		max-width: 56rem;
+		max-width: 86rem;
 		margin: 0 auto;
 	}
 
@@ -62,6 +131,11 @@
 		font-size: 0.82rem;
 		color: var(--muted);
 		letter-spacing: 0.04em;
+		text-decoration: none;
+	}
+
+	.termbar__label:hover {
+		text-decoration: underline;
 	}
 
 	.list {
@@ -85,5 +159,19 @@
 	.bullet {
 		color: var(--accent);
 		flex-shrink: 0;
+	}
+
+	.repo {
+		color: rgba(243, 246, 255, 0.92);
+		text-decoration: none;
+	}
+
+	.repo:hover {
+		text-decoration: underline;
+		color: var(--accent);
+	}
+
+	.repo__desc {
+		color: rgba(243, 246, 255, 0.66);
 	}
 </style>
