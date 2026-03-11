@@ -51,6 +51,70 @@ const project = $derived(data.project);
 <div class="long-desc">{project.longDescription}</div>
 {/if}
 
+{#if project.problem || project.architecture?.length || project.challenges?.length || project.tradeoffs?.length || project.outcome || project.whatYouLearned?.length}
+<div class="case-study">
+<h2 class="case-study__heading">Case Study</h2>
+
+{#if project.problem}
+<div class="cs-block">
+<h3 class="cs-block__title">Problem</h3>
+<p class="cs-block__text">{project.problem}</p>
+</div>
+{/if}
+
+{#if project.architecture?.length}
+<div class="cs-block">
+<h3 class="cs-block__title">Architecture</h3>
+<ul class="cs-list">
+{#each project.architecture as item}
+<li>{item}</li>
+{/each}
+</ul>
+</div>
+{/if}
+
+{#if project.challenges?.length}
+<div class="cs-block">
+<h3 class="cs-block__title">Challenges</h3>
+<ul class="cs-list">
+{#each project.challenges as item}
+<li>{item}</li>
+{/each}
+</ul>
+</div>
+{/if}
+
+{#if project.tradeoffs?.length}
+<div class="cs-block">
+<h3 class="cs-block__title">Tradeoffs</h3>
+<ul class="cs-list">
+{#each project.tradeoffs as item}
+<li>{item}</li>
+{/each}
+</ul>
+</div>
+{/if}
+
+{#if project.outcome}
+<div class="cs-block">
+<h3 class="cs-block__title">Outcome</h3>
+<p class="cs-block__text">{project.outcome}</p>
+</div>
+{/if}
+
+{#if project.whatYouLearned?.length}
+<div class="cs-block">
+<h3 class="cs-block__title">What I Learned</h3>
+<ul class="cs-list">
+{#each project.whatYouLearned as item}
+<li>{item}</li>
+{/each}
+</ul>
+</div>
+{/if}
+</div>
+{/if}
+
 <div class="links">
 {#if project.github}
 <a href={project.github} target="_blank" rel="noopener noreferrer" class="btn btn--primary">
@@ -417,5 +481,56 @@ transition: color 0.14s;
 
 .back-link a:hover {
 color: var(--accent);
+}
+
+/* ── Case Study ── */
+.case-study {
+border-top: 1px solid var(--border-2);
+padding-top: 1.25rem;
+display: grid;
+gap: 1.1rem;
+}
+
+.case-study__heading {
+margin: 0 0 0.25rem;
+font-size: 0.78rem;
+font-family: var(--font-mono);
+letter-spacing: 0.1em;
+text-transform: uppercase;
+color: var(--accent);
+}
+
+.cs-block {
+display: grid;
+gap: 0.45rem;
+}
+
+.cs-block__title {
+margin: 0;
+font-size: 0.78rem;
+font-family: var(--font-mono);
+letter-spacing: 0.08em;
+text-transform: uppercase;
+color: rgba(243, 246, 255, 0.5);
+}
+
+.cs-block__text {
+margin: 0;
+color: rgba(243, 246, 255, 0.82);
+font-size: 0.95rem;
+line-height: 1.7;
+}
+
+.cs-list {
+margin: 0;
+padding: 0 0 0 1.1rem;
+display: grid;
+gap: 0.3rem;
+}
+
+.cs-list li {
+color: rgba(243, 246, 255, 0.78);
+font-size: 0.93rem;
+line-height: 1.6;
 }
 </style>

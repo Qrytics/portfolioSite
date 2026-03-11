@@ -1,9 +1,21 @@
 <script lang="ts">
 	import { profile } from '$lib/data/profile';
+	import Search from '$lib/components/Search.svelte';
+	import Terminal from '$lib/components/Terminal.svelte';
 
 	let scrolled = $state(false);
 	let navOpen = $state(false);
 	let compact = $state(false);
+	let darkMode = $state(true);
+
+	$effect(() => {
+		// Restore saved theme preference
+		const saved = typeof localStorage !== 'undefined' ? localStorage.getItem('theme') : null;
+		if (saved === 'light') {
+			darkMode = false;
+			document.documentElement.setAttribute('data-theme', 'light');
+		}
+	});
 
 	$effect(() => {
 		function onScroll() {
@@ -22,6 +34,18 @@
 		};
 	});
 
+	function toggleTheme() {
+		darkMode = !darkMode;
+		const theme = darkMode ? 'dark' : 'light';
+		document.documentElement.setAttribute('data-theme', darkMode ? '' : 'light');
+		if (!darkMode) {
+			document.documentElement.setAttribute('data-theme', 'light');
+		} else {
+			document.documentElement.removeAttribute('data-theme');
+		}
+		localStorage.setItem('theme', theme);
+	}
+
 	const navLinks: Array<{ href: string; label: string; external?: boolean }> = [
 		{ href: '/#projects', label: 'projects' },
 		{ href: '/#about-me', label: 'about me' },
@@ -38,6 +62,18 @@
 >
 	<div class="site-header__inner" class:site-header__inner--with-title={true}>
 		<a href="/" class="site-header__title">{profile.handle}</a>
+
+		<div class="site-header__tools">
+			<Search />
+			<Terminal />
+			<button
+				class="theme-toggle"
+				aria-label={darkMode ? 'Switch to light mode' : 'Switch to dark mode'}
+				onclick={toggleTheme}
+			>
+				{darkMode ? '☀' : '☾'}
+			</button>
+		</div>
 
 		<button
 			class="site-header__menu"
@@ -109,6 +145,32 @@
 		margin: 0 auto;
 		padding: 0.9rem clamp(1.25rem, 4vw, 3rem);
 		position: relative;
+	}
+
+	.site-header__tools {
+		display: flex;
+		align-items: center;
+		gap: 0.5rem;
+		margin-right: 1rem;
+	}
+
+	.theme-toggle {
+		font-size: 0.95rem;
+		background: none;
+		border: 1px solid var(--border-2);
+		background: rgba(255, 255, 255, 0.03);
+		color: rgba(243, 246, 255, 0.7);
+		cursor: pointer;
+		padding: 0.25rem 0.45rem;
+		transition: background 0.14s, border-color 0.14s, color 0.14s;
+		border-radius: 0;
+		line-height: 1;
+	}
+
+	.theme-toggle:hover {
+		background: rgba(54, 242, 194, 0.07);
+		border-color: rgba(54, 242, 194, 0.3);
+		color: var(--accent);
 	}
 
 	.site-header__inner--with-title {

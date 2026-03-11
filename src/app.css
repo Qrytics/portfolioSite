@@ -30,6 +30,21 @@
 	--font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace;
 }
 
+/* ── Light mode ── */
+[data-theme='light'] {
+	--bg: #f4f5f7;
+	--panel: #ffffff;
+	--panel-2: #edf0f4;
+	--border: rgba(30, 40, 60, 0.14);
+	--border-2: rgba(30, 40, 60, 0.09);
+	--text: rgba(15, 20, 30, 0.92);
+	--muted: rgba(15, 20, 30, 0.62);
+	--muter: rgba(15, 20, 30, 0.42);
+	--accent: #0fa878;
+	--accent-2: #c77c10;
+	--shadow: 0 14px 40px rgba(0, 0, 0, 0.12);
+}
+
 /* ============================================================
    Reset & Base
    ============================================================ */
