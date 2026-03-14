@@ -48,6 +48,19 @@ export interface Project {
 	note?: string;
 	/** Google Slides presentation URL (edit or view); shown as embed below demo video. */
 	slides?: string;
+	// Case study fields
+	/** Short problem statement for the case study. */
+	problem?: string;
+	/** Key architectural components/decisions (shown as a bullet list). */
+	architecture?: string[];
+	/** Technical challenges encountered (shown as a bullet list). */
+	challenges?: string[];
+	/** Tradeoffs made during design or implementation (shown as a bullet list). */
+	tradeoffs?: string[];
+	/** Outcome / result summary. */
+	outcome?: string;
+	/** Key learnings from the project (shown as a bullet list). */
+	whatYouLearned?: string[];
 }
 
 export const projects: Project[] = [
@@ -74,7 +87,33 @@ export const projects: Project[] = [
 		startYear: 2026,
 		endMonth: 'May',
 		endYear: 2026,
-		year: 2026
+		year: 2026,
+		problem: 'Build a full-stack smart-home platform that gives homeowners real-time visibility and control over lighting, temperature, occupancy, and door-lock status—all from a single web dashboard.',
+		architecture: [
+			'ESP32 firmware (C/C++) with sensors + actuators communicating over MQTT',
+			'MQTT broker bridging firmware to backend',
+			'FastAPI backend with JWT auth, SQLite persistence, and configurable rules engine',
+			'React dashboard for real-time monitoring and control',
+			'Docker Compose deployment with GitHub Actions CI/CD'
+		],
+		challenges: [
+			'Achieving sub-second actuation latency end-to-end across MQTT and HTTP layers',
+			'Reliably detecting occupancy with a PIR sensor and debouncing false positives',
+			'Keeping JWT session management consistent between ESP32 and the web client',
+			'Writing cross-platform Docker Compose configs that work on both ARM and x86 hosts'
+		],
+		tradeoffs: [
+			'Chose SQLite over PostgreSQL for simplicity; acceptable for a single-home deployment',
+			'Used polling on the frontend for some metrics instead of WebSockets to reduce complexity',
+			'Stored JWT secrets in environment variables rather than a secrets manager to avoid cloud dependency'
+		],
+		outcome: 'End-to-end smart home platform running on real hardware, with sub-second sensor-to-dashboard latency and a passing Pytest + Jest CI suite.',
+		whatYouLearned: [
+			'Embedded MQTT pub/sub patterns and their tradeoffs vs HTTP polling',
+			'FastAPI dependency injection and JWT middleware design',
+			'How Docker networking affects service discovery between containers',
+			'Debouncing and hardware noise mitigation for PIR sensors'
+		]
 	},
 	{
 		slug: 'visual-budget-planner',
@@ -110,7 +149,34 @@ export const projects: Project[] = [
 		startYear: 2026,
 		endMonth: 'Feb',
 		endYear: 2026,
-		year: 2026
+		year: 2026,
+		problem: 'Give users an intuitive way to visualise their bank spending, automatically detect recurring charges, and micro-save into cryptocurrency—all within a 24-hour hackathon.',
+		architecture: [
+			'pnpm monorepo with 8 packages (Next.js web app, shared UI, API layer, analytics, etc.)',
+			'Plaid Link + Capital One Nessie API for real transaction ingestion',
+			'Deterministic recurring-charge detector using MAD-based confidence scoring',
+			'Explorable d3-hierarchy treemap with drill-down, glassmorphic SVG rendering, PNG/SVG export',
+			'XRPL blockchain round-up micro-savings with hex-encoded memo anchoring on Testnet',
+			'Supabase auth + PostgreSQL; Vitest fuzz testing + Playwright E2E in CI/CD'
+		],
+		challenges: [
+			'Integrating Plaid Link inside a 24-hour hackathon time constraint',
+			'Normalising transaction data across two different banking APIs',
+			'Making d3 treemap drill-down feel responsive on mobile screens',
+			'Submitting real XRPL Testnet payments reliably without hitting rate limits'
+		],
+		tradeoffs: [
+			'Chose Next.js App Router over a lighter framework for its built-in SSR and API routes',
+			'Used Supabase instead of a self-hosted database to ship faster during the hackathon',
+			'MAD-based recurring detection trades some precision for determinism and zero ML dependencies'
+		],
+		outcome: 'Shipped a working fintech app at TartanHacks 2026—live bank data, interactive treemap, and on-chain round-ups—with a full CI pipeline.',
+		whatYouLearned: [
+			'pnpm monorepo workspace conventions and shared package boundaries',
+			'How Plaid Link OAuth flows differ from standard OAuth',
+			'XRPL transaction structure and hex-encoded memo fields',
+			'd3 hierarchy and treemap layouts with interactive drill-down'
+		]
 	},
 	{
 		slug: 'auto-docker',
@@ -134,7 +200,34 @@ export const projects: Project[] = [
 		startYear: 2026,
 		endMonth: 'Jan',
 		endYear: 2026,
-		year: 2026
+		year: 2026,
+		problem: 'Eliminate the manual, error-prone process of writing Dockerfiles by generating, building, and self-healing them automatically from project context using an LLM.',
+		architecture: [
+			'Python CLI built with Rich + Argparse for UX and progress feedback',
+			'LiteLLM abstraction layer for pluggable LLM backends (OpenAI, local, etc.)',
+			'Project-context extractor that reads directory structure and config files',
+			'Self-healing loop: build → diagnose failure via LLM → patch → retry',
+			'Runtime stability tester (container smoke test after successful build)',
+			'Distroless and Alpine multi-stage build templates to minimise attack surface'
+		],
+		challenges: [
+			'Prompting the LLM to produce deterministic, valid Dockerfile syntax reliably',
+			'Distinguishing transient Docker daemon errors from structural Dockerfile errors',
+			'Avoiding infinite retry loops without hard-coding a fixed number of attempts',
+			'Supporting diverse project structures (Node, Python, Go, etc.) with one prompt strategy'
+		],
+		tradeoffs: [
+			'Chose LiteLLM over a direct OpenAI SDK call to stay provider-agnostic',
+			'Accepted non-determinism in LLM output in exchange for higher-quality Dockerfiles',
+			'Self-healing loop is bounded by a configurable max-retries flag rather than time limit'
+		],
+		outcome: 'CLI successfully generates and validates Dockerfiles for Node, Python, and Go projects with auto-remediation of common build errors.',
+		whatYouLearned: [
+			'Prompt engineering patterns for structured code generation',
+			'Docker SDK for Python and programmatic image build APIs',
+			'How to design resilient retry loops with exponential back-off',
+			'Multi-stage Dockerfile optimisation for security and image size'
+		]
 	},
 	{
 		slug: 'deep-live-cam',
@@ -159,7 +252,34 @@ export const projects: Project[] = [
 		endYear: 2025,
 		year: 2025,
 		demo: 'https://www.youtube.com/watch?v=ch_LXkpjnIM',
-		slides: 'https://docs.google.com/presentation/d/1Son_yn0dr5vEIMwTeSbLOCbJg8lxHvQf/edit?usp=sharing'
+		slides: 'https://docs.google.com/presentation/d/1Son_yn0dr5vEIMwTeSbLOCbJg8lxHvQf/edit?usp=sharing',
+		problem: 'Deep-fake video tools generate convincing synthetic content with no built-in provenance. Add an authentication layer that lets anyone verify whether a frame was produced by a specific model instance.',
+		architecture: [
+			'LSB steganography module embedding cryptographic metadata invisibly into pixel channels',
+			'Compression-resistant payload design (survives JPEG re-encode up to ~85% quality)',
+			'RSA-2048 digital signature generation and verification using Python cryptography library',
+			'AES-256-CBC encrypted private key storage for PKI key material',
+			'CLI tools for key generation, signing, and verification',
+			'ONNX Runtime + InsightFace + OpenCV + PyTorch ML pipeline; Docker-containerised for portability'
+		],
+		challenges: [
+			'Ensuring LSB payload survived JPEG compression (chose bit planes 0–1 and channel weighting)',
+			'Keeping RSA signature generation below 40 ms per frame at 30 fps',
+			'Designing a key-derivation scheme that is reproducible yet resistant to brute force',
+			'Cross-platform Docker image for both CPU (x86) and GPU (CUDA) inference'
+		],
+		tradeoffs: [
+			'LSB steganography is invisible but fragile against aggressive re-encoding; balanced by targeting bit planes least affected by DCT',
+			'RSA-2048 chosen over ECDSA for wider tooling compatibility despite larger key size',
+			'Closed-source to protect proprietary watermarking algorithm design'
+		],
+		outcome: 'Dual-layer security system passed all synthetic test cases; watermark survived JPEG compression at 85% quality and signatures verified end-to-end.',
+		whatYouLearned: [
+			'How LSB steganography interacts with DCT-based compression codecs',
+			'Python cryptography library internals: RSA, AES key derivation, padding schemes',
+			'ONNX Runtime inference optimisation for real-time video pipelines',
+			'PKI design patterns: certificate chains, key revocation, and secure storage'
+		]
 	},
 	{
 		slug: 'mono-pix-scout',
@@ -185,7 +305,31 @@ export const projects: Project[] = [
 		endMonth: 'Dec',
 		endYear: 2025,
 		year: 2025,
-		slides: 'https://docs.google.com/presentation/d/18sVJu53sH0PjY2BkNtnu0TbnXKawLipJ0ArC-TDxM8I/edit?usp=sharing'
+		slides: 'https://docs.google.com/presentation/d/18sVJu53sH0PjY2BkNtnu0TbnXKawLipJ0ArC-TDxM8I/edit?usp=sharing',
+		problem: 'Most browsers expose no visibility into tracking pixels hidden on web pages. Build an extension that surfaces them in real time without breaking normal browsing.',
+		architecture: [
+			'Chrome Manifest V3 service worker with declarativeNetRequest rule engine',
+			'Content script scanning DOM for 1×1 image elements and suspicious attribute patterns',
+			'Background listener intercepting navigator.sendBeacon and XHR/fetch calls to known tracker domains',
+			'Popup UI summarising detected trackers per domain with block toggle'
+		],
+		challenges: [
+			'MV3 service-worker lifecycle limitations made stateful blocking harder than MV2 background pages',
+			'Avoiding false positives on legitimate 1×1 spacer images used for layout',
+			'Keeping CPU overhead below 1% on real browsing sessions with many DOM mutations'
+		],
+		tradeoffs: [
+			'Chose Manifest V3 for future-proofing despite its reduced background-script capabilities',
+			'Blocklist sourced from public tracker lists; trades recall for low false-positive rate',
+			'Popup built in vanilla TS without a framework to minimise extension bundle size'
+		],
+		outcome: 'Extension correctly identified tracking pixels and sendBeacon calls on test sites, with near-zero impact on page load times.',
+		whatYouLearned: [
+			'Chrome Manifest V3 API constraints vs MV2 background pages',
+			'Browser network interception via declarativeNetRequest vs webRequest',
+			'Performance profiling of content scripts with Chrome DevTools',
+			'Heuristic design to reduce false positives in ad-hoc pixel detection'
+		]
 	},
 	{
 		slug: 'to-do-or-destroy',
@@ -203,7 +347,29 @@ export const projects: Project[] = [
 		startYear: 2025,
 		endMonth: 'Sep',
 		endYear: 2025,
-		year: 2025
+		year: 2025,
+		problem: 'Standard to-do apps are boring and easy to ignore. Make task completion emotionally high-stakes by framing each task as a bomb wire that must be cut before a timer detonates.',
+		architecture: [
+			'Vanilla JavaScript frontend with canvas-based "bomb wire" rendering',
+			'Python Flask backend for task persistence and timer management',
+			'WebSocket channel for real-time countdown synchronisation across clients',
+			'Task verification modal before "wire cut" to prevent accidental completion'
+		],
+		challenges: [
+			'Implementing convincing bomb-timer UX in under 24 hours with a team',
+			'Coordinating timer state between clients via WebSockets without a full backend framework',
+			'Balancing game tension with usability (timers that are too short frustrate rather than motivate)'
+		],
+		tradeoffs: [
+			'Chose Flask + vanilla JS over a heavier stack to move faster during the hackathon',
+			'Persisted tasks in memory (no DB) to avoid setup overhead; acceptable for a demo'
+		],
+		outcome: 'Functional gamified to-do app demoed at HackCMU 2025; drew consistent crowd engagement during judging.',
+		whatYouLearned: [
+			'WebSocket state synchronisation patterns for real-time collaborative UIs',
+			'Rapid prototyping under hackathon time pressure and team coordination',
+			'How gamification mechanics change user motivation vs traditional UI patterns'
+		]
 	},
 	{
 		slug: 'child-companion-robot-build18',
@@ -223,7 +389,32 @@ export const projects: Project[] = [
 		endMonth: 'Feb',
 		endYear: 2025,
 		year: 2025,
-		note: 'Additional demo clips are attached on LinkedIn (Prepped-up Demo / Prepped-up Demo 2).'
+		note: 'Additional demo clips are attached on LinkedIn (Prepped-up Demo / Prepped-up Demo 2).',
+		problem: 'Children with reading difficulties or visual impairments need a low-cost, engaging companion that reads physical books aloud when asked—without requiring a screen or complex interaction.',
+		architecture: [
+			'Raspberry Pi with USB webcam for image capture triggered by voice command',
+			'Voice-command listener using a lightweight keyword-spotting library',
+			'OCR API pipeline for extracting text from captured book-page images',
+			'Text-to-speech engine converting extracted text to natural speech audio',
+			'Mannequin form factor for friendly physical presence'
+		],
+		challenges: [
+			'Achieving acceptable OCR accuracy on curved or partially shadowed book pages',
+			'Reducing voice-command latency to feel responsive during child interaction',
+			'Fitting all processing on a Raspberry Pi 4 without offloading to a cloud server'
+		],
+		tradeoffs: [
+			'Chose a cloud OCR API over on-device OCR to maximise accuracy on the Pi',
+			'Keyword spotting instead of full ASR reduces power draw and false triggers',
+			'Closed-source given the CMU Build18 project nature'
+		],
+		outcome: 'Robot successfully captured book pages, extracted text via OCR, and read them aloud with natural-sounding TTS in live demos at CMU Build18.',
+		whatYouLearned: [
+			'Raspberry Pi GPIO and camera module integration in Python',
+			'Practical limits and tuning of cloud OCR APIs for physical document scans',
+			'Audio output pipeline on embedded Linux (ALSA/Pulse audio routing)',
+			'Designing user experiences for non-technical, young end-users'
+		]
 	},
 	{
 		slug: 'mixed-signal-dac-system',
@@ -239,7 +430,33 @@ export const projects: Project[] = [
 		startYear: 2024,
 		endMonth: 'Dec',
 		endYear: 2024,
-		year: 2024
+		year: 2024,
+		problem: 'Design an 8-bit Digital-to-Analog Converter from the transistor level, meeting specs for linearity, bandwidth, and noise in a real 180 nm process.',
+		architecture: [
+			'R-2R resistor ladder network for binary-weighted current summation',
+			'Custom Operational Transconductance Amplifier (OTA) for output buffering',
+			'Full Cadence Virtuoso schematic with manual gate placement and routing',
+			'Parasitic extraction and post-layout simulation to verify AC/DC specs',
+			'DRC and LVS sign-off for physical design rule compliance'
+		],
+		challenges: [
+			'Meeting gain-bandwidth requirements with the OTA across PVT corners',
+			'Minimising layout-induced mismatch in the R-2R ladder for DNL/INL targets',
+			'Routing high-density analog layout without introducing parasitic coupling',
+			'Iterating schematic ↔ layout ↔ simulation without breaking convergence'
+		],
+		tradeoffs: [
+			'Chose R-2R topology over current-steering DAC for simpler layout at 8-bit resolution',
+			'Sized OTA for 70 dB gain over 1 MHz bandwidth; narrower than some alternatives but sufficient for audio range',
+			'Manual routing prioritised matching over density to protect linearity'
+		],
+		outcome: 'Passing DRC/LVS; post-layout simulation met DNL < 0.5 LSB and INL < 1 LSB across nominal and SS process corners.',
+		whatYouLearned: [
+			'Full-custom analog IC design flow from schematic to layout sign-off',
+			'OTA topology selection and sizing methodology (gm/ID approach)',
+			'How parasitic extraction changes AC response vs schematic simulation',
+			'Cadence Virtuoso layout techniques for matching-sensitive analog circuits'
+		]
 	},
 	{
 		slug: 'fpga-breakout-game',
@@ -257,7 +474,34 @@ export const projects: Project[] = [
 		startYear: 2024,
 		endMonth: 'Nov',
 		endYear: 2024,
-		year: 2024
+		year: 2024,
+		problem: 'Implement a fully playable Breakout clone in hardware—no CPU, no OS—where all game logic runs as synchronous digital circuits on an FPGA outputting a live VGA signal.',
+		architecture: [
+			'Top-level SystemVerilog module wiring VGA timing, game FSM, and input controller',
+			'VGA sync generator producing 640×480 @ 60 Hz H/V sync and pixel clock',
+			'Parameterised ball physics module with fixed-point velocity and collision detection',
+			'Paddle controller driven by on-board push buttons with debounce logic',
+			'Brick grid ROM with hit-tracking registers cleared on collision',
+			'Score/lives display using on-screen 7-segment font rendered in logic'
+		],
+		challenges: [
+			'Fitting all logic within FPGA LUT budget while meeting 25.175 MHz pixel-clock timing',
+			'Implementing collision detection between a moving ball and a grid of bricks without a CPU',
+			'Handling edge-case ball corner collisions without introducing visual glitches',
+			'Synchronising button input debounce with the VGA frame clock domain'
+		],
+		tradeoffs: [
+			'Used fixed-point arithmetic (Q4.4) instead of floating-point to stay within FPGA DSP blocks',
+			'Brick grid stored in registers rather than block RAM for simpler combinatorial hit logic',
+			'Single-speed ball velocity—no acceleration—to keep FSM states manageable'
+		],
+		outcome: 'Fully playable Breakout game running on FPGA hardware with stable 60 Hz VGA output, correct collision physics, and score tracking.',
+		whatYouLearned: [
+			'VGA timing specification and how to derive sync signals in hardware',
+			'Fixed-point arithmetic design patterns in SystemVerilog',
+			'FSM decomposition for game state (idle, playing, ball lost, win)',
+			'Timing closure techniques: pipeline stages and register retiming in Quartus'
+		]
 	},
 	{
 		slug: 'dont-find-me-pytinker',
@@ -268,7 +512,7 @@ export const projects: Project[] = [
 		description:
 			'Solo-built a minimalist evasion game in Python with Tkinter, implementing the main loop, keyboard controls, on-canvas rendering, collision checks, and clean state transitions.',
 		type: 'open-source',
-		tags: ['JavaScript', 'Chrome Extension', 'HTML'],
+		tags: ['Python', 'Tkinter'],
 		github: 'https://github.com/Qrytics/15-112-Term-Project',
 		demo: 'https://www.youtube.com/watch?v=I-haGKxNNX0',
 		status: 'archived',
@@ -277,7 +521,33 @@ export const projects: Project[] = [
 		endMonth: 'Dec',
 		endYear: 2022,
 		year: 2022,
-		note: 'Game showcase & breakdown video (LinkedIn media): https://www.youtube.com/watch?v=I-haGKxNNX0'
+		note: 'Game showcase & breakdown video (LinkedIn media): https://www.youtube.com/watch?v=I-haGKxNNX0',
+		problem: 'Build a complete, polished 2D game from scratch in Python—no game engine—as a term project demonstrating object-oriented design and a custom game loop.',
+		architecture: [
+			'Tkinter Canvas as the rendering surface with manual dirty-rect invalidation',
+			'Custom game loop using after() scheduling for frame-rate control',
+			'Player entity with keyboard-driven velocity and boundary clamping',
+			'Obstacle spawner with configurable difficulty ramping over time',
+			'Collision detection using axis-aligned bounding boxes (AABB)',
+			'State machine managing menu, playing, paused, and game-over screens'
+		],
+		challenges: [
+			'Achieving smooth animation in Tkinter without a dedicated rendering engine',
+			'Implementing progressive difficulty without making the game feel unfair',
+			'Managing game state transitions cleanly without global mutable state'
+		],
+		tradeoffs: [
+			'Tkinter chosen for zero-dependency portability; traded rendering performance for simplicity',
+			'AABB collision is less precise than pixel-perfect but sufficient at game scale',
+			'No sound effects to keep the project scope achievable as a first solo game'
+		],
+		outcome: 'Fully playable evasion game submitted and demoed as CMU 15-112 term project, earning high marks for code quality and gameplay feel.',
+		whatYouLearned: [
+			'Game loop architecture and frame timing without a framework',
+			'Tkinter event model and canvas coordinate system',
+			'Object-oriented design for independent, testable game entities',
+			'The value of iterative playtesting for difficulty tuning'
+		]
 	}
 ];
 
