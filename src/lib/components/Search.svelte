@@ -81,6 +81,17 @@
 	export function toggle() {
 		toggleOpen();
 	}
+
+	// Teleport node to document.body so it escapes any transformed/
+	// backdrop-filter ancestor that would hijack position:fixed containment.
+	function portal(node: HTMLElement) {
+		document.body.appendChild(node);
+		return {
+			destroy() {
+				node.remove();
+			}
+		};
+	}
 </script>
 
 <!-- Trigger button -->
@@ -90,65 +101,69 @@
 </button>
 
 {#if open}
-	<!-- Backdrop -->
 	<!-- svelte-ignore a11y_click_events_have_key_events -->
 	<!-- svelte-ignore a11y_no_static_element_interactions -->
-	<div class="backdrop" onclick={() => (open = false)}></div>
+	<!-- Portal: teleports backdrop + dialog to document.body so position:fixed
+	     is correctly relative to the viewport, not the transformed header ancestor. -->
+	<div use:portal>
+		<!-- Backdrop -->
+		<div class="backdrop" onclick={() => (open = false)}></div>
 
-	<div class="modal" role="dialog" aria-modal="true" aria-label="Search projects">
-		<div class="modal__bar">
-			<span class="modal__icon" aria-hidden="true">⌕</span>
-			<!-- svelte-ignore a11y_autofocus -->
-			<input
-				bind:this={inputEl}
-				bind:value={query}
-				onkeydown={handleKey}
-				class="modal__input"
-				type="search"
-				placeholder="Search by title, tech, or keyword…"
-				spellcheck="false"
-				aria-label="Search projects"
-			/>
-			{#if query}
-				<button class="modal__clear" aria-label="Clear search" onclick={() => (query = '')}>✕</button>
-			{/if}
-		</div>
+		<div class="modal" role="dialog" aria-modal="true" aria-label="Search projects">
+			<div class="modal__bar">
+				<span class="modal__icon" aria-hidden="true">⌕</span>
+				<!-- svelte-ignore a11y_autofocus -->
+				<input
+					bind:this={inputEl}
+					bind:value={query}
+					onkeydown={handleKey}
+					class="modal__input"
+					type="search"
+					placeholder="Search by title, tech, or keyword…"
+					spellcheck="false"
+					aria-label="Search projects"
+				/>
+				{#if query}
+					<button class="modal__clear" aria-label="Clear search" onclick={() => (query = '')}>✕</button>
+				{/if}
+			</div>
 
-		{#if results.length > 0}
-			<ul class="results" role="listbox" aria-label="Search results">
-				{#each results as project, i}
-					<li
-						class="result"
-						class:result--selected={i === selectedIdx}
-						role="option"
-						aria-selected={i === selectedIdx}
-					>
-						<button
-							class="result__btn"
-							onclick={() => navigate(project.slug)}
-							onmouseenter={() => (selectedIdx = i)}
+			{#if results.length > 0}
+				<ul class="results" role="listbox" aria-label="Search results">
+					{#each results as project, i}
+						<li
+							class="result"
+							class:result--selected={i === selectedIdx}
+							role="option"
+							aria-selected={i === selectedIdx}
 						>
-							<span class="result__title">{project.title}</span>
-							<span class="result__year">{project.year}</span>
-							<div class="result__tags">
-								{#each project.tags.slice(0, 4) as tag}
-									<span class="tag">{tag}</span>
-								{/each}
-							</div>
-						</button>
-					</li>
-				{/each}
-			</ul>
-		{:else if query.trim()}
-			<div class="empty">No results for "<strong>{query}</strong>"</div>
-		{:else}
-			<div class="hint">Start typing to search projects…</div>
-		{/if}
+							<button
+								class="result__btn"
+								onclick={() => navigate(project.slug)}
+								onmouseenter={() => (selectedIdx = i)}
+							>
+								<span class="result__title">{project.title}</span>
+								<span class="result__year">{project.year}</span>
+								<div class="result__tags">
+									{#each project.tags.slice(0, 4) as tag}
+										<span class="tag">{tag}</span>
+									{/each}
+								</div>
+							</button>
+						</li>
+					{/each}
+				</ul>
+			{:else if query.trim()}
+				<div class="empty">No results for "<strong>{query}</strong>"</div>
+			{:else}
+				<div class="hint">Start typing to search projects…</div>
+			{/if}
 
-		<div class="modal__footer">
-			<span><kbd>↑↓</kbd> navigate</span>
-			<span><kbd>↵</kbd> open</span>
-			<span><kbd>Esc</kbd> close</span>
+			<div class="modal__footer">
+				<span><kbd>↑↓</kbd> navigate</span>
+				<span><kbd>↵</kbd> open</span>
+				<span><kbd>Esc</kbd> close</span>
+			</div>
 		</div>
 	</div>
 {/if}
