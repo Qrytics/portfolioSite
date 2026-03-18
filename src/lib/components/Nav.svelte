@@ -2,6 +2,7 @@
 	import { profile } from '$lib/data/profile';
 	import Search from '$lib/components/Search.svelte';
 	import Terminal from '$lib/components/Terminal.svelte';
+	import { lockScroll, unlockScroll } from '$lib/utils/scrollLock';
 
 	let scrolled = $state(false);
 	let navOpen = $state(false);
@@ -32,6 +33,19 @@
 
 	// function toggleTheme() { ... }
 
+	$effect(() => {
+		if (!navOpen || !compact) return;
+		lockScroll();
+		function onKey(e: KeyboardEvent) {
+			if (e.key === 'Escape') navOpen = false;
+		}
+		window.addEventListener('keydown', onKey);
+		return () => {
+			unlockScroll();
+			window.removeEventListener('keydown', onKey);
+		};
+	});
+
 	const navLinks: Array<{ href: string; label: string; external?: boolean }> = [
 		{ href: '/#projects', label: 'projects' },
 		{ href: '/#about-me', label: 'about me' },
@@ -40,6 +54,12 @@
 </script>
 
 <a href="#main" class="skip">Skip to content</a>
+
+{#if navOpen && compact}
+	<!-- svelte-ignore a11y_click_events_have_key_events -->
+	<!-- svelte-ignore a11y_no_static_element_interactions -->
+	<div class="nav-backdrop" onclick={() => (navOpen = false)}></div>
+{/if}
 
 <header
 	class="site-header"
@@ -84,6 +104,14 @@
 </header>
 
 <style>
+	.nav-backdrop {
+		position: fixed;
+		inset: 0;
+		z-index: 99;
+		background: rgba(0, 0, 0, 0.55);
+		backdrop-filter: blur(4px);
+	}
+
 	.skip {
 		position: absolute;
 		left: -9999px;

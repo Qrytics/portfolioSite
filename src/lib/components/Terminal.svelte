@@ -222,6 +222,12 @@
 		color: var(--accent);
 	}
 
+	@media (max-width: 639px) {
+		.trigger {
+			display: none;
+		}
+	}
+
 	.trigger__icon {
 		font-weight: 700;
 		color: var(--accent);
