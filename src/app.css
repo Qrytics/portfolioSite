@@ -30,7 +30,8 @@
 	--font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace;
 }
 
-/* ── Light mode ── */
+/* ── Light mode (DISABLED for now) ── */
+/*
 [data-theme='light'] {
 	--bg: #fbfbfd;
 	--panel: #ffffff;
@@ -44,6 +45,52 @@
 	--accent-2: #b45309;
 	--shadow: 0 18px 44px rgba(15, 20, 30, 0.09);
 }
+
+/* Light mode: text treatment for panels / cards / sections */
+[data-theme='light'] .header__content {
+	color: var(--text);
+	text-shadow: 0 1px 0 rgba(255, 255, 255, 0.8);
+}
+
+[data-theme='light'] .card__dates {
+	color: rgba(12, 16, 22, 0.6);
+	text-shadow: 0 1px 0 rgba(255, 255, 255, 0.7);
+}
+
+[data-theme='light'] .card__desc,
+[data-theme='light'] .event__label,
+[data-theme='light'] .event__desc,
+[data-theme='light'] .currently .list__item,
+[data-theme='light'] .fun .list__item,
+[data-theme='light'] .card__inner,
+[data-theme='light'] .about-me .card__inner,
+[data-theme='light'] .timeline .event__body {
+	color: rgba(12, 16, 22, 0.8);
+	text-shadow: 0 1px 0 rgba(255, 255, 255, 0.7);
+}
+
+[data-theme='light'] .tech-badges {
+	color: rgba(12, 16, 22, 0.7);
+}
+
+[data-theme='light'] .btn--ghost,
+[data-theme='light'] .btn--primary,
+[data-theme='light'] .review-cta__btn,
+[data-theme='light'] .email-btn.footer-link {
+	color: var(--accent);
+	text-shadow: 0 1px 0 rgba(255, 255, 255, 0.7);
+}
+
+[data-theme='light'] .termbar__titleLink {
+	color: rgba(12, 16, 22, 0.9);
+	text-shadow: 0 1px 0 rgba(255, 255, 255, 0.8);
+}
+
+[data-theme='light'] .badge {
+	color: rgba(12, 16, 22, 0.82);
+	text-shadow: 0 1px 0 rgba(228, 1, 1, 0.8);
+}
+*/
 
 /* ============================================================
    Reset & Base
