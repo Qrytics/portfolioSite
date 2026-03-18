@@ -30,7 +30,8 @@
 	--font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace;
 }
 
-/* ── Light mode ── */
+/* ── Light mode (DISABLED for now) ── */
+/*
 [data-theme='light'] {
 	--bg: #fbfbfd;
 	--panel: #ffffff;
@@ -89,6 +90,7 @@
 	color: rgba(12, 16, 22, 0.82);
 	text-shadow: 0 1px 0 rgba(228, 1, 1, 0.8);
 }
+*/
 
 /* ============================================================
    Reset & Base

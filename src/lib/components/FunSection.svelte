@@ -1,54 +1,86 @@
 <script lang="ts">
+	let { embedded = false }: { embedded?: boolean } = $props();
+
 	const interests = [
-		'Hackathons',
-		'FPGA design',
-		'Hardware debugging',
+		'Health and fitness',
+		'Competitive gaming and strategic thinking',
+		'Dance and self-expression',
 		'Building weird side projects',
-		'Embedded systems',
-		'Full-stack from ESP32 to React'
+		'Continuous learning and self-improvement'
 	];
 
 	const funFacts = [
-		'I debug hardware and software in the same afternoon',
-		'I once built a robot companion out of a mannequin head',
-		'I find timing closure issues weirdly satisfying to fix',
-		'AV systems installer by day, FPGA designer by night'
+		'I played the violin and drums for 7 years',
+		'I push past my comfort zone regularly',
+		'I am obsessed with the rhythm dance game PUMP IT UP'
 	];
 </script>
 
-<section class="fun" id="fun" aria-label="Fun facts and interests">
-	<div class="fun__inner">
-		<div class="grid">
-			<div class="card">
-				<div class="card__header">
-					<h2 class="card__title">Things I Like</h2>
-				</div>
-				<ul class="list">
-					{#each interests as item}
-						<li class="list__item">
-							<span class="bullet" aria-hidden="true">•</span>
-							{item}
-						</li>
-					{/each}
-				</ul>
+{#if embedded}
+	<div class="grid">
+		<div class="card">
+			<div class="card__header">
+				<h2 class="card__title">Things I Like</h2>
 			</div>
+			<ul class="list">
+				{#each interests as item}
+					<li class="list__item">
+						<span class="bullet" aria-hidden="true">•</span>
+						{item}
+					</li>
+				{/each}
+			</ul>
+		</div>
 
-			<div class="card">
-				<div class="card__header">
-					<h2 class="card__title">Fun Facts</h2>
-				</div>
-				<ul class="list">
-					{#each funFacts as item}
-						<li class="list__item">
-							<span class="bullet" aria-hidden="true">•</span>
-							{item}
-						</li>
-					{/each}
-				</ul>
+		<div class="card">
+			<div class="card__header">
+				<h2 class="card__title">Fun Facts</h2>
 			</div>
+			<ul class="list">
+				{#each funFacts as item}
+					<li class="list__item">
+						<span class="bullet" aria-hidden="true">•</span>
+						{item}
+					</li>
+				{/each}
+			</ul>
 		</div>
 	</div>
-</section>
+{:else}
+	<section class="fun" id="fun" aria-label="Fun facts and interests">
+		<div class="fun__inner">
+			<div class="grid">
+				<div class="card">
+					<div class="card__header">
+						<h2 class="card__title">Things I Like</h2>
+					</div>
+					<ul class="list">
+						{#each interests as item}
+							<li class="list__item">
+								<span class="bullet" aria-hidden="true">•</span>
+								{item}
+							</li>
+						{/each}
+					</ul>
+				</div>
+
+				<div class="card">
+					<div class="card__header">
+						<h2 class="card__title">Fun Facts</h2>
+					</div>
+					<ul class="list">
+						{#each funFacts as item}
+							<li class="list__item">
+								<span class="bullet" aria-hidden="true">•</span>
+								{item}
+							</li>
+						{/each}
+					</ul>
+				</div>
+			</div>
+		</div>
+	</section>
+{/if}
 
 <style>
 	.fun {
@@ -84,11 +116,6 @@
 		display: flex;
 		align-items: center;
 		gap: 0.5rem;
-	}
-
-	.card__icon {
-		font-size: 1rem;
-		line-height: 1;
 	}
 
 	.card__title {

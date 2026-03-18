@@ -32,7 +32,7 @@
 			error = null;
 
 			const res = await fetch(
-				`https://api.github.com/users/${githubUser}/repos?sort=pushed&per_page=30`,
+				`https://api.github.com/users/${githubUser}/repos?sort=pushed&per_page=100`,
 				{ headers: { Accept: 'application/vnd.github+json' } }
 			);
 			if (!res.ok) throw new Error(`GitHub API error (${res.status})`);
@@ -40,8 +40,7 @@
 
 			repos = data
 				.filter((r) => !r.private && !r.fork)
-				.filter((r) => isWithinLastWeek(r.pushed_at))
-				.slice(0, 8);
+				.filter((r) => isWithinLastWeek(r.pushed_at));
 		} catch (e) {
 			error = e instanceof Error ? e.message : 'Failed to load GitHub activity.';
 			repos = [];
@@ -78,14 +77,21 @@
 					</li>
 				{:else}
 					{#each repos as repo (repo.id)}
-						<li class="list__item">
+						<li class="item">
 							<span class="bullet" aria-hidden="true">•</span>
-							<a class="repo" href={repo.html_url} target="_blank" rel="noopener noreferrer">
-								{repo.name}
-							</a>
-							{#if repo.description}
-								<span class="repo__desc">— {repo.description}</span>
-							{/if}
+							<div class="item__body">
+								<div class="item__top">
+									<a class="repo" href={repo.html_url} target="_blank" rel="noopener noreferrer">
+										{repo.name}
+									</a>
+									<span class="repo__meta">
+										{new Date(repo.pushed_at).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}
+									</span>
+								</div>
+								{#if repo.description}
+									<div class="repo__desc">{repo.description}</div>
+								{/if}
+							</div>
 						</li>
 					{/each}
 				{/if}
@@ -142,13 +148,14 @@
 		margin: 0;
 		padding: 1rem 1.1rem;
 		display: grid;
-		gap: 0.55rem;
+		gap: 0.8rem;
 		list-style: none;
 	}
 
-	.list__item {
+	.list__item,
+	.item {
 		display: flex;
-		align-items: baseline;
+		align-items: flex-start;
 		gap: 0.55rem;
 		font-family: var(--font-mono);
 		font-size: 0.93rem;
@@ -156,14 +163,33 @@
 		line-height: 1.5;
 	}
 
+	.item__body {
+		flex: 1;
+		min-width: 0;
+		display: grid;
+		gap: 0.25rem;
+	}
+
+	.item__top {
+		display: flex;
+		align-items: baseline;
+		justify-content: space-between;
+		gap: 0.75rem;
+		min-width: 0;
+	}
+
 	.bullet {
 		color: var(--accent);
 		flex-shrink: 0;
+		margin-top: 0.2rem;
 	}
 
 	.repo {
 		color: rgba(243, 246, 255, 0.92);
 		text-decoration: none;
+		white-space: nowrap;
+		overflow: hidden;
+		text-overflow: ellipsis;
 	}
 
 	.repo:hover {
@@ -171,7 +197,27 @@
 		color: var(--accent);
 	}
 
+	.repo__meta {
+		font-size: 0.78rem;
+		color: rgba(243, 246, 255, 0.55);
+		flex-shrink: 0;
+	}
+
 	.repo__desc {
-		color: rgba(243, 246, 255, 0.66);
+		color: rgba(243, 246, 255, 0.68);
+		font-size: 0.88rem;
+		line-height: 1.55;
+		overflow-wrap: anywhere;
+	}
+
+	@media (max-width: 520px) {
+		.item__top {
+			flex-direction: column;
+			align-items: flex-start;
+			gap: 0.2rem;
+		}
+		.repo {
+			white-space: normal;
+		}
 	}
 </style>

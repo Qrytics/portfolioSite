@@ -171,6 +171,12 @@
 		font-family: var(--font-mono);
 	}
 
+	@media (max-width: 520px) {
+		.meta-sep {
+			display: none;
+		}
+	}
+
 	.link__mono {
 		color: var(--text);
 	}

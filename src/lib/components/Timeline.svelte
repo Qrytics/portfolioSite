@@ -68,7 +68,7 @@
 			description: 'Hardware-only Breakout clone in SystemVerilog on an FPGA with live VGA output and no CPU — pure digital logic.'
 		},
 		{
-			year: 2024,
+			year: 2022,
 			month: 'Aug',
 			label: 'Started CMU Electrical & Computer Engineering',
 			description: 'Enrolled at Carnegie Mellon to study ECE, combining coursework in circuits, digital systems, and software engineering.',

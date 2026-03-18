@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { projects, type Project } from '$lib/data/projects';
+	import { lockScroll, unlockScroll } from '$lib/utils/scrollLock';
 
 	let open = $state(false);
 	let query = $state('');
@@ -34,10 +35,21 @@
 
 	$effect(() => {
 		if (open) {
-			setTimeout(() => inputEl?.focus(), 10);
+			setTimeout(() => {
+				(inputEl as unknown as { focus: (opts?: { preventScroll?: boolean }) => void })?.focus?.({
+					preventScroll: true
+				});
+			}, 10);
 			query = '';
 			selectedIdx = 0;
 		}
+	});
+
+	$effect(() => {
+		// Lock page scroll while search modal is open (prevents hash-scroll race)
+		if (!open) return;
+		lockScroll();
+		return () => unlockScroll();
 	});
 
 	$effect(() => {
@@ -75,7 +87,6 @@
 <button class="trigger" aria-label="Search projects (Ctrl+K)" onclick={toggleOpen}>
 	<span class="trigger__icon" aria-hidden="true">⌕</span>
 	<span class="trigger__label">search</span>
-	<kbd class="trigger__kbd">⌘K</kbd>
 </button>
 
 {#if open}
@@ -168,21 +179,11 @@
 		font-size: 0.9rem;
 	}
 
-	.trigger__kbd {
-		font-family: var(--font-mono);
-		font-size: 0.72rem;
-		padding: 0.1rem 0.3rem;
-		border: 1px solid var(--border-2);
-		background: rgba(255, 255, 255, 0.04);
-		color: var(--muter);
-		margin-left: 0.2rem;
-	}
-
 	.backdrop {
 		position: fixed;
 		inset: 0;
 		z-index: 299;
-		background: rgba(0, 0, 0, 0.55);
+		background: rgba(0, 0, 0, 0.66);
 		backdrop-filter: blur(4px);
 	}
 
