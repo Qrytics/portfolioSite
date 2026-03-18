@@ -150,6 +150,17 @@
 	export function toggle() {
 		toggleOpen();
 	}
+
+	// Teleport node to document.body so it escapes any transformed/
+	// backdrop-filter ancestor that would hijack position:fixed containment.
+	function portal(node: HTMLElement) {
+		document.body.appendChild(node);
+		return {
+			destroy() {
+				node.remove();
+			}
+		};
+	}
 </script>
 
 <!-- Trigger button -->
@@ -159,43 +170,47 @@
 </button>
 
 {#if open}
-	<!-- Backdrop -->
 	<!-- svelte-ignore a11y_click_events_have_key_events -->
 	<!-- svelte-ignore a11y_no_static_element_interactions -->
-	<div class="backdrop" onclick={() => (open = false)}></div>
+	<!-- Portal: teleports backdrop + dialog to document.body so position:fixed
+	     is correctly relative to the viewport, not the transformed header ancestor. -->
+	<div use:portal>
+		<!-- Backdrop -->
+		<div class="backdrop" onclick={() => (open = false)}></div>
 
-	<div class="terminal" role="dialog" aria-modal="true" aria-label="Terminal">
-		<div class="terminal__bar">
-			<span class="terminal__title">mario-belmonte — bash</span>
-			<button class="terminal__close" aria-label="Close terminal" onclick={() => (open = false)}>✕</button>
-		</div>
+		<div class="terminal" role="dialog" aria-modal="true" aria-label="Terminal">
+			<div class="terminal__bar">
+				<span class="terminal__title">mario-belmonte — bash</span>
+				<button class="terminal__close" aria-label="Close terminal" onclick={() => (open = false)}>✕</button>
+			</div>
 
-		<!-- Output -->
-		<div class="terminal__output" bind:this={containerEl}>
-			{#each lines as line}
-				<div class="line line--{line.type}" role={line.type === 'error' ? 'alert' : undefined}>
-					{#each line.text.split('\n') as row}
-						<span>{row}</span>
-					{/each}
-				</div>
-			{/each}
-		</div>
+			<!-- Output -->
+			<div class="terminal__output" bind:this={containerEl}>
+				{#each lines as line}
+					<div class="line line--{line.type}" role={line.type === 'error' ? 'alert' : undefined}>
+						{#each line.text.split('\n') as row}
+							<span>{row}</span>
+						{/each}
+					</div>
+				{/each}
+			</div>
 
-		<!-- Input row -->
-		<div class="terminal__input-row">
-			<span class="terminal__prompt" aria-hidden="true">{'>'}</span>
-			<!-- svelte-ignore a11y_autofocus -->
-			<input
-				bind:this={inputEl}
-				bind:value={inputValue}
-				onkeydown={handleKey}
-				class="terminal__input"
-				type="text"
-				spellcheck="false"
-				autocomplete="off"
-				aria-label="Terminal input"
-				placeholder="type a command…"
-			/>
+			<!-- Input row -->
+			<div class="terminal__input-row">
+				<span class="terminal__prompt" aria-hidden="true">{'>'}</span>
+				<!-- svelte-ignore a11y_autofocus -->
+				<input
+					bind:this={inputEl}
+					bind:value={inputValue}
+					onkeydown={handleKey}
+					class="terminal__input"
+					type="text"
+					spellcheck="false"
+					autocomplete="off"
+					aria-label="Terminal input"
+					placeholder="type a command…"
+				/>
+			</div>
 		</div>
 	</div>
 {/if}
@@ -220,6 +235,12 @@
 		background: rgba(54, 242, 194, 0.07);
 		border-color: rgba(54, 242, 194, 0.3);
 		color: var(--accent);
+	}
+
+	@media (max-width: 639px) {
+		.trigger {
+			display: none;
+		}
 	}
 
 	.trigger__icon {
@@ -286,6 +307,7 @@
 
 	.terminal__output {
 		flex: 1;
+		min-height: 0;
 		overflow-y: auto;
 		padding: 0.75rem;
 		display: flex;
