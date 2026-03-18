@@ -6,11 +6,14 @@
 	let scrolled = $state(false);
 	let navOpen = $state(false);
 	let compact = $state(false);
-	// Theme toggle disabled for now (you'll re-implement later)
-	// let darkMode = $state(true);
+	let darkMode = $state(true);
 
 	$effect(() => {
-		// Theme toggle disabled for now
+		const saved = typeof localStorage !== 'undefined' ? localStorage.getItem('theme') : null;
+		if (saved === 'light') {
+			darkMode = false;
+			document.documentElement.setAttribute('data-theme', 'light');
+		}
 	});
 
 	$effect(() => {
@@ -30,7 +33,15 @@
 		};
 	});
 
-	// function toggleTheme() { ... }
+	function toggleTheme() {
+		darkMode = !darkMode;
+		if (darkMode) {
+			document.documentElement.removeAttribute('data-theme');
+		} else {
+			document.documentElement.setAttribute('data-theme', 'light');
+		}
+		localStorage.setItem('theme', darkMode ? 'dark' : 'light');
+	}
 
 	const navLinks: Array<{ href: string; label: string; external?: boolean }> = [
 		{ href: '/#projects', label: 'projects' },
@@ -52,7 +63,13 @@
 		<div class="site-header__tools">
 			<Search />
 			<Terminal />
-			<!-- theme toggle disabled for now -->
+			<button
+				class="theme-toggle"
+				aria-label={darkMode ? 'Switch to light mode' : 'Switch to dark mode'}
+				onclick={toggleTheme}
+			>
+				{darkMode ? '☀' : '☾'}
+			</button>
 		</div>
 
 		<button
@@ -143,7 +160,24 @@
 		}
 	}
 
-	/* theme-toggle styles removed (feature disabled) */
+	.theme-toggle {
+		font-size: 0.95rem;
+		background: rgba(255, 255, 255, 0.03);
+		border: 1px solid var(--border-2);
+		color: rgba(243, 246, 255, 0.7);
+		cursor: pointer;
+		padding: 0.25rem 0.45rem;
+		transition: background 0.14s, border-color 0.14s, color 0.14s;
+		border-radius: 0;
+		line-height: 1;
+		font-family: var(--font-mono);
+	}
+
+	.theme-toggle:hover {
+		background: rgba(54, 242, 194, 0.07);
+		border-color: rgba(54, 242, 194, 0.3);
+		color: var(--accent);
+	}
 
 	.site-header__inner--with-title {
 		justify-content: space-between;

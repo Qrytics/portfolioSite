@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { projects, type Project } from '$lib/data/projects';
+	import { goto } from '$app/navigation';
 	import { lockScroll, unlockScroll } from '$lib/utils/scrollLock';
 
 	let open = $state(false);
@@ -53,7 +54,9 @@
 	});
 
 	$effect(() => {
-		// Reset selection when results change
+		// Reset selection when results change — reading results.length
+		// ensures this effect re-runs whenever the derived list updates.
+		void results.length;
 		selectedIdx = 0;
 	});
 
@@ -63,7 +66,7 @@
 
 	function navigate(slug: string) {
 		open = false;
-		window.location.href = `/projects/${slug}`;
+		goto(`/projects/${slug}`);
 	}
 
 	function handleKey(e: KeyboardEvent) {
@@ -115,14 +118,9 @@
 		</div>
 
 		{#if results.length > 0}
-			<ul class="results" role="listbox" aria-label="Search results">
+			<ul class="results" aria-label="Search results">
 				{#each results as project, i}
-					<li
-						class="result"
-						class:result--selected={i === selectedIdx}
-						role="option"
-						aria-selected={i === selectedIdx}
-					>
+					<li class="result" class:result--selected={i === selectedIdx}>
 						<button
 							class="result__btn"
 							onclick={() => navigate(project.slug)}
