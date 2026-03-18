@@ -1,1 +1,0 @@
-import{a,f as t}from"./eTq_haDY.js";import"./BgZJdCQG.js";var o=t('<section class="review-cta svelte-relv0i" aria-label="Leave a review"><a href="https://forms.gle/LKXFvhHVp84chSpSA" target="_blank" rel="noopener noreferrer" class="review-cta__btn svelte-relv0i">Would you like to leave a review?</a></section>');function s(e){var r=o();a(e,r)}export{s as R};
