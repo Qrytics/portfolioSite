@@ -1,7 +1,15 @@
+<script lang="ts">
+	import FunSection from '$lib/components/FunSection.svelte';
+</script>
+
 <section id="about-me" aria-label="About me" class="section">
 	<div class="shell">
 		<div class="termbar">
 			<h2 class="termbar__title">about me</h2>
+		</div>
+
+		<div class="fun-wrap">
+			<FunSection embedded />
 		</div>
 
 		<div class="grid">
@@ -58,6 +66,10 @@
 		display: grid;
 		grid-template-columns: 1fr;
 		gap: 1rem;
+	}
+
+	.fun-wrap {
+		margin: 1rem 0 1.2rem;
 	}
 
 	@media (min-width: 720px) {

@@ -1,5 +1,4 @@
 <script lang="ts">
-	import ReviewCta from '$lib/components/ReviewCta.svelte';
 </script>
 
 <main class="page">
@@ -28,10 +27,6 @@
 					allow="autoplay"
 				>
 				</iframe>
-			</div>
-
-			<div class="review-cta-wrap">
-				<ReviewCta />
 			</div>
 		</div>
 	</section>
@@ -99,10 +94,6 @@
 		height: min(1200px, calc(100vh - 9rem));
 		border: none;
 		background: #111319;
-	}
-
-	.review-cta-wrap {
-		margin-top: 1.5rem;
 	}
 
 	@media (max-width: 640px) {

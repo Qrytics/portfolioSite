@@ -159,7 +159,6 @@
 		object-fit: cover;
 		object-position: 50% 50%;
 		display: block;
-		vertical-align: top;
 		transition: transform 0.3s ease;
 	}
 

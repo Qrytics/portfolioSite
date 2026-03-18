@@ -5,6 +5,8 @@
 	import AboutMeTeaser from '$lib/components/AboutMeTeaser.svelte';
 	import ProjectList from '$lib/components/ProjectList.svelte';
 	import ReviewCta from '$lib/components/ReviewCta.svelte';
+	import CurrentlyBuilding from '$lib/components/CurrentlyBuilding.svelte';
+	import Timeline from '$lib/components/Timeline.svelte';
 
 	const firstProject = projects[0];
 	const firstMediaHref = firstProject?.image ?? firstProject?.images?.[0];
@@ -23,6 +25,8 @@
 	<section id="projects" aria-label="Projects">
 		<ProjectList />
 	</section>
+	<CurrentlyBuilding />
+	<Timeline />
 	<AboutMeTeaser />
 	<ReviewCta />
 </div>
