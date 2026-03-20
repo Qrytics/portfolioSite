@@ -99,7 +99,7 @@
 				text:
 					'Projects:\n' +
 					list +
-					'\n\n  Navigate to /#projects or type "project <number>" for details.'
+					'\n\n  Navigate to /projects for the full list or type "project <number>" for details.'
 			});
 		} else if (cmd.startsWith('project ')) {
 			const idx = parseInt(cmd.replace('project ', ''), 10) - 1;

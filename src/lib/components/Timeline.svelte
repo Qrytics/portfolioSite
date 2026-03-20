@@ -25,9 +25,10 @@
 	const events: TimelineEvent[] = [
 		{
 			year: 2026,
-			month: 'Feb',
-			label: 'TartanHacks 2026',
-			description: 'Built MosaicLedger — fintech budget planner with Plaid, XRPL, and d3 treemaps — in a team of 3 at Carnegie Mellon\'s largest hackathon.',
+			month: 'May',
+			label: 'Graduated from CMU',
+			description:
+				'Graduated from Carnegie Mellon University in May 2026 with a B.S. in Electrical and Computer Engineering (ECE) — applying embedded + digital design fundamentals alongside software-focused projects to build real systems.',
 			accent: true
 		},
 		{
@@ -38,34 +39,9 @@
 		},
 		{
 			year: 2025,
-			month: 'Sep',
-			label: 'HackCMU 2025',
-			description: 'Team lead on "To-Do or Destroy" — a gamified productivity app where tasks are bomb wires built in 24 hours.',
-			accent: true
-		},
-		{
-			year: 2025,
 			month: 'Jun',
 			label: 'Electrical Engineering Assistant — Smarter Integrations',
 			description: 'Designed and installed AV integration and security systems; troubleshot hardware/software interfaces in production environments.'
-		},
-		{
-			year: 2025,
-			month: 'Jan',
-			label: 'Child Companion Robot — CMU Build18',
-			description: 'Voice-triggered robot reads books aloud using webcam capture, OCR pipeline, and text-to-speech synthesis on a Raspberry Pi.'
-		},
-		{
-			year: 2024,
-			month: 'Nov',
-			label: 'Mixed Signal DAC System',
-			description: 'Full-custom 8-bit R-2R DAC design in Cadence Virtuoso from schematic through layout, DRC/LVS sign-off, and parasitic simulation.'
-		},
-		{
-			year: 2024,
-			month: 'Oct',
-			label: 'FPGA Breakout Game',
-			description: 'Hardware-only Breakout clone in SystemVerilog on an FPGA with live VGA output and no CPU — pure digital logic.'
 		},
 		{
 			year: 2022,
@@ -74,12 +50,6 @@
 			description: 'Enrolled at Carnegie Mellon to study ECE, combining coursework in circuits, digital systems, and software engineering.',
 			accent: true
 		},
-		{
-			year: 2022,
-			month: 'Nov',
-			label: '"Don\'t Find Me" — 15-112 Term Project',
-			description: 'Solo-built a complete evasion game in Python + Tkinter as a CMU 15-112 term project — game loop, collision detection, difficulty ramping.'
-		}
 	];
 
 	const sortedEvents = [...events].sort((a, b) => {

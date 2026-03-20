@@ -16,7 +16,7 @@ const project = $derived(data.project);
 <div class="breadcrumb">
 <a href="/">home</a>
 <span class="sep">/</span>
-<a href="/#projects">projects</a>
+		<a href="/projects">projects</a>
 <span class="sep">/</span>
 <span class="current">{project.slug}</span>
 </div>
@@ -188,7 +188,7 @@ live demo ↗
 </div>
 
 <div class="back-link">
-<a href="/#projects">← back to projects</a>
+<a href="/projects">← back to projects</a>
 </div>
 </div>
 </div>

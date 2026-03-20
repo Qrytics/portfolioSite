@@ -7,8 +7,17 @@
 	import ReviewCta from '$lib/components/ReviewCta.svelte';
 	import CurrentlyBuilding from '$lib/components/CurrentlyBuilding.svelte';
 	import Timeline from '$lib/components/Timeline.svelte';
+	import GitHubContribChart from '$lib/components/GitHubContribChart.svelte';
 
 	const firstProject = projects[0];
+	// Landing page shows only the projects you consider "top projects".
+	// Use an explicit allow-list to make the homepage deterministic.
+	const topProjectSlugs = new Set([
+		'smart-home-iot-dashboard',
+		'visual-budget-planner',
+		'auto-docker'
+	]);
+	const topProjects = projects.filter((p) => topProjectSlugs.has(p.slug));
 	const firstMediaHref = firstProject?.image ?? firstProject?.images?.[0];
 	const isVideo = firstMediaHref && /\.(mp4|webm)(\?|#|$)/i.test(firstMediaHref);
 </script>
@@ -23,8 +32,9 @@
 <div class="page">
 	<Hero />
 	<section id="projects" aria-label="Projects">
-		<ProjectList />
+		<ProjectList items={topProjects} />
 	</section>
+	<GitHubContribChart />
 	<CurrentlyBuilding />
 	<Timeline />
 	<AboutMeTeaser />

@@ -13,34 +13,25 @@
 		fork: boolean;
 	};
 
-	const githubUser = new URL(profile.github).pathname.replace('/', '');
 	const githubProfileUrl = profile.github;
 
 	let loading = true;
 	let error: string | null = null;
 	let repos: Repo[] = [];
 
-	function isWithinLastWeek(iso: string): boolean {
-		const t = Date.parse(iso);
-		if (!Number.isFinite(t)) return false;
-		return t >= Date.now() - 7 * 24 * 60 * 60 * 1000;
-	}
-
 	onMount(async () => {
 		try {
 			loading = true;
 			error = null;
+			// GitHub Pages is static hosting, so we read a pre-generated JSON file.
+			const res = await fetch('/github-recent.json', { headers: { Accept: 'application/json' } });
+			const data = (await res.json()) as { repos: Repo[]; error?: string };
 
-			const res = await fetch(
-				`https://api.github.com/users/${githubUser}/repos?sort=pushed&per_page=100`,
-				{ headers: { Accept: 'application/vnd.github+json' } }
-			);
-			if (!res.ok) throw new Error(`GitHub API error (${res.status})`);
-			const data = (await res.json()) as Repo[];
+			if (!res.ok || data.error) {
+				throw new Error(data.error ?? `GitHub request failed (${res.status})`);
+			}
 
-			repos = data
-				.filter((r) => !r.private && !r.fork)
-				.filter((r) => isWithinLastWeek(r.pushed_at));
+			repos = data.repos;
 		} catch (e) {
 			error = e instanceof Error ? e.message : 'Failed to load GitHub activity.';
 			repos = [];
@@ -56,7 +47,7 @@
 			<div class="termbar">
 				<span class="termbar__prompt">~</span>
 				<a class="termbar__label" href={githubProfileUrl} target="_blank" rel="noopener noreferrer">
-					currently building ↗
+					currently building (this week) ↗
 				</a>
 			</div>
 			<ul class="list">

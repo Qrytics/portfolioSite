@@ -33,7 +33,7 @@
 	// function toggleTheme() { ... }
 
 	const navLinks: Array<{ href: string; label: string; external?: boolean }> = [
-		{ href: '/#projects', label: 'projects' },
+		{ href: '/projects', label: 'projects' },
 		{ href: '/#about-me', label: 'about me' },
 		{ href: '/resume', label: 'resume' }
 	];
@@ -51,7 +51,9 @@
 
 		<div class="site-header__tools">
 			<Search />
-			<Terminal />
+			<div class="terminal-tool">
+				<Terminal />
+			</div>
 			<!-- theme toggle disabled for now -->
 		</div>
 
@@ -132,6 +134,17 @@
 		align-items: center;
 		gap: 0.5rem;
 		margin-right: 0;
+	}
+
+	.terminal-tool {
+		display: inline-flex;
+	}
+
+	/* Hide terminal trigger on mobile to keep the header uncluttered. */
+	@media (max-width: 639px) {
+		.terminal-tool {
+			display: none;
+		}
 	}
 
 	/* Center tools relative to full header width (desktop). */
