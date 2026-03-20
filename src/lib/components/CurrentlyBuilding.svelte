@@ -126,7 +126,7 @@
 	.termbar__label {
 		font-family: var(--font-mono);
 		font-size: 0.82rem;
-		color: var(--muted);
+		color: rgba(243, 246, 255, 0.92);
 		letter-spacing: 0.04em;
 		text-decoration: none;
 	}
