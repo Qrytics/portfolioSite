@@ -18,9 +18,62 @@
 		weeks: ContributionWeek[];
 	};
 
+type GithubContribPayload = {
+	currentYear?: number;
+	years?: GithubContribData[];
+	// Back-compat single-year format:
+	year?: number;
+	totalContributions?: number;
+	weeks?: ContributionWeek[];
+	error?: string;
+};
+
 	let loading = true;
 	let error: string | null = null;
-	let data: GithubContribData | null = null;
+let dataByYear: GithubContribData[] = [];
+let selectedYear: number | null = null;
+	const weekdayLabels = ['Mon', 'Wed', 'Fri'];
+let weeksCount = 53;
+
+function monthMarkers(weeks: ContributionWeek[], year: number): Array<{ label: string; index: number }> {
+		const out: Array<{ label: string; index: number }> = [];
+		let prevMonth = '';
+		for (let i = 0; i < weeks.length; i += 1) {
+			const first = weeks[i]?.contributionDays?.[0]?.date;
+			if (!first) continue;
+			const d = new Date(`${first}T00:00:00Z`);
+			// Ignore padded leading/trailing weeks outside the selected year.
+			if (d.getUTCFullYear() !== year) continue;
+			const month = d.toLocaleString('en-US', { month: 'short', timeZone: 'UTC' });
+			// Prevent duplicate labels like "JanJan" across adjacent January weeks.
+			if (month !== prevMonth) {
+				out.push({ label: month, index: i });
+				prevMonth = month;
+			}
+		}
+		return out;
+	}
+
+	function yearRail(currentYear: number): number[] {
+		return [currentYear, currentYear - 1, currentYear - 2, currentYear - 3, currentYear - 4];
+	}
+
+function getSelected(): GithubContribData | null {
+	if (selectedYear == null) return null;
+	return dataByYear.find((d) => d.year === selectedYear) ?? null;
+}
+
+function visibleWeeksFor(selected: GithubContribData | null): ContributionWeek[] {
+	if (!selected) return [];
+	const currentYear = new Date().getUTCFullYear();
+	if (selected.year !== currentYear) return selected.weeks;
+
+	const todayIso = new Date().toISOString().slice(0, 10);
+	const lastVisibleIndex = selected.weeks.findLastIndex((week) =>
+		week.contributionDays.some((d) => d.date <= todayIso)
+	);
+	return lastVisibleIndex >= 0 ? selected.weeks.slice(0, lastVisibleIndex + 1) : selected.weeks;
+}
 
 	function levelForDay(day: ContributionDay): 0 | 1 | 2 | 3 {
 		// GitHub color mapping (when available): GREEN < YELLOW < ORANGE < RED.
@@ -34,8 +87,11 @@
 
 		// Fallback: use contribution count magnitude relative to max.
 		// (Keeps rendering correct even if the JSON doesn't include `color`.)
-		if (!data) return 1;
-		const allCounts = data.weeks.flatMap((w) => w.contributionDays.map((d) => d.contributionCount));
+		const selected = getSelected();
+		if (!selected) return 1;
+		const allCounts = selected.weeks.flatMap((w: ContributionWeek) =>
+			w.contributionDays.map((d: ContributionDay) => d.contributionCount)
+		);
 		const max = Math.max(...allCounts, 0);
 		if (max <= 0) return 0;
 		const normalized = day.contributionCount / max; // 0..1
@@ -50,19 +106,24 @@
 			loading = true;
 			error = null;
 			const res = await fetch('/github-contrib.json', { headers: { Accept: 'application/json' } });
-			const body = (await res.json()) as any;
+			const body = (await res.json()) as GithubContribPayload;
+			if (!res.ok) throw new Error(body?.error ?? `Failed to load GitHub contributions (${res.status})`);
 
-			// Support both { data: {...} } and direct object formats.
-			const parsed = body?.data ?? body;
-			const hasWeeks = Array.isArray(parsed?.weeks);
-			if (!res.ok || !parsed || !hasWeeks) {
-				throw new Error(body?.error ?? `Failed to load GitHub contributions (${res.status})`);
-			}
+			const years = Array.isArray(body?.years)
+				? body.years
+				: body?.year && Array.isArray(body?.weeks)
+					? [{ year: body.year, totalContributions: body.totalContributions ?? 0, weeks: body.weeks }]
+					: [];
 
-			data = parsed as GithubContribData;
+			if (years.length === 0) throw new Error(body?.error ?? 'No contribution years found.');
+
+			dataByYear = years.sort((a, b) => b.year - a.year);
+			selectedYear = body.currentYear ?? dataByYear[0].year;
+			weeksCount = Math.max(visibleWeeksFor(getSelected()).length, 1);
 		} catch (e) {
 			error = e instanceof Error ? e.message : 'Failed to load GitHub contributions.';
-			data = null;
+			dataByYear = [];
+			selectedYear = null;
 		} finally {
 			loading = false;
 		}
@@ -87,20 +148,59 @@
 				<div class="chart-wrap">
 					<div class="empty">{error}</div>
 				</div>
-			{:else if data}
+			{:else if getSelected()}
 				<div class="chart-wrap">
-					<div class="calendar" aria-label={`Contributions for ${data.year}`}>
-						{#each data.weeks as week, wi (wi)}
-							<div class="week">
-								{#each week.contributionDays as day (day.date)}
-									<div
-										class="day"
-										data-level={levelForDay(day)}
-										title={`${day.date}: ${day.contributionCount} contributions`}
-									></div>
-								{/each}
+					<div class="chart-main">
+						<div class="calendar-shell">
+							<div class="calendar-grid" aria-hidden="true">
+								<div class="months__spacer"></div>
+								<div class="weekdays" aria-hidden="true">
+									{#each weekdayLabels as wd}
+										<div class="weekdays__label">{wd}</div>
+									{/each}
+								</div>
+
+								<div class="calendar-scroll" style={`--weeks: ${weeksCount};`}>
+									<div class="months__content">
+										{#each monthMarkers(visibleWeeksFor(getSelected()), getSelected()!.year) as marker (marker.index)}
+											<span
+												class="months__label"
+												style={`left: calc(${marker.index} * (var(--cell) + var(--week-gap, 3px)));`}
+												>{marker.label}</span
+											>
+										{/each}
+									</div>
+
+									<div class="calendar" aria-label={`Contributions for ${getSelected()!.year}`}>
+										{#each visibleWeeksFor(getSelected()) as week, wi (wi)}
+											<div class="week">
+												{#each week.contributionDays as day (day.date)}
+													<div
+														class="day"
+														data-level={levelForDay(day)}
+														title={`${day.date}: ${day.contributionCount} contributions`}
+													></div>
+												{/each}
+											</div>
+										{/each}
+									</div>
+								</div>
 							</div>
-						{/each}
+						</div>
+
+						<div class="years" aria-label="Contribution years">
+							{#each yearRail(dataByYear[0].year) as y}
+								<button
+									type="button"
+									class="year"
+									class:year--current={y === selectedYear}
+									onclick={() => {
+										selectedYear = y;
+										weeksCount = Math.max(visibleWeeksFor(getSelected()).length, 1);
+									}}>{y}</button
+								>
+							{/each}
+						</div>
 					</div>
 
 					<div class="legend" aria-label="Contributions intensity legend">
@@ -186,8 +286,84 @@
 		gap: var(--week-gap, 3px);
 		align-items: flex-start;
 		justify-content: flex-start;
+		padding-bottom: 0.35rem;
+	}
+
+	.calendar-shell {
+		display: grid;
+		gap: 0.35rem;
+	}
+
+	.chart-main {
+		display: grid;
+		grid-template-columns: minmax(0, 1fr) auto;
+		gap: 1rem;
+		align-items: start;
+	}
+
+	.calendar-grid {
+		display: grid;
+		grid-template-columns: 2rem minmax(0, 1fr);
+		gap: 0.5rem;
+		grid-template-rows: auto auto;
+		align-items: start;
+	}
+
+	.months__content {
+		position: relative;
+		height: 1rem;
+		min-width: calc(var(--weeks, 53) * (var(--cell) + var(--week-gap, 3px)));
+		font-family: var(--font-mono);
+		font-size: 0.72rem;
+		color: rgba(243, 246, 255, 0.65);
+		padding-bottom: 0.15rem;
+	}
+
+	.months__label {
+		position: absolute;
+		top: 0;
+		white-space: nowrap;
+	}
+
+	.months__spacer {
+		grid-column: 1;
+		grid-row: 1;
+	}
+
+	.weekdays {
+		grid-column: 1;
+		grid-row: 2;
+	}
+
+	.calendar-scroll {
+		grid-column: 2;
+		grid-row: 1 / span 2;
 		overflow-x: auto;
-		padding-bottom: 0.75rem;
+		/* Keep cell sizing stable/readable; avoid over-compressing into tiny blocks. */
+		--cell: clamp(9px, 1.05vw, 12px);
+	}
+
+	.weekdays {
+		display: grid;
+		grid-template-rows: repeat(7, var(--cell));
+		gap: var(--day-gap, 2px);
+		font-family: var(--font-mono);
+		font-size: 0.72rem;
+		color: rgba(243, 246, 255, 0.65);
+	}
+
+	.weekdays__label {
+		line-height: var(--cell);
+	}
+
+	.weekdays__label:nth-child(1) {
+		grid-row: 2;
+	}
+	.weekdays__label:nth-child(2) {
+		grid-row: 4;
+	}
+	.weekdays__label:nth-child(3) {
+		grid-row: 6;
 	}
 
 	.week {
@@ -202,6 +378,7 @@
 		background: var(--contrib-empty);
 		border-radius: 1px;
 		flex-shrink: 0;
+		border: 1px solid var(--border);
 	}
 
 	.day[data-level='0'] {
@@ -254,6 +431,45 @@
 	}
 	.legend__square[data-level='3'] {
 		background: rgba(54, 242, 194, 0.95);
+	}
+
+	.years {
+		display: grid;
+		gap: 0.45rem;
+		align-content: start;
+	}
+
+	.year {
+		font-family: var(--font-mono);
+		font-size: 0.76rem;
+		color: rgba(243, 246, 255, 0.65);
+		padding: 0.22rem 0.45rem;
+		border: 1px solid transparent;
+		background: transparent;
+		line-height: 1.15;
+		cursor: pointer;
+	}
+
+	.year:hover {
+		color: rgba(243, 246, 255, 0.92);
+		border-color: var(--border-2);
+	}
+
+	.year--current {
+		color: rgba(243, 246, 255, 0.95);
+		border-color: var(--border);
+		background: rgba(54, 242, 194, 0.12);
+	}
+
+	@media (max-width: 780px) {
+		.chart-main {
+			grid-template-columns: 1fr;
+		}
+		.years {
+			grid-auto-flow: column;
+			justify-content: start;
+			overflow-x: auto;
+		}
 	}
 
 </style>
