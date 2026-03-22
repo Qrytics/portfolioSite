@@ -15,9 +15,10 @@
 
 	const githubProfileUrl = profile.github;
 
-	let loading = true;
-	let error: string | null = null;
-	let repos: Repo[] = [];
+	// Svelte 5: assignments in async onMount must use $state to re-render the UI.
+	let loading = $state(true);
+	let error = $state<string | null>(null);
+	let repos = $state<Repo[]>([]);
 
 	onMount(async () => {
 		try {

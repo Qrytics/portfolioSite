@@ -104,18 +104,19 @@
 
 	.site-header {
 		z-index: 100;
-		background: transparent;
-		border-bottom: 1px solid transparent;
+		/* Always show the subtle frosted bar (not only after scroll). */
+		backdrop-filter: blur(10px);
+		-webkit-backdrop-filter: blur(10px);
+		background: rgba(11, 14, 18, 0.56);
+		border-bottom: 1px solid rgba(222, 232, 255, 0.12);
 		transition: background-color 0.18s, backdrop-filter 0.18s, border-color 0.18s;
 		position: sticky;
 		top: 0;
 	}
 
 	.site-header--scrolled {
-		backdrop-filter: blur(10px);
-		-webkit-backdrop-filter: blur(10px);
-		background: rgba(11, 14, 18, 0.56);
-		border-bottom-color: rgba(222, 232, 255, 0.12);
+		background: rgba(11, 14, 18, 0.72);
+		border-bottom-color: rgba(222, 232, 255, 0.16);
 	}
 
 	.site-header__inner {

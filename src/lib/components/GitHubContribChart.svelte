@@ -1,5 +1,4 @@
 <script lang="ts">
-	import { onMount } from 'svelte';
 	import { profile } from '$lib/data/profile';
 
 	type ContributionDay = {
@@ -18,116 +17,117 @@
 		weeks: ContributionWeek[];
 	};
 
-type GithubContribPayload = {
-	currentYear?: number;
-	years?: GithubContribData[];
-	// Back-compat single-year format:
-	year?: number;
-	totalContributions?: number;
-	weeks?: ContributionWeek[];
-	error?: string;
-};
+	type ChartProps = {
+		years?: GithubContribData[];
+		selectedYear?: number | null;
+		error?: string | null;
+	};
 
-	let loading = true;
-	let error: string | null = null;
-let dataByYear: GithubContribData[] = [];
-let selectedYear: number | null = null;
+	let {
+		years: initialYears = [],
+		selectedYear: initialSelectedYear = null,
+		error: initialError = null
+	}: ChartProps = $props();
+
+	let dataByYear = $state<GithubContribData[]>([]);
+	let selectedYear = $state<number | null>(null);
+	let errorMessage = $state<string | null>(null);
+
+	$effect(() => {
+		dataByYear = initialYears;
+		errorMessage = initialError;
+
+		const preferredYear =
+			initialSelectedYear != null && dataByYear.some((entry) => entry.year === initialSelectedYear)
+				? initialSelectedYear
+				: null;
+		const selectedStillValid = selectedYear != null && dataByYear.some((entry) => entry.year === selectedYear);
+
+		if (!selectedStillValid) {
+			selectedYear = preferredYear ?? dataByYear[0]?.year ?? null;
+		}
+	});
+
 	const weekdayLabels = ['Mon', 'Wed', 'Fri'];
-let weeksCount = 53;
+	const selected = $derived(
+		selectedYear == null ? null : dataByYear.find((entry) => entry.year === selectedYear) ?? null
+	);
+	const visibleWeeks = $derived(selected ? selected.weeks : []);
+	const weeksCount = $derived(Math.max(visibleWeeks.length, 1));
+	const yearOptions = $derived(dataByYear.map((entry) => entry.year).slice(0, 5));
+	const selectedMaxContributions = $derived(
+		selected
+			? Math.max(
+					...selected.weeks.flatMap((week: ContributionWeek) =>
+						week.contributionDays.map((day: ContributionDay) => day.contributionCount)
+					),
+					0
+				)
+			: 0
+	);
 
 function monthMarkers(weeks: ContributionWeek[], year: number): Array<{ label: string; index: number }> {
 		const out: Array<{ label: string; index: number }> = [];
-		let prevMonth = '';
-		for (let i = 0; i < weeks.length; i += 1) {
-			const first = weeks[i]?.contributionDays?.[0]?.date;
-			if (!first) continue;
-			const d = new Date(`${first}T00:00:00Z`);
-			// Ignore padded leading/trailing weeks outside the selected year.
-			if (d.getUTCFullYear() !== year) continue;
-			const month = d.toLocaleString('en-US', { month: 'short', timeZone: 'UTC' });
-			// Prevent duplicate labels like "JanJan" across adjacent January weeks.
-			if (month !== prevMonth) {
-				out.push({ label: month, index: i });
-				prevMonth = month;
+		let prevKey = '';
+
+		// GitHub's month labels are based on where the first day of each month
+		// appears in the 53-week strip. When a week spans Dec -> Jan, the label
+		// at the top should jump to Jan even though the week column starts in Dec.
+		// So we scan individual days (not just the week's first day) and place the
+		// marker at that day's week index.
+		const dayEntries: Array<{ weekIndex: number; dateStr: string }> = [];
+		for (let wi = 0; wi < weeks.length; wi += 1) {
+			for (const day of weeks[wi]?.contributionDays ?? []) {
+				if (!day?.date) continue;
+				dayEntries.push({ weekIndex: wi, dateStr: day.date });
 			}
 		}
+
+		dayEntries.sort((a, b) => a.dateStr.localeCompare(b.dateStr));
+
+		for (const entry of dayEntries) {
+			const d = new Date(`${entry.dateStr}T00:00:00Z`);
+			const y = d.getUTCFullYear();
+			const m = d.getUTCMonth();
+
+			// Same as GitHub: show months in the selected year, plus:
+			// - Dec of previous year (leading padding)
+			// - Jan of next year (repeat "Jan" at the end for spillover columns)
+			const inRange = y === year || (y === year + 1 && m === 0) || (y === year - 1 && m === 11);
+			if (!inRange) continue;
+
+			const key = `${y}-${m}`;
+			if (key === prevKey) continue;
+
+			const month = d.toLocaleString('en-US', { month: 'short', timeZone: 'UTC' });
+			out.push({ label: month, index: entry.weekIndex });
+			prevKey = key;
+		}
+
 		return out;
 	}
 
-	function yearRail(currentYear: number): number[] {
-		return [currentYear, currentYear - 1, currentYear - 2, currentYear - 3, currentYear - 4];
-	}
-
-function getSelected(): GithubContribData | null {
-	if (selectedYear == null) return null;
-	return dataByYear.find((d) => d.year === selectedYear) ?? null;
-}
-
-function visibleWeeksFor(selected: GithubContribData | null): ContributionWeek[] {
-	if (!selected) return [];
-	const currentYear = new Date().getUTCFullYear();
-	if (selected.year !== currentYear) return selected.weeks;
-
-	const todayIso = new Date().toISOString().slice(0, 10);
-	const lastVisibleIndex = selected.weeks.findLastIndex((week) =>
-		week.contributionDays.some((d) => d.date <= todayIso)
-	);
-	return lastVisibleIndex >= 0 ? selected.weeks.slice(0, lastVisibleIndex + 1) : selected.weeks;
-}
-
 	function levelForDay(day: ContributionDay): 0 | 1 | 2 | 3 {
-		// GitHub color mapping (when available): GREEN < YELLOW < ORANGE < RED.
-		// We map that to a 4-step palette where 0 uses the darkest "empty" color.
-		const color = (day.color ?? '').toUpperCase();
-		if (day.contributionCount <= 0) return 0;
-		if (color === 'GREEN') return 0;
-		if (color === 'YELLOW') return 1;
-		if (color === 'ORANGE') return 2;
-		if (color === 'RED') return 3;
+		const color = (day.color ?? '').toLowerCase();
+		const byColor: Record<string, 0 | 1 | 2 | 3> = {
+			'#ebedf0': 0,
+			'#9be9a8': 1,
+			'#40c463': 2,
+			'#30a14e': 3,
+			'#216e39': 3
+		};
 
-		// Fallback: use contribution count magnitude relative to max.
-		// (Keeps rendering correct even if the JSON doesn't include `color`.)
-		const selected = getSelected();
-		if (!selected) return 1;
-		const allCounts = selected.weeks.flatMap((w: ContributionWeek) =>
-			w.contributionDays.map((d: ContributionDay) => d.contributionCount)
-		);
-		const max = Math.max(...allCounts, 0);
+		if (day.contributionCount <= 0) return 0;
+		if (color in byColor) return byColor[color];
+
+		const max = selectedMaxContributions;
 		if (max <= 0) return 0;
 		const normalized = day.contributionCount / max; // 0..1
-		if (normalized < 0.33) return 0;
-		if (normalized < 0.66) return 1;
-		if (normalized < 0.9) return 2;
+		if (normalized < 0.34) return 1;
+		if (normalized < 0.67) return 2;
 		return 3;
 	}
 
-	onMount(async () => {
-		try {
-			loading = true;
-			error = null;
-			const res = await fetch('/github-contrib.json', { headers: { Accept: 'application/json' } });
-			const body = (await res.json()) as GithubContribPayload;
-			if (!res.ok) throw new Error(body?.error ?? `Failed to load GitHub contributions (${res.status})`);
-
-			const years = Array.isArray(body?.years)
-				? body.years
-				: body?.year && Array.isArray(body?.weeks)
-					? [{ year: body.year, totalContributions: body.totalContributions ?? 0, weeks: body.weeks }]
-					: [];
-
-			if (years.length === 0) throw new Error(body?.error ?? 'No contribution years found.');
-
-			dataByYear = years.sort((a, b) => b.year - a.year);
-			selectedYear = body.currentYear ?? dataByYear[0].year;
-			weeksCount = Math.max(visibleWeeksFor(getSelected()).length, 1);
-		} catch (e) {
-			error = e instanceof Error ? e.message : 'Failed to load GitHub contributions.';
-			dataByYear = [];
-			selectedYear = null;
-		} finally {
-			loading = false;
-		}
-	});
 </script>
 
 <section class="github-chart" aria-label="GitHub commit history">
@@ -140,15 +140,11 @@ function visibleWeeksFor(selected: GithubContribData | null): ContributionWeek[]
 				</a>
 			</div>
 
-			{#if loading}
+			{#if errorMessage}
 				<div class="chart-wrap">
-					<div class="empty">Loading contributions…</div>
+					<div class="empty">{errorMessage}</div>
 				</div>
-			{:else if error}
-				<div class="chart-wrap">
-					<div class="empty">{error}</div>
-				</div>
-			{:else if getSelected()}
+			{:else if selected}
 				<div class="chart-wrap">
 					<div class="chart-main">
 						<div class="calendar-shell">
@@ -162,7 +158,7 @@ function visibleWeeksFor(selected: GithubContribData | null): ContributionWeek[]
 
 								<div class="calendar-scroll" style={`--weeks: ${weeksCount};`}>
 									<div class="months__content">
-										{#each monthMarkers(visibleWeeksFor(getSelected()), getSelected()!.year) as marker (marker.index)}
+										{#each monthMarkers(visibleWeeks, selected.year) as marker (marker.index)}
 											<span
 												class="months__label"
 												style={`left: calc(${marker.index} * (var(--cell) + var(--week-gap, 3px)));`}
@@ -171,8 +167,8 @@ function visibleWeeksFor(selected: GithubContribData | null): ContributionWeek[]
 										{/each}
 									</div>
 
-									<div class="calendar" aria-label={`Contributions for ${getSelected()!.year}`}>
-										{#each visibleWeeksFor(getSelected()) as week, wi (wi)}
+									<div class="calendar" aria-label={`Contributions for ${selected.year}`}>
+										{#each visibleWeeks as week, wi (wi)}
 											<div class="week">
 												{#each week.contributionDays as day (day.date)}
 													<div
@@ -189,14 +185,13 @@ function visibleWeeksFor(selected: GithubContribData | null): ContributionWeek[]
 						</div>
 
 						<div class="years" aria-label="Contribution years">
-							{#each yearRail(dataByYear[0].year) as y}
+							{#each yearOptions as y}
 								<button
 									type="button"
 									class="year"
 									class:year--current={y === selectedYear}
 									onclick={() => {
 										selectedYear = y;
-										weeksCount = Math.max(visibleWeeksFor(getSelected()).length, 1);
 									}}>{y}</button
 								>
 							{/each}
@@ -214,6 +209,10 @@ function visibleWeeksFor(selected: GithubContribData | null): ContributionWeek[]
 						<span class="legend__label">More</span>
 					</div>
 				</div>
+			{:else}
+				<div class="chart-wrap">
+					<div class="empty">No contribution data available for the selected year.</div>
+				</div>
 			{/if}
 		</div>
 	</div>
@@ -222,8 +221,8 @@ function visibleWeeksFor(selected: GithubContribData | null): ContributionWeek[]
 <style>
 	.github-chart {
 		padding: 2rem clamp(1.25rem, 4vw, 3rem) 0;
-		/* Contribution chart tuning */
-		--cell: 10px;
+		/* Default; calendar-scroll overrides for the grid */
+		--cell: 11px;
 		--week-gap: 3px;
 		--day-gap: 2px;
 		/* Match card background exactly (card has a subtle top gradient). */
@@ -233,12 +232,18 @@ function visibleWeeksFor(selected: GithubContribData | null): ContributionWeek[]
 	.github-chart__inner {
 		max-width: 86rem;
 		margin: 0 auto;
+		display: flex;
+		justify-content: center;
 	}
 
 	.card {
 		border: 1px solid var(--border);
 		background: linear-gradient(180deg, rgba(255, 255, 255, 0.025), transparent 60%), var(--panel);
 		overflow: hidden;
+		/* Intrinsic width = full chart; no stretching past content on wide screens */
+		width: fit-content;
+		max-width: 100%;
+		margin-inline: auto;
 	}
 
 	.termbar {
@@ -271,6 +276,9 @@ function visibleWeeksFor(selected: GithubContribData | null): ContributionWeek[]
 
 	.chart-wrap {
 		padding: 0.75rem 0.9rem 1rem;
+		/* Only narrow viewports scroll; wide screens fit without horizontal scrollbar */
+		overflow-x: auto;
+		max-width: 100%;
 	}
 
 	.empty {
@@ -296,14 +304,16 @@ function visibleWeeksFor(selected: GithubContribData | null): ContributionWeek[]
 
 	.chart-main {
 		display: grid;
-		grid-template-columns: minmax(0, 1fr) auto;
+		grid-template-columns: max-content auto;
 		gap: 1rem;
 		align-items: start;
+		width: max-content;
+		max-width: 100%;
 	}
 
 	.calendar-grid {
 		display: grid;
-		grid-template-columns: 2rem minmax(0, 1fr);
+		grid-template-columns: 2rem max-content;
 		gap: 0.5rem;
 		grid-template-rows: auto auto;
 		align-items: start;
@@ -330,20 +340,18 @@ function visibleWeeksFor(selected: GithubContribData | null): ContributionWeek[]
 		grid-row: 1;
 	}
 
-	.weekdays {
-		grid-column: 1;
-		grid-row: 2;
-	}
-
 	.calendar-scroll {
 		grid-column: 2;
 		grid-row: 1 / span 2;
-		overflow-x: auto;
-		/* Keep cell sizing stable/readable; avoid over-compressing into tiny blocks. */
-		--cell: clamp(9px, 1.05vw, 12px);
+		overflow-x: visible;
+		width: max-content;
+		/* Fixed cell size so chart width is predictable; card stops growing once content fits */
+		--cell: 11px;
 	}
 
 	.weekdays {
+		grid-column: 1;
+		grid-row: 2;
 		display: grid;
 		grid-template-rows: repeat(7, var(--cell));
 		gap: var(--day-gap, 2px);
