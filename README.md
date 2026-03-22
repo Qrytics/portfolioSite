@@ -66,3 +66,26 @@ npm run build       # Production build
 npm run preview     # Preview the build locally
 npm run check       # TypeScript + Svelte type checking
 ```
+
+### Static output (adapter-static) & hosting
+
+After `npm run build`, the site is written to **`build/`**. Routes are emitted as **`.html` files** at the root of that folder (not always as `path/index.html`):
+
+| App route | File on disk |
+|-----------|----------------|
+| `/` | `build/index.html` |
+| `/projects` | `build/projects.html` |
+| `/projects/<slug>` | `build/projects/<slug>.html` (one file per project) |
+| `/about`, `/resume`, … | `build/about.html`, `build/resume.html`, … |
+
+**Why this matters:** Some static hosts only serve “pretty” URLs like `/projects/mono-pix-scout` if they **rewrite** that path to `projects/mono-pix-scout.html`. If they don’t, a **full page load** or **refresh** on that URL may return **`index.html`**, **`404.html`**, or another fallback — so the address bar can look right while the **wrong document** (e.g. the landing page) is what actually loaded.
+
+**How to verify (DevTools):**
+
+1. Open **Network**, enable **Preserve log**.
+2. Hard-refresh or open a project URL directly: `/projects/<slug>` (or `/your-base/projects/<slug>` if you use `kit.paths.base`).
+3. Click the **first document** request (type **document**). Check:
+   - **Status 200** and the response is the **project** page (not the home hero), **or**
+   - If it’s always **`index.html`** or a generic **404** shell, fix **host rewrites** or consider SvelteKit’s **`trailingSlash`** / deploy docs so paths match what your host expects.
+
+**Internal navigation:** Main nav, project cards, search, and terminal use **`assignAppLocation()` / `navigateInternal()`** (`src/lib/utils/internalNav.ts`) which call SvelteKit **`goto()`** (router-aware navigation) while still respecting **`kit.paths.base`**. Hash links like `/#about-me` still use normal `<a>` behavior.

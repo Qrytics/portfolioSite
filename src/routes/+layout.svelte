@@ -1,10 +1,16 @@
 <script lang="ts">
 	import '../app.css';
+	import { beforeNavigate } from '$app/navigation';
 	import { profile } from '$lib/data/profile';
 	import Nav from '$lib/components/Nav.svelte';
 	import Footer from '$lib/components/Footer.svelte';
+	import { resetScrollLock } from '$lib/utils/scrollLock';
 
 	let { children } = $props();
+
+	beforeNavigate(() => {
+		resetScrollLock();
+	});
 </script>
 
 <svelte:head>

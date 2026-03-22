@@ -29,37 +29,45 @@
 		error: initialError = null
 	}: ChartProps = $props();
 
-	let dataByYear = $state<GithubContribData[]>([]);
-	let selectedYear = $state<number | null>(null);
-	let errorMessage = $state<string | null>(null);
+	/** Sync with props on first run (SSR has no $effect — must not start as null when years exist). */
+	function pickYearFromProps(): number | null {
+		if (
+			initialSelectedYear != null &&
+			initialYears.some((e) => e.year === initialSelectedYear)
+		) {
+			return initialSelectedYear;
+		}
+		return initialYears[0]?.year ?? null;
+	}
+
+	/** User-picked year only; display year is derived so SSR + first client frame always match props. */
+	let userYearOverride = $state<number | null>(null);
 
 	$effect(() => {
-		dataByYear = initialYears;
-		errorMessage = initialError;
-
-		const preferredYear =
-			initialSelectedYear != null && dataByYear.some((entry) => entry.year === initialSelectedYear)
-				? initialSelectedYear
-				: null;
-		const selectedStillValid = selectedYear != null && dataByYear.some((entry) => entry.year === selectedYear);
-
-		if (!selectedStillValid) {
-			selectedYear = preferredYear ?? dataByYear[0]?.year ?? null;
+		if (userYearOverride != null && !initialYears.some((e) => e.year === userYearOverride)) {
+			userYearOverride = null;
 		}
+	});
+
+	const selectedYear = $derived.by(() => {
+		if (userYearOverride != null && initialYears.some((e) => e.year === userYearOverride)) {
+			return userYearOverride;
+		}
+		return pickYearFromProps();
 	});
 
 	const weekdayLabels = ['Mon', 'Wed', 'Fri'];
 	const selected = $derived(
-		selectedYear == null ? null : dataByYear.find((entry) => entry.year === selectedYear) ?? null
+		selectedYear == null ? null : initialYears.find((e) => e.year === selectedYear) ?? null
 	);
 	const visibleWeeks = $derived(selected ? selected.weeks : []);
 	const weeksCount = $derived(Math.max(visibleWeeks.length, 1));
-	const yearOptions = $derived(dataByYear.map((entry) => entry.year).slice(0, 5));
+	const yearOptions = $derived(initialYears.map((e) => e.year).slice(0, 5));
 	const selectedMaxContributions = $derived(
 		selected
 			? Math.max(
-					...selected.weeks.flatMap((week: ContributionWeek) =>
-						week.contributionDays.map((day: ContributionDay) => day.contributionCount)
+					...selected.weeks.flatMap((w) =>
+						w.contributionDays.map((d) => d.contributionCount)
 					),
 					0
 				)
@@ -140,63 +148,67 @@ function monthMarkers(weeks: ContributionWeek[], year: number): Array<{ label: s
 				</a>
 			</div>
 
-			{#if errorMessage}
+			{#if initialError}
 				<div class="chart-wrap">
-					<div class="empty">{errorMessage}</div>
+					<div class="empty">{initialError}</div>
 				</div>
 			{:else if selected}
 				<div class="chart-wrap">
-					<div class="chart-main">
-						<div class="calendar-shell">
-							<div class="calendar-grid" aria-hidden="true">
-								<div class="months__spacer"></div>
-								<div class="weekdays" aria-hidden="true">
-									{#each weekdayLabels as wd}
-										<div class="weekdays__label">{wd}</div>
-									{/each}
-								</div>
-
-								<div class="calendar-scroll" style={`--weeks: ${weeksCount};`}>
-									<div class="months__content">
-										{#each monthMarkers(visibleWeeks, selected.year) as marker (marker.index)}
-											<span
-												class="months__label"
-												style={`left: calc(${marker.index} * (var(--cell) + var(--week-gap, 3px)));`}
-												>{marker.label}</span
-											>
+					{#if visibleWeeks.length > 0}
+						<div class="chart-main">
+							<div class="calendar-shell">
+								<div class="calendar-grid" aria-hidden="true">
+									<div class="months__spacer"></div>
+									<div class="weekdays" aria-hidden="true">
+										{#each weekdayLabels as wd}
+											<div class="weekdays__label">{wd}</div>
 										{/each}
 									</div>
 
-									<div class="calendar" aria-label={`Contributions for ${selected.year}`}>
-										{#each visibleWeeks as week, wi (wi)}
-											<div class="week">
-												{#each week.contributionDays as day (day.date)}
-													<div
-														class="day"
-														data-level={levelForDay(day)}
-														title={`${day.date}: ${day.contributionCount} contributions`}
-													></div>
-												{/each}
-											</div>
-										{/each}
+									<div class="calendar-scroll" style={`--weeks: ${weeksCount};`}>
+										<div class="months__content">
+											{#each monthMarkers(visibleWeeks, selected.year) as marker (marker.index)}
+												<span
+													class="months__label"
+													style={`left: calc(${marker.index} * (var(--cell) + var(--week-gap, 3px)));`}
+													>{marker.label}</span
+												>
+											{/each}
+										</div>
+
+										<div class="calendar" aria-label={`Contributions for ${selected.year}`}>
+											{#each visibleWeeks as week, wi (wi)}
+												<div class="week">
+													{#each week.contributionDays as day (day.date)}
+														<div
+															class="day"
+															data-level={levelForDay(day)}
+															title={`${day.date}: ${day.contributionCount} contributions`}
+														></div>
+													{/each}
+												</div>
+											{/each}
+										</div>
 									</div>
 								</div>
 							</div>
-						</div>
 
-						<div class="years" aria-label="Contribution years">
-							{#each yearOptions as y}
-								<button
-									type="button"
-									class="year"
-									class:year--current={y === selectedYear}
-									onclick={() => {
-										selectedYear = y;
-									}}>{y}</button
-								>
-							{/each}
+							<div class="years" aria-label="Contribution years">
+								{#each yearOptions as y}
+									<button
+										type="button"
+										class="year"
+										class:year--current={y === selectedYear}
+										onclick={() => {
+											userYearOverride = y;
+										}}>{y}</button
+									>
+								{/each}
+							</div>
 						</div>
-					</div>
+					{:else}
+						<div class="empty">Contribution totals are available, but no day-level grid data was returned.</div>
+					{/if}
 
 					<div class="legend" aria-label="Contributions intensity legend">
 						<span class="legend__label">Less</span>
@@ -225,8 +237,8 @@ function monthMarkers(weeks: ContributionWeek[], year: number): Array<{ label: s
 		--cell: 11px;
 		--week-gap: 3px;
 		--day-gap: 2px;
-		/* Match card background exactly (card has a subtle top gradient). */
-		--contrib-empty: transparent;
+		/* GitHub-like faint squares for zero-contribution days */
+		--contrib-empty: rgba(255, 255, 255, 0.06);
 	}
 
 	.github-chart__inner {
@@ -338,6 +350,9 @@ function monthMarkers(weeks: ContributionWeek[], year: number): Array<{ label: s
 	.months__spacer {
 		grid-column: 1;
 		grid-row: 1;
+		/* Same vertical band as months row so weekday labels align with calendar rows */
+		height: 1rem;
+		padding-bottom: 0.15rem;
 	}
 
 	.calendar-scroll {
@@ -384,9 +399,9 @@ function monthMarkers(weeks: ContributionWeek[], year: number): Array<{ label: s
 		width: var(--cell);
 		height: var(--cell);
 		background: var(--contrib-empty);
-		border-radius: 1px;
+		border-radius: 2px;
 		flex-shrink: 0;
-		border: 1px solid var(--border);
+		border: 1px solid rgba(255, 255, 255, 0.04);
 	}
 
 	.day[data-level='0'] {
@@ -425,8 +440,8 @@ function monthMarkers(weeks: ContributionWeek[], year: number): Array<{ label: s
 		width: 10px;
 		height: 10px;
 		background: var(--contrib-empty);
-		border-radius: 1px;
-		border: 1px solid var(--border-2);
+		border-radius: 2px;
+		border: 1px solid rgba(255, 255, 255, 0.04);
 	}
 	.legend__square[data-level='0'] {
 		background: var(--contrib-empty);

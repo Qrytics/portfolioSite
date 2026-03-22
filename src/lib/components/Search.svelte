@@ -1,8 +1,9 @@
 <script lang="ts">
 	import { projects, type Project } from '$lib/data/projects';
-	import { lockScroll, unlockScroll } from '$lib/utils/scrollLock';
+	import { assignAppLocation } from '$lib/utils/internalNav';
+	import { portal } from '$lib/utils/portal';
 
-	let open = $state(false);
+	let { open = $bindable(false) } = $props();
 	let query = $state('');
 	let inputEl: HTMLInputElement = $state(undefined as unknown as HTMLInputElement);
 	let selectedIdx = $state(0);
@@ -46,13 +47,6 @@
 	});
 
 	$effect(() => {
-		// Lock page scroll while search modal is open (prevents hash-scroll race)
-		if (!open) return;
-		lockScroll();
-		return () => unlockScroll();
-	});
-
-	$effect(() => {
 		// Reset selection when results change
 		selectedIdx = 0;
 	});
@@ -63,7 +57,7 @@
 
 	function navigate(slug: string) {
 		open = false;
-		window.location.href = `/projects/${slug}`;
+		assignAppLocation(`/projects/${slug}`);
 	}
 
 	function handleKey(e: KeyboardEvent) {
@@ -74,86 +68,90 @@
 			e.preventDefault();
 			selectedIdx = Math.max(selectedIdx - 1, 0);
 		} else if (e.key === 'Enter' && results[selectedIdx]) {
+			e.preventDefault();
 			navigate(results[selectedIdx].slug);
 		}
 	}
 
-	export function toggle() {
-		toggleOpen();
-	}
 </script>
 
 <!-- Trigger button -->
-<button class="trigger" aria-label="Search projects (Ctrl+K)" onclick={toggleOpen}>
+<button type="button" class="trigger" aria-label="Search projects (Ctrl+K)" onclick={toggleOpen}>
 	<span class="trigger__icon" aria-hidden="true">⌕</span>
 	<span class="trigger__label">search</span>
 </button>
 
 {#if open}
-	<!-- Backdrop -->
 	<!-- svelte-ignore a11y_click_events_have_key_events -->
 	<!-- svelte-ignore a11y_no_static_element_interactions -->
-	<div class="backdrop" onclick={() => (open = false)}></div>
+	<div class="portal" use:portal>
+		<div class="backdrop" onclick={() => (open = false)}></div>
 
-	<div class="modal" role="dialog" aria-modal="true" aria-label="Search projects">
-		<div class="modal__bar">
-			<span class="modal__icon" aria-hidden="true">⌕</span>
-			<!-- svelte-ignore a11y_autofocus -->
-			<input
-				bind:this={inputEl}
-				bind:value={query}
-				onkeydown={handleKey}
-				class="modal__input"
-				type="search"
-				placeholder="Search by title, tech, or keyword…"
-				spellcheck="false"
-				aria-label="Search projects"
-			/>
-			{#if query}
-				<button class="modal__clear" aria-label="Clear search" onclick={() => (query = '')}>✕</button>
-			{/if}
-		</div>
+		<div class="modal" role="dialog" aria-modal="true" aria-label="Search projects">
+			<div class="modal__bar">
+				<span class="modal__icon" aria-hidden="true">⌕</span>
+				<!-- svelte-ignore a11y_autofocus -->
+				<input
+					bind:this={inputEl}
+					bind:value={query}
+					onkeydown={handleKey}
+					class="modal__input"
+					type="search"
+					placeholder="Search by title, tech, or keyword…"
+					spellcheck="false"
+					aria-label="Search projects"
+				/>
+				{#if query}
+					<button type="button" class="modal__clear" aria-label="Clear search" onclick={() => (query = '')}>✕</button>
+				{/if}
+			</div>
 
-		{#if results.length > 0}
-			<ul class="results" role="listbox" aria-label="Search results">
-				{#each results as project, i}
-					<li
-						class="result"
-						class:result--selected={i === selectedIdx}
-						role="option"
-						aria-selected={i === selectedIdx}
-					>
-						<button
-							class="result__btn"
-							onclick={() => navigate(project.slug)}
-							onmouseenter={() => (selectedIdx = i)}
+			{#if results.length > 0}
+				<ul class="results" role="listbox" aria-label="Search results">
+					{#each results as project, i}
+						<li
+							class="result"
+							class:result--selected={i === selectedIdx}
+							role="option"
+							aria-selected={i === selectedIdx}
 						>
-							<span class="result__title">{project.title}</span>
-							<span class="result__year">{project.year}</span>
-							<div class="result__tags">
-								{#each project.tags.slice(0, 4) as tag}
-									<span class="tag">{tag}</span>
-								{/each}
-							</div>
-						</button>
-					</li>
-				{/each}
-			</ul>
-		{:else if query.trim()}
-			<div class="empty">No results for "<strong>{query}</strong>"</div>
-		{:else}
-			<div class="hint">Start typing to search projects…</div>
-		{/if}
+							<button
+								type="button"
+								class="result__btn"
+								onclick={() => navigate(project.slug)}
+								onmouseenter={() => (selectedIdx = i)}
+							>
+								<span class="result__title">{project.title}</span>
+								<span class="result__year">{project.year}</span>
+								<div class="result__tags">
+									{#each project.tags.slice(0, 4) as tag}
+										<span class="tag">{tag}</span>
+									{/each}
+								</div>
+							</button>
+						</li>
+					{/each}
+				</ul>
+			{:else if query.trim()}
+				<div class="empty">No results for "<strong>{query}</strong>"</div>
+			{:else}
+				<div class="hint">Start typing to search projects…</div>
+			{/if}
 
-		<div class="modal__footer">
-			<span><kbd>↑↓</kbd> navigate</span>
-			<span><kbd>↵</kbd> open</span>
-			<span><kbd>Esc</kbd> close</span>
+			<div class="modal__footer">
+				<span><kbd>↑↓</kbd> navigate</span>
+				<span><kbd>↵</kbd> open</span>
+				<span><kbd>Esc</kbd> close</span>
+			</div>
 		</div>
 	</div>
 {/if}
 
 <style>
+	.portal {
+		display: contents;
+	}
+
 	.trigger {
 		display: inline-flex;
 		align-items: center;
@@ -182,7 +180,7 @@
 	.backdrop {
 		position: fixed;
 		inset: 0;
-		z-index: 299;
+		z-index: 7000;
 		background: rgba(0, 0, 0, 0.66);
 		backdrop-filter: blur(4px);
 	}
@@ -192,7 +190,7 @@
 		top: clamp(3rem, 10vh, 6rem);
 		left: 50%;
 		transform: translateX(-50%);
-		z-index: 300;
+		z-index: 7010;
 		width: min(640px, 94vw);
 		border: 1px solid var(--border);
 		background: #060a0e;

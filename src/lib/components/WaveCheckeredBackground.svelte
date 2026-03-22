@@ -138,7 +138,8 @@
 		height: 100%;
 		opacity: 0.8;
 		mix-blend-mode: screen;
-		transform: translateZ(0);
+		/* Avoid translateZ(0): with landing `.page { isolation: isolate }` it can promote a layer
+		   that incorrectly stacks above the sticky header for hit-testing in some browsers. */
 	}
 </style>
 

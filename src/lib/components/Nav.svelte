@@ -2,16 +2,15 @@
 	import { profile } from '$lib/data/profile';
 	import Search from '$lib/components/Search.svelte';
 	import Terminal from '$lib/components/Terminal.svelte';
+	import { lockScroll, unlockScroll } from '$lib/utils/scrollLock';
 
 	let scrolled = $state(false);
 	let navOpen = $state(false);
 	let compact = $state(false);
+	let searchOpen = $state(false);
+	let terminalOpen = $state(false);
 	// Theme toggle disabled for now (you'll re-implement later)
 	// let darkMode = $state(true);
-
-	$effect(() => {
-		// Theme toggle disabled for now
-	});
 
 	$effect(() => {
 		function onScroll() {
@@ -30,8 +29,23 @@
 		};
 	});
 
+	/** Only one overlay at a time so scroll-lock stays balanced and the header stays usable. */
+	$effect(() => {
+		if (searchOpen) terminalOpen = false;
+	});
+	$effect(() => {
+		if (terminalOpen) searchOpen = false;
+	});
+
+	$effect(() => {
+		if (!searchOpen && !terminalOpen) return;
+		lockScroll();
+		return () => unlockScroll();
+	});
+
 	// function toggleTheme() { ... }
 
+	/** Plain routes use SvelteKit client nav; hash links use native scroll-to-id on `/`. */
 	const navLinks: Array<{ href: string; label: string; external?: boolean }> = [
 		{ href: '/projects', label: 'projects' },
 		{ href: '/#about-me', label: 'about me' },
@@ -47,17 +61,18 @@
 	class:site-header--compact={compact}
 >
 	<div class="site-header__inner" class:site-header__inner--with-title={true}>
-		<a href="/" class="site-header__title">{profile.handle}</a>
+		<a href="/" class="site-header__title" data-sveltekit-reload>{profile.handle}</a>
 
 		<div class="site-header__tools">
-			<Search />
+			<Search bind:open={searchOpen} />
 			<div class="terminal-tool">
-				<Terminal />
+				<Terminal bind:open={terminalOpen} />
 			</div>
 			<!-- theme toggle disabled for now -->
 		</div>
 
 		<button
+			type="button"
 			class="site-header__menu"
 			aria-label="Toggle navigation"
 			aria-expanded={navOpen}
@@ -74,7 +89,10 @@
 							href={link.href}
 							target={link.external ? '_blank' : undefined}
 							rel={link.external ? 'noopener noreferrer' : undefined}
-							onclick={() => (navOpen = false)}
+							data-sveltekit-reload={!link.href.includes('#') ? true : undefined}
+							onclick={() => {
+								navOpen = false;
+							}}
 						>
 							{link.label}
 						</a>
@@ -95,7 +113,7 @@
 		background: rgba(15, 20, 27, 0.9);
 		color: var(--text);
 		font-family: var(--font-mono);
-		z-index: 200;
+		z-index: 300;
 		text-decoration: none;
 	}
 	.skip:focus {
@@ -103,7 +121,9 @@
 	}
 
 	.site-header {
-		z-index: 100;
+		/* Above in-page cards (~2); keep moderate — extreme z-index + isolation caused main content to disappear in some browsers. */
+		z-index: 200;
+		isolation: isolate;
 		/* Always show the subtle frosted bar (not only after scroll). */
 		backdrop-filter: blur(10px);
 		-webkit-backdrop-filter: blur(10px);
@@ -128,6 +148,7 @@
 		margin: 0 auto;
 		padding: 0.9rem clamp(1.25rem, 4vw, 3rem);
 		position: relative;
+		isolation: isolate;
 	}
 
 	.site-header__tools {
@@ -135,6 +156,10 @@
 		align-items: center;
 		gap: 0.5rem;
 		margin-right: 0;
+		/* Keep header tools directly interactive. */
+		pointer-events: auto;
+		position: relative;
+		z-index: 4;
 	}
 
 	.terminal-tool {
@@ -164,6 +189,8 @@
 	}
 
 	.site-header__title {
+		position: relative;
+		z-index: 2;
 		color: rgba(54, 242, 194, 0.8);
 		font-family: var(--font-mono);
 		font-size: clamp(1rem, 1.5vw, 1.15rem);
@@ -194,6 +221,8 @@
 
 	.site-nav {
 		display: block;
+		position: relative;
+		z-index: 2;
 	}
 
 	.site-nav ul {
@@ -245,6 +274,8 @@
 	/* Compact / mobile */
 	.site-header--compact .site-header__menu {
 		display: inline-block;
+		position: relative;
+		z-index: 3;
 	}
 
 	.site-header--compact .site-nav {

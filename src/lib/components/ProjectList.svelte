@@ -3,10 +3,10 @@
 	import ProjectCard from './ProjectCard.svelte';
 
 	// Optional override for which project set to render (landing "top" vs full index).
-	export let items: Project[] = allProjects;
+	let { items = allProjects }: { items?: Project[] } = $props();
 </script>
 
-<section id="projects" class="section">
+<section class="section">
 	<div class="shell">
 		<div class="grid">
 			{#each items as project (project.slug)}

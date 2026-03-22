@@ -1,17 +1,24 @@
 <script lang="ts">
 	import { profile } from '$lib/data/profile';
 	import { projects } from '$lib/data/projects';
-	import { goto } from '$app/navigation';
-	import { lockScroll, unlockScroll } from '$lib/utils/scrollLock';
+	import { assignAppLocation } from '$lib/utils/internalNav';
+	import { portal } from '$lib/utils/portal';
 
-	let open = $state(false);
+	let { open = $bindable(false) } = $props();
 	let inputValue = $state('');
 	let lines = $state<Array<{ type: 'input' | 'output' | 'error'; text: string }>>([
-		{ type: 'output', text: 'Welcome to mario-belmonte terminal. Type "help" for available commands.' }
+		{
+			type: 'output',
+			text: 'Welcome to mario-belmonte terminal. Type "help" for commands. Use ↑ / ↓ in the input for history.'
+		}
 	]);
 
 	let inputEl: HTMLInputElement = $state(undefined as unknown as HTMLInputElement);
 	let containerEl: HTMLElement = $state(undefined as unknown as HTMLElement);
+	let history = $state<string[]>([]);
+	let historyCursor = $state(-1);
+	let draftInput = $state('');
+	const commandSuggestions = ['help', 'projects', 'project <n>', 'open <slug|n>', 'history', 'home', 'resume', 'clear', 'exit'];
 
 	$effect(() => {
 		function onKey(e: KeyboardEvent) {
@@ -39,13 +46,6 @@
 		}
 	});
 
-	$effect(() => {
-		// Lock page scroll while terminal is open (robust; avoids scroll/jump while typing)
-		if (!open) return;
-		lockScroll();
-		return () => unlockScroll();
-	});
-
 	function toggleOpen() {
 		open = !open;
 	}
@@ -57,13 +57,20 @@
 	}
 
 	function run(raw: string) {
-		const cmd = raw.trim().toLowerCase();
-		lines.push({ type: 'input', text: `> ${raw.trim()}` });
+		const trimmed = raw.trim();
+		const cmd = trimmed.toLowerCase();
+		lines.push({ type: 'input', text: `> ${trimmed}` });
 
 		if (!cmd) {
 			scrollToBottom();
 			return;
 		}
+
+		if (trimmed && (history.length === 0 || history[history.length - 1] !== trimmed)) {
+			history = [...history, trimmed];
+		}
+		historyCursor = -1;
+		draftInput = '';
 
 		if (cmd === 'help') {
 			lines.push({
@@ -72,12 +79,23 @@
 					'Available commands:',
 					'  help        — show this message',
 					'  about       — who is mario',
+					'  whoami      — display handle',
 					'  skills      — list technical skills',
 					'  projects    — list projects',
+					'  ls / dir    — short project list',
+					'  pwd         — fake path (for fun)',
+					'  echo <msg>  — print text',
+					'  github      — open GitHub profile',
 					'  resume      — open resume page',
+					'  home        — go to landing page',
 					'  contact     — show contact info',
+					'  history     — show recent commands',
 					'  clear       — clear the terminal',
-					'  exit        — close the terminal'
+					'  exit        — close the terminal',
+					'',
+					'  project <n> — open project by list index (see projects)',
+					'  open <arg>  — open by slug or list index',
+					'  ↑ / ↓       — command history in input'
 				].join('\n')
 			});
 		} else if (cmd === 'about') {
@@ -90,6 +108,21 @@
 				.map((g) => `  ${g.category}:\n    ${g.items.join(', ')}`)
 				.join('\n');
 			lines.push({ type: 'output', text: 'Skills:\n' + skillText });
+		} else if (cmd === 'whoami') {
+			lines.push({ type: 'output', text: `${profile.handle} (${profile.name})` });
+		} else if (cmd === 'pwd') {
+			lines.push({ type: 'output', text: '~/portfolio/mario-belmonte (this site)' });
+		} else if (cmd === 'ls' || cmd === 'dir') {
+			const list = projects.map((p) => `  ${p.slug}`).join('\n');
+			lines.push({
+				type: 'output',
+				text: `projects/\n${list}\n\n  Type "projects" for titles or "project <n>" to open by index.`
+			});
+		} else if (cmd.startsWith('echo ')) {
+			lines.push({ type: 'output', text: trimmed.slice(5).trim() });
+		} else if (cmd === 'github') {
+			lines.push({ type: 'output', text: `Opening ${profile.github}…` });
+			if (typeof window !== 'undefined') window.open(profile.github, '_blank', 'noopener,noreferrer');
 		} else if (cmd === 'projects') {
 			const list = projects
 				.map((p, i) => `  ${String(i + 1).padStart(2, '0')}. ${p.title} (${p.year})`)
@@ -101,20 +134,49 @@
 					list +
 					'\n\n  Navigate to /projects for the full list or type "project <number>" for details.'
 			});
+		} else if (cmd === 'history') {
+			if (history.length === 0) {
+				lines.push({ type: 'output', text: 'No command history yet.' });
+			} else {
+				const last = history.slice(-12);
+				const list = last.map((entry, i) => `  ${String(i + 1).padStart(2, '0')}. ${entry}`).join('\n');
+				lines.push({ type: 'output', text: `Recent commands:\n${list}` });
+			}
+		} else if (cmd === 'home') {
+			lines.push({ type: 'output', text: 'Returning home…' });
+			open = false;
+			assignAppLocation('/');
 		} else if (cmd.startsWith('project ')) {
 			const idx = parseInt(cmd.replace('project ', ''), 10) - 1;
 			const p = projects[idx];
 			if (p) {
 				lines.push({ type: 'output', text: `Navigating to ${p.title}…` });
 				open = false;
-				goto(`/projects/${p.slug}`);
+				assignAppLocation(`/projects/${p.slug}`);
 			} else {
 				lines.push({ type: 'error', text: `project: no project at index ${idx + 1}` });
+			}
+		} else if (cmd.startsWith('open ')) {
+			const arg = trimmed.slice(5).trim().toLowerCase();
+			const asIndex = Number.parseInt(arg, 10);
+			const byIndex = Number.isFinite(asIndex) ? projects[asIndex - 1] : undefined;
+			const bySlug = projects.find((p) => p.slug.toLowerCase() === arg);
+			const target = byIndex ?? bySlug;
+
+			if (target) {
+				lines.push({ type: 'output', text: `Opening ${target.title}…` });
+				open = false;
+				assignAppLocation(`/projects/${target.slug}`);
+			} else {
+				lines.push({
+					type: 'error',
+					text: `open: no project found for "${arg}". Try "projects" or "open <number>".`
+				});
 			}
 		} else if (cmd === 'resume') {
 			lines.push({ type: 'output', text: 'Opening resume…' });
 			open = false;
-			goto('/resume');
+			assignAppLocation('/resume');
 		} else if (cmd === 'contact') {
 			lines.push({
 				type: 'output',
@@ -143,64 +205,110 @@
 		if (e.key === 'Enter') {
 			run(inputValue);
 			inputValue = '';
+			return;
 		}
-	}
-
-	// Expose open state toggle for external buttons
-	export function toggle() {
-		toggleOpen();
+		if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'l') {
+			e.preventDefault();
+			lines = [{ type: 'output', text: 'Terminal cleared. Use "help" for commands.' }];
+			inputValue = '';
+			historyCursor = -1;
+			draftInput = '';
+			scrollToBottom();
+			return;
+		}
+		if (e.key === 'Tab') {
+			e.preventDefault();
+			const current = inputValue.trim().toLowerCase();
+			if (!current) {
+				lines.push({ type: 'output', text: `Suggestions: ${commandSuggestions.join(', ')}` });
+				scrollToBottom();
+				return;
+			}
+			const matches = commandSuggestions.filter((entry) => entry.startsWith(current));
+			if (matches.length === 1) {
+				inputValue = matches[0].replace(' <n>', '').replace(' <slug|n>', '');
+			} else if (matches.length > 1) {
+				lines.push({ type: 'output', text: `Matches: ${matches.join(', ')}` });
+				scrollToBottom();
+			}
+			return;
+		}
+		if (e.key === 'ArrowUp') {
+			e.preventDefault();
+			if (history.length === 0) return;
+			if (historyCursor === -1) draftInput = inputValue;
+			historyCursor = Math.min(historyCursor + 1, history.length - 1);
+			inputValue = history[history.length - 1 - historyCursor] ?? '';
+			return;
+		}
+		if (e.key === 'ArrowDown') {
+			e.preventDefault();
+			if (history.length === 0 || historyCursor < 0) return;
+			if (historyCursor === 0) {
+				historyCursor = -1;
+				inputValue = draftInput;
+				return;
+			}
+			historyCursor -= 1;
+			inputValue = history[history.length - 1 - historyCursor] ?? '';
+		}
 	}
 </script>
 
 <!-- Trigger button -->
-<button class="trigger" aria-label="Open terminal (Ctrl+`)" onclick={toggleOpen}>
+<button type="button" class="trigger" aria-label="Open terminal (Ctrl+`)" onclick={toggleOpen}>
 	<span class="trigger__icon" aria-hidden="true">{'>'}_</span>
 	<span class="trigger__label">terminal</span>
 </button>
 
 {#if open}
-	<!-- Backdrop -->
 	<!-- svelte-ignore a11y_click_events_have_key_events -->
 	<!-- svelte-ignore a11y_no_static_element_interactions -->
-	<div class="backdrop" onclick={() => (open = false)}></div>
+	<div class="portal" use:portal>
+		<div class="backdrop" onclick={() => (open = false)}></div>
 
-	<div class="terminal" role="dialog" aria-modal="true" aria-label="Terminal">
-		<div class="terminal__bar">
-			<span class="terminal__title">mario-belmonte — bash</span>
-			<button class="terminal__close" aria-label="Close terminal" onclick={() => (open = false)}>✕</button>
-		</div>
+		<div class="terminal" role="dialog" aria-modal="true" aria-label="Terminal">
+			<div class="terminal__bar">
+				<span class="terminal__title">mario-belmonte — bash</span>
+				<button type="button" class="terminal__close" aria-label="Close terminal" onclick={() => (open = false)}>✕</button>
+			</div>
 
-		<!-- Output -->
-		<div class="terminal__output" bind:this={containerEl}>
-			{#each lines as line}
-				<div class="line line--{line.type}" role={line.type === 'error' ? 'alert' : undefined}>
-					{#each line.text.split('\n') as row}
-						<span>{row}</span>
-					{/each}
-				</div>
-			{/each}
-		</div>
+			<!-- Output -->
+			<div class="terminal__output" bind:this={containerEl}>
+				{#each lines as line}
+					<div class="line line--{line.type}" role={line.type === 'error' ? 'alert' : undefined}>
+						{#each line.text.split('\n') as row}
+							<span>{row}</span>
+						{/each}
+					</div>
+				{/each}
+			</div>
 
-		<!-- Input row -->
-		<div class="terminal__input-row">
-			<span class="terminal__prompt" aria-hidden="true">{'>'}</span>
-			<!-- svelte-ignore a11y_autofocus -->
-			<input
-				bind:this={inputEl}
-				bind:value={inputValue}
-				onkeydown={handleKey}
-				class="terminal__input"
-				type="text"
-				spellcheck="false"
-				autocomplete="off"
-				aria-label="Terminal input"
-				placeholder="type a command…"
-			/>
+			<!-- Input row -->
+			<div class="terminal__input-row">
+				<span class="terminal__prompt" aria-hidden="true">{'>'}</span>
+				<!-- svelte-ignore a11y_autofocus -->
+				<input
+					bind:this={inputEl}
+					bind:value={inputValue}
+					onkeydown={handleKey}
+					class="terminal__input"
+					type="text"
+					spellcheck="false"
+					autocomplete="off"
+					aria-label="Terminal input"
+					placeholder="type a command…"
+				/>
+			</div>
 		</div>
 	</div>
 {/if}
 
 <style>
+	.portal {
+		display: contents;
+	}
+
 	.trigger {
 		display: inline-flex;
 		align-items: center;
@@ -230,7 +338,7 @@
 	.backdrop {
 		position: fixed;
 		inset: 0;
-		z-index: 199;
+		z-index: 7000;
 		background: rgba(0, 0, 0, 0.55);
 		backdrop-filter: blur(4px);
 	}
@@ -240,7 +348,7 @@
 		top: 50%;
 		left: 50%;
 		transform: translate(-50%, -50%);
-		z-index: 200;
+		z-index: 7010;
 		width: min(720px, 94vw);
 		max-height: min(480px, 80vh);
 		display: flex;

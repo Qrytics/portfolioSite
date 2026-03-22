@@ -34,3 +34,18 @@ export function unlockScroll() {
 	window.scrollTo(0, savedScrollY);
 }
 
+/** Clears scroll lock if it gets stuck (e.g. HMR). Fixes “top of page missing” when body stayed position:fixed. */
+export function resetScrollLock() {
+	locks = 0;
+	prevOverflow = '';
+	prevPosition = '';
+	prevTop = '';
+	prevWidth = '';
+	savedScrollY = 0;
+	if (typeof document === 'undefined') return;
+	document.body.style.removeProperty('overflow');
+	document.body.style.removeProperty('position');
+	document.body.style.removeProperty('top');
+	document.body.style.removeProperty('width');
+}
+

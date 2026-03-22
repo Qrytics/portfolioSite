@@ -4,6 +4,8 @@
 
 	let { project }: { project: Project } = $props();
 
+	const detailPath = $derived(`/projects/${project.slug}`);
+
 	const typeLabelMap: Record<string, string> = {
 		'open-source': 'open source',
 		'closed-source': 'closed source',
@@ -46,7 +48,11 @@
 	<!-- Terminal title bar -->
 	<div class="termbar">
 		<h3 class="termbar__title">
-			<a href="/projects/{project.slug}" class="termbar__titleLink">
+			<a
+				href={detailPath}
+				class="termbar__titleLink"
+				data-sveltekit-reload
+			>
 				{project.shortTitle ?? project.title}
 			</a>
 		</h3>
@@ -88,7 +94,8 @@
 					demo ↗
 				</a>
 			{/if}
-			<a href="/projects/{project.slug}" class="btn btn--ghost">details →</a>
+			<a href={detailPath} class="btn btn--ghost" data-sveltekit-reload
+				>details →</a>
 		</div>
 	</div>
 </article>

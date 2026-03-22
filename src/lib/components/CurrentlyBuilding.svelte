@@ -1,5 +1,4 @@
 <script lang="ts">
-	import { onMount } from 'svelte';
 	import { profile } from '$lib/data/profile';
 
 	type Repo = {
@@ -13,33 +12,13 @@
 		fork: boolean;
 	};
 
+	type Props = {
+		repos?: Repo[];
+		error?: string | null;
+	};
+
+	let { repos = [], error = null }: Props = $props();
 	const githubProfileUrl = profile.github;
-
-	// Svelte 5: assignments in async onMount must use $state to re-render the UI.
-	let loading = $state(true);
-	let error = $state<string | null>(null);
-	let repos = $state<Repo[]>([]);
-
-	onMount(async () => {
-		try {
-			loading = true;
-			error = null;
-			// GitHub Pages is static hosting, so we read a pre-generated JSON file.
-			const res = await fetch('/github-recent.json', { headers: { Accept: 'application/json' } });
-			const data = (await res.json()) as { repos: Repo[]; error?: string };
-
-			if (!res.ok || data.error) {
-				throw new Error(data.error ?? `GitHub request failed (${res.status})`);
-			}
-
-			repos = data.repos;
-		} catch (e) {
-			error = e instanceof Error ? e.message : 'Failed to load GitHub activity.';
-			repos = [];
-		} finally {
-			loading = false;
-		}
-	});
 </script>
 
 <section class="currently" id="currently-building" aria-label="Currently building">
@@ -52,12 +31,7 @@
 				</a>
 			</div>
 			<ul class="list">
-				{#if loading}
-					<li class="list__item">
-						<span class="bullet" aria-hidden="true">•</span>
-						Loading recent GitHub activity…
-					</li>
-				{:else if error}
+				{#if error}
 					<li class="list__item">
 						<span class="bullet" aria-hidden="true">•</span>
 						{error}
@@ -65,7 +39,7 @@
 				{:else if repos.length === 0}
 					<li class="list__item">
 						<span class="bullet" aria-hidden="true">•</span>
-						No public repos pushed in the last week.
+						No recent public GitHub activity found.
 					</li>
 				{:else}
 					{#each repos as repo (repo.id)}
