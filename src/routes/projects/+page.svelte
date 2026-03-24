@@ -21,7 +21,6 @@
 <style>
 	.page {
 		position: relative;
-		isolation: isolate;
 	}
 </style>
 

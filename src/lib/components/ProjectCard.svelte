@@ -115,6 +115,58 @@
 		contain: layout style paint;
 	}
 
+	@media (max-width: 520px) {
+		.card {
+			grid-template-rows: auto auto auto;
+		}
+
+		.termbar {
+			padding: 0.65rem 0.75rem;
+			gap: 0.55rem;
+		}
+
+		.termbar__title {
+			font-size: 0.84rem;
+		}
+
+		.badge {
+			font-size: 0.7rem;
+			padding: 0.15rem 0.4rem;
+		}
+
+		.content {
+			padding: 0.8rem;
+			gap: 0.6rem;
+		}
+
+		.card__subtitle {
+			font-size: 0.85rem;
+		}
+
+		.card__desc {
+			font-size: 0.88rem;
+			line-height: 1.5;
+		}
+
+		.tech-badges {
+			gap: 0.3rem;
+		}
+
+		.tech-badge {
+			font-size: 0.66rem;
+			padding: 0.15rem 0.35rem;
+		}
+
+		.links {
+			gap: 0.45rem;
+		}
+
+		.btn {
+			font-size: 0.82rem;
+			padding: 0.45rem 0.6rem;
+		}
+	}
+
 	.card:hover {
 		z-index: 2;
 		border-color: rgba(54, 242, 194, 0.25);

@@ -30,6 +30,8 @@
 		margin: 0 auto;
 		padding: 0 clamp(1.25rem, 4vw, 3rem);
 		padding-bottom: clamp(2.5rem, 5vw, 4rem);
+		content-visibility: auto;
+		contain-intrinsic-size: 1200px;
 	}
 
 	.grid {

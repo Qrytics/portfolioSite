@@ -5,10 +5,13 @@
 
 	let imageAspect = $state<number | null>(null);
 	let videoEl = $state<HTMLVideoElement | undefined>(undefined);
+	let mediaActivated = $state(false);
+	let mediaHost = $state<HTMLElement | undefined>(undefined);
 
 	$effect(() => {
 		project.image;
 		imageAspect = null;
+		mediaActivated = false;
 	});
 
 	$effect(() => {
@@ -22,6 +25,21 @@
 			}
 		}, { threshold: 0.1 });
 		io.observe(video);
+		return () => io.disconnect();
+	});
+
+	$effect(() => {
+		if (!mediaHost || mediaActivated) return;
+		const host = mediaHost;
+		const io = new IntersectionObserver(
+			(entries) => {
+				if (!entries[0]?.isIntersecting) return;
+				mediaActivated = true;
+				io.disconnect();
+			},
+			{ rootMargin: '260px 0px', threshold: 0.01 }
+		);
+		io.observe(host);
 		return () => io.disconnect();
 	});
 
@@ -52,50 +70,64 @@
 </script>
 
 {#if project.images?.length}
-	<div class="media" aria-label="Project media">
+	<div class="media" aria-label="Project media" bind:this={mediaHost}>
 		<div
 			class="media__frame media__frame--multi {project.mediaAspect === 'schematic' ? 'media__frame--schematic' : project.mediaAspect === 'auto' ? 'media__frame--auto' : ''}"
 			style={frameStyle()}
 		>
-			{#each project.images as src}
-				<img
-					class="media__img media__img--multi"
-					src={src}
-					alt="{project.title} preview"
-					loading="lazy"
-				/>
-			{/each}
+			{#if mediaActivated}
+				{#each project.images as src}
+					<img
+						class="media__img media__img--multi"
+						src={src}
+						alt="{project.title} preview"
+						loading="lazy"
+						decoding="async"
+					/>
+				{/each}
+			{:else}
+				<div class="media__placeholder media__placeholder--single">
+					<span class="media__placeholderText">{project.title}</span>
+				</div>
+			{/if}
 		</div>
 	</div>
 {:else if project.image}
-	<div class="media" aria-label="Project media">
+	<div class="media" aria-label="Project media" bind:this={mediaHost}>
 		<div
 			class="media__frame {project.mediaAspect === 'schematic' ? 'media__frame--schematic' : project.mediaAspect === 'auto' ? 'media__frame--auto' : ''}"
 			style={frameStyle(imageAspect != null ? String(imageAspect) : undefined)}
 		>
-			{#if isVideo(project.image)}
-				<video
-					class="media__img"
-					src={project.image}
-					poster={project.poster}
-					autoplay
-					loop
-					muted
-					playsinline
-					preload="metadata"
-					aria-label="{project.title} preview"
-					style={mediaInlineStyle()}
-					bind:this={videoEl}
-				></video>
+			{#if mediaActivated}
+				{#if isVideo(project.image)}
+					<video
+						class="media__img"
+						src={project.image}
+						poster={project.poster}
+						autoplay
+						loop
+						muted
+						playsinline
+						preload="none"
+						aria-label="{project.title} preview"
+						style={mediaInlineStyle()}
+						bind:this={videoEl}
+					></video>
+				{:else}
+					<img
+						class="media__img"
+						src={project.image}
+						alt="{project.title} preview"
+						loading="lazy"
+						decoding="async"
+						onload={onMediaImageLoad}
+						style={mediaInlineStyle()}
+					/>
+				{/if}
 			{:else}
-				<img
-					class="media__img"
-					src={project.image}
-					alt="{project.title} preview"
-					loading="lazy"
-					onload={onMediaImageLoad}
-					style={mediaInlineStyle()}
-				/>
+				<div class="media__placeholder media__placeholder--single">
+					<span class="media__placeholderText">{project.title}</span>
+				</div>
 			{/if}
 		</div>
 	</div>
@@ -171,5 +203,9 @@
 		text-align: center;
 		padding: 0 0.75rem;
 		overflow-wrap: anywhere;
+	}
+
+	.media__placeholder--single {
+		min-height: 140px;
 	}
 </style>

@@ -78,14 +78,17 @@ let { data }: { data: PageData } = $props();
 		'auto-docker'
 	]);
 	const topProjects = projects.filter((p) => topProjectSlugs.has(p.slug));
-	const firstMediaHref = firstProject?.image ?? firstProject?.images?.[0];
-	const isVideo = firstMediaHref && /\.(mp4|webm)(\?|#|$)/i.test(firstMediaHref);
+	const firstPreloadImageHref =
+		firstProject?.poster ??
+		(firstProject?.image && !/\.(mp4|webm)(\?|#|$)/i.test(firstProject.image)
+			? firstProject.image
+			: firstProject?.images?.[0]);
 </script>
 
 <svelte:head>
 	<title>{profile.name} — Portfolio</title>
-	{#if firstMediaHref}
-		<link rel="preload" href={firstMediaHref} as={isVideo ? 'video' : 'image'} />
+	{#if firstPreloadImageHref}
+		<link rel="preload" href={firstPreloadImageHref} as="image" />
 	{/if}
 </svelte:head>
 
