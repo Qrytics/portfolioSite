@@ -1,4 +1,4 @@
-<section class="review-cta" aria-label="Leave a review">
+<section id="resume" class="review-cta" aria-label="Resume section">
 	<a
 		href="https://forms.gle/LKXFvhHVp84chSpSA"
 		target="_blank"
@@ -13,8 +13,6 @@
 	.review-cta {
 		text-align: center;
 		padding: 0 clamp(1.25rem, 4vw, 3rem);
-		content-visibility: auto;
-		contain-intrinsic-size: 0 80px;
 	}
 
 	.review-cta__btn {

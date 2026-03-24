@@ -1,5 +1,4 @@
 <script lang="ts">
-	import { onMount } from 'svelte';
 	import { profile } from '$lib/data/profile';
 
 	type Repo = {
@@ -13,41 +12,13 @@
 		fork: boolean;
 	};
 
-	const githubUser = new URL(profile.github).pathname.replace('/', '');
+	type Props = {
+		repos?: Repo[];
+		error?: string | null;
+	};
+
+	let { repos = [], error = null }: Props = $props();
 	const githubProfileUrl = profile.github;
-
-	let loading = true;
-	let error: string | null = null;
-	let repos: Repo[] = [];
-
-	function isWithinLastWeek(iso: string): boolean {
-		const t = Date.parse(iso);
-		if (!Number.isFinite(t)) return false;
-		return t >= Date.now() - 7 * 24 * 60 * 60 * 1000;
-	}
-
-	onMount(async () => {
-		try {
-			loading = true;
-			error = null;
-
-			const res = await fetch(
-				`https://api.github.com/users/${githubUser}/repos?sort=pushed&per_page=100`,
-				{ headers: { Accept: 'application/vnd.github+json' } }
-			);
-			if (!res.ok) throw new Error(`GitHub API error (${res.status})`);
-			const data = (await res.json()) as Repo[];
-
-			repos = data
-				.filter((r) => !r.private && !r.fork)
-				.filter((r) => isWithinLastWeek(r.pushed_at));
-		} catch (e) {
-			error = e instanceof Error ? e.message : 'Failed to load GitHub activity.';
-			repos = [];
-		} finally {
-			loading = false;
-		}
-	});
 </script>
 
 <section class="currently" id="currently-building" aria-label="Currently building">
@@ -56,16 +27,11 @@
 			<div class="termbar">
 				<span class="termbar__prompt">~</span>
 				<a class="termbar__label" href={githubProfileUrl} target="_blank" rel="noopener noreferrer">
-					currently building ↗
+					currently building (this week) ↗
 				</a>
 			</div>
 			<ul class="list">
-				{#if loading}
-					<li class="list__item">
-						<span class="bullet" aria-hidden="true">•</span>
-						Loading recent GitHub activity…
-					</li>
-				{:else if error}
+				{#if error}
 					<li class="list__item">
 						<span class="bullet" aria-hidden="true">•</span>
 						{error}
@@ -73,7 +39,7 @@
 				{:else if repos.length === 0}
 					<li class="list__item">
 						<span class="bullet" aria-hidden="true">•</span>
-						No public repos pushed in the last week.
+						No recent public GitHub activity found.
 					</li>
 				{:else}
 					{#each repos as repo (repo.id)}
@@ -135,7 +101,7 @@
 	.termbar__label {
 		font-family: var(--font-mono);
 		font-size: 0.82rem;
-		color: var(--muted);
+		color: rgba(243, 246, 255, 0.92);
 		letter-spacing: 0.04em;
 		text-decoration: none;
 	}

@@ -1,10 +1,29 @@
 <script lang="ts">
 	import '../app.css';
+	import { afterNavigate, beforeNavigate } from '$app/navigation';
+	import { onMount } from 'svelte';
 	import { profile } from '$lib/data/profile';
 	import Nav from '$lib/components/Nav.svelte';
 	import Footer from '$lib/components/Footer.svelte';
+	import { resetScrollLock } from '$lib/utils/scrollLock';
 
 	let { children } = $props();
+
+	beforeNavigate(() => {
+		resetScrollLock();
+	});
+
+	afterNavigate(() => {
+		// Defensive cleanup: never keep instant-jump or body scroll lock after route resolution.
+		resetScrollLock();
+		document.documentElement.classList.remove('instant-home-jump-pending');
+	});
+
+	onMount(() => {
+		// Safety: never leave the app hidden if a previous instant-jump state got stuck.
+		resetScrollLock();
+		document.documentElement.classList.remove('instant-home-jump-pending');
+	});
 </script>
 
 <svelte:head>

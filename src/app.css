@@ -46,7 +46,7 @@
 	--shadow: 0 18px 44px rgba(15, 20, 30, 0.09);
 }
 
-/* Light mode: text treatment for panels / cards / sections */
+   Component-level light theme rules (same disabled block as above)
 [data-theme='light'] .header__content {
 	color: var(--text);
 	text-shadow: 0 1px 0 rgba(255, 255, 255, 0.8);
@@ -110,6 +110,9 @@ html {
 	scroll-padding-top: 5rem;
 	scrollbar-gutter: stable;
 }
+
+/* Disabled: this could get stuck and blank the entire landing content in Chromium/Electron.
+   Keep class management in JS, but never hard-hide main content from CSS. */
 
 body {
 	background: linear-gradient(

@@ -1,8 +1,9 @@
 <script lang="ts">
 	import { projects, type Project } from '$lib/data/projects';
-	import { lockScroll, unlockScroll } from '$lib/utils/scrollLock';
+	import { assignAppLocation } from '$lib/utils/internalNav';
+	import { portal } from '$lib/utils/portal';
 
-	let open = $state(false);
+	let { open = $bindable(false) } = $props();
 	let query = $state('');
 	let inputEl: HTMLInputElement = $state(undefined as unknown as HTMLInputElement);
 	let selectedIdx = $state(0);
@@ -46,13 +47,6 @@
 	});
 
 	$effect(() => {
-		// Lock page scroll while search modal is open (prevents hash-scroll race)
-		if (!open) return;
-		lockScroll();
-		return () => unlockScroll();
-	});
-
-	$effect(() => {
 		// Reset selection when results change
 		selectedIdx = 0;
 	});
@@ -63,7 +57,7 @@
 
 	function navigate(slug: string) {
 		open = false;
-		window.location.href = `/projects/${slug}`;
+		assignAppLocation(`/projects/${slug}`);
 	}
 
 	function handleKey(e: KeyboardEvent) {
@@ -74,28 +68,15 @@
 			e.preventDefault();
 			selectedIdx = Math.max(selectedIdx - 1, 0);
 		} else if (e.key === 'Enter' && results[selectedIdx]) {
+			e.preventDefault();
 			navigate(results[selectedIdx].slug);
 		}
 	}
 
-	export function toggle() {
-		toggleOpen();
-	}
-
-	// Teleport node to document.body so it escapes any transformed/
-	// backdrop-filter ancestor that would hijack position:fixed containment.
-	function portal(node: HTMLElement) {
-		document.body.appendChild(node);
-		return {
-			destroy() {
-				node.remove();
-			}
-		};
-	}
 </script>
 
 <!-- Trigger button -->
-<button class="trigger" aria-label="Search projects (Ctrl+K)" onclick={toggleOpen}>
+<button type="button" class="trigger" aria-label="Search projects (Ctrl+K)" onclick={toggleOpen}>
 	<span class="trigger__icon" aria-hidden="true">⌕</span>
 	<span class="trigger__label">search</span>
 </button>
@@ -103,10 +84,7 @@
 {#if open}
 	<!-- svelte-ignore a11y_click_events_have_key_events -->
 	<!-- svelte-ignore a11y_no_static_element_interactions -->
-	<!-- Portal: teleports backdrop + dialog to document.body so position:fixed
-	     is correctly relative to the viewport, not the transformed header ancestor. -->
-	<div use:portal>
-		<!-- Backdrop -->
+	<div class="portal" use:portal>
 		<div class="backdrop" onclick={() => (open = false)}></div>
 
 		<div class="modal" role="dialog" aria-modal="true" aria-label="Search projects">
@@ -124,7 +102,7 @@
 					aria-label="Search projects"
 				/>
 				{#if query}
-					<button class="modal__clear" aria-label="Clear search" onclick={() => (query = '')}>✕</button>
+					<button type="button" class="modal__clear" aria-label="Clear search" onclick={() => (query = '')}>✕</button>
 				{/if}
 			</div>
 
@@ -138,6 +116,7 @@
 							aria-selected={i === selectedIdx}
 						>
 							<button
+								type="button"
 								class="result__btn"
 								onclick={() => navigate(project.slug)}
 								onmouseenter={() => (selectedIdx = i)}
@@ -169,6 +148,10 @@
 {/if}
 
 <style>
+	.portal {
+		display: contents;
+	}
+
 	.trigger {
 		display: inline-flex;
 		align-items: center;
@@ -197,7 +180,7 @@
 	.backdrop {
 		position: fixed;
 		inset: 0;
-		z-index: 299;
+		z-index: 7000;
 		background: rgba(0, 0, 0, 0.66);
 		backdrop-filter: blur(4px);
 	}
@@ -207,7 +190,7 @@
 		top: clamp(3rem, 10vh, 6rem);
 		left: 50%;
 		transform: translateX(-50%);
-		z-index: 300;
+		z-index: 7010;
 		width: min(640px, 94vw);
 		border: 1px solid var(--border);
 		background: #060a0e;

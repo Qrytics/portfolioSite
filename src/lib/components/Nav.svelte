@@ -2,17 +2,17 @@
 	import { profile } from '$lib/data/profile';
 	import Search from '$lib/components/Search.svelte';
 	import Terminal from '$lib/components/Terminal.svelte';
+	import { assignAppLocation } from '$lib/utils/internalNav';
 	import { lockScroll, unlockScroll } from '$lib/utils/scrollLock';
 
 	let scrolled = $state(false);
 	let navOpen = $state(false);
 	let compact = $state(false);
+	let searchOpen = $state(false);
+	let terminalOpen = $state(false);
+	const isOverlayOpen = $derived(searchOpen || terminalOpen);
 	// Theme toggle disabled for now (you'll re-implement later)
 	// let darkMode = $state(true);
-
-	$effect(() => {
-		// Theme toggle disabled for now
-	});
 
 	$effect(() => {
 		function onScroll() {
@@ -31,26 +31,45 @@
 		};
 	});
 
-	// function toggleTheme() { ... }
-
+	/** Only one overlay at a time so scroll-lock stays balanced and the header stays usable. */
 	$effect(() => {
-		if (!navOpen || !compact) return;
-		lockScroll();
-		function onKey(e: KeyboardEvent) {
-			if (e.key === 'Escape') navOpen = false;
-		}
-		window.addEventListener('keydown', onKey);
-		return () => {
-			unlockScroll();
-			window.removeEventListener('keydown', onKey);
-		};
+		if (searchOpen) terminalOpen = false;
+	});
+	$effect(() => {
+		if (terminalOpen) searchOpen = false;
 	});
 
+	$effect(() => {
+		if (!isOverlayOpen) return;
+		lockScroll();
+		return () => unlockScroll();
+	});
+
+	// function toggleTheme() { ... }
+
+	/** Plain routes use SvelteKit client nav; hash links use native scroll-to-id on `/`. */
 	const navLinks: Array<{ href: string; label: string; external?: boolean }> = [
-		{ href: '/#projects', label: 'projects' },
+		{ href: '/projects', label: 'projects' },
 		{ href: '/#about-me', label: 'about me' },
 		{ href: '/resume', label: 'resume' }
 	];
+
+	function handleNavClick(e: MouseEvent, href: string) {
+		navOpen = false;
+
+		if (href !== '/#about-me') return;
+		if (typeof window === 'undefined') return;
+
+		// Same-page click should keep native smooth hash scrolling.
+		const onHome = window.location.pathname === '/';
+		if (onHome) return;
+
+		// Cross-page click should "teleport" after navigation/hydration.
+		e.preventDefault();
+		window.sessionStorage.setItem('instant-home-hash-scroll', href.replace('/#', '#'));
+		document.documentElement.classList.add('instant-home-jump-pending');
+		assignAppLocation('/');
+	}
 </script>
 
 <a href="#main" class="skip">Skip to content</a>
@@ -67,15 +86,18 @@
 	class:site-header--compact={compact}
 >
 	<div class="site-header__inner" class:site-header__inner--with-title={true}>
-		<a href="/" class="site-header__title">{profile.handle}</a>
+		<a href="/" class="site-header__title" data-sveltekit-reload>{profile.handle}</a>
 
 		<div class="site-header__tools">
-			<Search />
-			<Terminal />
+			<Search bind:open={searchOpen} />
+			<div class="terminal-tool">
+				<Terminal bind:open={terminalOpen} />
+			</div>
 			<!-- theme toggle disabled for now -->
 		</div>
 
 		<button
+			type="button"
 			class="site-header__menu"
 			aria-label="Toggle navigation"
 			aria-expanded={navOpen}
@@ -92,7 +114,8 @@
 							href={link.href}
 							target={link.external ? '_blank' : undefined}
 							rel={link.external ? 'noopener noreferrer' : undefined}
-							onclick={() => (navOpen = false)}
+							data-sveltekit-reload={!link.href.includes('#') ? true : undefined}
+							onclick={(e) => handleNavClick(e, link.href)}
 						>
 							{link.label}
 						</a>
@@ -121,7 +144,7 @@
 		background: rgba(15, 20, 27, 0.9);
 		color: var(--text);
 		font-family: var(--font-mono);
-		z-index: 200;
+		z-index: 300;
 		text-decoration: none;
 	}
 	.skip:focus {
@@ -129,19 +152,23 @@
 	}
 
 	.site-header {
-		z-index: 100;
-		background: transparent;
-		border-bottom: 1px solid transparent;
-		transition: background-color 0.18s, backdrop-filter 0.18s, border-color 0.18s;
-		position: sticky;
-		top: 0;
-	}
-
-	.site-header--scrolled {
+		/* Above in-page cards (~2); keep moderate — extreme z-index + isolation caused main content to disappear in some browsers. */
+		z-index: 200;
+		/* Always show the subtle frosted bar (not only after scroll). */
 		backdrop-filter: blur(10px);
 		-webkit-backdrop-filter: blur(10px);
 		background: rgba(11, 14, 18, 0.56);
-		border-bottom-color: rgba(222, 232, 255, 0.12);
+		border-bottom: 1px solid rgba(222, 232, 255, 0.12);
+		transition: background-color 0.18s, backdrop-filter 0.18s, border-color 0.18s;
+		position: sticky;
+		top: 0;
+		/* Restrict hit-testing to actual controls; prevents sticky backdrop area from stealing clicks. */
+		pointer-events: none;
+	}
+
+	.site-header--scrolled {
+		background: rgba(11, 14, 18, 0.72);
+		border-bottom-color: rgba(222, 232, 255, 0.16);
 	}
 
 	.site-header__inner {
@@ -153,6 +180,7 @@
 		margin: 0 auto;
 		padding: 0.9rem clamp(1.25rem, 4vw, 3rem);
 		position: relative;
+		pointer-events: auto;
 	}
 
 	.site-header__tools {
@@ -160,6 +188,21 @@
 		align-items: center;
 		gap: 0.5rem;
 		margin-right: 0;
+		/* Keep header tools directly interactive. */
+		pointer-events: auto;
+		position: relative;
+		z-index: 4;
+	}
+
+	.terminal-tool {
+		display: inline-flex;
+	}
+
+	/* Hide terminal trigger on mobile to keep the header uncluttered. */
+	@media (max-width: 639px) {
+		.terminal-tool {
+			display: none;
+		}
 	}
 
 	/* Center tools relative to full header width (desktop). */
@@ -178,6 +221,8 @@
 	}
 
 	.site-header__title {
+		position: relative;
+		z-index: 2;
 		color: rgba(54, 242, 194, 0.8);
 		font-family: var(--font-mono);
 		font-size: clamp(1rem, 1.5vw, 1.15rem);
@@ -208,6 +253,8 @@
 
 	.site-nav {
 		display: block;
+		position: relative;
+		z-index: 2;
 	}
 
 	.site-nav ul {
@@ -259,6 +306,8 @@
 	/* Compact / mobile */
 	.site-header--compact .site-header__menu {
 		display: inline-block;
+		position: relative;
+		z-index: 3;
 	}
 
 	.site-header--compact .site-nav {

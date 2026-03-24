@@ -5,6 +5,17 @@
 		<meta name="viewport" content="width=device-width, initial-scale=1" />
 		<link rel="icon" href="/icons/portfolio-logo-2.ico" type="image/x-icon" />
 		<link rel="apple-touch-icon" href="/icons/portfolio-logo-2-apple-touch-icon.ico" />
+		<script>
+			(function () {
+				try {
+					if (window.location.pathname !== '/') return;
+					var key = 'instant-home-hash-scroll';
+					if (window.sessionStorage.getItem(key)) {
+						document.documentElement.classList.add('instant-home-jump-pending');
+					}
+				} catch (_) {}
+			})();
+		</script>
 		%sveltekit.head%
 	</head>
 	<body data-sveltekit-preload-data="hover">

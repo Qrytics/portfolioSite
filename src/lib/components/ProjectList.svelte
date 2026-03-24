@@ -1,12 +1,15 @@
 <script lang="ts">
-	import { projects } from '$lib/data/projects';
+	import { projects as allProjects, type Project } from '$lib/data/projects';
 	import ProjectCard from './ProjectCard.svelte';
+
+	// Optional override for which project set to render (landing "top" vs full index).
+	let { items = allProjects }: { items?: Project[] } = $props();
 </script>
 
-<section id="projects" class="section">
+<section class="section">
 	<div class="shell">
 		<div class="grid">
-			{#each projects as project (project.slug)}
+			{#each items as project (project.slug)}
 				<ProjectCard {project} />
 			{/each}
 		</div>

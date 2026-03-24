@@ -1,0 +1,50 @@
+name: Refresh GitHub recent repos
+
+on:
+  schedule:
+    - cron: '*/5 * * * *'
+
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Update GitHub recent JSON
+        env:
+          # Prefer a PAT if the default token gets rate-limited.
+          # Optionally set this secret in GitHub: GH_TOKEN (or fall back to GITHUB_TOKEN).
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_TOKEN: ${{ secrets.GH_TOKEN }}
+        run: node scripts/update-github-recent.mjs
+
+      - name: Update GitHub contributions JSON
+        env:
+          # Prefer a classic PAT (GH_TOKEN) for consistent access to GraphQL.
+          GH_TOKEN: ${{ secrets.GH_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: node scripts/update-github-contrib.mjs
+
+      - name: Build
+        run: npm run build
+
+      - name: Deploy to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./build
+          cname: mario-belmonte.com
+

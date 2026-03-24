@@ -8,18 +8,41 @@
 			<h2 class="termbar__title">about me</h2>
 		</div>
 
+		<div class="card card--bio">
+			<div class="card__inner">
+				<p class="excerpt">
+					<span class="highlight">Electrical and Computer Engineering</span> student at <span class="highlight">Carnegie Mellon</span> with a transition focus into <span class="highlight">Software Engineering</span>. Experienced in building complex systems from the ground up ranging from FPGA-based game development in SystemVerilog to <span class="highlight">full-stack</span> logic design.
+				</p>
+				<p class="excerpt">
+					I enjoy solving algorithmic challenges and building scalable software that bridges the gap between low-level hardware and high-level applications. My background in digital design and embedded systems has given me a deep understanding of memory management, concurrency, and performance optimization. Passionate about systems programming, backend development, and building software that demands a high degree of technical precision.
+				</p>
+			</div>
+		</div>
+
 		<div class="fun-wrap">
 			<FunSection embedded />
 		</div>
 
 		<div class="grid">
+			<a class="card" href="/rhythm-games">
+				<div class="card__inner">
+					<div class="title-row">
+						<h3 class="title">rhythm games</h3>
+						<div class="cta">videos ↗</div>
+					</div>
+					<p class="excerpt">A few clips from my favorite rhythm games.</p>
+				</div>
+			</a>
+
 			<a class="card" href="/about">
 				<div class="card__inner">
-					<h3 class="title">photos</h3>
+					<div class="title-row">
+						<h3 class="title">photos</h3>
+						<div class="cta">gallery ↗</div>
+					</div>
 					<p class="excerpt">
 						Here's a look into my life outside the keyboard. Friends, family, and the moments that matter.
 					</p>
-					<div class="cta">open gallery →</div>
 				</div>
 			</a>
 		</div>
@@ -32,8 +55,6 @@
 		z-index: 1;
 		padding-top: clamp(1rem, 2vw, 1.5rem);
 		padding-bottom: clamp(2.5rem, 5vw, 4rem);
-		content-visibility: auto;
-		contain-intrinsic-size: 0 400px;
 	}
 
 	.shell {
@@ -102,6 +123,15 @@
 		border-color: rgba(222, 232, 255, 0.22);
 	}
 
+	.card--bio:hover {
+		transform: none;
+		border-color: var(--border);
+	}
+
+	.card--bio .excerpt {
+		max-width: none;
+	}
+
 	.card__inner {
 		padding: 1.1rem 1.25rem;
 		display: grid;
@@ -113,6 +143,17 @@
 		font-size: 1.05rem;
 		letter-spacing: 0.01em;
 		color: rgba(243, 246, 255, 0.92);
+	}
+
+	.title-row {
+		display: flex;
+		align-items: baseline;
+		justify-content: flex-start;
+		gap: 0.75rem;
+	}
+
+	.title-row .cta {
+		margin-top: 0;
 	}
 
 	.excerpt {
@@ -127,6 +168,10 @@
 		font-size: 0.9rem;
 		color: rgba(54, 242, 194, 0.92);
 		margin-top: 0.15rem;
+	}
+
+	.highlight {
+		color: rgba(54, 242, 194, 0.95);
 	}
 </style>
 
