@@ -167,7 +167,7 @@ function monthMarkers(weeks: ContributionWeek[], year: number): Array<{ label: s
 
 									<div class="calendar-scroll" style={`--weeks: ${weeksCount};`}>
 										<div class="months__content">
-											{#each monthMarkers(visibleWeeks, selected.year) as marker (marker.index)}
+											{#each monthMarkers(visibleWeeks, selected.year) as marker, markerIdx (`${marker.index}-${marker.label}-${markerIdx}`)}
 												<span
 													class="months__label"
 													style={`left: calc(${marker.index} * (var(--cell) + var(--week-gap, 3px)));`}
