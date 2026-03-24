@@ -2,6 +2,7 @@
 	import { profile } from '$lib/data/profile';
 	import Search from '$lib/components/Search.svelte';
 	import Terminal from '$lib/components/Terminal.svelte';
+	import { assignAppLocation } from '$lib/utils/internalNav';
 	import { lockScroll, unlockScroll } from '$lib/utils/scrollLock';
 
 	let scrolled = $state(false);
@@ -9,6 +10,7 @@
 	let compact = $state(false);
 	let searchOpen = $state(false);
 	let terminalOpen = $state(false);
+	const isOverlayOpen = $derived(searchOpen || terminalOpen);
 	// Theme toggle disabled for now (you'll re-implement later)
 	// let darkMode = $state(true);
 
@@ -38,7 +40,7 @@
 	});
 
 	$effect(() => {
-		if (!searchOpen && !terminalOpen) return;
+		if (!isOverlayOpen) return;
 		lockScroll();
 		return () => unlockScroll();
 	});
@@ -51,6 +53,23 @@
 		{ href: '/#about-me', label: 'about me' },
 		{ href: '/resume', label: 'resume' }
 	];
+
+	function handleNavClick(e: MouseEvent, href: string) {
+		navOpen = false;
+
+		if (href !== '/#about-me') return;
+		if (typeof window === 'undefined') return;
+
+		// Same-page click should keep native smooth hash scrolling.
+		const onHome = window.location.pathname === '/';
+		if (onHome) return;
+
+		// Cross-page click should "teleport" after navigation/hydration.
+		e.preventDefault();
+		window.sessionStorage.setItem('instant-home-hash-scroll', href.replace('/#', '#'));
+		document.documentElement.classList.add('instant-home-jump-pending');
+		assignAppLocation('/');
+	}
 </script>
 
 <a href="#main" class="skip">Skip to content</a>
@@ -90,9 +109,7 @@
 							target={link.external ? '_blank' : undefined}
 							rel={link.external ? 'noopener noreferrer' : undefined}
 							data-sveltekit-reload={!link.href.includes('#') ? true : undefined}
-							onclick={() => {
-								navOpen = false;
-							}}
+							onclick={(e) => handleNavClick(e, link.href)}
 						>
 							{link.label}
 						</a>
@@ -123,7 +140,6 @@
 	.site-header {
 		/* Above in-page cards (~2); keep moderate — extreme z-index + isolation caused main content to disappear in some browsers. */
 		z-index: 200;
-		isolation: isolate;
 		/* Always show the subtle frosted bar (not only after scroll). */
 		backdrop-filter: blur(10px);
 		-webkit-backdrop-filter: blur(10px);
@@ -132,6 +148,8 @@
 		transition: background-color 0.18s, backdrop-filter 0.18s, border-color 0.18s;
 		position: sticky;
 		top: 0;
+		/* Restrict hit-testing to actual controls; prevents sticky backdrop area from stealing clicks. */
+		pointer-events: none;
 	}
 
 	.site-header--scrolled {
@@ -148,7 +166,7 @@
 		margin: 0 auto;
 		padding: 0.9rem clamp(1.25rem, 4vw, 3rem);
 		position: relative;
-		isolation: isolate;
+		pointer-events: auto;
 	}
 
 	.site-header__tools {

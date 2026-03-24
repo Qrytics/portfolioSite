@@ -111,6 +111,9 @@ html {
 	scrollbar-gutter: stable;
 }
 
+/* Disabled: this could get stuck and blank the entire landing content in Chromium/Electron.
+   Keep class management in JS, but never hard-hide main content from CSS. */
+
 body {
 	background: linear-gradient(
 			180deg,
