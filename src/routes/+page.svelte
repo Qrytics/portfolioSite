@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { onMount } from 'svelte';
+	import { onMount, tick } from 'svelte';
 	import { projects } from '$lib/data/projects';
 	import { profile } from '$lib/data/profile';
 	import type { PageData } from './$types';
@@ -13,17 +13,60 @@
 
 let { data }: { data: PageData } = $props();
 
-	onMount(() => {
+	function scrollToHashTarget(hash: string) {
+		if (typeof window === 'undefined') return;
+		const id = hash.startsWith('#') ? hash.slice(1) : hash;
+		if (!id) return;
+
+		let attempts = 0;
+		const maxAttempts = 20;
+		const tryScroll = () => {
+			const target = document.getElementById(id);
+			if (target) {
+				target.scrollIntoView({ behavior: 'auto', block: 'start' });
+				return;
+			}
+			attempts += 1;
+			if (attempts < maxAttempts) {
+				requestAnimationFrame(tryScroll);
+			}
+		};
+
+		requestAnimationFrame(tryScroll);
+	}
+
+	function consumeInstantHomeHashScroll(): string | null {
+		if (typeof window === 'undefined') return null;
+		const key = 'instant-home-hash-scroll';
+		const hash = window.sessionStorage.getItem(key);
+		if (hash) window.sessionStorage.removeItem(key);
+		return hash;
+	}
+
+	onMount(async () => {
+		await tick();
+		const targetHash = consumeInstantHomeHashScroll();
 		const html = document.documentElement;
-		html.classList.remove('instant-home-jump-pending');
-
-		// Preserve native hash navigation; only force top when loading `/` without a hash.
-		if (window.location.hash) return;
-
+		if (targetHash) {
+			const prevScrollBehavior = html.style.scrollBehavior;
+			html.style.scrollBehavior = 'auto';
+			scrollToHashTarget(targetHash);
+			// Keep URL semantics without triggering native hash smooth scroll.
+			window.history.replaceState(window.history.state, '', `${window.location.pathname}${targetHash}`);
+			requestAnimationFrame(() => {
+				requestAnimationFrame(() => {
+					html.style.scrollBehavior = prevScrollBehavior;
+					html.classList.remove('instant-home-jump-pending');
+				});
+			});
+			return;
+		}
+		// No pending instant-jump: make sure home starts from the top (override CSS smooth scroll).
 		const prevScrollBehavior = html.style.scrollBehavior;
 		html.style.scrollBehavior = 'auto';
 		window.scrollTo({ top: 0, left: 0 });
 		html.style.scrollBehavior = prevScrollBehavior;
+		html.classList.remove('instant-home-jump-pending');
 	});
 
 	const firstProject = projects[0];
