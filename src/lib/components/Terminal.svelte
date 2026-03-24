@@ -347,14 +347,14 @@
 
 	// Teleport node to document.body so it escapes any transformed/
 	// backdrop-filter ancestor that would hijack position:fixed containment.
-	function portal(node: HTMLElement) {
-		document.body.appendChild(node);
-		return {
-			destroy() {
-				node.remove();
-			}
-		};
-	}
+	//function portal(node: HTMLElement) {
+	//	document.body.appendChild(node);
+	//	return {
+	//		destroy() {
+	//			node.remove();
+	//		}
+	//	};
+	//}
 </script>
 
 <!-- Trigger button -->
