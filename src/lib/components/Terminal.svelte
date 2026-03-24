@@ -18,7 +18,41 @@
 	let history = $state<string[]>([]);
 	let historyCursor = $state(-1);
 	let draftInput = $state('');
-	const commandSuggestions = ['help', 'projects', 'project <n>', 'open <slug|n>', 'history', 'home', 'resume', 'clear', 'exit'];
+	let cwd = $state('/home/mario');
+	const files = [
+		{
+			name: 'projects',
+			type: 'dir' as const
+		},
+		{
+			name: 'documents',
+			type: 'dir' as const
+		},
+		{
+			name: 'README.md',
+			type: 'file' as const
+		},
+		{
+			name: 'skills.txt',
+			type: 'file' as const
+		}
+	];
+	const commandSuggestions = [
+		'help',
+		'ls',
+		'pwd',
+		'cd <dir>',
+		'cat <file>',
+		'projects',
+		'project <n>',
+		'open <slug|n>',
+		'history',
+		'home',
+		'resume',
+		'github',
+		'clear',
+		'exit'
+	];
 
 	$effect(() => {
 		function onKey(e: KeyboardEvent) {
@@ -56,10 +90,28 @@
 		}, 0);
 	}
 
+	function parseInput(raw: string): { cmd: string; args: string[] } {
+		const parts = raw.trim().split(/\s+/).filter(Boolean);
+		if (parts.length === 0) return { cmd: '', args: [] };
+		return { cmd: parts[0].toLowerCase(), args: parts.slice(1) };
+	}
+
+	function promptPath() {
+		return cwd === '/home/mario' ? '~' : cwd.replace('/home/mario', '~');
+	}
+
+	function normalizeDir(input: string): string {
+		if (!input || input === '~') return '/home/mario';
+		if (input === '..') return cwd === '/home/mario' ? '/home/mario' : '/home/mario';
+		if (input.startsWith('/')) return input;
+		if (input.startsWith('~/')) return `/home/mario/${input.slice(2)}`;
+		return `${cwd}/${input}`.replace(/\/+/g, '/');
+	}
+
 	function run(raw: string) {
 		const trimmed = raw.trim();
-		const cmd = trimmed.toLowerCase();
-		lines.push({ type: 'input', text: `> ${trimmed}` });
+		const { cmd, args } = parseInput(trimmed);
+		lines.push({ type: 'input', text: `${profile.handle}@portfolio:${promptPath()}$ ${trimmed}` });
 
 		if (!cmd) {
 			scrollToBottom();
@@ -76,28 +128,80 @@
 			lines.push({
 				type: 'output',
 				text: [
-					'Available commands:',
-					'  help        — show this message',
-					'  about       — who is mario',
-					'  whoami      — display handle',
-					'  skills      — list technical skills',
-					'  projects    — list projects',
-					'  ls / dir    — short project list',
-					'  pwd         — fake path (for fun)',
-					'  echo <msg>  — print text',
-					'  github      — open GitHub profile',
-					'  resume      — open resume page',
-					'  home        — go to landing page',
-					'  contact     — show contact info',
-					'  history     — show recent commands',
-					'  clear       — clear the terminal',
-					'  exit        — close the terminal',
+					'GNU bash (portfolio edition)',
 					'',
-					'  project <n> — open project by list index (see projects)',
-					'  open <arg>  — open by slug or list index',
-					'  ↑ / ↓       — command history in input'
+					'Navigation:',
+					'  pwd                 print current working directory',
+					'  ls [dir]            list directory contents',
+					'  cd <dir>            change directory',
+					'  cat <file>          print file contents',
+					'',
+					'Portfolio:',
+					'  whoami              display handle',
+					'  about               show quick bio',
+					'  skills              list technical skills',
+					'  projects            list projects',
+					'  project <n>         open project by index',
+					'  open <slug|n>       open project by slug/index',
+					'  github              open GitHub profile',
+					'  resume              open resume page',
+					'  home                go to landing page',
+					'',
+					'Shell:',
+					'  echo <msg>          print text',
+					'  history             show recent commands',
+					'  clear               clear the terminal',
+					'  exit                close terminal',
+					'',
+					'Use ↑ / ↓ for command history.'
 				].join('\n')
 			});
+		} else if (cmd === 'ls' || cmd === 'dir') {
+			const target = args[0] ? normalizeDir(args[0]) : cwd;
+			if (target === '/home/mario') {
+				lines.push({ type: 'output', text: files.map((entry) => entry.name).join('   ') });
+			} else if (target === '/home/mario/projects') {
+				lines.push({ type: 'output', text: projects.map((p) => p.slug).join('\n') });
+			} else if (target === '/home/mario/documents') {
+				lines.push({ type: 'output', text: 'resume.txt\ncontact.txt' });
+			} else {
+				lines.push({ type: 'error', text: `ls: cannot access '${args[0] ?? ''}': No such file or directory` });
+			}
+		} else if (cmd === 'cd') {
+			const next = normalizeDir(args[0] ?? '/home/mario');
+			const allowed = ['/home/mario', '/home/mario/projects', '/home/mario/documents'];
+			if (!allowed.includes(next)) {
+				lines.push({ type: 'error', text: `cd: ${args[0] ?? ''}: No such file or directory` });
+			} else {
+				cwd = next;
+			}
+		} else if (cmd === 'pwd') {
+			lines.push({ type: 'output', text: cwd });
+		} else if (cmd === 'cat') {
+			const file = args[0]?.toLowerCase();
+			if (!file) {
+				lines.push({ type: 'error', text: 'cat: missing file operand' });
+			} else if (file === 'readme.md' || file === 'readme') {
+				lines.push({
+					type: 'output',
+					text: [
+						'# mario-belmonte terminal',
+						'Use this terminal to navigate projects and quickly open pages.',
+						'Run `help` to see all supported commands.'
+					].join('\n')
+				});
+			} else if (file === 'skills.txt') {
+				lines.push({
+					type: 'output',
+					text: profile.skills.map((group) => `${group.category}: ${group.items.join(', ')}`).join('\n')
+				});
+			} else if (file === 'resume.txt') {
+				lines.push({ type: 'output', text: 'Run `resume` to open the full resume page.' });
+			} else if (file === 'contact.txt') {
+				lines.push({ type: 'output', text: `${profile.email}\n${profile.github}\n${profile.linkedin}` });
+			} else {
+				lines.push({ type: 'error', text: `cat: ${args[0]}: No such file or directory` });
+			}
 		} else if (cmd === 'about') {
 			lines.push({
 				type: 'output',
@@ -110,16 +214,8 @@
 			lines.push({ type: 'output', text: 'Skills:\n' + skillText });
 		} else if (cmd === 'whoami') {
 			lines.push({ type: 'output', text: `${profile.handle} (${profile.name})` });
-		} else if (cmd === 'pwd') {
-			lines.push({ type: 'output', text: '~/portfolio/mario-belmonte (this site)' });
-		} else if (cmd === 'ls' || cmd === 'dir') {
-			const list = projects.map((p) => `  ${p.slug}`).join('\n');
-			lines.push({
-				type: 'output',
-				text: `projects/\n${list}\n\n  Type "projects" for titles or "project <n>" to open by index.`
-			});
-		} else if (cmd.startsWith('echo ')) {
-			lines.push({ type: 'output', text: trimmed.slice(5).trim() });
+		} else if (cmd === 'echo') {
+			lines.push({ type: 'output', text: args.join(' ') });
 		} else if (cmd === 'github') {
 			lines.push({ type: 'output', text: `Opening ${profile.github}…` });
 			if (typeof window !== 'undefined') window.open(profile.github, '_blank', 'noopener,noreferrer');
@@ -146,8 +242,8 @@
 			lines.push({ type: 'output', text: 'Returning home…' });
 			open = false;
 			assignAppLocation('/');
-		} else if (cmd.startsWith('project ')) {
-			const idx = parseInt(cmd.replace('project ', ''), 10) - 1;
+		} else if (cmd === 'project') {
+			const idx = parseInt(args[0] ?? '', 10) - 1;
 			const p = projects[idx];
 			if (p) {
 				lines.push({ type: 'output', text: `Navigating to ${p.title}…` });
@@ -156,8 +252,13 @@
 			} else {
 				lines.push({ type: 'error', text: `project: no project at index ${idx + 1}` });
 			}
-		} else if (cmd.startsWith('open ')) {
-			const arg = trimmed.slice(5).trim().toLowerCase();
+		} else if (cmd === 'open') {
+			const arg = (args[0] ?? '').trim().toLowerCase();
+			if (!arg) {
+				lines.push({ type: 'error', text: 'open: missing slug or index. Try "open <slug|n>"' });
+				scrollToBottom();
+				return;
+			}
 			const asIndex = Number.parseInt(arg, 10);
 			const byIndex = Number.isFinite(asIndex) ? projects[asIndex - 1] : undefined;
 			const bySlug = projects.find((p) => p.slug.toLowerCase() === arg);
@@ -177,16 +278,6 @@
 			lines.push({ type: 'output', text: 'Opening resume…' });
 			open = false;
 			assignAppLocation('/resume');
-		} else if (cmd === 'contact') {
-			lines.push({
-				type: 'output',
-				text: [
-					'Contact:',
-					`  email    ${profile.email}`,
-					`  github   ${profile.github}`,
-					`  linkedin ${profile.linkedin}`
-				].join('\n')
-			});
 		} else if (cmd === 'clear') {
 			lines = [{ type: 'output', text: 'Terminal cleared.' }];
 			scrollToBottom();
