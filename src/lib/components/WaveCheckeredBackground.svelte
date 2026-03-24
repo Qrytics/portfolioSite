@@ -12,38 +12,57 @@
 		let raf = 0;
 		let start = performance.now();
 		let visible = true;
+		let prefersReducedMotion = false;
+		let dpr = 1;
+		let lastFrame = 0;
+		const targetFrameMs = 1000 / 30;
+
+		const mediaQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
+		const updateReducedMotion = () => {
+			prefersReducedMotion = mediaQuery.matches;
+		};
+		updateReducedMotion();
+		mediaQuery.addEventListener('change', updateReducedMotion);
 
 		function resize() {
 			if (!canvas || !container) return;
 			const r = container.getBoundingClientRect();
-			canvas.width = Math.max(1, Math.floor(r.width * devicePixelRatio));
-			canvas.height = Math.max(1, Math.floor(r.height * devicePixelRatio));
+			// Clamp DPR to reduce GPU work on high-density screens.
+			dpr = Math.min(window.devicePixelRatio || 1, 1.5);
+			canvas.width = Math.max(1, Math.floor(r.width * dpr));
+			canvas.height = Math.max(1, Math.floor(r.height * dpr));
 			canvas.style.width = `${r.width}px`;
 			canvas.style.height = `${r.height}px`;
+			lastFrame = 0;
 		}
 
 		function draw(now: number) {
 			if (!canvas || !container) return;
 			if (!visible) { raf = 0; return; }
 
+			if (!prefersReducedMotion && lastFrame !== 0 && now - lastFrame < targetFrameMs) {
+				raf = requestAnimationFrame(draw);
+				return;
+			}
+			lastFrame = now;
+
 			const w = canvas.width;
 			const h = canvas.height;
-			const t = (now - start) / 1000;
+			const t = prefersReducedMotion ? 0 : (now - start) / 1000;
 
 			g.clearRect(0, 0, w, h);
 			g.imageSmoothingEnabled = true;
 
 			// Checker setup (work in CSS pixels, then scale via DPR).
-			const dpr = devicePixelRatio || 1;
 			const cw = w / dpr;
 			const ch = h / dpr;
 
 			// Larger tiles = fewer rects = smoother + faster.
-			const cell = 26;
+			const cell = 30;
 			const period = cell * 2;
 
 			// Right-to-left motion, seamless wrap every 2*cell.
-			const speed = 34; // px/s
+			const speed = 24; // px/s
 			const offsetX = -((t * speed) % period);
 
 			// Wave warp (subtle, smooth).
@@ -94,6 +113,10 @@
 
 			g.restore();
 
+			if (prefersReducedMotion) {
+				raf = 0;
+				return;
+			}
 			raf = requestAnimationFrame(draw);
 		}
 
@@ -116,6 +139,7 @@
 			cancelAnimationFrame(raf);
 			ro.disconnect();
 			io.disconnect();
+			mediaQuery.removeEventListener('change', updateReducedMotion);
 		};
 	});
 </script>
