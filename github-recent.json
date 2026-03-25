@@ -1,12 +1,22 @@
 {
   "repos": [
     {
+      "id": 1139290623,
+      "name": "smartHome",
+      "full_name": "Qrytics/smartHome",
+      "html_url": "https://github.com/Qrytics/smartHome",
+      "description": "A fully integrated model building and web-based dashboard where a user can authenticate, toggle a light or door lock remotely, view real-time temperature and occupancy data. This project demonstrates a “web-first” reasoning, proving that the model home’s essential functions are entirely managed by the rules engine and secure handshake protocol. ",
+      "pushed_at": "2026-03-25T15:32:33Z",
+      "private": false,
+      "fork": false
+    },
+    {
       "id": 1174112842,
       "name": "portfolioSite",
       "full_name": "Qrytics/portfolioSite",
       "html_url": "https://github.com/Qrytics/portfolioSite",
       "description": "This repo is for my portfoio site. It's a showcase of my software engineering projects, technical experiments, and coding journey. It's basically a resume with better syntax highlighting.",
-      "pushed_at": "2026-03-25T13:44:21Z",
+      "pushed_at": "2026-03-25T14:46:51Z",
       "private": false,
       "fork": false
     },
@@ -17,16 +27,6 @@
       "html_url": "https://github.com/Qrytics/clearCites",
       "description": "clearCites is an open-source platform designed to break down the barriers of academia. By treating research papers as nodes in a massive, interconnected web, it allows users to visually navigate the \"lineage of ideas.\" Traditional research tools are built for experts; clearCites is built for transparency.",
       "pushed_at": "2026-03-25T00:44:30Z",
-      "private": false,
-      "fork": false
-    },
-    {
-      "id": 1139290623,
-      "name": "smartHome",
-      "full_name": "Qrytics/smartHome",
-      "html_url": "https://github.com/Qrytics/smartHome",
-      "description": "A fully integrated model building and web-based dashboard where a user can authenticate, toggle a light or door lock remotely, view real-time temperature and occupancy data. This project demonstrates a “web-first” reasoning, proving that the model home’s essential functions are entirely managed by the rules engine and secure handshake protocol. ",
-      "pushed_at": "2026-03-23T16:25:39Z",
       "private": false,
       "fork": false
     },
