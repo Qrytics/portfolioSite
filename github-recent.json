@@ -6,7 +6,7 @@
       "full_name": "Qrytics/portfolioSite",
       "html_url": "https://github.com/Qrytics/portfolioSite",
       "description": "This repo is for my portfoio site. It's a showcase of my software engineering projects, technical experiments, and coding journey. It's basically a resume with better syntax highlighting.",
-      "pushed_at": "2026-03-25T16:55:33Z",
+      "pushed_at": "2026-03-25T17:57:20Z",
       "private": false,
       "fork": false
     },
@@ -47,16 +47,6 @@
       "html_url": "https://github.com/Qrytics/streamerStalker",
       "description": "streamerStalker is a Discord bot that tracks Twitch streamers, Twitter/X accounts, and vtuber news all from inside your Discord server.",
       "pushed_at": "2026-03-20T17:49:35Z",
-      "private": false,
-      "fork": false
-    },
-    {
-      "id": 1184963298,
-      "name": "shortsBlocker",
-      "full_name": "Qrytics/shortsBlocker",
-      "html_url": "https://github.com/Qrytics/shortsBlocker",
-      "description": "Browser extension that improves focus by removing distracting YouTube elements. It blocks Shorts and hides recommended videos, reducing endless scrolling and algorithm-driven content. Designed for productivity, it helps users stay intentional, minimize time waste, and use YouTube as a tool, not a distraction.",
-      "pushed_at": "2026-03-18T18:22:51Z",
       "private": false,
       "fork": false
     }

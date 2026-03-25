@@ -3,7 +3,7 @@
   "years": [
     {
       "year": 2026,
-      "totalContributions": 807,
+      "totalContributions": 817,
       "weeks": [
         {
           "contributionDays": [
@@ -487,8 +487,8 @@
             },
             {
               "date": "2026-03-25",
-              "contributionCount": 15,
-              "color": "#40c463"
+              "contributionCount": 25,
+              "color": "#30a14e"
             },
             {
               "date": "2026-03-26",
