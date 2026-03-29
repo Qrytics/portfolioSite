@@ -6,7 +6,7 @@
       "full_name": "Qrytics/portfolioSite",
       "html_url": "https://github.com/Qrytics/portfolioSite",
       "description": "This repo is for my portfoio site. It's a showcase of my software engineering projects, technical experiments, and coding journey. It's basically a resume with better syntax highlighting.",
-      "pushed_at": "2026-03-28T23:40:47Z",
+      "pushed_at": "2026-03-29T00:01:23Z",
       "private": false,
       "fork": false
     },
@@ -37,16 +37,6 @@
       "html_url": "https://github.com/Qrytics/clearCites",
       "description": "clearCites is an open-source platform designed to break down the barriers of academia. By treating research papers as nodes in a massive, interconnected web, it allows users to visually navigate the \"lineage of ideas.\" Traditional research tools are built for experts; clearCites is built for transparency.",
       "pushed_at": "2026-03-25T00:44:30Z",
-      "private": false,
-      "fork": false
-    },
-    {
-      "id": 1187597485,
-      "name": "wifiScan",
-      "full_name": "Qrytics/wifiScan",
-      "html_url": "https://github.com/Qrytics/wifiScan",
-      "description": "Real-time occupancy tracking and space intelligence powered by existing Wi-Fi infrastructure. wifiScan is a lightweight, privacy-first application designed to turn your local network into a presence-sensing engine. By monitoring device connections and signal variance, wifiScan provides an instant headcount of who is in a building.",
-      "pushed_at": "2026-03-22T00:07:21Z",
       "private": false,
       "fork": false
     }
