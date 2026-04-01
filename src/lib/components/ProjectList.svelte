@@ -3,7 +3,8 @@
 	import ProjectCard from './ProjectCard.svelte';
 
 	// Optional override for which project set to render (landing "top" vs full index).
-	let { items = allProjects }: { items?: Project[] } = $props();
+	let { items = allProjects, compactBottom = false }: { items?: Project[]; compactBottom?: boolean } =
+		$props();
 </script>
 
 <section class="section">
