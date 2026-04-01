@@ -95,7 +95,7 @@ let { data }: { data: PageData } = $props();
 <div class="page">
 	<Hero />
 	<section id="top-projects" aria-label="Projects">
-		<ProjectList items={topProjects} />
+		<ProjectList items={topProjects} compactBottom />
 	</section>
 	<GitHubContribChart
 		years={data.contribYears}

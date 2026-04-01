@@ -150,7 +150,7 @@
 
 	function contributionTooltip(day: ContributionDay): string | null {
 		if (day.contributionCount < 1) return null;
-		return `${day.contributionCount} contribution${day.contributionCount === 1 ? '' : 's'}`;
+		return `${day.contributionCount} contributions`;
 	}
 
 </script>
@@ -201,7 +201,6 @@
 															class="day"
 															data-level={levelForDay(day)}
 															data-tooltip={contributionTooltip(day) ?? undefined}
-															title={`${day.date}: ${day.contributionCount} contribution${day.contributionCount === 1 ? '' : 's'}`}
 														></div>
 													{/each}
 												</div>
@@ -250,7 +249,7 @@
 
 <style>
 	.github-chart {
-		padding: 2rem clamp(1.25rem, 4vw, 3rem) 0;
+		padding: 0 clamp(1.25rem, 4vw, 3rem) 0;
 		/* Default; calendar-scroll overrides for the grid */
 		--cell: 11px;
 		--week-gap: 3px;
@@ -445,7 +444,7 @@
 			content: attr(data-tooltip);
 			position: absolute;
 			left: 50%;
-			bottom: calc(100% + 8px);
+			top: calc(100% + 8px);
 			transform: translateX(-50%);
 			padding: 0.28rem 0.45rem;
 			border-radius: 0.35rem;
@@ -465,13 +464,13 @@
 			content: '';
 			position: absolute;
 			left: 50%;
-			bottom: calc(100% + 3px);
+			top: calc(100% + 3px);
 			transform: translateX(-50%);
 			width: 6px;
 			height: 6px;
 			background: rgba(8, 11, 17, 0.96);
-			border-right: 1px solid var(--border-2);
-			border-bottom: 1px solid var(--border-2);
+			border-top: 1px solid var(--border-2);
+			border-left: 1px solid var(--border-2);
 			rotate: 45deg;
 			z-index: 3;
 			pointer-events: none;
