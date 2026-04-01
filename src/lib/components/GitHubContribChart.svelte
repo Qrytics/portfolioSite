@@ -74,7 +74,7 @@
 			: 0
 	);
 
-function monthMarkers(weeks: ContributionWeek[], year: number): Array<{ label: string; index: number }> {
+	function monthMarkers(weeks: ContributionWeek[], year: number): Array<{ label: string; index: number }> {
 		const out: Array<{ label: string; index: number }> = [];
 		let prevKey = '';
 
@@ -112,7 +112,19 @@ function monthMarkers(weeks: ContributionWeek[], year: number): Array<{ label: s
 			prevKey = key;
 		}
 
-		return out;
+		// If two month transitions land on the same week column (e.g. Dec -> Jan),
+		// keep the later month so labels never overlap in the same x-position.
+		const deduped: Array<{ label: string; index: number }> = [];
+		for (const marker of out) {
+			const last = deduped[deduped.length - 1];
+			if (last?.index === marker.index) {
+				deduped[deduped.length - 1] = marker;
+			} else {
+				deduped.push(marker);
+			}
+		}
+
+		return deduped;
 	}
 
 	function levelForDay(day: ContributionDay): 0 | 1 | 2 | 3 {
@@ -134,6 +146,11 @@ function monthMarkers(weeks: ContributionWeek[], year: number): Array<{ label: s
 		if (normalized < 0.34) return 1;
 		if (normalized < 0.67) return 2;
 		return 3;
+	}
+
+	function contributionTooltip(day: ContributionDay): string | null {
+		if (day.contributionCount < 1) return null;
+		return `${day.contributionCount} contribution${day.contributionCount === 1 ? '' : 's'}`;
 	}
 
 </script>
@@ -160,7 +177,7 @@ function monthMarkers(weeks: ContributionWeek[], year: number): Array<{ label: s
 								<div class="calendar-grid" aria-hidden="true">
 									<div class="months__spacer"></div>
 									<div class="weekdays" aria-hidden="true">
-										{#each weekdayLabels as wd}
+										{#each weekdayLabels as wd (wd)}
 											<div class="weekdays__label">{wd}</div>
 										{/each}
 									</div>
@@ -183,7 +200,8 @@ function monthMarkers(weeks: ContributionWeek[], year: number): Array<{ label: s
 														<div
 															class="day"
 															data-level={levelForDay(day)}
-															title={`${day.date}: ${day.contributionCount} contributions`}
+															data-tooltip={contributionTooltip(day) ?? undefined}
+															title={`${day.date}: ${day.contributionCount} contribution${day.contributionCount === 1 ? '' : 's'}`}
 														></div>
 													{/each}
 												</div>
@@ -194,7 +212,7 @@ function monthMarkers(weeks: ContributionWeek[], year: number): Array<{ label: s
 							</div>
 
 							<div class="years" aria-label="Contribution years">
-								{#each yearOptions as y}
+								{#each yearOptions as y (y)}
 									<button
 										type="button"
 										class="year"
@@ -402,6 +420,7 @@ function monthMarkers(weeks: ContributionWeek[], year: number): Array<{ label: s
 		border-radius: 2px;
 		flex-shrink: 0;
 		border: 1px solid rgba(255, 255, 255, 0.04);
+		position: relative;
 	}
 
 	.day[data-level='0'] {
@@ -415,6 +434,48 @@ function monthMarkers(weeks: ContributionWeek[], year: number): Array<{ label: s
 	}
 	.day[data-level='3'] {
 		background: rgba(54, 242, 194, 0.95);
+	}
+
+	@media (hover: hover) and (pointer: fine) {
+		.day[data-tooltip] {
+			cursor: pointer;
+		}
+
+		.day[data-tooltip]:hover::after {
+			content: attr(data-tooltip);
+			position: absolute;
+			left: 50%;
+			bottom: calc(100% + 8px);
+			transform: translateX(-50%);
+			padding: 0.28rem 0.45rem;
+			border-radius: 0.35rem;
+			font-family: var(--font-mono);
+			font-size: 0.68rem;
+			line-height: 1.2;
+			white-space: nowrap;
+			color: rgba(243, 246, 255, 0.96);
+			background: rgba(8, 11, 17, 0.96);
+			border: 1px solid var(--border-2);
+			box-shadow: 0 8px 20px rgba(0, 0, 0, 0.35);
+			z-index: 3;
+			pointer-events: none;
+		}
+
+		.day[data-tooltip]:hover::before {
+			content: '';
+			position: absolute;
+			left: 50%;
+			bottom: calc(100% + 3px);
+			transform: translateX(-50%);
+			width: 6px;
+			height: 6px;
+			background: rgba(8, 11, 17, 0.96);
+			border-right: 1px solid var(--border-2);
+			border-bottom: 1px solid var(--border-2);
+			rotate: 45deg;
+			z-index: 3;
+			pointer-events: none;
+		}
 	}
 
 	.legend {
