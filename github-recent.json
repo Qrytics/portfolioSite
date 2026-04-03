@@ -6,17 +6,27 @@
       "full_name": "Qrytics/portfolioSite",
       "html_url": "https://github.com/Qrytics/portfolioSite",
       "description": "This repo is for my portfoio site. It's a showcase of my software engineering projects, technical experiments, and coding journey. It's basically a resume with better syntax highlighting.",
-      "pushed_at": "2026-04-03T19:47:43Z",
+      "pushed_at": "2026-03-20T19:25:40Z",
       "private": false,
       "fork": false
     },
     {
-      "id": 1156888242,
-      "name": "miniGamba",
-      "full_name": "Qrytics/miniGamba",
-      "html_url": "https://github.com/Qrytics/miniGamba",
-      "description": "miniGamba: The Ultimate In-Game Companion miniGamba is a lightweight, customizable overlay designed to keep the hype alive during downtime. Originally inspired by League of Legends death timers, this multi-purpose tool features a fake-credit slot machine and progression system.",
-      "pushed_at": "2026-04-01T19:23:03Z",
+      "id": 1181561473,
+      "name": "streamerStalker",
+      "full_name": "Qrytics/streamerStalker",
+      "html_url": "https://github.com/Qrytics/streamerStalker",
+      "description": "streamerStalker is a Discord bot that tracks Twitch streamers, Twitter/X accounts, and vtuber news all from inside your Discord server.",
+      "pushed_at": "2026-03-20T17:49:35Z",
+      "private": false,
+      "fork": false
+    },
+    {
+      "id": 1184963298,
+      "name": "shortsBlocker",
+      "full_name": "Qrytics/shortsBlocker",
+      "html_url": "https://github.com/Qrytics/shortsBlocker",
+      "description": "Browser extension that improves focus by removing distracting YouTube elements. It blocks Shorts and hides recommended videos, reducing endless scrolling and algorithm-driven content. Designed for productivity, it helps users stay intentional, minimize time waste, and use YouTube as a tool, not a distraction.",
+      "pushed_at": "2026-03-18T18:22:51Z",
       "private": false,
       "fork": false
     },
@@ -26,7 +36,87 @@
       "full_name": "Qrytics/smartHome",
       "html_url": "https://github.com/Qrytics/smartHome",
       "description": "A fully integrated model building and web-based dashboard where a user can authenticate, toggle a light or door lock remotely, view real-time temperature and occupancy data. This project demonstrates a “web-first” reasoning, proving that the model home’s essential functions are entirely managed by the rules engine and secure handshake protocol. ",
-      "pushed_at": "2026-04-01T13:15:39Z",
+      "pushed_at": "2026-03-18T16:13:05Z",
+      "private": false,
+      "fork": false
+    },
+    {
+      "id": 1177187232,
+      "name": "cmuMarchMadness-ML",
+      "full_name": "Qrytics/cmuMarchMadness-ML",
+      "html_url": "https://github.com/Qrytics/cmuMarchMadness-ML",
+      "description": "An ML model created to approximate the winners of CMU’s March Madness basketball tournaments. ",
+      "pushed_at": "2026-03-16T08:31:59Z",
+      "private": false,
+      "fork": false
+    },
+    {
+      "id": 1181567462,
+      "name": "smartDesktop",
+      "full_name": "Qrytics/smartDesktop",
+      "html_url": "https://github.com/Qrytics/smartDesktop",
+      "description": "A local, offline voice automation assistant for developer workflows and desktop control similar to Siri or Alexa but optimised for power users and developers.",
+      "pushed_at": "2026-03-15T13:46:47Z",
+      "private": false,
+      "fork": false
+    },
+    {
+      "id": 1181564751,
+      "name": "runeLoLDB",
+      "full_name": "Qrytics/runeLoLDB",
+      "html_url": "https://github.com/Qrytics/runeLoLDB",
+      "description": "A League of Legends desktop companion app that automatically recommends and imports the best rune page during champion select.",
+      "pushed_at": "2026-03-14T10:41:39Z",
+      "private": false,
+      "fork": false
+    },
+    {
+      "id": 1181554816,
+      "name": "phoneCtrl",
+      "full_name": "Qrytics/phoneCtrl",
+      "html_url": "https://github.com/Qrytics/phoneCtrl",
+      "description": "phoneCtrl lets you use your phone as a remote control for your laptop like a pocket TeamViewer. Your phone displays the live laptop screen and your touch gestures are translated into mouse and keyboard events.",
+      "pushed_at": "2026-03-14T10:23:00Z",
+      "private": false,
+      "fork": false
+    },
+    {
+      "id": 1181560023,
+      "name": "songRecs",
+      "full_name": "Qrytics/songRecs",
+      "html_url": "https://github.com/Qrytics/songRecs",
+      "description": "A TypeScript Discord bot powered by Spotify that turns your server into a music ecosystem. It analyzes your playlists, computes taste profiles using audio feature vectors, and connects users through a shared music taste graph.",
+      "pushed_at": "2026-03-14T10:18:33Z",
+      "private": false,
+      "fork": false
+    },
+    {
+      "id": 1179023480,
+      "name": "techStackAnalyzer",
+      "full_name": "Qrytics/techStackAnalyzer",
+      "html_url": "https://github.com/Qrytics/techStackAnalyzer",
+      "description": "CLI tool meant to help analyze the tech stack for publicly available GitHub repositories. ",
+      "pushed_at": "2026-03-14T07:24:31Z",
+      "private": false,
+      "fork": false
+    },
+    {
+      "id": 1181343766,
+      "name": "filePort",
+      "full_name": "Qrytics/filePort",
+      "html_url": "https://github.com/Qrytics/filePort",
+      "description": "This is a \"Local-First Shadow File System.\" It allows the user to interact with a synced database representation of their files that allows for offline editing and \"lazy\" syncing (merging changes once the devices reconnect) all through their mobile device.",
+      "pushed_at": "2026-03-14T03:54:43Z",
+      "private": false,
+      "fork": false
+    },
+    {
+      "id": 1181095194,
+      "name": "repoNavTouch",
+      "full_name": "Qrytics/repoNavTouch",
+      "html_url": "https://github.com/Qrytics/repoNavTouch",
+      "description": "Hook up your webcam and use hand gestures to navigate through your computer files. Available for file explorer and terminals. ",
+      "pushed_at": "2026-03-14T03:37:14Z",
       "private": false,
       "fork": false
     }
