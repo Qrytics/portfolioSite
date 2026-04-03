@@ -444,7 +444,7 @@
 			content: attr(data-tooltip);
 			position: absolute;
 			left: 50%;
-			top: calc(100% + 8px);
+			bottom: calc(100% + 8px);
 			transform: translateX(-50%);
 			padding: 0.28rem 0.45rem;
 			border-radius: 0.35rem;
@@ -464,13 +464,13 @@
 			content: '';
 			position: absolute;
 			left: 50%;
-			top: calc(100% + 3px);
+			bottom: calc(100% + 3px);
 			transform: translateX(-50%);
 			width: 6px;
 			height: 6px;
 			background: rgba(8, 11, 17, 0.96);
-			border-top: 1px solid var(--border-2);
-			border-left: 1px solid var(--border-2);
+			border-bottom: 1px solid var(--border-2);
+			border-right: 1px solid var(--border-2);
 			rotate: 45deg;
 			z-index: 3;
 			pointer-events: none;
