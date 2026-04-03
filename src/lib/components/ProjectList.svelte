@@ -30,7 +30,7 @@
 		max-width: 86rem;
 		margin: 0 auto;
 		padding: 0 clamp(1.25rem, 4vw, 3rem);
-		padding-bottom: clamp(2.5rem, 5vw, 4rem);
+		padding-bottom: clamp(1rem, 2.5vw, 2rem);
 		content-visibility: auto;
 		contain-intrinsic-size: 1200px;
 	}

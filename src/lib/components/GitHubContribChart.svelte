@@ -161,7 +161,7 @@
 			<div class="termbar">
 				<span class="termbar__prompt">#</span>
 				<a class="termbar__label" href={profile.github} target="_blank" rel="noopener noreferrer">
-					github commit history (this year) ↗
+					github commit history ↗
 				</a>
 			</div>
 
