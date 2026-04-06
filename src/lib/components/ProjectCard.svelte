@@ -64,7 +64,7 @@
 
 	<!-- Content -->
 	<div class="content">
-		<p class="card__dates">{project.startMonth} {project.startYear} — {project.endMonth} {project.endYear}</p>
+		<p class="card__dates">{project.startMonth} {project.startYear} - {project.endMonth} {project.endYear}</p>
 		<p class="card__subtitle">{project.subtitle}</p>
 		<p class="card__desc">{project.description}</p>
 

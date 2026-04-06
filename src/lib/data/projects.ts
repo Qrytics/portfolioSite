@@ -88,7 +88,7 @@ export const projects: Project[] = [
 		endMonth: 'May',
 		endYear: 2026,
 		year: 2026,
-		problem: 'Build a full-stack smart-home platform that gives homeowners real-time visibility and control over lighting, temperature, occupancy, and door-lock status—all from a single web dashboard.',
+		problem: 'Build a full-stack smart-home platform that gives homeowners real-time visibility and control over lighting, temperature, occupancy, and door-lock status, all from a single web dashboard.',
 		architecture: [
 			'ESP32 firmware (C/C++) with sensors + actuators communicating over MQTT',
 			'MQTT broker bridging firmware to backend',
@@ -150,7 +150,7 @@ export const projects: Project[] = [
 		endMonth: 'Feb',
 		endYear: 2026,
 		year: 2026,
-		problem: 'Give users an intuitive way to visualise their bank spending, automatically detect recurring charges, and micro-save into cryptocurrency—all within a 24-hour hackathon.',
+		problem: 'Give users an intuitive way to visualise their bank spending, automatically detect recurring charges, and micro-save into cryptocurrency, all within a 24-hour hackathon.',
 		architecture: [
 			'pnpm monorepo with 8 packages (Next.js web app, shared UI, API layer, analytics, etc.)',
 			'Plaid Link + Capital One Nessie API for real transaction ingestion',
@@ -170,7 +170,7 @@ export const projects: Project[] = [
 			'Used Supabase instead of a self-hosted database to ship faster during the hackathon',
 			'MAD-based recurring detection trades some precision for determinism and zero ML dependencies'
 		],
-		outcome: 'Shipped a working fintech app at TartanHacks 2026—live bank data, interactive treemap, and on-chain round-ups—with a full CI pipeline.',
+		outcome: 'Shipped a working fintech app at TartanHacks 2026 with live bank data, interactive treemap, and on-chain round-ups, and a full CI pipeline.',
 		whatYouLearned: [
 			'pnpm monorepo workspace conventions and shared package boundaries',
 			'How Plaid Link OAuth flows differ from standard OAuth',
@@ -390,7 +390,7 @@ export const projects: Project[] = [
 		endYear: 2025,
 		year: 2025,
 		note: 'Additional demo clips are attached on LinkedIn (Prepped-up Demo / Prepped-up Demo 2).',
-		problem: 'Children with reading difficulties or visual impairments need a low-cost, engaging companion that reads physical books aloud when asked—without requiring a screen or complex interaction.',
+		problem: 'Children with reading difficulties or visual impairments need a low-cost, engaging companion that reads physical books aloud when asked, without requiring a screen or complex interaction.',
 		architecture: [
 			'Raspberry Pi with USB webcam for image capture triggered by voice command',
 			'Voice-command listener using a lightweight keyword-spotting library',
@@ -475,7 +475,7 @@ export const projects: Project[] = [
 		endMonth: 'Nov',
 		endYear: 2024,
 		year: 2024,
-		problem: 'Implement a fully playable Breakout clone in hardware—no CPU, no OS—where all game logic runs as synchronous digital circuits on an FPGA outputting a live VGA signal.',
+		problem: 'Implement a fully playable Breakout clone in hardware with no CPU or OS, where all game logic runs as synchronous digital circuits on an FPGA outputting a live VGA signal.',
 		architecture: [
 			'Top-level SystemVerilog module wiring VGA timing, game FSM, and input controller',
 			'VGA sync generator producing 640×480 @ 60 Hz H/V sync and pixel clock',
@@ -493,7 +493,7 @@ export const projects: Project[] = [
 		tradeoffs: [
 			'Used fixed-point arithmetic (Q4.4) instead of floating-point to stay within FPGA DSP blocks',
 			'Brick grid stored in registers rather than block RAM for simpler combinatorial hit logic',
-			'Single-speed ball velocity—no acceleration—to keep FSM states manageable'
+			'Single-speed ball velocity (no acceleration) to keep FSM states manageable'
 		],
 		outcome: 'Fully playable Breakout game running on FPGA hardware with stable 60 Hz VGA output, correct collision physics, and score tracking.',
 		whatYouLearned: [
@@ -506,11 +506,22 @@ export const projects: Project[] = [
 	{
 		slug: 'wifi-scan',
 		title: 'Wifi Scan',
-		subtitle: 'Real-time occupancy tracking and space intelligence powered by existing Wi-Fi infra…',
-		description: 'Real-time occupancy tracking and space intelligence powered by existing Wi-Fi infrastructure. wifiScan is a lightweight, privacy-first application designed to turn your local network into a presence-sensing engine. By monitoring device connections and signal variance, wifiScan provides an instant headcount of who is in a building.',
+		subtitle: 'Privacy-first occupancy tracking via ARP scanning with a React dashboard, React Native app, and FastAPI backend',
+		description:
+			'Full-stack presence-sensing platform that turns any local Wi-Fi network into an occupancy engine with no extra hardware required. The Python backend performs ARP sweeps every 30 s with Scapy (nmap fallback), records devices in PostgreSQL, and exposes a FastAPI REST API consumed by both a React + Vite admin dashboard (deployed to GitHub Pages) and a React Native + Expo mobile app with background geofencing.',
+		longDescription: `Privacy-first occupancy tracker powered entirely by existing Wi-Fi infrastructure.
+
+• Backend: FastAPI + Uvicorn; SQLAlchemy ORM against PostgreSQL; background ARP scanner using Scapy with nmap fallback.
+• Detection: devices not seen in 5 minutes are marked offline; round-trip variance (pseudo-CSI) estimates physical movement.
+• Admin Dashboard: React + Vite + Tailwind deployed to GitHub Pages; 7-day heatmap, muster report, energy recommendations.
+• Mobile App: React Native via Expo with Tailwind/NativeWind; background geofencing task sends heartbeat within 100 m radius.
+• Features: Ghost Mode, guest alerts, real-time headcount, 7-day day×hour occupancy heatmap.
+• CI/CD: GitHub Actions builds and deploys admin dashboard to GitHub Pages on every push to main.`,
+		image: '/demos/wifi-scan-demo.png',
 		type: 'open-source',
-		tags: ['TypeScript'],
+		tags: ['TypeScript', 'Python', 'React', 'React Native', 'FastAPI', 'PostgreSQL', 'Scapy', 'Expo', 'Tailwind CSS'],
 		github: 'https://github.com/Qrytics/wifiScan',
+		siteUrl: 'https://qrytics.github.io/wifiScan/',
 		status: 'active',
 		startMonth: 'Mar',
 		startYear: 2026,
@@ -521,10 +532,20 @@ export const projects: Project[] = [
 	{
 		slug: 'clear-cites',
 		title: 'Clear Cites',
-		subtitle: 'clearCites is an open-source platform designed to break down the barriers of academ…',
-		description: 'clearCites is an open-source platform designed to break down the barriers of academia. By treating research papers as nodes in a massive, interconnected web, it allows users to visually navigate the "lineage of ideas." Traditional research tools are built for experts; clearCites is built for transparency.',
+		subtitle: 'Visual academic citation graph (ScholarGraph) built on Neo4j, FastAPI, React Flow, and LangChain',
+		description:
+			'clearCites / ScholarGraph is an open-source visual discovery tool that maps academic research as an interactive knowledge graph. Papers are Neo4j nodes; citations, author overlaps, and funding relationships are edges. LangChain + OpenAI generates plain-English summaries and evaluates paper relationships (validates / builds_on / challenges). Users can navigate the full citation pedigree of any paper and identify publicly-funded research by funding-source tags.',
+		longDescription: `Open-source academic knowledge graph for navigating the "lineage of ideas."
+
+• Graph DB: Neo4j with Cypher DDL; nodes for Paper, Author, Keyword, Funder; edges for CITES, VALIDATES, BUILDS_ON, CHALLENGES, FUNDED_BY.
+• Data Pipeline: Python ingestors for Semantic Scholar & CrossRef APIs; parser extracts keywords, authors, and funding sources; graph_pusher converts to Neo4j Nodes/Edges.
+• Backend: FastAPI (async) with endpoints for citation chains, pedigree traversal, keyword search, author overlap, and AI relationship evaluation.
+• AI: LangChain + OpenAI generates 3-sentence plain-English abstracts and returns structured relationship JSON: { relationship, correlation_value }.
+• Frontend: React Flow interactive canvas (GraphCanvas) with drag, click, and zoom; PaperDetail sidebar; metric-based node scaling by impact_score.
+• Infra: Docker Compose (Neo4j + FastAPI + React); fully containerised for one-command startup.`,
+		image: '/demos/clear-cites-demo.png',
 		type: 'open-source',
-		tags: ['Python'],
+		tags: ['Python', 'FastAPI', 'Neo4j', 'TypeScript', 'React', 'LangChain', 'OpenAI', 'Docker', 'Semantic Scholar API'],
 		github: 'https://github.com/Qrytics/clearCites',
 		status: 'active',
 		startMonth: 'Mar',
@@ -536,10 +557,20 @@ export const projects: Project[] = [
 	{
 		slug: 'streamer-stalker',
 		title: 'Streamer Stalker',
-		subtitle: 'streamerStalker is a Discord bot that tracks Twitch streamers, Twitter/X accounts,…',
-		description: 'streamerStalker is a Discord bot that tracks Twitch streamers, Twitter/X accounts, and vtuber news all from inside your Discord server.',
+		subtitle: 'Discord bot that polls Twitch, Twitter/X (Nitter RSS), and vtuber Reddit news on a schedule with optional OpenAI summaries',
+		description:
+			'streamerStalker is a TypeScript Discord bot that keeps communities in sync across three platforms without leaving Discord. node-cron jobs poll the Twitch Helix API every minute for live-stream transitions, Nitter RSS feeds every 3 minutes for tweets, and Reddit RSS every 30 minutes for vtuber news. All tracking is per-guild and per-channel; an optional OpenAI gpt-3.5-turbo integration generates 2–3 sentence summaries of news updates.',
+		longDescription: `Per-guild Discord notification bot for Twitch, Twitter/X, and VTuber news.
+
+• Stack: TypeScript / Node.js 18+, discord.js v14, PostgreSQL 15 via pg, node-cron, axios, dotenv; Docker Compose for local Postgres.
+• Twitch: OAuth Client Credentials flow to the Helix API; offline→live transition detection prevents duplicate pings.
+• Twitter/X: Nitter RSS polling with multi-instance fallback; tweet_cache table deduplicates by post ID.
+• VTuber News: Reddit RSS (r/VirtualYoutubers, r/Hololive); news_articles deduplication by URL; optional GPT summary.
+• Commands: /track and /untrack for twitch, twitter, vtuber; /list to view all subscriptions per server.
+• Architecture: cron scheduler → tracker services → EmbedBuilder notifications posted to stored channel IDs.`,
+		image: '/demos/streamer-stalker-demo.png',
 		type: 'open-source',
-		tags: ['TypeScript', 'Discord'],
+		tags: ['TypeScript', 'Node.js', 'Discord', 'PostgreSQL', 'Twitch API', 'OpenAI', 'node-cron', 'Docker'],
 		github: 'https://github.com/Qrytics/streamerStalker',
 		status: 'active',
 		startMonth: 'Mar',
@@ -551,10 +582,19 @@ export const projects: Project[] = [
 	{
 		slug: 'shorts-blocker',
 		title: 'Shorts Blocker',
-		subtitle: 'Browser extension that improves focus by removing distracting YouTube elements. It…',
-		description: 'Browser extension that improves focus by removing distracting YouTube elements. It blocks Shorts and hides recommended videos, reducing endless scrolling and algorithm-driven content. Designed for productivity, it helps users stay intentional, minimize time waste, and use YouTube as a tool, not a distraction.',
+		subtitle: 'Manifest V3 Chrome & Safari extension that removes YouTube Shorts and recommendations via MutationObserver',
+		description:
+			'A cross-browser Manifest V3 extension (Chrome and Safari) that keeps YouTube focused by blocking the Shorts shelf, navigation entry, and individual Short items, and hiding sidebar recommendations, end-screen cards, and homepage rows. A MutationObserver and YouTube\'s yt-navigate-finish event keep blocking active during SPA navigations. A popup toggle lets users enable or disable blocking without reinstalling.',
+		longDescription: `Lightweight YouTube distraction-removal extension built for MV3.
+
+• Blocking: CSS selector–based display:none on Shorts shelves, reel renderers, end-screen cards, related sidebar, and homepage recommendation rows.
+• SPA support: MutationObserver watches for dynamically added nodes; yt-navigate-finish listener re-applies selectors after client-side navigation.
+• Toggle: popup.html + popup.js reads/writes enabled flag via chrome.storage.local and sends SET_ENABLED message to the active tab's content script.
+• Cross-browser shim: unified browser / chrome namespace works on Chrome and Safari without separate builds.
+• Safari: convertible via xcrun safari-web-extension-converter for macOS/iOS 15.4+.`,
+		image: '/demos/shorts-blocker-demo.png',
 		type: 'open-source',
-		tags: ['JavaScript'],
+		tags: ['JavaScript', 'Chrome Extension', 'Safari Extension', 'Manifest V3', 'HTML', 'CSS'],
 		github: 'https://github.com/Qrytics/shortsBlocker',
 		status: 'active',
 		startMonth: 'Mar',
@@ -566,11 +606,22 @@ export const projects: Project[] = [
 	{
 		slug: 'cmu-march-madness-ml',
 		title: 'CMU March Madness ML',
-		subtitle: 'An ML model created to approximate the winners of CMU’s March Madness basketball to…',
-		description: 'An ML model created to approximate the winners of CMU’s March Madness basketball tournaments.',
+		subtitle: 'Ensemble ML system (XGBoost + LightGBM + LR, 103 features) predicting NCAA tournament winners with a live GitHub Pages dashboard',
+		description:
+			'An ML system built for the CMU Second Annual March Madness Machine Learning Competition. A weighted ensemble of XGBoost (40%), LightGBM (40%), and Logistic Regression (20%) trained on 103 differential features per matchup, including KenPom, Barttorvik T-Rank, NET rankings, and seed history. Achieved 72.3% CV accuracy (Men) and 75.1% (Women) on real Kaggle NCAA data using walk-forward CV. A GitHub Actions pipeline retrains and deploys a live bracket dashboard to GitHub Pages.',
+		longDescription: `NCAA March Madness bracket prediction via walk-forward CV ensemble ML.
+
+• Models: XGBoost (40%) + LightGBM (40%) + Logistic Regression (20%); isotonic regression calibration; optional Optuna Bayesian hyperparameter tuning.
+• Features: 103 differential features per matchup: box-score stats, KenPom AdjEM/AdjO/AdjD, Barttorvik T-Rank, NET ranking, Massey ordinals (30+ systems), SOS, coaching tenure, conference strength, and tournament seed history.
+• Data: Kaggle March Machine Learning Mania 2026 dataset (124k+ real games); external enrichment from KenPom and Barttorvik.
+• Validation: walk-forward CV (train on years ≤N, validate on N+1); no data leakage; 72.3% Men's / 75.1% Women's AUC accuracy.
+• Pipeline: run_bracket.py simulates full round-by-round brackets; export_site_data.py publishes model outputs to the live dashboard.
+• CI/CD: GitHub Actions for CI tests, weekly model retraining with Kaggle secrets, and GitHub Pages deployment.`,
+		image: '/demos/cmu-march-madness-ml-demo.png',
 		type: 'open-source',
-		tags: ['Python'],
+		tags: ['Python', 'Machine Learning', 'XGBoost', 'LightGBM', 'scikit-learn', 'Optuna', 'pandas', 'GitHub Actions'],
 		github: 'https://github.com/Qrytics/cmuMarchMadness-ML',
+		siteUrl: 'https://qrytics.github.io/cmuMarchMadness-ML/',
 		status: 'active',
 		startMonth: 'Mar',
 		startYear: 2026,
@@ -581,10 +632,19 @@ export const projects: Project[] = [
 	{
 		slug: 'smart-desktop',
 		title: 'Smart Desktop',
-		subtitle: 'A local, offline voice automation assistant for developer workflows and desktop con…',
-		description: 'A local, offline voice automation assistant for developer workflows and desktop control similar to Siri or Alexa but optimised for power users and developers.',
+		subtitle: 'Offline voice automation assistant using Porcupine wake-word detection and Faster-Whisper STT for developer workflow control',
+		description:
+		'A fully offline, always-on voice assistant for power users and developers, similar to Siri or Alexa but running entirely on local hardware. Porcupine listens for a wake word ("Jarvis") with ultra-low CPU usage, Faster-Whisper transcribes the command without internet, and a YAML-configured command dispatcher opens apps, manages windows, runs terminal commands (git, npm, pytest), and navigates project directories.',
+		longDescription: `Offline voice-controlled developer assistant with zero cloud and zero latency overhead.
+
+• Pipeline: microphone → Porcupine wake-word detection → Faster-Whisper offline STT → CommandParser dispatch → OS action.
+• Actions: app launcher (Chrome, VS Code, Spotify, Discord), window management (snap, maximise, swap monitors), terminal automation (git status, npm run dev, pytest), project directory navigation.
+• Config: all commands and shortcuts defined in config.yaml; no code changes needed to add new apps or macros.
+• Stack: Python 3.9+, Porcupine (Picovoice), Faster-Whisper, PyAudio/PortAudio, PyAutoGUI, pygetwindow, PyYAML, subprocess.
+		• Cross-platform: Windows, macOS, Linux.`,
+		image: '/demos/smart-desktop-demo.png',
 		type: 'open-source',
-		tags: ['Python'],
+		tags: ['Python', 'Porcupine', 'Faster-Whisper', 'PyAutoGUI', 'PyAudio', 'PyYAML'],
 		github: 'https://github.com/Qrytics/smartDesktop',
 		status: 'active',
 		startMonth: 'Mar',
@@ -596,10 +656,19 @@ export const projects: Project[] = [
 	{
 		slug: 'rune-lo-ldb',
 		title: 'Rune LO LDB',
-		subtitle: 'A League of Legends desktop companion app that automatically recommends and imports…',
-		description: 'A League of Legends desktop companion app that automatically recommends and imports the best rune page during champion select.',
+		subtitle: 'Electron + FastAPI desktop overlay with a 3-layer rune recommendation engine (player history → defaults → high-elo data)',
+		description:
+		'A League of Legends desktop companion that detects champion select via the LCU API and automatically recommends and imports the best rune page with one click. The recommendation engine checks the player\'s own win history first, falls back to curated champion/role defaults, and finally to aggregated Master+ statistics. An always-on-top Electron overlay shows the recommendation instantly without disrupting gameplay.',
+		longDescription: `LoL desktop overlay with a learning rune recommendation engine.
+
+• Detection: Electron main process polls the League Client Update (LCU) API to detect champion select sessions.
+• Recommendation engine (3 layers): Layer 1: player rune history with win/loss outcomes; Layer 2: curated default pages per champion/role; Layer 3: high-elo (Master+) aggregated rune statistics.
+• One-click import: recommended rune page is imported directly into the LoL client via the LCU proxy endpoint.
+• Stack: Electron + TypeScript frontend; Python + FastAPI backend; PostgreSQL via SQLAlchemy; Jest (frontend) + pytest (backend).
+		• Infra: Docker Compose (Postgres + FastAPI); Alembic migrations; .env-based config.`,
+		image: '/demos/rune-lo-ldb-demo.png',
 		type: 'open-source',
-		tags: ['Python'],
+		tags: ['TypeScript', 'Python', 'Electron', 'FastAPI', 'PostgreSQL', 'League of Legends LCU API', 'Docker'],
 		github: 'https://github.com/Qrytics/runeLoLDB',
 		status: 'active',
 		startMonth: 'Mar',
@@ -611,10 +680,20 @@ export const projects: Project[] = [
 	{
 		slug: 'phone-ctrl',
 		title: 'Phone Ctrl',
-		subtitle: 'phoneCtrl lets you use your phone as a remote control for your laptop like a pocket…',
-		description: 'phoneCtrl lets you use your phone as a remote control for your laptop like a pocket TeamViewer. Your phone displays the live laptop screen and your touch gestures are translated into mouse and keyboard events.',
+		subtitle: 'C++ Windows host + Flutter mobile client for live screen streaming and touch-to-input control over WebRTC/H.264',
+		description:
+		'phoneCtrl turns your phone into a pocket TeamViewer. The C++ host on Windows captures the display via DXGI, encodes it with FFmpeg/libx264 at up to 60 fps, and streams it over a WebRTC/H.264 data channel to a Flutter mobile client. Touch gestures on the phone are translated to Windows SendInput mouse and keyboard events, giving full remote control with DTLS-SRTP encrypted traffic.',
+		longDescription: `Low-latency remote desktop from laptop to phone over WebRTC.
+
+• Laptop host (C++/Windows): DXGI GPU screen capture → FFmpeg libx264 H.264 encoder → Boost.Beast WebSocket server → Windows SendInput for mouse/keyboard injection.
+• Phone client (Flutter/Dart): Android & iOS; RTCVideoView full-screen H.264 decode; touch overlay translates gestures to JSON input events over WebRTC data channel.
+• Signaling: Node.js WebSocket server for SDP/ICE exchange.
+• Security: all WebRTC media and data channel traffic is DTLS-SRTP encrypted; designed for trusted local networks.
+• Gestures: single tap = left click, long press = right click, drag = mouse move, two-finger scroll, double-tap = toolbar.
+		• Build: CMake + vcpkg (FFmpeg[x264] + Boost); Flutter SDK ≥ 3.0.`,
+		image: '/demos/phone-ctrl-demo.png',
 		type: 'open-source',
-		tags: ['C++'],
+		tags: ['C++', 'Flutter', 'Dart', 'WebRTC', 'Node.js', 'FFmpeg', 'CMake', 'Windows API'],
 		github: 'https://github.com/Qrytics/phoneCtrl',
 		status: 'active',
 		startMonth: 'Mar',
@@ -626,10 +705,20 @@ export const projects: Project[] = [
 	{
 		slug: 'song-recs',
 		title: 'Song Recs',
-		subtitle: 'A TypeScript Discord bot powered by Spotify that turns your server into a music eco…',
-		description: 'A TypeScript Discord bot powered by Spotify that turns your server into a music ecosystem. It analyzes your playlists, computes taste profiles using audio feature vectors, and connects users through a shared music taste graph.',
+		subtitle: 'Discord music intelligence bot using Spotify audio feature vectors for cosine-similarity recommendations and Music DNA profiles',
+		description:
+		'A TypeScript Discord bot that turns a server into a music ecosystem. Users import Spotify playlists and the bot stores 8 audio feature vectors (energy, danceability, valence, tempo, etc.) per track. A recommendation engine computes each user\'s taste vector and surfaces songs from others\' playlists via cosine similarity and collaborative filtering. Commands surface Music DNA archetypes, music twins, taste distance scores, and a daily randomly-picked song.',
+		longDescription: `Spotify-powered Discord music intelligence bot with cosine similarity recommendations.
+
+• Stack: TypeScript / Node.js 20+, discord.js v14, PostgreSQL via pg, Spotify Web API, node-cron, Docker Compose.
+• Data model: users, songs (with 8 audio features), playlists, taste_vectors (precomputed per user), user_similarity (pairwise cosine cache), daily_history.
+• Recommendation: Layer 1: content-based cosine similarity on taste vectors; Layer 2: collaborative filtering via users with similar vectors.
+• Music DNA: per-user archetype (Party Starter, Chill Wanderer, Indie Explorer, etc.) from energy, mood, danceability, acousticness averages; obscurity = 100 − average Spotify popularity.
+• Commands: /addplaylist, /recommend, /musicdna, /musictwin, /tastedistance, /compatibility, /discover, /tasteleaderboard, /tasteprofile.
+		• Automation: daily-song cron job posts a random user's track to a configured channel.`,
+		image: '/demos/song-recs-demo.png',
 		type: 'open-source',
-		tags: ['TypeScript', 'Discord', 'Spotify'],
+		tags: ['TypeScript', 'Node.js', 'Discord', 'Spotify', 'PostgreSQL', 'Docker', 'discord.js'],
 		github: 'https://github.com/Qrytics/songRecs',
 		status: 'active',
 		startMonth: 'Mar',
@@ -641,10 +730,20 @@ export const projects: Project[] = [
 	{
 		slug: 'tech-stack-analyzer',
 		title: 'Tech Stack Analyzer',
-		subtitle: 'CLI tool meant to help analyze the tech stack for publicly available GitHub reposit…',
-		description: 'CLI tool meant to help analyze the tech stack for publicly available GitHub repositories.',
+		subtitle: 'CLI that deep-scans any public GitHub repo and generates a rich terminal report, narrated audio, and optional explainer video',
+		description:
+		'A pip-installable Python CLI that accepts any public GitHub repo URL (or auto-detects from the current git remote) and performs a deep tech-stack analysis: languages, frameworks, databases, CI/CD, containers, auth, messaging, and cloud SDKs. Output is a Rich terminal table and a JSON report by default. Add --audio to get TTS narration via edge-tts, and --video to get PIL-rendered slides exported to MP4. Optional Ollama LLM rewrites narration into conversational prose.',
+		longDescription: `Deep GitHub repo tech-stack analyzer with optional AI narration and video export.
+
+• Detection: GitHub API scanning + pattern matching across 8 categories (languages, package managers, databases, CI/CD, containers, auth, messaging, cloud SDKs).
+• Output: Rich terminal summary table + stack_report.json; per-section MP3 narration with edge-tts (gTTS fallback); PIL slide renderer → moviepy MP4 export.
+• AI: optional Ollama (llama3, mistral, etc.) rewrites narration sections into engaging prose; falls back to template narration gracefully.
+• CLI flags: --audio, --video, --use-ollama, --ollama-model, --voice, --token, --output.
+• Auto-detection: when run inside a git clone, derives the GitHub URL from the origin remote; no URL argument needed.
+		• Logo pipeline: Devicon CDN → SimpleIcons → Clearbit → placeholder; parallel image downloads.`,
+		image: '/demos/tech-stack-analyzer-demo.png',
 		type: 'open-source',
-		tags: ['Python', 'CLI'],
+		tags: ['Python', 'CLI', 'GitHub API', 'Ollama', 'LLM', 'edge-tts', 'PIL', 'FFmpeg', 'Rich'],
 		github: 'https://github.com/Qrytics/techStackAnalyzer',
 		status: 'active',
 		startMonth: 'Mar',
@@ -656,10 +755,20 @@ export const projects: Project[] = [
 	{
 		slug: 'file-port',
 		title: 'File Port',
-		subtitle: 'This is a "Local-First Shadow File System." It allows the user to interact with a s…',
-		description: 'This is a "Local-First Shadow File System." It allows the user to interact with a synced database representation of their files that allows for offline editing and "lazy" syncing (merging changes once the devices reconnect) all through their mobile device.',
+		subtitle: 'Local-first shadow file system with a Node.js + Chokidar agent, PocketBase sync layer, Xterm.js web terminal, and React Native mobile client',
+		description:
+		'A hybrid between git, Syncthing, and a headless CMS. filePort runs a Node.js agent that watches local folders with Chokidar, syncing changes into a PocketBase SQLite database in real time. An Xterm.js web terminal UI lets users browse and edit files from any browser (including mobile via Tailscale). Edits set a needs_sync flag and the reconciler loop applies them back to the laptop. A separate React Native component and Python Supabase poller provide an alternative mobile-to-desktop sync path.',
+		longDescription: `Local-first offline-friendly file system synced to mobile via a lightweight database.
+
+• Agent: Node.js + Chokidar watches configured folders; scans on startup, upserts records, runs a reconcile loop every 10 s for mobile edits.
+• Sync DB: PocketBase (single-file SQLite) with fields: path, content, needs_sync, pending_sync, last_modified_local/mobile.
+• Web UI: Xterm.js + Express.js terminal SPA; ls, cd, cat, edit, pwd, clear, help commands; Save sets pending_sync = true.
+• React Native component: TerminalCLI + FileEditor backed by Supabase; Jest + @testing-library/react-native test suite.
+• Python sync poller: polls Supabase every 60 s for pending_sync rows, writes content to local filesystem, clears flag.
+		• Remote access: Tailscale zero-config VPN; point phone browser at PC's Tailscale IP.`,
+		image: '/demos/file-port-demo.png',
 		type: 'open-source',
-		tags: ['JavaScript'],
+		tags: ['JavaScript', 'Node.js', 'React Native', 'PocketBase', 'Supabase', 'Python', 'SQLite', 'Chokidar', 'Xterm.js'],
 		github: 'https://github.com/Qrytics/filePort',
 		status: 'active',
 		startMonth: 'Mar',
@@ -671,10 +780,20 @@ export const projects: Project[] = [
 	{
 		slug: 'repo-nav-touch',
 		title: 'Repo NAV Touch',
-		subtitle: 'Hook up your webcam and use hand gestures to navigate through your computer files.…',
-		description: 'Hook up your webcam and use hand gestures to navigate through your computer files. Available for file explorer and terminals.',
+		subtitle: 'Webcam-driven hand-gesture file navigator using MediaPipe 21-point landmarks and PyAutoGUI OS actions',
+		description:
+		'Hook up a webcam and navigate your file system entirely with hand gestures. repoNavTouch runs a See → Think → Act pipeline: OpenCV captures frames, MediaPipe detects 21 3-D hand landmarks per frame, a GestureRecogniser state machine classifies them into a Gesture enum (pinch, swipe-left/right, open-palm-up/down, two-fingers-up), and a FileNavigator maps each gesture to OS-level directory navigation actions via PyAutoGUI.',
+		longDescription: `Gesture-based file navigation using real-time hand tracking.
+
+• See: OpenCV webcam loop at configurable device index; MediaPipe Hands model detects 21 3-D landmarks per frame.
+• Think: gestures.py geometry helpers + GestureRecogniser state machine; normalised landmark positions; configurable pinch threshold.
+• Act: file_navigator.py maps gestures to OS keyboard/mouse events via PyAutoGUI; supports both file explorer and terminal navigation.
+• Gestures: pinch = enter/open, swipe-left = back, swipe-right = forward, open-palm-up/down = scroll, two-fingers-up = cd ..
+• HUD overlay: OpenCV window with live landmark visualisation and current gesture label.
+		• Tests: pytest unit tests for gesture classification and file navigation logic.`,
+		image: '/demos/repo-nav-touch-demo.png',
 		type: 'open-source',
-		tags: ['Python', 'Computer Vision'],
+		tags: ['Python', 'Computer Vision', 'OpenCV', 'MediaPipe', 'PyAutoGUI', 'Pynput'],
 		github: 'https://github.com/Qrytics/repoNavTouch',
 		status: 'active',
 		startMonth: 'Mar',
@@ -686,10 +805,20 @@ export const projects: Project[] = [
 	{
 		slug: 'idea-db',
 		title: 'Idea DB',
-		subtitle: 'Discord bot application that automatically collects server messages and hashes out…',
-		description: 'Discord bot application that automatically collects server messages and hashes out ideas for projects and potential startups.',
+		subtitle: 'Discord bot that algorithmically indexes server messages and uses Groq LLM (llama-3.1-8b-instant) to synthesise startup/project ideas',
+		description:
+		'IdeaDB silently observes Discord conversations and runs a zero-LLM, zero-external-API metadata extraction pipeline over every message: keyword frequency analysis, tech-term regex matching, file attachment classification, URL platform recognition, and embed scraping. All data is stored in SQLite. When you run !ideas, it builds a structured context prompt from aggregated keywords and sends it to Groq\'s llama-3.1-8b-instant to generate actionable startup/project ideas with name, pitch, problem, audience, and tech stack.',
+		longDescription: `Passive Discord idea-harvesting bot with algorithmic parsing and Groq LLM generation.
+
+• Collection: listens on configured channels; parses text (stopword-filtered keyword frequency, tech-term regex), file attachments (MIME type, filename tokens, media class), URLs (known-platform table, path tokenisation, query keys), and Discord embeds.
+• Storage: SQLite with guild-scoped entries table; indices on guild_id and content_type; survives restarts.
+• Idea generation: Groq API (llama-3.1-8b-instant); context = top-30 keywords + content breakdown + tech terms + recent snippets; returns structured ideas with name, pitch, problem, audience, tech stack.
+• Commands: !ideas [count], !keywords, !stats, !clear (admin).
+• Auto-timer: generates 3 ideas every N minutes (configurable) only if new messages have arrived since last run.
+		• Stack: Python 3.11+, discord.py ≥ 2.3, groq-python, aiohttp, python-dotenv, SQLite (stdlib).`,
+		image: '/demos/idea-db-demo.png',
 		type: 'open-source',
-		tags: ['Python', 'Discord'],
+		tags: ['Python', 'Discord', 'SQLite', 'Groq', 'LLM', 'discord.py'],
 		github: 'https://github.com/Qrytics/ideaDB',
 		status: 'active',
 		startMonth: 'Mar',
@@ -701,12 +830,22 @@ export const projects: Project[] = [
 	{
 		slug: 'sheet-music-gen',
 		title: 'Sheet Music GEN',
-		subtitle: 'A B2C freemium web application (similar to Moises.ai or Chordify) for everyday musi…',
-		description: 'A B2C freemium web application (similar to Moises.ai or Chordify) for everyday musicians and hobbyists who want to grab any song of their choice and get the sheet music for every instrument.',
+		subtitle: 'Freemium SaaS converting audio to sheet music via Demucs stem separation, MT3 transcription, and async RQ workers, Next.js + FastAPI monorepo',
+		description:
+		'A B2C freemium web app (similar to Moises.ai / Chordify) where users drag-and-drop an MP3/WAV file and get back downloadable MIDI and MusicXML sheet music for every instrument. A Next.js 15 dashboard posts uploads to a FastAPI backend that validates credits, queues an RQ job to Redis, and runs a Demucs stem separator + MT3-style transcriber in a Python worker. Real-time progress is polled by a JobTracker component that animates a status bar.',
+		longDescription: `Audio-to-sheet-music SaaS built on a Pants monorepo with async ML workers.
+
+• Monorepo: Pants-managed; apps/web (Next.js 15+ App Router), apps/api (FastAPI), apps/workers (RQ over Redis), libs/db (SQLAlchemy async + Alembic), libs/ml-core (Demucs + MT3 wrappers).
+• ML pipeline: DemucsSeparator.separate_stems() → 4 stems; MT3Transcriber.transcribe_stem() per stem; results aggregated into TranscriptionJob.result_data (JSONB).
+• API: POST /api/v1/jobs/upload (credit check, rate limit, RQ enqueue), GET /api/v1/jobs/{id} (status polling), GET download/{format} (MIDI via mido / MusicXML via music21).
+• DB: PostgreSQL + pgvector; User (tier, credits_remaining), TranscriptionJob (status enum, result_data, audio_file_path); async SQLAlchemy sessions.
+• Frontend: drag-and-drop FileUpload, animated JobTracker with stage-based progress bar, status pill, and collapsible JSON preview.
+		• Infra: Docker Compose (pgvector/pg16 + redis:7-alpine); Alembic migrations.`,
+		image: '/demos/sheet-music-gen-demo.png',
 		type: 'open-source',
-		tags: ['Python'],
+		tags: ['Python', 'FastAPI', 'PostgreSQL', 'Redis', 'Next.js', 'TypeScript', 'PyTorch', 'Demucs', 'Docker'],
 		github: 'https://github.com/Qrytics/sheetMusicGen',
-		status: 'active',
+		status: 'wip',
 		startMonth: 'Mar',
 		startYear: 2026,
 		endMonth: 'Mar',
@@ -716,10 +855,21 @@ export const projects: Project[] = [
 	{
 		slug: 'little-guy',
 		title: 'Little GUY',
-		subtitle: 'Desktop app for an interactive buddy that reacts to your live desktop activity.',
-		description: 'Desktop app for an interactive buddy that reacts to your live desktop activity.',
+		subtitle: 'Always-on-top Tauri v2 + Rust desktop companion that watches your coding/typing/idle state and reacts with pixel-art animations',
+		description:
+		'A tiny pixel-art companion that floats over your desktop and reacts in real time to what you\'re doing. Built with Rust + Tokio for the systems core and Tauri v2 for a lightweight overlay (90% less RAM than Electron). The activity monitor detects the focused window every 2 s via Windows UIA / DBus, classifying it as idle, active, typing, coding, or sleeping. Sessions are logged to SQLite (WAL) and queried by DuckDB for end-of-day habit analytics. Features 10 mini-games, multiple companion types, dialogue bubbles, petting, and a full system-tray menu.',
+		longDescription: `Rust + Tauri always-on-top pixel-art desktop companion with activity tracking and mini-games.
+
+• Systems core: Rust + Tokio; Tauri v2 native Webviews; Unix socket / named pipe IPC bridge between daemon and overlay.
+• Activity detection: Windows UIA / DBus APIs poll the focused window every 2 s; states: idle, active, typing, coding (VS Code, JetBrains, Vim, coding sites), sleeping (idle ≥ 2 min).
+• Persistence: SQLite WAL for high-frequency session writes; DuckDB for analytical queries powering the daily recap dashboard.
+• Animation: Vello/ThorVG GPU-accelerated vector rendering; idle sub-animations cycle (wave, look around, stretch, excited); walking mode bounces across the screen.
+• Social: multiple companions with buddy interactions (wave when within 200 px); rename, 5 colour themes, drag-to-reposition.
+• Mini-games: Whack-a-Guy (right-click); Petting (left-click) with floating heart.
+		• Frontend: React + TypeScript (Overlay, Recap, Minigame windows); Vite bundler.`,
+		image: '/demos/little-guy-demo.png',
 		type: 'open-source',
-		tags: ['Rust'],
+		tags: ['Rust', 'Tauri', 'TypeScript', 'React', 'SQLite', 'DuckDB', 'Tokio', 'Windows UIA'],
 		github: 'https://github.com/Qrytics/littleGuy',
 		status: 'active',
 		startMonth: 'Mar',
@@ -731,12 +881,14 @@ export const projects: Project[] = [
 	{
 		slug: 'discord-music-bot',
 		title: 'Discord Music BOT',
-		subtitle: 'A callable music bot available through the popular social app Discord.',
-		description: 'A callable music bot available through the popular social app Discord.',
+		subtitle: 'Callable JavaScript Discord bot for playing music in voice channels',
+		description:
+		'A Discord bot that joins voice channels on command and streams music. Built in JavaScript with discord.js, it supports standard music-bot commands for play, pause, skip, and queue management.',
+		image: '/demos/discord-music-bot-demo.png',
 		type: 'open-source',
-		tags: ['JavaScript', 'Discord'],
+		tags: ['JavaScript', 'Node.js', 'Discord', 'discord.js'],
 		github: 'https://github.com/Qrytics/discordMusicBot',
-		status: 'active',
+		status: 'archived',
 		startMonth: 'Mar',
 		startYear: 2026,
 		endMonth: 'Mar',
@@ -746,12 +898,22 @@ export const projects: Project[] = [
 	{
 		slug: 'yt-to-mp3',
 		title: 'YT TO MP3',
-		subtitle: 'Basic utility function that downloads and converts YouTube videos into mp3 files.',
-		description: 'Basic utility function that downloads and converts YouTube videos into mp3 files.',
+		subtitle: 'Lightweight Node.js module that downloads a YouTube video and converts it to MP3 via ffmpeg-static, no system FFmpeg required',
+		description:
+		'A lightweight Node.js utility module (no UI) that downloads the audio stream from any YouTube URL using @distube/ytdl-core and converts it to an MP3 file via fluent-ffmpeg backed by a bundled ffmpeg-static binary. Exported as convertToMp3(url, options) returning a Promise<string> with the absolute output path. Configurable output directory, filename, and bitrate.',
+		longDescription: `Zero-dependency-install YouTube-to-MP3 Node.js module.
+
+• API: convertToMp3(url, { outputDir, filename, bitrate }) → Promise<string>; isValidYouTubeUrl(url) → boolean.
+• Audio download: @distube/ytdl-core streams audio-only from YouTube.
+• Encoding: fluent-ffmpeg pipes the stream through libmp3lame; bitrate defaults to 128 kbps.
+• FFmpeg: bundled via ffmpeg-static; no system-level installation required.
+• Error handling: throws typed errors for invalid URLs, failed video info fetch, download failure, and conversion failure.
+		• Tests: Jest suite covering valid/invalid URL handling and conversion.`,
+		image: '/demos/yt-to-mp3-demo.png',
 		type: 'open-source',
-		tags: ['JavaScript'],
+		tags: ['JavaScript', 'Node.js', 'FFmpeg', 'ytdl-core'],
 		github: 'https://github.com/Qrytics/yt-to-mp3',
-		status: 'active',
+		status: 'archived',
 		startMonth: 'Mar',
 		startYear: 2026,
 		endMonth: 'Mar',
@@ -761,10 +923,20 @@ export const projects: Project[] = [
 	{
 		slug: 'job-apply',
 		title: 'JOB Apply',
-		subtitle: 'Chrome based browser extension that speeds up the job posting application process.…',
-		description: 'Chrome based browser extension that speeds up the job posting application process. Fill out your info and click away.',
+		subtitle: 'Chrome Manifest V3 extension that auto-fills job application forms with smart field detection and custom keyword-matching rules',
+		description:
+		'jobApply is a privacy-first Chrome extension that saves your profile once (locally, never sent to any server) and auto-fills job application forms on any website with one click. Smart field detection matches inputs using labels, placeholders, aria-label attributes, IDs, and surrounding text. A custom rules engine lets you define keyword-to-value rules with contains / exact / starts-with matching for edge-case fields like work authorization or salary expectations.',
+		longDescription: `One-click job application auto-fill Chrome extension, fully local, no server.
+
+• Storage: Chrome Storage API (local); all profile data stays in the browser.
+• Smart detection: content script injected via scripting API; matches fields by label text, placeholder, aria-label, name, ID, and surrounding DOM text.
+• Profile fields: First/Last Name, Email, Phone, Address, City, State, ZIP, Job Title, Company, Experience, Salary, LinkedIn, GitHub, Portfolio, Cover Letter.
+• Custom rules: keyword + value + match type (contains/exact/starts with); stored and managed via the popup Rules tab.
+• Manifest V3: uses scripting, activeTab, and storage permissions only; no broad host permissions.
+		• UX: tabbed popup (Profile / Rules); Save Profile button; Fill Fields on This Page trigger.`,
+		image: '/demos/job-apply-demo.png',
 		type: 'open-source',
-		tags: ['JavaScript', 'Chrome Extension', 'CLI'],
+		tags: ['JavaScript', 'Chrome Extension', 'Manifest V3', 'HTML', 'CSS'],
 		github: 'https://github.com/Qrytics/jobApply',
 		status: 'active',
 		startMonth: 'Mar',
@@ -776,10 +948,20 @@ export const projects: Project[] = [
 	{
 		slug: 'mini-gamba',
 		title: 'Mini Gamba',
-		subtitle: 'miniGamba: The Ultimate In-Game Companion miniGamba is a lightweight, customizable…',
-		description: 'miniGamba: The Ultimate In-Game Companion miniGamba is a lightweight, customizable overlay designed to keep the hype alive during downtime. Originally inspired by League of Legends death timers, this multi-purpose tool features a fake-credit slot machine and progression system.',
+		subtitle: 'Electron desktop companion combining League of Legends live stats via the LCU API with a 10-game mini-casino coin economy',
+		description:
+		'miniGamba is a two-mode desktop app with a full dashboard and an always-on-top overlay. The dashboard provides LoL summoner lookup, live in-game scoreboard (KDA, CS, gold, objectives), and champion-select detection powered by the League Client Update (LCU) API and the Live Client Data API. The overlay adds a 10-game mini-casino (slots, blackjack, coin flip, minesweeper, scratch cards, higher-or-lower, wheel, derby, dice, poker) with a coin economy driven by in-game events, daily tasks, hourly bonuses, and passive activity detection.',
+		longDescription: `Two-mode Electron desktop app: LoL companion + mini-casino overlay.
+
+• Data: LCU API (lockfile-based, dynamic port) for summoner profiles, ranked stats, mastery, match history, champion select; Live Client Data API (port 2999) for real-time KDA, gold, HP, objectives.
+• Dashboard: Summoner lookup, live game scoreboard, champion select panel, settings, leaderboard, achievements, coin wallet, game history.
+• Overlay: always-on-top transparent window launched from dashboard; 🎰 Games tab + 🎮 Live Stats tab; repositionable, resizable, opacity-adjustable; hotkey toggle (Ctrl+Shift+G).
+• Casino games: Slot Machine, Blackjack, Coin Flip, Higher or Lower, Mine Sweeper, Scratch Cards, Wheel of Fortune, Mini Derby, Dice Roll, Mini Poker, each with a unique mini-feature.
+• Coin economy: in-game kill/win/objective rewards, passive watch-time detection, daily tasks, hourly bonus, coin milestones, idle investment system.
+		• Stack: TypeScript + Electron; React; SQLite via better-sqlite3 (WAL); Node.js 20+.`,
+		image: '/demos/mini-gamba-demo.png',
 		type: 'open-source',
-		tags: ['TypeScript'],
+		tags: ['TypeScript', 'Electron', 'React', 'SQLite', 'League of Legends LCU API', 'Node.js'],
 		github: 'https://github.com/Qrytics/miniGamba',
 		status: 'active',
 		startMonth: 'Feb',
@@ -791,68 +973,76 @@ export const projects: Project[] = [
 	{
 		slug: 'min-gpt-copy',
 		title: 'MIN GPT Copy',
-		subtitle: 'Python project from GitHub repository',
-		description: 'MIN GPT Copy project from my GitHub repositories.',
+		subtitle: 'Educational PyTorch re-implementation of GPT training and inference (fork of Karpathy\'s minGPT)',
+		description:
+		'A clean, readable PyTorch re-implementation of GPT (training and inference) based on Andrej Karpathy\'s minGPT. The core model is ~300 lines of code: a standard Transformer decoder (masked self-attention, feed-forward, layer norm) with a BPE tokeniser matching OpenAI\'s GPT encoding. Includes demo notebooks for a sorting task and GPT-2 text generation, a character-level language model project, and an addition task trained from scratch.',
+		longDescription: `~300-line educational PyTorch GPT implementation for learning Transformer internals.
+
+• Model (mingpt/model.py): decoder-only Transformer with masked self-attention heads, feed-forward layers, layer norm, and configurable depth/width. Supports gpt2, gpt2-medium, gpt2-large, gpt2-xl presets.
+• BPE tokeniser (mingpt/bpe.py): byte-pair encoding matching OpenAI's GPT-2 vocabulary (50,257 merges).
+• Trainer (mingpt/trainer.py): generic PyTorch training loop; AdamW optimiser; configurable learning rate, batch size, max_iters.
+• Projects: adder (trains GPT to add numbers), chargpt (character-level LM on arbitrary text), demo.ipynb (sorting example), generate.ipynb (GPT-2 text generation from prompt).
+		• Installation: pip install -e . for use as an importable mingpt library.`,
+		image: '/demos/min-gpt-copy-demo.png',
 		type: 'open-source',
-		tags: ['Python'],
+		tags: ['Python', 'PyTorch', 'GPT', 'Transformer', 'NLP', 'Machine Learning'],
 		github: 'https://github.com/Qrytics/minGPT_copy',
-		status: 'active',
+		status: 'archived',
 		startMonth: 'Jan',
 		startYear: 2026,
 		endMonth: 'Jan',
 		endYear: 2026,
 		year: 2026,
-		note: 'Demo links/media can be added later.',
 	},
 
-	{
-		slug: 'dont-find-me-pytinker',
-		title: '"Don\'t Find Me" (PyTinker Game)',
-		subtitle: 'Minimalist evasion game built with Python + Tkinter',
-		image: '/gifs/pytinker-game-demo.mp4',
-		poster: '/gifs/pytinker-game-demo-poster.png',
-		description:
-			'Solo-built a minimalist evasion game in Python with Tkinter, implementing the main loop, keyboard controls, on-canvas rendering, collision checks, and clean state transitions.',
-		type: 'open-source',
-		tags: ['Python', 'Tkinter'],
-		github: 'https://github.com/Qrytics/15-112-Term-Project',
-		demo: 'https://www.youtube.com/watch?v=I-haGKxNNX0',
-		status: 'archived',
-		startMonth: 'Nov',
-		startYear: 2022,
-		endMonth: 'Dec',
-		endYear: 2022,
-		year: 2022,
-		note: 'Game showcase & breakdown video (LinkedIn media): https://www.youtube.com/watch?v=I-haGKxNNX0',
-		problem: 'Build a complete, polished 2D game from scratch in Python—no game engine—as a term project demonstrating object-oriented design and a custom game loop.',
-		architecture: [
-			'Tkinter Canvas as the rendering surface with manual dirty-rect invalidation',
-			'Custom game loop using after() scheduling for frame-rate control',
-			'Player entity with keyboard-driven velocity and boundary clamping',
-			'Obstacle spawner with configurable difficulty ramping over time',
-			'Collision detection using axis-aligned bounding boxes (AABB)',
-			'State machine managing menu, playing, paused, and game-over screens'
-		],
-		challenges: [
-			'Achieving smooth animation in Tkinter without a dedicated rendering engine',
-			'Implementing progressive difficulty without making the game feel unfair',
-			'Managing game state transitions cleanly without global mutable state'
-		],
-		tradeoffs: [
-			'Tkinter chosen for zero-dependency portability; traded rendering performance for simplicity',
-			'AABB collision is less precise than pixel-perfect but sufficient at game scale',
-			'No sound effects to keep the project scope achievable as a first solo game'
-		],
-		outcome: 'Fully playable evasion game submitted and demoed as CMU 15-112 term project, earning high marks for code quality and gameplay feel.',
-		whatYouLearned: [
-			'Game loop architecture and frame timing without a framework',
-			'Tkinter event model and canvas coordinate system',
-			'Object-oriented design for independent, testable game entities',
-			'The value of iterative playtesting for difficulty tuning'
-		]
-	}
-];
+			{
+				slug: 'dont-find-me-pytinker',
+				title: '"Don\'t Find Me" (PyTinker Game)',
+				subtitle: 'Minimalist evasion game built with Python + Tkinter',
+				image: '/gifs/pytinker-game-demo.mp4',
+				poster: '/gifs/pytinker-game-demo-poster.png',
+				description:
+					'Solo-built a minimalist evasion game in Python with Tkinter, implementing the main loop, keyboard controls, on-canvas rendering, collision checks, and clean state transitions.',
+				type: 'open-source',
+				tags: ['Python', 'Tkinter'],
+				github: 'https://github.com/Qrytics/15-112-Term-Project',
+				demo: 'https://www.youtube.com/watch?v=I-haGKxNNX0',
+				status: 'archived',
+				startMonth: 'Nov',
+				startYear: 2022,
+				endMonth: 'Dec',
+				endYear: 2022,
+				year: 2022,
+				note: 'Game showcase & breakdown video (LinkedIn media): https://www.youtube.com/watch?v=I-haGKxNNX0',
+				problem: 'Build a complete, polished 2D game from scratch in Python with no game engine, as a term project demonstrating object-oriented design and a custom game loop.',
+				architecture: [
+					'Tkinter Canvas as the rendering surface with manual dirty-rect invalidation',
+					'Custom game loop using after() scheduling for frame-rate control',
+					'Player entity with keyboard-driven velocity and boundary clamping',
+					'Obstacle spawner with configurable difficulty ramping over time',
+					'Collision detection using axis-aligned bounding boxes (AABB)',
+					'State machine managing menu, playing, paused, and game-over screens'
+				],
+				challenges: [
+					'Achieving smooth animation in Tkinter without a dedicated rendering engine',
+					'Implementing progressive difficulty without making the game feel unfair',
+					'Managing game state transitions cleanly without global mutable state'
+				],
+				tradeoffs: [
+					'Tkinter chosen for zero-dependency portability; traded rendering performance for simplicity',
+					'AABB collision is less precise than pixel-perfect but sufficient at game scale',
+					'No sound effects to keep the project scope achievable as a first solo game'
+				],
+				outcome: 'Fully playable evasion game submitted and demoed as CMU 15-112 term project, earning high marks for code quality and gameplay feel.',
+				whatYouLearned: [
+					'Game loop architecture and frame timing without a framework',
+					'Tkinter event model and canvas coordinate system',
+					'Object-oriented design for independent, testable game entities',
+					'The value of iterative playtesting for difficulty tuning'
+				]
+			}
+		];
 
-export function getProject(slug: string): Project | undefined {
-	return projects.find((p) => p.slug === slug);
-}
+		export function getProject(slug: string): Project | undefined {
+			return projects.find((p) => p.slug === slug);
+	}

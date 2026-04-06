@@ -25,7 +25,7 @@ export const profile: Profile = {
 	description:
 		"I'm an electrical engineering student at Carnegie Mellon studying software engineering and full-stack web development in my own time. Learning about tech is a pastime of mine that I value.",
 	heroCta: "Interested in hardware-software stacks or general system design? Let's\u00A0talk.",
-	bio: "I'm a senior at Carnegie Mellon studying Electrical and Computer Engineering (May 2026). I build full-stack apps, IoT systems, and ML pipelines—from ESP32 firmware and FastAPI backends to React dashboards and Dockerized deployments. I've shipped a fintech budget planner with Plaid and XRPL at TartanHacks, an AI content-authentication system with steganography and PKI, and automation tools for Docker and smart-home rules engines. I also have hands-on experience in AV integration and security systems from internships at Smarter Integrations and Soluciones Entelequia. Fluent in Spanish.",
+	bio: "I'm a senior at Carnegie Mellon studying Electrical and Computer Engineering (May 2026). I build full-stack apps, IoT systems, and ML pipelines: from ESP32 firmware and FastAPI backends to React dashboards and Dockerized deployments. I've shipped a fintech budget planner with Plaid and XRPL at TartanHacks, an AI content-authentication system with steganography and PKI, and automation tools for Docker and smart-home rules engines. I also have hands-on experience in AV integration and security systems from internships at Smarter Integrations and Soluciones Entelequia. Fluent in Spanish.",
 	location: 'Pittsburgh, PA',
 	email: 'mario4.belmonte@gmail.com',
 	github: 'https://github.com/Qrytics',
