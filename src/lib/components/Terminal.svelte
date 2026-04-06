@@ -520,7 +520,8 @@
 	}
 
 	.line span {
-		white-space: pre;
+		white-space: pre-wrap;
+		word-break: break-word;
 	}
 
 	.line--input span {
