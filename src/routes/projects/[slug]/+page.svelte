@@ -36,7 +36,7 @@ const project = $derived(data.project);
 <!-- Content -->
 <div class="content">
 <div class="meta-row">
-<span class="year">{project.startMonth} {project.startYear} — {project.endMonth} {project.endYear}</span>
+<span class="year">{project.startMonth} {project.startYear} - {project.endMonth} {project.endYear}</span>
 <div class="tech-badges">
 {#each project.tags as tag}
 <span class="tech-badge" data-tech={tag.toLowerCase()}>{tag}</span>

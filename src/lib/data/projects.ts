@@ -88,7 +88,7 @@ export const projects: Project[] = [
 		endMonth: 'May',
 		endYear: 2026,
 		year: 2026,
-		problem: 'Build a full-stack smart-home platform that gives homeowners real-time visibility and control over lighting, temperature, occupancy, and door-lock status—all from a single web dashboard.',
+		problem: 'Build a full-stack smart-home platform that gives homeowners real-time visibility and control over lighting, temperature, occupancy, and door-lock status, all from a single web dashboard.',
 		architecture: [
 			'ESP32 firmware (C/C++) with sensors + actuators communicating over MQTT',
 			'MQTT broker bridging firmware to backend',
@@ -150,7 +150,7 @@ export const projects: Project[] = [
 		endMonth: 'Feb',
 		endYear: 2026,
 		year: 2026,
-		problem: 'Give users an intuitive way to visualise their bank spending, automatically detect recurring charges, and micro-save into cryptocurrency—all within a 24-hour hackathon.',
+		problem: 'Give users an intuitive way to visualise their bank spending, automatically detect recurring charges, and micro-save into cryptocurrency, all within a 24-hour hackathon.',
 		architecture: [
 			'pnpm monorepo with 8 packages (Next.js web app, shared UI, API layer, analytics, etc.)',
 			'Plaid Link + Capital One Nessie API for real transaction ingestion',
@@ -170,7 +170,7 @@ export const projects: Project[] = [
 			'Used Supabase instead of a self-hosted database to ship faster during the hackathon',
 			'MAD-based recurring detection trades some precision for determinism and zero ML dependencies'
 		],
-		outcome: 'Shipped a working fintech app at TartanHacks 2026—live bank data, interactive treemap, and on-chain round-ups—with a full CI pipeline.',
+		outcome: 'Shipped a working fintech app at TartanHacks 2026 with live bank data, interactive treemap, and on-chain round-ups, and a full CI pipeline.',
 		whatYouLearned: [
 			'pnpm monorepo workspace conventions and shared package boundaries',
 			'How Plaid Link OAuth flows differ from standard OAuth',
@@ -390,7 +390,7 @@ export const projects: Project[] = [
 		endYear: 2025,
 		year: 2025,
 		note: 'Additional demo clips are attached on LinkedIn (Prepped-up Demo / Prepped-up Demo 2).',
-		problem: 'Children with reading difficulties or visual impairments need a low-cost, engaging companion that reads physical books aloud when asked—without requiring a screen or complex interaction.',
+		problem: 'Children with reading difficulties or visual impairments need a low-cost, engaging companion that reads physical books aloud when asked, without requiring a screen or complex interaction.',
 		architecture: [
 			'Raspberry Pi with USB webcam for image capture triggered by voice command',
 			'Voice-command listener using a lightweight keyword-spotting library',
@@ -475,7 +475,7 @@ export const projects: Project[] = [
 		endMonth: 'Nov',
 		endYear: 2024,
 		year: 2024,
-		problem: 'Implement a fully playable Breakout clone in hardware—no CPU, no OS—where all game logic runs as synchronous digital circuits on an FPGA outputting a live VGA signal.',
+		problem: 'Implement a fully playable Breakout clone in hardware with no CPU or OS, where all game logic runs as synchronous digital circuits on an FPGA outputting a live VGA signal.',
 		architecture: [
 			'Top-level SystemVerilog module wiring VGA timing, game FSM, and input controller',
 			'VGA sync generator producing 640×480 @ 60 Hz H/V sync and pixel clock',
@@ -493,7 +493,7 @@ export const projects: Project[] = [
 		tradeoffs: [
 			'Used fixed-point arithmetic (Q4.4) instead of floating-point to stay within FPGA DSP blocks',
 			'Brick grid stored in registers rather than block RAM for simpler combinatorial hit logic',
-			'Single-speed ball velocity—no acceleration—to keep FSM states manageable'
+			'Single-speed ball velocity (no acceleration) to keep FSM states manageable'
 		],
 		outcome: 'Fully playable Breakout game running on FPGA hardware with stable 60 Hz VGA output, correct collision physics, and score tracking.',
 		whatYouLearned: [
@@ -508,7 +508,7 @@ export const projects: Project[] = [
 		title: 'Wifi Scan',
 		subtitle: 'Privacy-first occupancy tracking via ARP scanning with a React dashboard, React Native app, and FastAPI backend',
 		description:
-			'Full-stack presence-sensing platform that turns any local Wi-Fi network into an occupancy engine—no extra hardware required. The Python backend performs ARP sweeps every 30 s with Scapy (nmap fallback), records devices in PostgreSQL, and exposes a FastAPI REST API consumed by both a React + Vite admin dashboard (deployed to GitHub Pages) and a React Native + Expo mobile app with background geofencing.',
+			'Full-stack presence-sensing platform that turns any local Wi-Fi network into an occupancy engine with no extra hardware required. The Python backend performs ARP sweeps every 30 s with Scapy (nmap fallback), records devices in PostgreSQL, and exposes a FastAPI REST API consumed by both a React + Vite admin dashboard (deployed to GitHub Pages) and a React Native + Expo mobile app with background geofencing.',
 		longDescription: `Privacy-first occupancy tracker powered entirely by existing Wi-Fi infrastructure.
 
 • Backend: FastAPI + Uvicorn; SQLAlchemy ORM against PostgreSQL; background ARP scanner using Scapy with nmap fallback.
@@ -608,11 +608,11 @@ export const projects: Project[] = [
 		title: 'CMU March Madness ML',
 		subtitle: 'Ensemble ML system (XGBoost + LightGBM + LR, 103 features) predicting NCAA tournament winners with a live GitHub Pages dashboard',
 		description:
-			'An ML system built for the CMU Second Annual March Madness Machine Learning Competition. A weighted ensemble of XGBoost (40%), LightGBM (40%), and Logistic Regression (20%) trained on 103 differential features per matchup — including KenPom, Barttorvik T-Rank, NET rankings, and seed history. Achieved 72.3% CV accuracy (Men) and 75.1% (Women) on real Kaggle NCAA data using walk-forward CV. A GitHub Actions pipeline retrains and deploys a live bracket dashboard to GitHub Pages.',
+			'An ML system built for the CMU Second Annual March Madness Machine Learning Competition. A weighted ensemble of XGBoost (40%), LightGBM (40%), and Logistic Regression (20%) trained on 103 differential features per matchup, including KenPom, Barttorvik T-Rank, NET rankings, and seed history. Achieved 72.3% CV accuracy (Men) and 75.1% (Women) on real Kaggle NCAA data using walk-forward CV. A GitHub Actions pipeline retrains and deploys a live bracket dashboard to GitHub Pages.',
 		longDescription: `NCAA March Madness bracket prediction via walk-forward CV ensemble ML.
 
 • Models: XGBoost (40%) + LightGBM (40%) + Logistic Regression (20%); isotonic regression calibration; optional Optuna Bayesian hyperparameter tuning.
-• Features: 103 differential features per matchup — box-score stats, KenPom AdjEM/AdjO/AdjD, Barttorvik T-Rank, NET ranking, Massey ordinals (30+ systems), SOS, coaching tenure, conference strength, and tournament seed history.
+• Features: 103 differential features per matchup: box-score stats, KenPom AdjEM/AdjO/AdjD, Barttorvik T-Rank, NET ranking, Massey ordinals (30+ systems), SOS, coaching tenure, conference strength, and tournament seed history.
 • Data: Kaggle March Machine Learning Mania 2026 dataset (124k+ real games); external enrichment from KenPom and Barttorvik.
 • Validation: walk-forward CV (train on years ≤N, validate on N+1); no data leakage; 72.3% Men's / 75.1% Women's AUC accuracy.
 • Pipeline: run_bracket.py simulates full round-by-round brackets; export_site_data.py publishes model outputs to the live dashboard.
@@ -634,12 +634,12 @@ export const projects: Project[] = [
 		title: 'Smart Desktop',
 		subtitle: 'Offline voice automation assistant using Porcupine wake-word detection and Faster-Whisper STT for developer workflow control',
 		description:
-		'A fully offline, always-on voice assistant for power users and developers — similar to Siri or Alexa but running entirely on local hardware. Porcupine listens for a wake word ("Jarvis") with ultra-low CPU usage, Faster-Whisper transcribes the command without internet, and a YAML-configured command dispatcher opens apps, manages windows, runs terminal commands (git, npm, pytest), and navigates project directories.',
-		longDescription: `Offline voice-controlled developer assistant — zero cloud, zero latency overhead.
+		'A fully offline, always-on voice assistant for power users and developers, similar to Siri or Alexa but running entirely on local hardware. Porcupine listens for a wake word ("Jarvis") with ultra-low CPU usage, Faster-Whisper transcribes the command without internet, and a YAML-configured command dispatcher opens apps, manages windows, runs terminal commands (git, npm, pytest), and navigates project directories.',
+		longDescription: `Offline voice-controlled developer assistant with zero cloud and zero latency overhead.
 
 • Pipeline: microphone → Porcupine wake-word detection → Faster-Whisper offline STT → CommandParser dispatch → OS action.
 • Actions: app launcher (Chrome, VS Code, Spotify, Discord), window management (snap, maximise, swap monitors), terminal automation (git status, npm run dev, pytest), project directory navigation.
-• Config: all commands and shortcuts defined in config.yaml — no code changes needed to add new apps or macros.
+• Config: all commands and shortcuts defined in config.yaml; no code changes needed to add new apps or macros.
 • Stack: Python 3.9+, Porcupine (Picovoice), Faster-Whisper, PyAudio/PortAudio, PyAutoGUI, pygetwindow, PyYAML, subprocess.
 		• Cross-platform: Windows, macOS, Linux.`,
 		image: '/demos/smart-desktop-demo.png',
@@ -662,7 +662,7 @@ export const projects: Project[] = [
 		longDescription: `LoL desktop overlay with a learning rune recommendation engine.
 
 • Detection: Electron main process polls the League Client Update (LCU) API to detect champion select sessions.
-• Recommendation engine (3 layers): Layer 1 — player rune history with win/loss outcomes; Layer 2 — curated default pages per champion/role; Layer 3 — high-elo (Master+) aggregated rune statistics.
+• Recommendation engine (3 layers): Layer 1: player rune history with win/loss outcomes; Layer 2: curated default pages per champion/role; Layer 3: high-elo (Master+) aggregated rune statistics.
 • One-click import: recommended rune page is imported directly into the LoL client via the LCU proxy endpoint.
 • Stack: Electron + TypeScript frontend; Python + FastAPI backend; PostgreSQL via SQLAlchemy; Jest (frontend) + pytest (backend).
 		• Infra: Docker Compose (Postgres + FastAPI); Alembic migrations; .env-based config.`,
@@ -712,7 +712,7 @@ export const projects: Project[] = [
 
 • Stack: TypeScript / Node.js 20+, discord.js v14, PostgreSQL via pg, Spotify Web API, node-cron, Docker Compose.
 • Data model: users, songs (with 8 audio features), playlists, taste_vectors (precomputed per user), user_similarity (pairwise cosine cache), daily_history.
-• Recommendation: Layer 1 — content-based cosine similarity on taste vectors; Layer 2 — collaborative filtering via users with similar vectors.
+• Recommendation: Layer 1: content-based cosine similarity on taste vectors; Layer 2: collaborative filtering via users with similar vectors.
 • Music DNA: per-user archetype (Party Starter, Chill Wanderer, Indie Explorer, etc.) from energy, mood, danceability, acousticness averages; obscurity = 100 − average Spotify popularity.
 • Commands: /addplaylist, /recommend, /musicdna, /musictwin, /tastedistance, /compatibility, /discover, /tasteleaderboard, /tasteprofile.
 		• Automation: daily-song cron job posts a random user's track to a configured channel.`,
@@ -739,7 +739,7 @@ export const projects: Project[] = [
 • Output: Rich terminal summary table + stack_report.json; per-section MP3 narration with edge-tts (gTTS fallback); PIL slide renderer → moviepy MP4 export.
 • AI: optional Ollama (llama3, mistral, etc.) rewrites narration sections into engaging prose; falls back to template narration gracefully.
 • CLI flags: --audio, --video, --use-ollama, --ollama-model, --voice, --token, --output.
-• Auto-detection: when run inside a git clone, derives the GitHub URL from the origin remote — no URL argument needed.
+• Auto-detection: when run inside a git clone, derives the GitHub URL from the origin remote; no URL argument needed.
 		• Logo pipeline: Devicon CDN → SimpleIcons → Clearbit → placeholder; parallel image downloads.`,
 		image: '/demos/tech-stack-analyzer-demo.png',
 		type: 'open-source',
@@ -765,7 +765,7 @@ export const projects: Project[] = [
 • Web UI: Xterm.js + Express.js terminal SPA; ls, cd, cat, edit, pwd, clear, help commands; Save sets pending_sync = true.
 • React Native component: TerminalCLI + FileEditor backed by Supabase; Jest + @testing-library/react-native test suite.
 • Python sync poller: polls Supabase every 60 s for pending_sync rows, writes content to local filesystem, clears flag.
-		• Remote access: Tailscale zero-config VPN — point phone browser at PC's Tailscale IP.`,
+		• Remote access: Tailscale zero-config VPN; point phone browser at PC's Tailscale IP.`,
 		image: '/demos/file-port-demo.png',
 		type: 'open-source',
 		tags: ['JavaScript', 'Node.js', 'React Native', 'PocketBase', 'Supabase', 'Python', 'SQLite', 'Chokidar', 'Xterm.js'],
@@ -807,7 +807,7 @@ export const projects: Project[] = [
 		title: 'Idea DB',
 		subtitle: 'Discord bot that algorithmically indexes server messages and uses Groq LLM (llama-3.1-8b-instant) to synthesise startup/project ideas',
 		description:
-		'IdeaDB silently observes Discord conversations and runs a zero-LLM, zero-external-API metadata extraction pipeline over every message — keyword frequency analysis, tech-term regex matching, file attachment classification, URL platform recognition, and embed scraping. All data is stored in SQLite. When you run !ideas, it builds a structured context prompt from aggregated keywords and sends it to Groq\'s llama-3.1-8b-instant to generate actionable startup/project ideas with name, pitch, problem, audience, and tech stack.',
+		'IdeaDB silently observes Discord conversations and runs a zero-LLM, zero-external-API metadata extraction pipeline over every message: keyword frequency analysis, tech-term regex matching, file attachment classification, URL platform recognition, and embed scraping. All data is stored in SQLite. When you run !ideas, it builds a structured context prompt from aggregated keywords and sends it to Groq\'s llama-3.1-8b-instant to generate actionable startup/project ideas with name, pitch, problem, audience, and tech stack.',
 		longDescription: `Passive Discord idea-harvesting bot with algorithmic parsing and Groq LLM generation.
 
 • Collection: listens on configured channels; parses text (stopword-filtered keyword frequency, tech-term regex), file attachments (MIME type, filename tokens, media class), URLs (known-platform table, path tokenisation, query keys), and Discord embeds.
@@ -830,7 +830,7 @@ export const projects: Project[] = [
 	{
 		slug: 'sheet-music-gen',
 		title: 'Sheet Music GEN',
-		subtitle: 'Freemium SaaS converting audio to sheet music via Demucs stem separation, MT3 transcription, and async RQ workers — Next.js + FastAPI monorepo',
+		subtitle: 'Freemium SaaS converting audio to sheet music via Demucs stem separation, MT3 transcription, and async RQ workers, Next.js + FastAPI monorepo',
 		description:
 		'A B2C freemium web app (similar to Moises.ai / Chordify) where users drag-and-drop an MP3/WAV file and get back downloadable MIDI and MusicXML sheet music for every instrument. A Next.js 15 dashboard posts uploads to a FastAPI backend that validates credits, queues an RQ job to Redis, and runs a Demucs stem separator + MT3-style transcriber in a Python worker. Real-time progress is polled by a JobTracker component that animates a status bar.',
 		longDescription: `Audio-to-sheet-music SaaS built on a Pants monorepo with async ML workers.
@@ -898,7 +898,7 @@ export const projects: Project[] = [
 	{
 		slug: 'yt-to-mp3',
 		title: 'YT TO MP3',
-		subtitle: 'Lightweight Node.js module that downloads a YouTube video and converts it to MP3 via ffmpeg-static — no system FFmpeg required',
+		subtitle: 'Lightweight Node.js module that downloads a YouTube video and converts it to MP3 via ffmpeg-static, no system FFmpeg required',
 		description:
 		'A lightweight Node.js utility module (no UI) that downloads the audio stream from any YouTube URL using @distube/ytdl-core and converts it to an MP3 file via fluent-ffmpeg backed by a bundled ffmpeg-static binary. Exported as convertToMp3(url, options) returning a Promise<string> with the absolute output path. Configurable output directory, filename, and bitrate.',
 		longDescription: `Zero-dependency-install YouTube-to-MP3 Node.js module.
@@ -906,7 +906,7 @@ export const projects: Project[] = [
 • API: convertToMp3(url, { outputDir, filename, bitrate }) → Promise<string>; isValidYouTubeUrl(url) → boolean.
 • Audio download: @distube/ytdl-core streams audio-only from YouTube.
 • Encoding: fluent-ffmpeg pipes the stream through libmp3lame; bitrate defaults to 128 kbps.
-• FFmpeg: bundled via ffmpeg-static — no system-level installation required.
+• FFmpeg: bundled via ffmpeg-static; no system-level installation required.
 • Error handling: throws typed errors for invalid URLs, failed video info fetch, download failure, and conversion failure.
 		• Tests: Jest suite covering valid/invalid URL handling and conversion.`,
 		image: '/demos/yt-to-mp3-demo.png',
@@ -926,13 +926,13 @@ export const projects: Project[] = [
 		subtitle: 'Chrome Manifest V3 extension that auto-fills job application forms with smart field detection and custom keyword-matching rules',
 		description:
 		'jobApply is a privacy-first Chrome extension that saves your profile once (locally, never sent to any server) and auto-fills job application forms on any website with one click. Smart field detection matches inputs using labels, placeholders, aria-label attributes, IDs, and surrounding text. A custom rules engine lets you define keyword-to-value rules with contains / exact / starts-with matching for edge-case fields like work authorization or salary expectations.',
-		longDescription: `One-click job application auto-fill Chrome extension — fully local, no server.
+		longDescription: `One-click job application auto-fill Chrome extension, fully local, no server.
 
 • Storage: Chrome Storage API (local); all profile data stays in the browser.
 • Smart detection: content script injected via scripting API; matches fields by label text, placeholder, aria-label, name, ID, and surrounding DOM text.
 • Profile fields: First/Last Name, Email, Phone, Address, City, State, ZIP, Job Title, Company, Experience, Salary, LinkedIn, GitHub, Portfolio, Cover Letter.
 • Custom rules: keyword + value + match type (contains/exact/starts with); stored and managed via the popup Rules tab.
-• Manifest V3: uses scripting, activeTab, and storage permissions only — no broad host permissions.
+• Manifest V3: uses scripting, activeTab, and storage permissions only; no broad host permissions.
 		• UX: tabbed popup (Profile / Rules); Save Profile button; Fill Fields on This Page trigger.`,
 		image: '/demos/job-apply-demo.png',
 		type: 'open-source',
@@ -950,13 +950,13 @@ export const projects: Project[] = [
 		title: 'Mini Gamba',
 		subtitle: 'Electron desktop companion combining League of Legends live stats via the LCU API with a 10-game mini-casino coin economy',
 		description:
-		'miniGamba is a two-mode desktop app — a full dashboard and an always-on-top overlay. The dashboard provides LoL summoner lookup, live in-game scoreboard (KDA, CS, gold, objectives), and champion-select detection powered by the League Client Update (LCU) API and the Live Client Data API. The overlay adds a 10-game mini-casino (slots, blackjack, coin flip, minesweeper, scratch cards, higher-or-lower, wheel, derby, dice, poker) with a coin economy driven by in-game events, daily tasks, hourly bonuses, and passive activity detection.',
+		'miniGamba is a two-mode desktop app with a full dashboard and an always-on-top overlay. The dashboard provides LoL summoner lookup, live in-game scoreboard (KDA, CS, gold, objectives), and champion-select detection powered by the League Client Update (LCU) API and the Live Client Data API. The overlay adds a 10-game mini-casino (slots, blackjack, coin flip, minesweeper, scratch cards, higher-or-lower, wheel, derby, dice, poker) with a coin economy driven by in-game events, daily tasks, hourly bonuses, and passive activity detection.',
 		longDescription: `Two-mode Electron desktop app: LoL companion + mini-casino overlay.
 
 • Data: LCU API (lockfile-based, dynamic port) for summoner profiles, ranked stats, mastery, match history, champion select; Live Client Data API (port 2999) for real-time KDA, gold, HP, objectives.
 • Dashboard: Summoner lookup, live game scoreboard, champion select panel, settings, leaderboard, achievements, coin wallet, game history.
 • Overlay: always-on-top transparent window launched from dashboard; 🎰 Games tab + 🎮 Live Stats tab; repositionable, resizable, opacity-adjustable; hotkey toggle (Ctrl+Shift+G).
-• Casino games: Slot Machine, Blackjack, Coin Flip, Higher or Lower, Mine Sweeper, Scratch Cards, Wheel of Fortune, Mini Derby, Dice Roll, Mini Poker — each with a unique mini-feature.
+• Casino games: Slot Machine, Blackjack, Coin Flip, Higher or Lower, Mine Sweeper, Scratch Cards, Wheel of Fortune, Mini Derby, Dice Roll, Mini Poker, each with a unique mini-feature.
 • Coin economy: in-game kill/win/objective rewards, passive watch-time detection, daily tasks, hourly bonus, coin milestones, idle investment system.
 		• Stack: TypeScript + Electron; React; SQLite via better-sqlite3 (WAL); Node.js 20+.`,
 		image: '/demos/mini-gamba-demo.png',
@@ -975,7 +975,7 @@ export const projects: Project[] = [
 		title: 'MIN GPT Copy',
 		subtitle: 'Educational PyTorch re-implementation of GPT training and inference (fork of Karpathy\'s minGPT)',
 		description:
-		'A clean, readable PyTorch re-implementation of GPT — both training and inference — based on Andrej Karpathy\'s minGPT. The core model is ~300 lines of code: a standard Transformer decoder (masked self-attention, feed-forward, layer norm) with a BPE tokeniser matching OpenAI\'s GPT encoding. Includes demo notebooks for a sorting task and GPT-2 text generation, a character-level language model project, and an addition task trained from scratch.',
+		'A clean, readable PyTorch re-implementation of GPT (training and inference) based on Andrej Karpathy\'s minGPT. The core model is ~300 lines of code: a standard Transformer decoder (masked self-attention, feed-forward, layer norm) with a BPE tokeniser matching OpenAI\'s GPT encoding. Includes demo notebooks for a sorting task and GPT-2 text generation, a character-level language model project, and an addition task trained from scratch.',
 		longDescription: `~300-line educational PyTorch GPT implementation for learning Transformer internals.
 
 • Model (mingpt/model.py): decoder-only Transformer with masked self-attention heads, feed-forward layers, layer norm, and configurable depth/width. Supports gpt2, gpt2-medium, gpt2-large, gpt2-xl presets.
@@ -1014,7 +1014,7 @@ export const projects: Project[] = [
 				endYear: 2022,
 				year: 2022,
 				note: 'Game showcase & breakdown video (LinkedIn media): https://www.youtube.com/watch?v=I-haGKxNNX0',
-				problem: 'Build a complete, polished 2D game from scratch in Python—no game engine—as a term project demonstrating object-oriented design and a custom game loop.',
+				problem: 'Build a complete, polished 2D game from scratch in Python with no game engine, as a term project demonstrating object-oriented design and a custom game loop.',
 				architecture: [
 					'Tkinter Canvas as the rendering surface with manual dirty-rect invalidation',
 					'Custom game loop using after() scheduling for frame-rate control',

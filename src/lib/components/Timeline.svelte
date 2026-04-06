@@ -28,7 +28,7 @@
 			month: 'May',
 			label: 'Graduated from CMU',
 			description:
-				'Graduated from Carnegie Mellon University in May 2026 with a B.S. in Electrical and Computer Engineering (ECE) — applying embedded + digital design fundamentals alongside software-focused projects to build real systems.',
+				'Graduated from Carnegie Mellon University in May 2026 with a B.S. in Electrical and Computer Engineering (ECE), applying embedded + digital design fundamentals alongside software-focused projects to build real systems.',
 			accent: true
 		},
 		{
@@ -40,7 +40,7 @@
 		{
 			year: 2025,
 			month: 'Jun',
-			label: 'Electrical Engineering Assistant — Smarter Integrations',
+			label: 'Electrical Engineering Assistant at Smarter Integrations',
 			description: 'Designed and installed AV integration and security systems; troubleshot hardware/software interfaces in production environments.'
 		},
 		{

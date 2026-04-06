@@ -371,7 +371,7 @@
 
 		<div class="terminal" role="dialog" aria-modal="true" aria-label="Terminal">
 			<div class="terminal__bar">
-				<span class="terminal__title">mario-belmonte — bash</span>
+				<span class="terminal__title">mario-belmonte: bash</span>
 				<button type="button" class="terminal__close" aria-label="Close terminal" onclick={() => (open = false)}>✕</button>
 			</div>
 
