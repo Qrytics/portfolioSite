@@ -2,7 +2,7 @@
 
 > **Live site:** [mario-belmonte.com](https://mario-belmonte.com/)
 
-A statically-generated developer portfolio built with **SvelteKit 5** and **TypeScript** — featuring a dark terminal aesthetic, case-study project pages, a live GitHub activity feed, a career timeline, and a full-text project search. It's basically a résumé with better syntax highlighting.
+A statically-generated developer portfolio built with **SvelteKit 2**, **Svelte 5**, and **TypeScript** — featuring a dark terminal aesthetic, case-study project pages, a GitHub contributions chart, a live GitHub activity feed, a career timeline, and a full-text project search. It's basically a résumé with better syntax highlighting.
 
 ---
 
@@ -29,11 +29,13 @@ A statically-generated developer portfolio built with **SvelteKit 5** and **Type
 - **Project grid** — card-based layout with media (image or video), tags, status badge, and "show more" fold; links to GitHub, live demo, and deployed site
 - **Individual project pages** — `/projects/[slug]` with long description, problem statement, architecture breakdown, challenges, tradeoffs, outcome, and key learnings; optional Google Slides embed
 - **Full-text project search** — keyboard-accessible modal (`Ctrl/⌘ K`) searching title, subtitle, description, and tags
-- **Currently Building** — live feed of public GitHub repos pushed within the last week, fetched client-side from the GitHub API
+- **GitHub Contribution Chart** — heat-map grid of daily commit contributions across up to 5 years, loaded from a pre-generated static JSON file (`static/github-contrib.json`)
+- **Currently Building** — feed of public GitHub repos pushed within the last week, loaded from a pre-generated static JSON file (`static/github-recent.json`)
 - **Career timeline** — chronological list of milestones, hackathons, and work experience with accent highlights
 - **About page** — responsive photo gallery at `/about`
+- **Rhythm Games page** — YouTube videos and shorts showcase at `/rhythm-games`
 - **Resume page** — embedded Google Drive PDF viewer at `/resume`
-- **Skills section** — grouped skill tags (Languages, Frontend & APIs, Backend & DevOps, Testing, Hardware, ML & Security, Tools)
+- **Skills section** — grouped skill tags (Languages, Frontend & APIs, Backend & DevOps, Testing & QA, Hardware & EDA, ML & Security, Tools, Languages (spoken))
 - **Stats section** — key at-a-glance numbers
 - **Review CTA** — call-to-action banner
 - **Prerendered & static** — built with `@sveltejs/adapter-static`; every page (including `[slug]`) is pre-rendered at build time
@@ -46,7 +48,7 @@ A statically-generated developer portfolio built with **SvelteKit 5** and **Type
 
 | Layer | Technology |
 |---|---|
-| Framework | [SvelteKit 5](https://kit.svelte.dev/) |
+| Framework | [SvelteKit 2](https://kit.svelte.dev/) + Svelte 5 |
 | Language | TypeScript 5 |
 | Rendering | Static (adapter-static + full prerender) |
 | Build tool | Vite 7 |
@@ -61,47 +63,62 @@ A statically-generated developer portfolio built with **SvelteKit 5** and **Type
 ```
 portfolioSite/
 ├── scripts/
-│   ├── extract-posters.ps1        # PowerShell: extract first-frame poster PNGs from MP4s
-│   └── gif-to-mp4.ps1             # PowerShell: batch-convert GIFs to MP4
+│   ├── extract-posters.ps1             # PowerShell: extract first-frame poster PNGs from MP4s
+│   ├── gif-to-mp4.ps1                  # PowerShell: batch-convert GIFs to MP4
+│   ├── update-github-contrib.mjs       # Node.js: fetch GitHub contribution data → static/github-contrib.json
+│   └── update-github-recent.mjs        # Node.js: fetch recent GitHub repos → static/github-recent.json
 ├── src/
-│   ├── app.css                    # Global styles & CSS custom properties (colors, fonts, shadows)
-│   ├── app.html                   # HTML shell (fonts, viewport)
+│   ├── app.css                         # Global styles & CSS custom properties (colors, fonts, shadows)
+│   ├── app.html                        # HTML shell (fonts, viewport)
 │   └── lib/
+│       ├── assets/
+│       │   └── favicon.svg             # Favicon SVG
 │       ├── components/
-│       │   ├── Nav.svelte                 # Fixed top navigation with Search trigger
-│       │   ├── Hero.svelte                # Landing hero: tagline, description, CTA, email copy
+│       │   ├── Nav.svelte                      # Fixed top navigation with Search trigger
+│       │   ├── Hero.svelte                     # Landing hero: tagline, description, CTA, email copy
 │       │   ├── WaveCheckeredBackground.svelte  # Animated SVG background used in Hero
-│       │   ├── EegBackground.svelte       # EEG-style animated SVG background
-│       │   ├── ProjectCard.svelte         # Individual project card (media, tags, links)
-│       │   ├── ProjectList.svelte         # Project grid with show-more toggle
-│       │   ├── MediaSection.svelte        # Reusable media block (image / video)
-│       │   ├── CurrentlyBuilding.svelte   # Live GitHub activity feed (client-side)
-│       │   ├── Timeline.svelte            # Chronological career/milestone timeline
-│       │   ├── AboutMeTeaser.svelte       # Bio teaser linking to /about
-│       │   ├── ReviewCta.svelte           # Call-to-action banner
-│       │   ├── Bio.svelte                 # Full bio section
-│       │   ├── Skills.svelte              # Grouped skill-tag section
-│       │   ├── Contact.svelte             # Contact links section
-│       │   ├── Stats.svelte               # At-a-glance stats
-│       │   ├── FunSection.svelte          # Fun/personal section
-│       │   ├── LatestFromBlog.svelte      # Latest blog post teaser
-│       │   ├── Terminal.svelte            # Decorative terminal component
-│       │   ├── Search.svelte              # Full-text project search modal (Ctrl/⌘ K)
-│       │   └── Footer.svelte              # Page footer
+│       │   ├── EegBackground.svelte            # EEG-style animated SVG background
+│       │   ├── ProjectCard.svelte              # Individual project card (media, tags, links)
+│       │   ├── ProjectList.svelte              # Project grid with show-more toggle
+│       │   ├── MediaSection.svelte             # Reusable media block (image / video)
+│       │   ├── GitHubContribChart.svelte       # GitHub contributions heat-map (multi-year)
+│       │   ├── CurrentlyBuilding.svelte        # Recent GitHub activity feed
+│       │   ├── Timeline.svelte                 # Chronological career/milestone timeline
+│       │   ├── AboutMeTeaser.svelte            # Bio teaser linking to /about
+│       │   ├── ReviewCta.svelte                # Call-to-action banner
+│       │   ├── Bio.svelte                      # Full bio section
+│       │   ├── Skills.svelte                   # Grouped skill-tag section
+│       │   ├── Contact.svelte                  # Contact links section
+│       │   ├── Stats.svelte                    # At-a-glance stats
+│       │   ├── FunSection.svelte               # Fun/personal section
+│       │   ├── LatestFromBlog.svelte           # Latest blog post teaser
+│       │   ├── Terminal.svelte                 # Decorative terminal component
+│       │   ├── Search.svelte                   # Full-text project search modal (Ctrl/⌘ K)
+│       │   ├── Footer.svelte                   # Page footer
+│       │   └── index.ts                        # Re-exports all components
 │       ├── data/
+│       │   ├── blog.ts            # Blog post data
 │       │   ├── profile.ts         # ← YOUR INFO: name, bio, skills, social links
 │       │   └── projects.ts        # ← YOUR PROJECTS: full project list + data schema
 │       ├── utils/
+│       │   ├── internalNav.ts     # Router-aware navigation helpers (assignAppLocation / navigateInternal)
+│       │   ├── portal.ts          # Svelte action: teleports a node to document.body
 │       │   └── scrollLock.ts      # Scroll-lock helpers used by Search modal
-│       └── components/index.ts    # Re-exports all components
-└── routes/
+│       └── index.ts               # Re-exports from data (profile, projects)
+└── src/routes/
     ├── +layout.ts                 # export const prerender = true (global)
     ├── +layout.svelte             # Root layout: Nav, Footer, SEO meta tags
-    ├── +page.svelte               # Home page: Hero → Projects → Currently Building → Timeline → About teaser → ReviewCta
+    ├── +page.svelte               # Home page: Hero → Projects → GitHub Contrib Chart → Currently Building → Timeline → About teaser → ReviewCta
+    ├── +page.ts                   # Home page load function: fetches github-contrib.json + github-recent.json
     ├── about/
     │   └── +page.svelte           # Photo gallery page
+    ├── api/
+    │   └── github-recent/
+    │       └── +server.ts         # Dev/SSR GitHub activity endpoint (cached; optional GITHUB_TOKEN)
     ├── resume/
     │   └── +page.svelte           # Embedded Google Drive PDF viewer
+    ├── rhythm-games/
+    │   └── +page.svelte           # YouTube videos and shorts showcase
     └── projects/
         └── [slug]/
             ├── +page.ts           # Prerender entries + data loader (getProject by slug)
@@ -114,16 +131,17 @@ portfolioSite/
 
 | Path | Description |
 |---|---|
-| `/` | Home — Hero, project grid, live GitHub feed, timeline, bio teaser |
+| `/` | Home — Hero, project grid, GitHub contributions chart, live GitHub feed, timeline, bio teaser |
 | `/projects/[slug]` | Project detail / case study page |
 | `/about` | Photo gallery |
 | `/resume` | Embedded PDF résumé viewer |
+| `/rhythm-games` | YouTube videos and shorts showcase |
 
 ---
 
 ## Getting Started
 
-**Prerequisites:** Node.js ≥ 18 and npm.
+**Prerequisites:** Node.js ≥ 20 and npm.
 
 ```bash
 # 1. Clone the repository
@@ -162,7 +180,7 @@ export interface Profile {
 }
 ```
 
-`CurrentlyBuilding` automatically derives your GitHub username from `profile.github`, so no extra config is needed.
+`GitHubContribChart` and `CurrentlyBuilding` automatically derive your GitHub username from `profile.github`, so no extra config is needed.
 
 ---
 
@@ -217,6 +235,8 @@ export interface Project {
 
 The first entry in `projects` is used for an `<link rel="preload">` hint on the home page.
 
+> **Also:** `src/lib/data/blog.ts` holds placeholder blog post data (`BlogPost[]`). Replace the sample entries with your own posts when you wire up a blog.
+
 ---
 
 ### 3. Adjust colors & theme (`src/app.css`)
@@ -269,4 +289,25 @@ After `npm run build`, the site is written to **`build/`**. Routes are emitted a
    - **Status 200** and the response is the **project** page (not the home hero), **or**
    - If it’s always **`index.html`** or a generic **404** shell, fix **host rewrites** or consider SvelteKit’s **`trailingSlash`** / deploy docs so paths match what your host expects.
 
-**Internal navigation:** Main nav, project cards, search, and terminal use **`assignAppLocation()` / `navigateInternal()`** (`src/lib/utils/internalNav.ts`) which call SvelteKit **`goto()`** (router-aware navigation) while still respecting **`kit.paths.base`**. Hash links like `/#about-me` still use normal `<a>` behavior.
+**Internal navigation:** Main nav, project cards, search, and terminal use **`assignAppLocation()` / `navigateInternal()`** (`src/lib/utils/internalNav.ts`) which call `window.location.assign()` with the correct `kit.paths.base` prefix. Hash links like `/#about-me` still use normal `<a>` behavior.
+
+---
+
+## Scripts
+
+The `scripts/` directory contains two Node.js scripts that pre-generate static JSON files consumed by the home page `load` function. Run them (with a GitHub token) before `npm run build` so the data stays current.
+
+| Script | Output file | What it does |
+|--------|-------------|--------------|
+| `update-github-recent.mjs` | `static/github-recent.json` | Fetches public repos pushed within the last week via the GitHub REST API |
+| `update-github-contrib.mjs` | `static/github-contrib.json` | Fetches 5 years of daily contribution data via the GitHub GraphQL API |
+
+Both scripts read your GitHub username from `src/lib/data/profile.ts` automatically.
+
+```bash
+# Run individually (GH_TOKEN takes precedence over GITHUB_TOKEN)
+GH_TOKEN=ghp_... node scripts/update-github-recent.mjs
+GH_TOKEN=ghp_... node scripts/update-github-contrib.mjs
+```
+
+> **Note:** `GITHUB_TOKEN` is sufficient when running in GitHub Actions. The site works without these scripts — it falls back to whatever JSON files are already committed in `static/`.
