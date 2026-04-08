@@ -3,15 +3,31 @@
 	import ProjectCard from './ProjectCard.svelte';
 
 	// Optional override for which project set to render (landing "top" vs full index).
-	let { items = allProjects, compactBottom = false }: { items?: Project[]; compactBottom?: boolean } =
-		$props();
+	let {
+		items = allProjects,
+		compactBottom = false,
+		collapsedMode = false,
+		expandedSlugs = [],
+		onToggleExpand = (_slug: string) => {}
+	}: {
+		items?: Project[];
+		compactBottom?: boolean;
+		collapsedMode?: boolean;
+		expandedSlugs?: string[];
+		onToggleExpand?: (slug: string) => void;
+	} = $props();
 </script>
 
-<section class="section">
+<section class="section" class:section--collapsed={collapsedMode}>
 	<div class="shell">
 		<div class="grid">
 			{#each items as project (project.slug)}
-				<ProjectCard {project} />
+				<ProjectCard
+					{project}
+					{collapsedMode}
+					expandedInCollapsedMode={expandedSlugs.includes(project.slug)}
+					{onToggleExpand}
+				/>
 			{/each}
 		</div>
 	</div>
@@ -39,6 +55,11 @@
 		display: grid;
 		grid-template-columns: 1fr;
 		gap: 1rem;
+		align-items: stretch;
+	}
+
+	.section--collapsed .grid {
+		align-items: start;
 	}
 
 	@media (min-width: 720px) {

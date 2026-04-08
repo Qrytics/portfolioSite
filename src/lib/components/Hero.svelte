@@ -119,6 +119,33 @@
 		pointer-events: none;
 	}
 
+	:global([data-theme='light']) .header__content::before {
+		width: min(96ch, 94%);
+		height: 82%;
+		background: radial-gradient(
+			ellipse at center,
+			rgba(255, 255, 255, 1) 0%,
+			rgba(247, 253, 251, 0.92) 28%,
+			rgba(228, 247, 243, 0.58) 56%,
+			rgba(210, 240, 234, 0.22) 74%,
+			rgba(255, 255, 255, 0) 92%
+		);
+		filter: blur(34px);
+	}
+
+	:global([data-theme='light']) .header__tagline::before {
+		width: calc(100% + 4.25rem);
+		height: calc(100% + 1.5rem);
+		background: radial-gradient(
+			ellipse at center,
+			rgba(255, 255, 255, 0.98) 0%,
+			rgba(240, 252, 248, 0.78) 48%,
+			rgba(223, 247, 241, 0.32) 70%,
+			rgba(255, 255, 255, 0) 90%
+		);
+		filter: blur(24px);
+	}
+
 	.header__description {
 		position: relative;
 		margin: 1rem 0 0;
