@@ -177,5 +177,6 @@
 		from { opacity: 0; transform: translate(-50%) translateY(1rem); }
 		to   { opacity: 1; transform: translate(-50%) translateY(0); }
 	}
+
 </style>
 

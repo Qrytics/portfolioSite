@@ -111,7 +111,7 @@
 		min-width: 0;
 		display: grid;
 		grid-template-rows: auto auto 1fr;
-		transition: border-color 0.16s ease, box-shadow 0.16s ease;
+		transition: border-color 0.16s ease, box-shadow 0.16s ease, transform 0.16s ease;
 		contain: layout style paint;
 	}
 
@@ -386,5 +386,6 @@
 		background: rgba(255, 255, 255, 0.06);
 		border-color: rgba(243, 246, 255, 0.2);
 	}
+
 </style>
 

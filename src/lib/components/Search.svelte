@@ -346,4 +346,5 @@
 		background: rgba(255, 255, 255, 0.04);
 		font-size: 0.7rem;
 	}
+
 </style>

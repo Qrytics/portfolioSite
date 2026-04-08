@@ -58,26 +58,26 @@
 		font-family: var(--font-mono);
 		font-size: clamp(1.35rem, 3.2vw, 1.9rem);
 		letter-spacing: 0.02em;
-		color: rgba(243, 246, 255, 0.92);
+		color: var(--text);
 		text-transform: lowercase;
 	}
 
 	.subtitle {
 		margin: 0;
-		color: rgba(243, 246, 255, 0.7);
+		color: var(--muted);
 		line-height: 1.6;
 		font-size: 0.95rem;
 	}
 
 	.subtitle a {
-		color: rgba(54, 242, 194, 0.92);
+		color: var(--accent);
 		text-decoration: none;
-		border-bottom: 1px solid rgba(54, 242, 194, 0.35);
+		border-bottom: 1px solid color-mix(in srgb, var(--accent) 50%, transparent);
 	}
 
 	.subtitle a:hover {
 		color: var(--accent);
-		border-bottom-color: rgba(54, 242, 194, 0.55);
+		border-bottom-color: color-mix(in srgb, var(--accent) 70%, transparent);
 	}
 
 	.frame {
@@ -93,7 +93,7 @@
 		width: 100%;
 		height: min(1200px, calc(100vh - 9rem));
 		border: none;
-		background: #111319;
+		background: var(--panel-2);
 	}
 
 	@media (max-width: 640px) {

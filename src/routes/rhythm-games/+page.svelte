@@ -118,13 +118,13 @@
 		font-family: var(--font-mono);
 		font-size: clamp(1.35rem, 3.2vw, 1.9rem);
 		letter-spacing: 0.02em;
-		color: rgba(243, 246, 255, 0.92);
+		color: var(--text);
 		text-transform: lowercase;
 	}
 
 	.subtitle {
 		margin: 0 0 1.25rem;
-		color: rgba(243, 246, 255, 0.68);
+		color: var(--muted);
 		max-width: 80ch;
 		line-height: 1.7;
 	}
@@ -139,7 +139,7 @@
 		font-size: 0.82rem;
 		letter-spacing: 0.1em;
 		text-transform: uppercase;
-		color: rgba(243, 246, 255, 0.65);
+		color: var(--muter);
 	}
 
 	.video-grid {
@@ -157,7 +157,7 @@
 
 	.video {
 		border: 1px solid var(--border);
-		background: linear-gradient(180deg, rgba(255, 255, 255, 0.03), transparent 52%), var(--panel);
+		background: var(--panel);
 		box-shadow: var(--shadow);
 		padding: 0.75rem;
 		margin: 0;
@@ -167,7 +167,7 @@
 		display: block;
 		width: 100%;
 		border: 1px solid var(--border-2);
-		background: rgba(0, 0, 0, 0.25);
+		background: var(--panel-2);
 	}
 
 	.video__frame--vid {
@@ -179,10 +179,10 @@
 	}
 
 	.empty {
-		border: 1px dashed rgba(243, 246, 255, 0.25);
+		border: 1px dashed var(--border);
 		border-radius: 0.5rem;
 		padding: 1.25rem;
-		color: rgba(243, 246, 255, 0.72);
+		color: var(--muted);
 	}
 
 	.bottom-row {
@@ -200,7 +200,7 @@
 	.back-link a {
 		font-family: var(--font-mono);
 		font-size: 0.82rem;
-		color: rgba(243, 246, 255, 0.65);
+		color: var(--muter);
 		text-decoration: none;
 		letter-spacing: 0.04em;
 		transition: color 0.14s;

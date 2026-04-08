@@ -100,13 +100,13 @@
 		font-family: var(--font-mono);
 		font-size: clamp(1.35rem, 3.2vw, 1.9rem);
 		letter-spacing: 0.02em;
-		color: rgba(243, 246, 255, 0.92);
+		color: var(--text);
 		text-transform: lowercase;
 	}
 
 	.subtitle {
 		margin: 0 0 1.25rem;
-		color: rgba(243, 246, 255, 0.68);
+		color: var(--muted);
 		max-width: 80ch;
 		line-height: 1.7;
 	}
@@ -133,7 +133,7 @@
 
 	.card {
 		border: 1px solid var(--border);
-		background: linear-gradient(180deg, rgba(255, 255, 255, 0.03), transparent 52%), var(--panel);
+		background: var(--panel);
 		box-shadow: var(--shadow);
 		overflow: hidden;
 		aspect-ratio: 1 / 1;
@@ -185,7 +185,7 @@
 	.back-link a {
 		font-family: var(--font-mono);
 		font-size: 0.82rem;
-		color: rgba(243, 246, 255, 0.65);
+		color: var(--muter);
 		text-decoration: none;
 		letter-spacing: 0.04em;
 		transition: color 0.14s;

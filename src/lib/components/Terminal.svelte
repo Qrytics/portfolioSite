@@ -468,6 +468,7 @@
 		overflow: hidden;
 	}
 
+
 	.terminal__bar {
 		display: flex;
 		align-items: center;
