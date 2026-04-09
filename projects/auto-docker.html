@@ -8,6 +8,30 @@
 		<script>
 			(function () {
 				try {
+					var savedTheme = window.localStorage.getItem('theme');
+					var theme =
+						savedTheme === 'dark' || savedTheme === 'light'
+							? savedTheme
+							: window.matchMedia('(prefers-color-scheme: dark)').matches
+								? 'dark'
+								: 'light';
+
+					document.documentElement.dataset.theme = theme;
+					document.documentElement.style.colorScheme = theme;
+
+					var themeColor = document.querySelector('meta[name="theme-color"]');
+					if (!themeColor) {
+						themeColor = document.createElement('meta');
+						themeColor.setAttribute('name', 'theme-color');
+						document.head.appendChild(themeColor);
+					}
+					themeColor.setAttribute('content', theme === 'dark' ? '#0b0e12' : '#FFFFFF');
+				} catch (_) {}
+			})();
+		</script>
+		<script>
+			(function () {
+				try {
 					if (window.location.pathname !== '/') return;
 					var key = 'instant-home-hash-scroll';
 					if (window.sessionStorage.getItem(key)) {
@@ -16,35 +40,35 @@
 				} catch (_) {}
 			})();
 		</script>
-		<link href="/_app/immutable/entry/start.CJYxCJXm.js" rel="modulepreload">
-		<link href="/_app/immutable/chunks/BoUP8qGL.js" rel="modulepreload">
-		<link href="/_app/immutable/chunks/BIKPhCVA.js" rel="modulepreload">
-		<link href="/_app/immutable/chunks/DLlwTaYU.js" rel="modulepreload">
-		<link href="/_app/immutable/chunks/BALKts2d.js" rel="modulepreload">
+		<link href="/_app/immutable/entry/start.DZqLi0Bt.js" rel="modulepreload">
+		<link href="/_app/immutable/chunks/DFL4EfRw.js" rel="modulepreload">
+		<link href="/_app/immutable/chunks/BiA1AAXA.js" rel="modulepreload">
+		<link href="/_app/immutable/chunks/BHIGK9iR.js" rel="modulepreload">
+		<link href="/_app/immutable/chunks/SA-9T5PE.js" rel="modulepreload">
 		<link href="/_app/immutable/chunks/CYgJF_JY.js" rel="modulepreload">
-		<link href="/_app/immutable/chunks/C-75zsgg.js" rel="modulepreload">
+		<link href="/_app/immutable/chunks/CYEptYP5.js" rel="modulepreload">
 		<link href="/_app/immutable/chunks/8UtF8RsF.js" rel="modulepreload">
-		<link href="/_app/immutable/entry/app.DqiodghF.js" rel="modulepreload">
+		<link href="/_app/immutable/entry/app.DWhJuX7L.js" rel="modulepreload">
 		<link href="/_app/immutable/chunks/DsnmJJEf.js" rel="modulepreload">
-		<link href="/_app/immutable/chunks/Cba2SO70.js" rel="modulepreload">
-		<link href="/_app/immutable/chunks/DIGlAFtu.js" rel="modulepreload">
-		<link href="/_app/immutable/chunks/BXHnvjTM.js" rel="modulepreload">
-		<link href="/_app/immutable/nodes/0.Cf7gxP-Z.js" rel="modulepreload">
-		<link href="/_app/immutable/chunks/7zW373pr.js" rel="modulepreload">
-		<link href="/_app/immutable/chunks/CkqMdMRS.js" rel="modulepreload">
+		<link href="/_app/immutable/chunks/C0AZ9Gxo.js" rel="modulepreload">
+		<link href="/_app/immutable/chunks/BW2V3KrS.js" rel="modulepreload">
+		<link href="/_app/immutable/chunks/P3ST2pSc.js" rel="modulepreload">
+		<link href="/_app/immutable/nodes/0.UJSppTiM.js" rel="modulepreload">
+		<link href="/_app/immutable/chunks/D3wk1B3D.js" rel="modulepreload">
+		<link href="/_app/immutable/chunks/Du3hG0AB.js" rel="modulepreload">
 		<link href="/_app/immutable/chunks/DszWPpwR.js" rel="modulepreload">
-		<link href="/_app/immutable/chunks/D4x6oYIF.js" rel="modulepreload">
+		<link href="/_app/immutable/chunks/BUn7C6Bn.js" rel="modulepreload">
 		<link href="/_app/immutable/chunks/2laOW06D.js" rel="modulepreload">
-		<link href="/_app/immutable/nodes/5.Pef9aKLd.js" rel="modulepreload">
-		<link href="/_app/immutable/chunks/C3PL8M5y.js" rel="modulepreload">
-		<link href="/_app/immutable/chunks/CIupV6Ig.js" rel="modulepreload">
+		<link href="/_app/immutable/nodes/5.BEN2PwuV.js" rel="modulepreload">
+		<link href="/_app/immutable/chunks/CuAGmKQN.js" rel="modulepreload">
+		<link href="/_app/immutable/chunks/BIS_K7fJ.js" rel="modulepreload">
 		<!--12qhfyh--><meta name="description" content="Electrical &amp; Computer Engineer | Full-Stack Developer — I'm an electrical engineering student at Carnegie Mellon studying software engineering and full-stack web development in my own time. Learning about tech is a pastime of mine that I value."/> <meta property="og:title" content="Mario A. Belmonte — Portfolio"/> <meta property="og:description" content="Electrical &amp; Computer Engineer | Full-Stack Developer — I'm an electrical engineering student at Carnegie Mellon studying software engineering and full-stack web development in my own time. Learning about tech is a pastime of mine that I value."/> <meta property="og:url" content="https://mario-belmonte.com/"/> <meta property="og:image" content="https://mario-belmonte.com/og.png"/> <meta property="og:image:width" content="1200"/> <meta property="og:image:height" content="630"/> <meta name="twitter:card" content="summary_large_image"/> <meta name="twitter:image" content="https://mario-belmonte.com/og.png"/> <meta name="theme-color" content="#0b0e12"/><!----><!--gygcht--><meta name="description" content="Architected a containerization automation CLI in Python using LiteLLM for intelligent Dockerfile generation with a self-healing algorithm that auto-diagnoses and retries Docker API builds based on project-specific context. Logic-driven CLI using Rich and Argparse with real-time build status tracking, automated runtime stability testing, and support for distroless/Alpine multi-stage builds to minimize attack surface."/><!----><title>Automated Docker Configuration Generator — Project</title>
-		<link href="/_app/immutable/assets/0.CTjfH4XQ.css" rel="stylesheet">
+		<link href="/_app/immutable/assets/0.PXyxXU3a.css" rel="stylesheet">
 		<link href="/_app/immutable/assets/MediaSection.sv0vtIQT.css" rel="stylesheet">
-		<link href="/_app/immutable/assets/5.B_ixNB3J.css" rel="stylesheet">
+		<link href="/_app/immutable/assets/5.BR4Zne1H.css" rel="stylesheet">
 	</head>
 	<body data-sveltekit-preload-data="hover">
-		<div style="display: contents"><!--[--><!--[0--><!--[--><a href="#main" class="skip svelte-1h32yp1">Skip to content</a> <!--[-1--><!--]--> <header class="site-header svelte-1h32yp1"><div class="site-header__inner svelte-1h32yp1 site-header__inner--with-title"><a href="/" class="site-header__title svelte-1h32yp1" data-sveltekit-reload="">mario-belmonte</a> <div class="site-header__tools svelte-1h32yp1"><button type="button" class="trigger svelte-1002zyw" aria-label="Search projects (Ctrl+K)"><span class="trigger__icon svelte-1002zyw" aria-hidden="true">⌕</span> <span class="trigger__label">search</span></button> <!--[-1--><!--]--><!----> <div class="terminal-tool svelte-1h32yp1"><button type="button" class="trigger svelte-fe92n4" aria-label="Open terminal (Ctrl+`)"><span class="trigger__icon svelte-fe92n4" aria-hidden="true">>_</span> <span class="trigger__label">terminal</span></button> <!--[-1--><!--]--><!----></div></div> <button type="button" class="site-header__menu svelte-1h32yp1" aria-label="Toggle navigation" aria-expanded="false">menu</button> <nav class="site-nav svelte-1h32yp1" aria-label="Main navigation"><ul class="svelte-1h32yp1"><!--[--><li class="svelte-1h32yp1"><a href="/projects" data-sveltekit-reload="true" class="svelte-1h32yp1">projects</a></li><li class="svelte-1h32yp1"><a href="/#about-me" class="svelte-1h32yp1">about me</a></li><li class="svelte-1h32yp1"><a href="/resume" data-sveltekit-reload="true" class="svelte-1h32yp1">resume</a></li><!--]--></ul></nav></div></header><!----> <main id="main"><!--[--><div class="page svelte-gygcht"><div class="shell svelte-gygcht"><div class="breadcrumb svelte-gygcht"><a href="/" data-sveltekit-reload="" class="svelte-gygcht">home</a> <span class="sep svelte-gygcht">/</span> <a href="/projects" data-sveltekit-reload="" class="svelte-gygcht">projects</a> <span class="sep svelte-gygcht">/</span> <span class="current svelte-gygcht">auto-docker</span></div> <div class="card svelte-gygcht"><div class="termbar svelte-gygcht"><h1 class="termbar__title svelte-gygcht">Automated Docker Configuration Generator</h1> <span class="badge svelte-gygcht" data-type="open-source">open source</span></div> <!--[1--><div class="media svelte-1lt9a7x" aria-label="Project media"><div class="media__frame  svelte-1lt9a7x"><!--[-1--><div class="media__placeholder media__placeholder--single svelte-1lt9a7x"><span class="media__placeholderText svelte-1lt9a7x">Automated Docker Configuration Generator</span></div><!--]--></div></div><!--]--><!----> <div class="content svelte-gygcht"><div class="meta-row svelte-gygcht"><span class="year svelte-gygcht">Jan 2026 - Jan 2026</span> <div class="tech-badges svelte-gygcht"><!--[--><span class="tech-badge svelte-gygcht" data-tech="python">Python</span><span class="tech-badge svelte-gygcht" data-tech="docker">Docker</span><span class="tech-badge svelte-gygcht" data-tech="litellm">LiteLLM</span><span class="tech-badge svelte-gygcht" data-tech="rich">Rich</span><span class="tech-badge svelte-gygcht" data-tech="argparse">Argparse</span><!--]--></div></div> <p class="subtitle svelte-gygcht">Python CLI for intelligent Dockerfile generation with self-healing builds</p> <p class="desc svelte-gygcht">Architected a containerization automation CLI in Python using LiteLLM for intelligent Dockerfile generation with a self-healing algorithm that auto-diagnoses and retries Docker API builds based on project-specific context. Logic-driven CLI using Rich and Argparse with real-time build status tracking, automated runtime stability testing, and support for distroless/Alpine multi-stage builds to minimize attack surface.</p> <!--[0--><div class="long-desc svelte-gygcht">CLI that generates and validates Dockerfiles using LLM reasoning and self-healing builds.
+		<div style="display: contents"><!--[--><!--[0--><!--[--><a href="#main" class="skip svelte-1h32yp1">Skip to content</a> <!--[-1--><!--]--> <header class="site-header svelte-1h32yp1"><div class="site-header__inner svelte-1h32yp1 site-header__inner--with-title"><a href="/" class="site-header__title svelte-1h32yp1" data-sveltekit-reload="">mario-belmonte</a> <div class="site-header__tools svelte-1h32yp1"><button type="button" class="trigger svelte-1002zyw" aria-label="Search projects (Ctrl+K)"><span class="trigger__icon svelte-1002zyw" aria-hidden="true">⌕</span> <span class="trigger__label">search</span></button> <!--[-1--><!--]--><!----> <div class="terminal-tool svelte-1h32yp1"><button type="button" class="trigger svelte-fe92n4" aria-label="Open terminal (Ctrl+`)"><span class="trigger__icon svelte-fe92n4" aria-hidden="true">>_</span> <span class="trigger__label">terminal</span></button> <!--[-1--><!--]--><!----></div> <!--[-1--><!--]--></div> <button type="button" class="site-header__menu svelte-1h32yp1" aria-label="Toggle navigation" aria-expanded="false">menu</button> <nav class="site-nav svelte-1h32yp1" aria-label="Main navigation"><ul class="svelte-1h32yp1"><!--[--><li class="svelte-1h32yp1"><a href="/projects" data-sveltekit-reload="true" class="svelte-1h32yp1">projects</a></li><li class="svelte-1h32yp1"><a href="/#about-me" class="svelte-1h32yp1">about me</a></li><li class="svelte-1h32yp1"><a href="/resume" data-sveltekit-reload="true" class="svelte-1h32yp1">resume</a></li><!--]--></ul></nav></div></header><!----> <main id="main"><!--[--><div class="page svelte-gygcht"><div class="shell svelte-gygcht"><div class="breadcrumb svelte-gygcht"><a href="/" data-sveltekit-reload="" class="svelte-gygcht">home</a> <span class="sep svelte-gygcht">/</span> <a href="/projects" data-sveltekit-reload="" class="svelte-gygcht">projects</a> <span class="sep svelte-gygcht">/</span> <span class="current svelte-gygcht">auto-docker</span></div> <div class="card svelte-gygcht"><div class="termbar svelte-gygcht"><h1 class="termbar__title svelte-gygcht">Automated Docker Configuration Generator</h1> <span class="badge svelte-gygcht" data-type="open-source">open source</span></div> <!--[1--><div class="media svelte-1lt9a7x" aria-label="Project media"><div class="media__frame  svelte-1lt9a7x"><!--[-1--><div class="media__placeholder media__placeholder--single svelte-1lt9a7x"><span class="media__placeholderText svelte-1lt9a7x">Automated Docker Configuration Generator</span></div><!--]--></div></div><!--]--><!----> <div class="content svelte-gygcht"><div class="meta-row svelte-gygcht"><span class="year svelte-gygcht">Jan 2026 - Jan 2026</span> <div class="tech-badges svelte-gygcht"><!--[--><span class="tech-badge svelte-gygcht" data-tech="python">Python</span><span class="tech-badge svelte-gygcht" data-tech="docker">Docker</span><span class="tech-badge svelte-gygcht" data-tech="litellm">LiteLLM</span><span class="tech-badge svelte-gygcht" data-tech="rich">Rich</span><span class="tech-badge svelte-gygcht" data-tech="argparse">Argparse</span><!--]--></div></div> <p class="subtitle svelte-gygcht">Python CLI for intelligent Dockerfile generation with self-healing builds</p> <p class="desc svelte-gygcht">Architected a containerization automation CLI in Python using LiteLLM for intelligent Dockerfile generation with a self-healing algorithm that auto-diagnoses and retries Docker API builds based on project-specific context. Logic-driven CLI using Rich and Argparse with real-time build status tracking, automated runtime stability testing, and support for distroless/Alpine multi-stage builds to minimize attack surface.</p> <!--[0--><div class="long-desc svelte-gygcht">CLI that generates and validates Dockerfiles using LLM reasoning and self-healing builds.
 
 • Intelligence: LiteLLM for context-aware Dockerfile generation from project structure and config.
 • Self-healing: Auto-diagnoses build failures and retries with corrected context.
@@ -53,15 +77,15 @@
 			
 			<script>
 				{
-					__sveltekit_149iobd = {
+					__sveltekit_172t2gi = {
 						base: ""
 					};
 
 					const element = document.currentScript.parentElement;
 
 					Promise.all([
-						import("/_app/immutable/entry/start.CJYxCJXm.js"),
-						import("/_app/immutable/entry/app.DqiodghF.js")
+						import("/_app/immutable/entry/start.DZqLi0Bt.js"),
+						import("/_app/immutable/entry/app.DWhJuX7L.js")
 					]).then(([kit, app]) => {
 						kit.start(app, element, {
 							node_ids: [0, 5],
