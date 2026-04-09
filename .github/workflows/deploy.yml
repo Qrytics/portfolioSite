@@ -23,6 +23,18 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      - name: Update GitHub recent JSON
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_TOKEN: ${{ secrets.GH_TOKEN }}
+        run: node scripts/update-github-recent.mjs
+
+      - name: Update GitHub contributions JSON
+        env:
+          GH_TOKEN: ${{ secrets.GH_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: node scripts/update-github-contrib.mjs
+
       - name: Build
         run: npm run build
 
