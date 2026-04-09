@@ -10,9 +10,43 @@
 	let compact = $state(false);
 	let searchOpen = $state(false);
 	let terminalOpen = $state(false);
+	let theme = $state<'dark' | 'light'>('dark');
+	let themeReady = $state(false);
 	const isOverlayOpen = $derived(searchOpen || terminalOpen);
-	// Theme toggle disabled for now (you'll re-implement later)
-	// let darkMode = $state(true);
+	const isDarkTheme = $derived(theme === 'dark');
+
+	function applyTheme(nextTheme: 'dark' | 'light') {
+		document.documentElement.dataset.theme = nextTheme;
+		document.documentElement.style.colorScheme = nextTheme;
+		const themeColor = document.querySelector('meta[name="theme-color"]');
+		themeColor?.setAttribute('content', nextTheme === 'dark' ? '#0b0e12' : '#FFFFFF');
+	}
+
+	function toggleTheme() {
+		theme = isDarkTheme ? 'light' : 'dark';
+		applyTheme(theme);
+		window.localStorage.setItem('theme', theme);
+	}
+
+	$effect(() => {
+		const savedTheme = window.localStorage.getItem('theme');
+		if (savedTheme === 'dark' || savedTheme === 'light') {
+			theme = savedTheme;
+		} else {
+			theme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+		}
+		applyTheme(theme);
+		themeReady = true;
+
+		const media = window.matchMedia('(prefers-color-scheme: dark)');
+		const onPrefChange = (e: MediaQueryListEvent) => {
+			if (window.localStorage.getItem('theme')) return;
+			theme = e.matches ? 'dark' : 'light';
+			applyTheme(theme);
+		};
+		media.addEventListener('change', onPrefChange);
+		return () => media.removeEventListener('change', onPrefChange);
+	});
 
 	$effect(() => {
 		function onScroll() {
@@ -93,7 +127,17 @@
 			<div class="terminal-tool">
 				<Terminal bind:open={terminalOpen} />
 			</div>
-			<!-- theme toggle disabled for now -->
+			{#if themeReady}
+				<button
+					type="button"
+					class="theme-toggle"
+					onclick={toggleTheme}
+					aria-label={isDarkTheme ? 'Switch to light mode' : 'Switch to dark mode'}
+					aria-pressed={!isDarkTheme}
+				>
+					<span class="theme-toggle__icon" aria-hidden="true">{isDarkTheme ? '☀' : '☾'}</span>
+				</button>
+			{/if}
 		</div>
 
 		<button
@@ -141,7 +185,7 @@
 		top: 0.75rem;
 		padding: 0.6rem 0.85rem;
 		border: 1px solid var(--border);
-		background: rgba(15, 20, 27, 0.9);
+		background: var(--panel);
 		color: var(--text);
 		font-family: var(--font-mono);
 		z-index: 300;
@@ -157,8 +201,8 @@
 		/* Always show the subtle frosted bar (not only after scroll). */
 		backdrop-filter: blur(10px);
 		-webkit-backdrop-filter: blur(10px);
-		background: rgba(11, 14, 18, 0.56);
-		border-bottom: 1px solid rgba(222, 232, 255, 0.12);
+		background: color-mix(in srgb, var(--panel) 84%, transparent);
+		border-bottom: 1px solid var(--border);
 		transition: background-color 0.18s, backdrop-filter 0.18s, border-color 0.18s;
 		position: sticky;
 		top: 0;
@@ -167,8 +211,8 @@
 	}
 
 	.site-header--scrolled {
-		background: rgba(11, 14, 18, 0.72);
-		border-bottom-color: rgba(222, 232, 255, 0.16);
+		background: color-mix(in srgb, var(--panel) 92%, transparent);
+		border-bottom-color: var(--border);
 	}
 
 	.site-header__inner {
@@ -214,7 +258,44 @@
 		}
 	}
 
-	/* theme-toggle styles removed (feature disabled) */
+	.theme-toggle {
+		display: inline-grid;
+		place-items: center;
+		padding: 0.25rem 0.55rem;
+		min-width: 2.05rem;
+		border: 1px solid var(--border-2);
+		background: linear-gradient(180deg, rgba(255, 255, 255, 0.045), rgba(255, 255, 255, 0.01)), var(--panel-2);
+		color: var(--text);
+		font-family: var(--font-mono);
+		font-size: 0.82rem;
+		line-height: 1.2;
+		cursor: pointer;
+		transition: border-color 0.14s, color 0.14s, transform 0.14s, background-color 0.14s;
+	}
+
+	.theme-toggle:hover {
+		border-color: rgba(54, 242, 194, 0.5);
+		color: var(--accent);
+	}
+
+	.theme-toggle:active {
+		transform: translateY(1px);
+	}
+
+	.theme-toggle__icon {
+		display: block;
+		line-height: 1;
+		font-size: 0.9rem;
+		opacity: 0.9;
+		transform: translateY(0);
+	}
+
+	@media (max-width: 639px) {
+		.theme-toggle {
+			padding: 0.25rem 0.5rem;
+			min-width: 1.95rem;
+		}
+	}
 
 	.site-header__inner--with-title {
 		justify-content: space-between;
@@ -223,7 +304,7 @@
 	.site-header__title {
 		position: relative;
 		z-index: 2;
-		color: rgba(54, 242, 194, 0.8);
+		color: var(--accent);
 		font-family: var(--font-mono);
 		font-size: clamp(1rem, 1.5vw, 1.15rem);
 		font-weight: 600;
@@ -234,12 +315,12 @@
 
 	.site-header__title:hover,
 	.site-header__title:focus-visible {
-		color: rgba(243, 246, 255, 0.98);
+		color: var(--text);
 	}
 
 	.site-header__menu {
 		font: inherit;
-		color: rgba(243, 246, 255, 0.88);
+		color: var(--text);
 		cursor: pointer;
 		background: none;
 		border: none;
@@ -267,7 +348,7 @@
 	}
 
 	.site-nav a {
-		color: rgba(243, 246, 255, 0.88);
+		color: var(--text);
 		padding: 0.2rem 0;
 		font-family: var(--font-mono);
 		font-size: 0.95rem;
@@ -294,7 +375,7 @@
 
 	.site-nav a:hover,
 	.site-nav a:focus-visible {
-		color: rgba(243, 246, 255, 0.98);
+		color: var(--accent);
 	}
 
 	.site-nav a:hover::after,
@@ -313,7 +394,7 @@
 	.site-header--compact .site-nav {
 		backdrop-filter: blur(10px);
 		-webkit-backdrop-filter: blur(10px);
-		background: rgba(11, 14, 18, 0.88);
+		background: color-mix(in srgb, var(--panel) 92%, transparent);
 		border: 1px solid var(--border);
 		min-width: 10rem;
 		display: none;
@@ -343,5 +424,6 @@
 		padding: 0.45rem 0;
 		display: block;
 	}
+
 </style>
 

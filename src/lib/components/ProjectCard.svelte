@@ -2,7 +2,24 @@
 	import type { Project } from '$lib/data/projects';
 	import MediaSection from '$lib/components/MediaSection.svelte';
 
-	let { project }: { project: Project } = $props();
+	let {
+		project,
+		collapsedMode = false,
+		expandedInCollapsedMode = false,
+		onToggleExpand = (_slug: string) => {}
+	}: {
+		project: Project;
+		collapsedMode?: boolean;
+		expandedInCollapsedMode?: boolean;
+		onToggleExpand?: (slug: string) => void;
+	} = $props();
+
+	const showBody = $derived(!collapsedMode || expandedInCollapsedMode);
+
+	function onCollapsedBarClick() {
+		if (!collapsedMode) return;
+		onToggleExpand(project.slug);
+	}
 
 	const detailPath = $derived(`/projects/${project.slug}`);
 
@@ -44,60 +61,77 @@
 	}
 </script>
 
-<article class="card">
+<article
+	class="card"
+	class:card--collapsed-only={collapsedMode && !expandedInCollapsedMode}
+>
 	<!-- Terminal title bar -->
-	<div class="termbar">
-		<h3 class="termbar__title">
-			<a
-				href={detailPath}
-				class="termbar__titleLink"
-				data-sveltekit-reload
-			>
-				{project.shortTitle ?? project.title}
-			</a>
-		</h3>
-		<span class="badge" data-type={project.type}>{typeLabelMap[project.type]}</span>
-	</div>
-
-	<!-- Media -->
-	<MediaSection {project} />
-
-	<!-- Content -->
-	<div class="content">
-		<p class="card__dates">{project.startMonth} {project.startYear} - {project.endMonth} {project.endYear}</p>
-		<p class="card__subtitle">{project.subtitle}</p>
-		<p class="card__desc">{project.description}</p>
-
-		<div class="tech-badges">
-			{#each project.tags as tag}
-				<span class="tech-badge" data-tech={tag.toLowerCase()}>{tag}</span>
-			{/each}
+	{#if collapsedMode}
+		<button
+			type="button"
+			class="termbar termbar--collapsible"
+			onclick={onCollapsedBarClick}
+			aria-expanded={expandedInCollapsedMode}
+		>
+			<span class="termbar__title termbar__titleText">{project.shortTitle ?? project.title}</span>
+			<span class="badge" data-type={project.type}>{typeLabelMap[project.type]}</span>
+		</button>
+	{:else}
+		<div class="termbar">
+			<h3 class="termbar__title">
+				<a
+					href={detailPath}
+					class="termbar__titleLink"
+					data-sveltekit-reload
+				>
+					{project.shortTitle ?? project.title}
+				</a>
+			</h3>
+			<span class="badge" data-type={project.type}>{typeLabelMap[project.type]}</span>
 		</div>
+	{/if}
 
-		<div class="links">
-			{#if project.github}
-				<a href={project.github} target="_blank" rel="noopener noreferrer" class="btn btn--primary">
-					{#if isGitHubRepo(project.github)}
-						GitHub Repo ↗
-					{:else}
-						Source ↗
-					{/if}
-				</a>
-			{/if}
-			{#if project.siteUrl}
-				<a href={project.siteUrl} target="_blank" rel="noopener noreferrer" class="btn btn--primary">
-					Visit Site ↗
-				</a>
-			{/if}
-			{#if project.demo && !isVideoDemo(project.demo)}
-				<a href={project.demo} target="_blank" rel="noopener noreferrer" class="btn btn--ghost">
-					demo ↗
-				</a>
-			{/if}
-			<a href={detailPath} class="btn btn--ghost" data-sveltekit-reload
-				>details →</a>
+	{#if showBody}
+		<!-- Media -->
+		<MediaSection {project} />
+
+		<!-- Content -->
+		<div class="content">
+			<p class="card__dates">{project.startMonth} {project.startYear} - {project.endMonth} {project.endYear}</p>
+			<p class="card__subtitle">{project.subtitle}</p>
+			<p class="card__desc">{project.description}</p>
+
+			<div class="tech-badges">
+				{#each project.tags as tag}
+					<span class="tech-badge" data-tech={tag.toLowerCase()}>{tag}</span>
+				{/each}
+			</div>
+
+			<div class="links">
+				{#if project.github}
+					<a href={project.github} target="_blank" rel="noopener noreferrer" class="btn btn--primary">
+						{#if isGitHubRepo(project.github)}
+							GitHub Repo ↗
+						{:else}
+							Source ↗
+						{/if}
+					</a>
+				{/if}
+				{#if project.siteUrl}
+					<a href={project.siteUrl} target="_blank" rel="noopener noreferrer" class="btn btn--primary">
+						Visit Site ↗
+					</a>
+				{/if}
+				{#if project.demo && !isVideoDemo(project.demo)}
+					<a href={project.demo} target="_blank" rel="noopener noreferrer" class="btn btn--ghost">
+						demo ↗
+					</a>
+				{/if}
+				<a href={detailPath} class="btn btn--ghost" data-sveltekit-reload
+					>details →</a>
+			</div>
 		</div>
-	</div>
+	{/if}
 </article>
 
 <style>
@@ -109,15 +143,25 @@
 		box-shadow: 0 10px 26px rgba(0, 0, 0, 0.4);
 		overflow: hidden;
 		min-width: 0;
+		height: 100%;
 		display: grid;
 		grid-template-rows: auto auto 1fr;
-		transition: border-color 0.16s ease, box-shadow 0.16s ease;
+		transition: border-color 0.16s ease, box-shadow 0.16s ease, transform 0.16s ease;
 		contain: layout style paint;
+	}
+
+	.card--collapsed-only {
+		height: auto;
+		grid-template-rows: auto;
 	}
 
 	@media (max-width: 520px) {
 		.card {
 			grid-template-rows: auto auto auto;
+		}
+
+		.termbar--collapsible {
+			min-height: 2.7rem;
 		}
 
 		.termbar {
@@ -183,6 +227,24 @@
 		border-bottom: 1px solid var(--border-2);
 		background: rgba(0, 0, 0, 0.22);
 		min-width: 0;
+	}
+
+	.termbar--collapsible {
+		cursor: pointer;
+		width: 100%;
+		border: 0;
+		text-align: left;
+		font: inherit;
+		touch-action: manipulation;
+	}
+
+	.termbar--collapsible:focus-visible {
+		outline: 2px solid rgba(54, 242, 194, 0.6);
+		outline-offset: -2px;
+	}
+
+	.termbar__titleText {
+		text-decoration: none;
 	}
 
 	.termbar__title {
@@ -386,5 +448,6 @@
 		background: rgba(255, 255, 255, 0.06);
 		border-color: rgba(243, 246, 255, 0.2);
 	}
+
 </style>
 

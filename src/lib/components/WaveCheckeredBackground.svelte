@@ -72,8 +72,8 @@
 			const phase = t * 1.25;
 
 			// Colors (very light, on-brand).
-			const base = 'rgba(255,255,255,0.008)';
-			const accent = 'rgba(54,242,194,0.035)';
+			const base = 'rgba(255,255,255,0.014)';
+			const accent = 'rgba(54,242,194,0.052)';
 
 			g.save();
 			g.scale(dpr, dpr);
@@ -160,7 +160,7 @@
 		display: block;
 		width: 100%;
 		height: 100%;
-		opacity: 0.8;
+		opacity: 0.9;
 		mix-blend-mode: screen;
 		/* Avoid translateZ(0): with landing `.page { isolation: isolate }` it can promote a layer
 		   that incorrectly stacks above the sticky header for hit-testing in some browsers. */
