@@ -3,7 +3,7 @@
   "years": [
     {
       "year": 2026,
-      "totalContributions": 1426,
+      "totalContributions": 1431,
       "weeks": [
         {
           "contributionDays": [
@@ -459,7 +459,7 @@
             {
               "date": "2026-03-20",
               "contributionCount": 25,
-              "color": "#40c463"
+              "color": "#9be9a8"
             },
             {
               "date": "2026-03-21",
@@ -493,7 +493,7 @@
             {
               "date": "2026-03-26",
               "contributionCount": 25,
-              "color": "#40c463"
+              "color": "#9be9a8"
             },
             {
               "date": "2026-03-27",
@@ -575,7 +575,7 @@
             },
             {
               "date": "2026-04-10",
-              "contributionCount": 98,
+              "contributionCount": 103,
               "color": "#216e39"
             },
             {
