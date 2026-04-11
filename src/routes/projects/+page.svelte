@@ -43,7 +43,12 @@
 	}
 
 	function toggleProjectExpansion(slug: string) {
-		if (!isCollapsed) return;
+		if (!isCollapsed) {
+			isCollapsed = true;
+			expandedSlugs = [slug];
+			return;
+		}
+
 		if (expandedSlugs.includes(slug)) {
 			expandedSlugs = expandedSlugs.filter((item) => item !== slug);
 			return;

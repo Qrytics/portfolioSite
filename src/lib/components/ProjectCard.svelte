@@ -17,7 +17,6 @@
 	const showBody = $derived(!collapsedMode || expandedInCollapsedMode);
 
 	function onCollapsedBarClick() {
-		if (!collapsedMode) return;
 		onToggleExpand(project.slug);
 	}
 
@@ -77,18 +76,15 @@
 			<span class="badge" data-type={project.type}>{typeLabelMap[project.type]}</span>
 		</button>
 	{:else}
-		<div class="termbar">
-			<h3 class="termbar__title">
-				<a
-					href={detailPath}
-					class="termbar__titleLink"
-					data-sveltekit-reload
-				>
-					{project.shortTitle ?? project.title}
-				</a>
-			</h3>
+		<button
+			type="button"
+			class="termbar termbar--collapsible"
+			onclick={onCollapsedBarClick}
+			aria-label={`Collapse projects and focus ${project.shortTitle ?? project.title}`}
+		>
+			<span class="termbar__title termbar__titleText">{project.shortTitle ?? project.title}</span>
 			<span class="badge" data-type={project.type}>{typeLabelMap[project.type]}</span>
-		</div>
+		</button>
 	{/if}
 
 	{#if showBody}
@@ -258,16 +254,6 @@
 		font-weight: 600;
 		min-width: 0;
 		flex: 1 1 auto;
-	}
-
-	.termbar__titleLink {
-		color: inherit;
-		text-decoration: none;
-		cursor: pointer;
-	}
-
-	.termbar__titleLink:hover {
-		text-decoration: underline;
 	}
 
 	/* Source badge */

@@ -16,20 +16,71 @@
 		expandedSlugs?: string[];
 		onToggleExpand?: (slug: string) => void;
 	} = $props();
+
+	// Track visible column count so collapsed columns are pre-distributed and
+	// never reflow between each other when a card expands/collapses.
+	let colCount = $state(1);
+
+	$effect(() => {
+		const mq3 = window.matchMedia('(min-width: 1100px)');
+		const mq2 = window.matchMedia('(min-width: 720px)');
+
+		function update() {
+			if (mq3.matches) colCount = 3;
+			else if (mq2.matches) colCount = 2;
+			else colCount = 1;
+		}
+
+		update();
+		mq3.addEventListener('change', update);
+		mq2.addEventListener('change', update);
+
+		return () => {
+			mq3.removeEventListener('change', update);
+			mq2.removeEventListener('change', update);
+		};
+	});
+
+	// Distribute items into independent column arrays (round-robin by index).
+	const columns = $derived.by(() => {
+		const cols: Project[][] = Array.from({ length: colCount }, () => []);
+		items.forEach((item, i) => cols[i % colCount].push(item));
+		return cols;
+	});
 </script>
 
 <section class="section" class:section--collapsed={collapsedMode}>
 	<div class="shell">
-		<div class="grid">
-			{#each items as project (project.slug)}
-				<ProjectCard
-					{project}
-					{collapsedMode}
-					expandedInCollapsedMode={expandedSlugs.includes(project.slug)}
-					{onToggleExpand}
-				/>
-			{/each}
-		</div>
+		{#if collapsedMode}
+			<!-- Each column is an isolated flex container; items never reflow between columns. -->
+			<div class="columns">
+				{#each columns as col}
+					<div class="column">
+						{#each col as project (project.slug)}
+							<ProjectCard
+								{project}
+								{collapsedMode}
+								expandedInCollapsedMode={expandedSlugs.includes(project.slug)}
+								{onToggleExpand}
+							/>
+						{/each}
+					</div>
+				{/each}
+			</div>
+		{:else}
+			<div class="grid">
+				{#each items as project (project.slug)}
+					<div class="grid-item">
+						<ProjectCard
+							{project}
+							{collapsedMode}
+							expandedInCollapsedMode={expandedSlugs.includes(project.slug)}
+							{onToggleExpand}
+						/>
+					</div>
+				{/each}
+			</div>
+		{/if}
 	</div>
 </section>
 
@@ -58,8 +109,23 @@
 		align-items: stretch;
 	}
 
-	.section--collapsed .grid {
-		align-items: start;
+	.grid-item {
+		display: contents;
+	}
+
+	/* Collapsed masonry: each column is an independent flex column. */
+	.columns {
+		display: flex;
+		align-items: flex-start;
+		gap: 1rem;
+	}
+
+	.column {
+		flex: 1 1 0;
+		min-width: 0;
+		display: flex;
+		flex-direction: column;
+		gap: 1rem;
 	}
 
 	@media (min-width: 720px) {
@@ -67,11 +133,27 @@
 			grid-template-columns: repeat(2, minmax(0, 1fr));
 			gap: 1.2rem;
 		}
+
+		.columns {
+			gap: 1.2rem;
+		}
+
+		.column {
+			gap: 1.2rem;
+		}
 	}
 
 	@media (min-width: 1100px) {
 		.grid {
 			grid-template-columns: repeat(3, minmax(0, 1fr));
+			gap: 1.25rem;
+		}
+
+		.columns {
+			gap: 1.25rem;
+		}
+
+		.column {
 			gap: 1.25rem;
 		}
 	}
