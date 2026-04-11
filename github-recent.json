@@ -1,22 +1,22 @@
 {
   "repos": [
     {
+      "id": 1174112842,
+      "name": "portfolioSite",
+      "full_name": "Qrytics/portfolioSite",
+      "html_url": "https://github.com/Qrytics/portfolioSite",
+      "description": "This repo is for my portfoio site. It's a showcase of my software engineering projects, technical experiments, and coding journey. It's basically a resume with better syntax highlighting.",
+      "pushed_at": "2026-04-11T01:02:59Z",
+      "private": false,
+      "fork": false
+    },
+    {
       "id": 1207081692,
       "name": "dungeonAgents-ProveAI",
       "full_name": "Qrytics/dungeonAgents-ProveAI",
       "html_url": "https://github.com/Qrytics/dungeonAgents-ProveAI",
       "description": "AI agents vs. an 8x8 dungeon. This simulation prioritizes structured traces over \"smart\" play, using Langfuse to capture tool calls and LLM state. Features a legibility layer to diagnose failures, specifically agents acting on stale info.",
       "pushed_at": "2026-04-11T00:28:18Z",
-      "private": false,
-      "fork": false
-    },
-    {
-      "id": 1174112842,
-      "name": "portfolioSite",
-      "full_name": "Qrytics/portfolioSite",
-      "html_url": "https://github.com/Qrytics/portfolioSite",
-      "description": "This repo is for my portfoio site. It's a showcase of my software engineering projects, technical experiments, and coding journey. It's basically a resume with better syntax highlighting.",
-      "pushed_at": "2026-04-10T23:49:52Z",
       "private": false,
       "fork": false
     },
@@ -47,16 +47,6 @@
       "html_url": "https://github.com/Qrytics/clearCites",
       "description": "clearCites is an open-source platform designed to break down the barriers of academia. By treating research papers as nodes in a massive, interconnected web, it allows users to visually navigate the \"lineage of ideas.\" Traditional research tools are built for experts; clearCites is built for transparency.",
       "pushed_at": "2026-04-06T01:57:32Z",
-      "private": false,
-      "fork": false
-    },
-    {
-      "id": 1156888242,
-      "name": "miniGamba",
-      "full_name": "Qrytics/miniGamba",
-      "html_url": "https://github.com/Qrytics/miniGamba",
-      "description": "miniGamba: The Ultimate In-Game Companion miniGamba is a lightweight, customizable overlay designed to keep the hype alive during downtime. Originally inspired by League of Legends death timers, this multi-purpose tool features a fake-credit slot machine and progression system.",
-      "pushed_at": "2026-04-04T02:35:10Z",
       "private": false,
       "fork": false
     }
