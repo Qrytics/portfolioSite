@@ -26,27 +26,6 @@ html, body {
 }
 
 /* ==============================
-   Back to games button
-   ============================== */
-.btn-back-games {
-  position: fixed;
-  top: 12px;
-  left: 16px;
-  z-index: 100;
-  padding: 8px 14px;
-  background: var(--surface);
-  border: 1px solid #2a2c38;
-  border-radius: 8px;
-  color: var(--muted);
-  font-size: .8rem;
-  font-weight: 600;
-  text-decoration: none;
-  letter-spacing: .2px;
-  transition: border-color .15s, color .15s;
-}
-.btn-back-games:hover { border-color: var(--accent); color: var(--text); }
-
-/* ==============================
    Screen management
    ============================== */
 .screen {
@@ -195,9 +174,9 @@ h1 {
   color: var(--text);
 }
 
-.btn-quit,
-.btn-restart {
+.btn-quit {
   position: absolute;
+  right: 16px;
   background: transparent;
   border: 1px solid #2a2c38;
   color: var(--muted);
@@ -208,10 +187,7 @@ h1 {
   line-height: 1;
   transition: all .15s;
 }
-.btn-quit    { right: 16px; }
-.btn-restart { right: 56px; font-size: 1.1rem; }
-.btn-quit:hover    { border-color: var(--accent); color: var(--accent); }
-.btn-restart:hover { border-color: var(--hit);    color: var(--hit); }
+.btn-quit:hover { border-color: var(--accent); color: var(--accent); }
 
 /* ==============================
    Arena
