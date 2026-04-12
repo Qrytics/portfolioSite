@@ -17,7 +17,7 @@ export const games: Game[] = [
 		subtitle: 'Draw fast. Keep it messy.',
 		description:
 			'A feature-rich drawing canvas inspired by Gartic Phone. Supports freehand brushes, shapes, filters (neon, glitch, pixelated, …), undo/redo, and GIF animation export — all running locally in the browser.',
-		preview: '/games/garticDraw/preview.png',
+		preview: '/games/garticDraw-preview.png',
 		playUrl: '/games/garticDraw/',
 		tags: ['canvas', 'animation', 'drawing']
 	}
