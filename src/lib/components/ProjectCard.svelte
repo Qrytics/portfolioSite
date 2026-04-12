@@ -14,7 +14,7 @@
 		onToggleExpand?: (slug: string) => void;
 	} = $props();
 
-	const showBody = $derived(!collapsedMode || expandedInCollapsedMode);
+	const showBody = $derived(collapsedMode ? expandedInCollapsedMode : !expandedInCollapsedMode);
 
 	function onCollapsedBarClick() {
 		onToggleExpand(project.slug);
@@ -62,7 +62,7 @@
 
 <article
 	class="card"
-	class:card--collapsed-only={collapsedMode && !expandedInCollapsedMode}
+	class:card--collapsed-only={!showBody}
 >
 	<!-- Terminal title bar -->
 	{#if collapsedMode}
@@ -80,7 +80,7 @@
 			type="button"
 			class="termbar termbar--collapsible"
 			onclick={onCollapsedBarClick}
-			aria-label={`Collapse projects and focus ${project.shortTitle ?? project.title}`}
+			aria-expanded={showBody}
 		>
 			<span class="termbar__title termbar__titleText">{project.shortTitle ?? project.title}</span>
 			<span class="badge" data-type={project.type}>{typeLabelMap[project.type]}</span>
