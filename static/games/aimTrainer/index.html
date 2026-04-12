@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Aim Trainer – Challenge</title>
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+
+  <!-- ===== START SCREEN ===== -->
+  <div id="start-screen" class="screen active">
+    <div class="start-card">
+      <div class="logo">
+        <svg viewBox="0 0 64 64" width="72" height="72" aria-hidden="true">
+          <circle cx="32" cy="32" r="30" stroke="#e74c3c" stroke-width="3" fill="none"/>
+          <circle cx="32" cy="32" r="20" stroke="#e74c3c" stroke-width="3" fill="none"/>
+          <circle cx="32" cy="32" r="10" stroke="#e74c3c" stroke-width="3" fill="none"/>
+          <line x1="32" y1="2"  x2="32" y2="14" stroke="#e74c3c" stroke-width="3"/>
+          <line x1="32" y1="50" x2="32" y2="62" stroke="#e74c3c" stroke-width="3"/>
+          <line x1="2"  y1="32" x2="14" y2="32" stroke="#e74c3c" stroke-width="3"/>
+          <line x1="50" y1="32" x2="62" y2="32" stroke="#e74c3c" stroke-width="3"/>
+        </svg>
+      </div>
+      <h1>Aim Trainer</h1>
+      <p class="subtitle">Click targets as fast as you can!</p>
+
+      <div class="settings">
+        <div class="setting-group">
+          <label>Duration</label>
+          <div class="btn-group" id="duration-group">
+            <button class="opt-btn active" data-value="30">30s</button>
+            <button class="opt-btn" data-value="60">60s</button>
+            <button class="opt-btn" data-value="90">90s</button>
+          </div>
+        </div>
+        <div class="setting-group">
+          <label>Targets</label>
+          <div class="btn-group" id="count-group">
+            <button class="opt-btn active" data-value="1">1</button>
+            <button class="opt-btn" data-value="3">3</button>
+            <button class="opt-btn" data-value="5">5</button>
+          </div>
+        </div>
+        <div class="setting-group">
+          <label>Target size</label>
+          <div class="btn-group" id="size-group">
+            <button class="opt-btn" data-value="small">Small</button>
+            <button class="opt-btn active" data-value="medium">Medium</button>
+            <button class="opt-btn" data-value="large">Large</button>
+          </div>
+        </div>
+      </div>
+
+      <button class="btn-start" id="btn-start">Start Challenge</button>
+    </div>
+  </div>
+
+  <!-- ===== GAME SCREEN ===== -->
+  <div id="game-screen" class="screen">
+    <header class="hud">
+      <div class="hud-item">
+        <span class="hud-label">Time</span>
+        <span class="hud-value" id="hud-timer">30</span>
+      </div>
+      <div class="hud-item">
+        <span class="hud-label">Score</span>
+        <span class="hud-value" id="hud-score">0</span>
+      </div>
+      <div class="hud-item">
+        <span class="hud-label">Accuracy</span>
+        <span class="hud-value" id="hud-accuracy">–</span>
+      </div>
+      <div class="hud-item">
+        <span class="hud-label">Avg. Reaction</span>
+        <span class="hud-value" id="hud-reaction">–</span>
+      </div>
+      <button class="btn-quit" id="btn-quit" title="Quit">✕</button>
+    </header>
+
+    <div id="arena">
+      <!-- targets are injected here -->
+      <div id="miss-flash"></div>
+      <div id="countdown-overlay" class="hidden">
+        <span id="countdown-number"></span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== RESULTS SCREEN ===== -->
+  <div id="results-screen" class="screen">
+    <div class="results-card">
+      <h2>Results</h2>
+      <div class="stats-grid">
+        <div class="stat">
+          <span class="stat-value" id="res-score">0</span>
+          <span class="stat-label">Score</span>
+        </div>
+        <div class="stat">
+          <span class="stat-value" id="res-hits">0</span>
+          <span class="stat-label">Hits</span>
+        </div>
+        <div class="stat">
+          <span class="stat-value" id="res-misses">0</span>
+          <span class="stat-label">Misses</span>
+        </div>
+        <div class="stat">
+          <span class="stat-value" id="res-accuracy">0%</span>
+          <span class="stat-label">Accuracy</span>
+        </div>
+        <div class="stat">
+          <span class="stat-value" id="res-reaction">–</span>
+          <span class="stat-label">Avg. Reaction</span>
+        </div>
+        <div class="stat">
+          <span class="stat-value" id="res-best">–</span>
+          <span class="stat-label">Best Reaction</span>
+        </div>
+      </div>
+
+      <div class="performance-bar-wrap">
+        <div class="performance-label">Accuracy</div>
+        <div class="performance-track">
+          <div class="performance-fill" id="perf-fill"></div>
+        </div>
+      </div>
+
+      <div class="results-actions">
+        <button class="btn-start" id="btn-retry">Play Again</button>
+        <button class="btn-secondary" id="btn-menu">Main Menu</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="js/game.js"></script>
+</body>
+</html>
