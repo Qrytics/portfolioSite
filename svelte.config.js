@@ -3,8 +3,7 @@ import adapter from '@sveltejs/adapter-static';
 /** @type {import('@sveltejs/kit').Config} */
 const config = {
 	kit: {
-		// Root-hosted site: never derive base from nested HTML paths (e.g. /projects/*.html),
-		// or client-side nav breaks (e.g. /projects link resolves under wrong base → home).
+		// Root-hosted site: never derive base from nested HTML paths
 		paths: {
 			relative: false
 		},
@@ -12,7 +11,16 @@ const config = {
 			pages: 'build',
 			assets: 'build',
 			fallback: '404.html'
-		})
+		}),
+		prerender: {
+			handleHttpError: ({ path, message }) => {
+				// Ignore the garticDraw path so the build doesn't fail
+				if (path.startsWith('/games/garticDraw')) {
+					return;
+				}
+				throw new Error(message);
+			}
+		}
 	}
 };
 
