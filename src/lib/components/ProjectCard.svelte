@@ -149,6 +149,7 @@
 	.card--collapsed-only {
 		height: auto;
 		grid-template-rows: auto;
+		align-self: start;
 	}
 
 	@media (max-width: 520px) {
