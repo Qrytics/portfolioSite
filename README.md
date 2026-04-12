@@ -311,3 +311,11 @@ GH_TOKEN=ghp_... node scripts/update-github-contrib.mjs
 ```
 
 > **Note:** `GITHUB_TOKEN` is sufficient when running in GitHub Actions. The site works without these scripts — it falls back to whatever JSON files are already committed in `static/`.
+
+## Updating garticDraw
+When the garticDraw repo receives new commits, refresh the static assets with:
+
+```
+npm run build:gartic-draw
+```
+then commit the updated static/garticDraw/ files
