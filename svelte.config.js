@@ -14,8 +14,8 @@ const config = {
 		}),
 		prerender: {
 			handleHttpError: ({ path, message }) => {
-				// Ignore the garticDraw path so the build doesn't fail
-				if (path.startsWith('/games/garticDraw')) {
+				// Ignore static game paths so the build doesn't fail
+				if (path.startsWith('/games/garticDraw') || path.startsWith('/games/aimTrainer')) {
 					return;
 				}
 				throw new Error(message);

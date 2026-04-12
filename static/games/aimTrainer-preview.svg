@@ -1,0 +1,35 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 450" width="800" height="450">
+  <rect width="800" height="450" fill="#0d0d0d"/>
+
+  <!-- subtle grid -->
+  <defs>
+    <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse">
+      <path d="M 40 0 L 0 0 0 40" fill="none" stroke="#1a1a1a" stroke-width="1"/>
+    </pattern>
+  </defs>
+  <rect width="800" height="450" fill="url(#grid)"/>
+
+  <!-- crosshair -->
+  <g transform="translate(400,225)">
+    <circle cx="0" cy="0" r="90" stroke="#e74c3c" stroke-width="3" fill="none"/>
+    <circle cx="0" cy="0" r="60" stroke="#e74c3c" stroke-width="3" fill="none"/>
+    <circle cx="0" cy="0" r="30" stroke="#e74c3c" stroke-width="3" fill="none"/>
+    <!-- cross lines -->
+    <line x1="0" y1="-90" x2="0" y2="-104" stroke="#e74c3c" stroke-width="3"/>
+    <line x1="0" y1="90"  x2="0" y2="104"  stroke="#e74c3c" stroke-width="3"/>
+    <line x1="-90" y1="0" x2="-104" y2="0" stroke="#e74c3c" stroke-width="3"/>
+    <line x1="90"  y1="0" x2="104"  y2="0" stroke="#e74c3c" stroke-width="3"/>
+    <!-- center dot -->
+    <circle cx="0" cy="0" r="4" fill="#e74c3c"/>
+  </g>
+
+  <!-- title -->
+  <text x="400" y="370" font-family="monospace" font-size="22" fill="#ffffff" text-anchor="middle" letter-spacing="4">AIM TRAINER</text>
+  <text x="400" y="398" font-family="monospace" font-size="13" fill="#e74c3c" text-anchor="middle" letter-spacing="2">click targets as fast as you can</text>
+
+  <!-- sample targets scattered -->
+  <circle cx="140" cy="100" r="18" fill="#e74c3c" opacity="0.25"/>
+  <circle cx="660" cy="320" r="14" fill="#e74c3c" opacity="0.2"/>
+  <circle cx="700" cy="90"  r="22" fill="#e74c3c" opacity="0.15"/>
+  <circle cx="100" cy="340" r="16" fill="#e74c3c" opacity="0.2"/>
+</svg>

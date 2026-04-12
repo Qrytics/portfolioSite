@@ -26,6 +26,9 @@ jobs:
       - name: Build Gartic Draw
         run: node scripts/build-gartic-draw.mjs
 
+      - name: Build Aim Trainer
+        run: node scripts/build-aim-trainer.mjs
+
       - name: Update GitHub recent JSON
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
