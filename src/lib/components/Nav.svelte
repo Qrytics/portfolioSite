@@ -83,6 +83,7 @@
 
 	/** Plain routes use SvelteKit client nav; hash links use native scroll-to-id on `/`. */
 	const navLinks: Array<{ href: string; label: string; external?: boolean }> = [
+		{ href: '/games', label: 'games' },
 		{ href: '/projects', label: 'projects' },
 		{ href: '/#about-me', label: 'about me' },
 		{ href: '/resume', label: 'resume' }

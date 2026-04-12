@@ -1,6 +1,6 @@
 /**
  * Downloads the latest garticDraw source from GitHub, builds it with
- * base='/garticDraw', then copies the output to static/garticDraw/.
+ * base='/games/garticDraw', then copies the output to static/games/garticDraw/.
  *
  * Usage:  node scripts/build-gartic-draw.mjs
  */
@@ -14,7 +14,7 @@ import { platform } from 'os';
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const ROOT = join(__dirname, '..');
 const TMP = join(ROOT, '.tmp-gartic-draw');
-const STATIC_OUT = join(ROOT, 'static', 'garticDraw');
+const STATIC_OUT = join(ROOT, 'static', 'games', 'garticDraw');
 const ZIP_URL = 'https://github.com/Qrytics/garticDraw/archive/refs/heads/main.zip';
 
 function run(cmd, cwd = ROOT) {
@@ -38,14 +38,14 @@ if (platform() === 'win32') {
 
 const srcDir = join(TMP, 'garticDraw-main');
 
-console.log('🔧  Patching vite.config.js with base="/garticDraw"…');
+console.log('🔧  Patching vite.config.js with base="/games/garticDraw"…');
 const viteCfgPath = join(srcDir, 'vite.config.js');
 const cfg = readFileSync(viteCfgPath, 'utf8');
 writeFileSync(
 	viteCfgPath,
 	cfg.replace(
 		/export default defineConfig\(\{/,
-		"export default defineConfig({\n  base: '/garticDraw',"
+		"export default defineConfig({\n  base: '/games/garticDraw',"
 	)
 );
 
