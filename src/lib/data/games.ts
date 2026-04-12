@@ -27,7 +27,7 @@ export const games: Game[] = [
 		subtitle: 'Click targets as fast as you can.',
 		description:
 			'A browser-based aim training game. Choose your duration, target count, and target size, then click as many targets as possible. Tracks your score, accuracy, average reaction time, and best reaction time.',
-		preview: 'https://github.com/user-attachments/assets/26513b99-1763-4751-84d9-46c6d2a27be3',
+		preview: '/games/aimTrainer-preview.png',
 		playUrl: '/games/aimTrainer/',
 		tags: ['aim', 'reflex', 'arcade']
 	}
