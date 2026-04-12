@@ -60,11 +60,13 @@
 		items.forEach((item, i) => cols[i % colCount].push(item));
 		return cols;
 	});
+
+	const useColumnLayout = $derived(collapsedMode || (!compactBottom && expandedSlugs.length > 0));
 </script>
 
 <section class="section" class:section--collapsed={collapsedMode}>
 	<div class="shell">
-		{#if collapsedMode}
+		{#if useColumnLayout}
 			<!-- Each column is an isolated flex container; items never reflow between columns. -->
 			<div class="columns">
 				{#each columns as col}
