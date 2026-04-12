@@ -54,46 +54,10 @@
 		};
 	});
 
-	function isCardCollapsed(slug: string) {
-		return collapsedMode ? !expandedSlugs.includes(slug) : expandedSlugs.includes(slug);
-	}
-
-	function estimateCardWeight(project: Project) {
-		if (isCardCollapsed(project.slug)) return 2;
-
-		let weight = 10;
-		weight += Math.ceil(project.description.length / 140);
-		weight += Math.ceil(project.tags.length / 4);
-
-		if (project.image || project.images?.length || project.poster) {
-			weight += 6;
-		}
-
-		if (project.github || project.siteUrl || project.demo) {
-			weight += 1;
-		}
-
-		return weight;
-	}
-
-	// Distribute cards by estimated rendered height so shorter/collapsed cards free space
-	// for following cards to move upward instead of leaving holes behind.
+	// Distribute items into independent column arrays (round-robin by index).
 	const columns = $derived.by(() => {
 		const cols: Project[][] = Array.from({ length: colCount }, () => []);
-		const columnWeights = Array.from({ length: colCount }, () => 0);
-
-		items.forEach((item) => {
-			let targetColumn = 0;
-			for (let index = 1; index < colCount; index += 1) {
-				if (columnWeights[index] < columnWeights[targetColumn]) {
-					targetColumn = index;
-				}
-			}
-
-			cols[targetColumn].push(item);
-			columnWeights[targetColumn] += estimateCardWeight(item);
-		});
-
+		items.forEach((item, i) => cols[i % colCount].push(item));
 		return cols;
 	});
 
