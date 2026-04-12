@@ -64,7 +64,6 @@ const hudReaction = document.getElementById('hud-reaction');
 
 const btnStart    = document.getElementById('btn-start');
 const btnQuit     = document.getElementById('btn-quit');
-const btnRestart  = document.getElementById('btn-restart');
 const btnRetry    = document.getElementById('btn-retry');
 const btnMenu     = document.getElementById('btn-menu');
 
@@ -75,80 +74,6 @@ const resAccuracy = document.getElementById('res-accuracy');
 const resReaction = document.getElementById('res-reaction');
 const resBest     = document.getElementById('res-best');
 const perfFill    = document.getElementById('perf-fill');
-
-// =============================================
-//  Sound (Web Audio API – no external files)
-// =============================================
-let audioCtx = null;
-
-function getAudioCtx() {
-  if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-  return audioCtx;
-}
-
-function playTone({ frequency = 440, type = 'sine', gain = 0.25, attack = 0.005, duration = 0.12 } = {}) {
-  try {
-    const ctx  = getAudioCtx();
-    const osc  = ctx.createOscillator();
-    const env  = ctx.createGain();
-
-    osc.type      = type;
-    osc.frequency.setValueAtTime(frequency, ctx.currentTime);
-
-    env.gain.setValueAtTime(0, ctx.currentTime);
-    env.gain.linearRampToValueAtTime(gain, ctx.currentTime + attack);
-    env.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + duration);
-
-    osc.connect(env);
-    env.connect(ctx.destination);
-    osc.start(ctx.currentTime);
-    osc.stop(ctx.currentTime + duration + 0.05);
-  } catch (_) { /* audio not available */ }
-}
-
-function soundHit() {
-  // Short bright "pop"
-  playTone({ frequency: 880,  type: 'sine',     gain: 0.22, attack: 0.002, duration: 0.10 });
-  playTone({ frequency: 1320, type: 'sine',     gain: 0.12, attack: 0.004, duration: 0.07 });
-}
-
-function soundMiss() {
-  // Low soft thud
-  playTone({ frequency: 140, type: 'triangle', gain: 0.18, attack: 0.003, duration: 0.10 });
-}
-
-function soundCountdownTick(isGo) {
-  if (isGo) {
-    // Higher-pitched "go" ding
-    playTone({ frequency: 1046, type: 'sine', gain: 0.28, attack: 0.003, duration: 0.18 });
-    playTone({ frequency: 1318, type: 'sine', gain: 0.18, attack: 0.005, duration: 0.14 });
-  } else {
-    // Regular tick
-    playTone({ frequency: 660, type: 'sine', gain: 0.20, attack: 0.003, duration: 0.09 });
-  }
-}
-
-function soundGameOver() {
-  // Short descending three-note fanfare
-  try {
-    const ctx   = getAudioCtx();
-    const notes = [523, 415, 311];
-    notes.forEach((freq, i) => {
-      const offset = i * 0.18;
-      const osc = ctx.createOscillator();
-      const env = ctx.createGain();
-      osc.type = 'sine';
-      osc.frequency.setValueAtTime(freq, ctx.currentTime + offset);
-      env.gain.setValueAtTime(0,    ctx.currentTime + offset);
-      env.gain.linearRampToValueAtTime(0.22, ctx.currentTime + offset + 0.01);
-      env.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + offset + 0.22);
-      osc.connect(env);
-      env.connect(ctx.destination);
-      osc.start(ctx.currentTime + offset);
-      osc.stop(ctx.currentTime  + offset + 0.3);
-    });
-  } catch (_) {}
-}
 
 // =============================================
 //  Screen helpers
@@ -193,11 +118,9 @@ function runCountdown(callback) {
 
     if (n === 0) {
       countdownOverlay.classList.add('hidden');
-      soundCountdownTick(true);
       callback();
       return;
     }
-    soundCountdownTick(false);
     n--;
     setTimeout(tick, COUNTDOWN_INTERVAL_MS);
   }
@@ -362,7 +285,6 @@ function onTargetHit(el) {
 
   updateHUD();
   showHitPopup(el, reaction);
-  soundHit();
 
   el.classList.add('hit');
   el.classList.remove('spawned');
@@ -380,7 +302,6 @@ function onArenaClick(e) {
   if (e.target !== arena && e.target !== missFlash) return;
   state.misses++;
   updateHUD();
-  soundMiss();
   flashMiss();
 }
 
@@ -429,7 +350,6 @@ function endGame() {
   state.targets.forEach(t => { if(t) t.remove(); });
   state.targets = [];
 
-  soundGameOver();
   showResults();
 }
 
@@ -466,20 +386,15 @@ btnStart.addEventListener('click', startGame);
 arena.addEventListener('click', onArenaClick);
 
 btnQuit.addEventListener('click', () => {
-  if (state.running) endGame();
-  else showScreen(startScreen);
+  state.running = false;
+  clearInterval(state.timerId);
+  state.targets.forEach(t => { if(t) t.remove(); });
+  state.targets = [];
+  showScreen(startScreen);
 });
-
-btnRestart.addEventListener('click', startGame);
 
 btnRetry.addEventListener('click', startGame);
 btnMenu.addEventListener('click',  () => showScreen(startScreen));
-
-document.addEventListener('keydown', e => {
-  if (e.key === 'r' || e.key === 'R') {
-    if (gameScreen.classList.contains('active')) startGame();
-  }
-});
 
 // =============================================
 //  Initial state
