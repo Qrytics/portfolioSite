@@ -5,13 +5,12 @@
 
 	let imageAspect = $state<number | null>(null);
 	let videoEl = $state<HTMLVideoElement | undefined>(undefined);
-	let mediaActivated = $state(false);
-	let mediaHost = $state<HTMLElement | undefined>(undefined);
+	let mediaActivated = $state(true);
 
 	$effect(() => {
 		project.image;
 		imageAspect = null;
-		mediaActivated = false;
+		mediaActivated = true;
 	});
 
 	$effect(() => {
@@ -25,21 +24,6 @@
 			}
 		}, { threshold: 0.1 });
 		io.observe(video);
-		return () => io.disconnect();
-	});
-
-	$effect(() => {
-		if (!mediaHost || mediaActivated) return;
-		const host = mediaHost;
-		const io = new IntersectionObserver(
-			(entries) => {
-				if (!entries[0]?.isIntersecting) return;
-				mediaActivated = true;
-				io.disconnect();
-			},
-			{ rootMargin: '260px 0px', threshold: 0.01 }
-		);
-		io.observe(host);
 		return () => io.disconnect();
 	});
 
@@ -70,7 +54,7 @@
 </script>
 
 {#if project.images?.length}
-	<div class="media" aria-label="Project media" bind:this={mediaHost}>
+	<div class="media" aria-label="Project media">
 		<div
 			class="media__frame media__frame--multi {project.mediaAspect === 'schematic' ? 'media__frame--schematic' : project.mediaAspect === 'auto' ? 'media__frame--auto' : ''}"
 			style={frameStyle()}
@@ -93,7 +77,7 @@
 		</div>
 	</div>
 {:else if project.image}
-	<div class="media" aria-label="Project media" bind:this={mediaHost}>
+	<div class="media" aria-label="Project media">
 		<div
 			class="media__frame {project.mediaAspect === 'schematic' ? 'media__frame--schematic' : project.mediaAspect === 'auto' ? 'media__frame--auto' : ''}"
 			style={frameStyle(imageAspect != null ? String(imageAspect) : undefined)}

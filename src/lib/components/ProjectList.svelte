@@ -22,6 +22,8 @@
 	let colCount = $state(1);
 
 	$effect(() => {
+		if (typeof window === 'undefined' || typeof window.matchMedia !== 'function') return;
+
 		const mq3 = window.matchMedia('(min-width: 1100px)');
 		const mq2 = window.matchMedia('(min-width: 720px)');
 
@@ -32,12 +34,23 @@
 		}
 
 		update();
-		mq3.addEventListener('change', update);
-		mq2.addEventListener('change', update);
+
+		if (typeof mq3.addEventListener === 'function') {
+			mq3.addEventListener('change', update);
+			mq2.addEventListener('change', update);
+		} else {
+			mq3.addListener(update);
+			mq2.addListener(update);
+		}
 
 		return () => {
-			mq3.removeEventListener('change', update);
-			mq2.removeEventListener('change', update);
+			if (typeof mq3.removeEventListener === 'function') {
+				mq3.removeEventListener('change', update);
+				mq2.removeEventListener('change', update);
+			} else {
+				mq3.removeListener(update);
+				mq2.removeListener(update);
+			}
 		};
 	});
 
