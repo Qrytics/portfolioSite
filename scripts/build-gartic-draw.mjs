@@ -9,6 +9,7 @@ import { execSync } from 'child_process';
 import { existsSync, mkdirSync, rmSync, cpSync, readFileSync, writeFileSync } from 'fs';
 import { join, dirname } from 'path';
 import { fileURLToPath } from 'url';
+import { platform } from 'os';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const ROOT = join(__dirname, '..');
@@ -29,7 +30,11 @@ console.log('⬇  Downloading garticDraw source…');
 run(`curl -sL "${ZIP_URL}" -o "${zipPath}"`, TMP);
 
 console.log('📦  Extracting…');
-run(`unzip -q "${zipPath}" -d "${TMP}"`, TMP);
+if (platform() === 'win32') {
+	run(`powershell -NoProfile -Command "Expand-Archive -LiteralPath '${zipPath}' -DestinationPath '${TMP}' -Force"`, TMP);
+} else {
+	run(`unzip -q "${zipPath}" -d "${TMP}"`, TMP);
+}
 
 const srcDir = join(TMP, 'garticDraw-main');
 
