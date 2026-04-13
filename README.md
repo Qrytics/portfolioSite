@@ -319,3 +319,11 @@ When the garticDraw repo receives new commits, refresh the static assets with:
 npm run build:gartic-draw
 ```
 then commit the updated static/garticDraw/ files
+
+## Updating dodgeLoL
+When the dodgeLoL repo receives new commits, refresh the static assets with:
+
+```
+npm run build:dodge-lol
+```
+then commit the updated static/games/dodgeLoL/ files
