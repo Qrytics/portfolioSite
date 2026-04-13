@@ -20,6 +20,7 @@
 
 			<div class="card card--bio">
 				<div class="card__inner">
+					<h3 class="bio-heading">Mario Belmonte</h3>
 					<p class="excerpt">
 						<span class="highlight">Electrical and Computer Engineering</span> student at <span class="highlight">Carnegie Mellon</span> with a transition focus into <span class="highlight">Software Engineering</span>. Experienced in building complex systems from the ground up ranging from FPGA-based game development in SystemVerilog to <span class="highlight">full-stack</span> logic design.
 					</p>
@@ -232,6 +233,15 @@
 		font-size: 1.05rem;
 		letter-spacing: 0.01em;
 		color: rgba(243, 246, 255, 0.92);
+	}
+
+	.bio-heading {
+		margin: 0;
+		font-size: clamp(1.25rem, 2.5vw, 1.7rem);
+		line-height: 1.2;
+		letter-spacing: 0.01em;
+		color: #fff;
+		margin-bottom: 0.95rem;
 	}
 
 	.title-row {
