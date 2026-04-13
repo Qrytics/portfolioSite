@@ -22,30 +22,8 @@ html, body {
   background: var(--bg);
   color: var(--text);
   user-select: none;
-  -webkit-tap-highlight-color: transparent;
   overflow: hidden;
 }
-
-/* ==============================
-   Back to games button
-   ============================== */
-.btn-back-games {
-  position: fixed;
-  top: 12px;
-  left: 16px;
-  z-index: 100;
-  padding: 8px 14px;
-  background: var(--surface);
-  border: 1px solid #2a2c38;
-  border-radius: 8px;
-  color: var(--muted);
-  font-size: .8rem;
-  font-weight: 600;
-  text-decoration: none;
-  letter-spacing: .2px;
-  transition: border-color .15s, color .15s;
-}
-.btn-back-games:hover { border-color: var(--accent); color: var(--text); }
 
 /* ==============================
    Screen management
@@ -120,7 +98,6 @@ h1 {
   cursor: pointer;
   font-size: .85rem;
   transition: all .15s;
-  touch-action: manipulation;
 }
 .opt-btn:hover { border-color: var(--accent); color: var(--text); }
 .opt-btn.active {
@@ -143,7 +120,6 @@ h1 {
   cursor: pointer;
   letter-spacing: .3px;
   transition: opacity .15s, transform .1s;
-  touch-action: manipulation;
 }
 .btn-start:hover  { opacity: .9; }
 .btn-start:active { transform: scale(.98); }
@@ -159,7 +135,6 @@ h1 {
   cursor: pointer;
   transition: all .15s;
   margin-top: 10px;
-  touch-action: manipulation;
 }
 .btn-secondary:hover { border-color: var(--accent); color: var(--text); }
 
@@ -199,9 +174,9 @@ h1 {
   color: var(--text);
 }
 
-.btn-quit,
-.btn-restart {
+.btn-quit {
   position: absolute;
+  right: 16px;
   background: transparent;
   border: 1px solid #2a2c38;
   color: var(--muted);
@@ -211,12 +186,8 @@ h1 {
   font-size: .9rem;
   line-height: 1;
   transition: all .15s;
-  touch-action: manipulation;
 }
-.btn-quit    { right: 16px; }
-.btn-restart { right: 56px; font-size: 1.1rem; }
-.btn-quit:hover    { border-color: var(--accent); color: var(--accent); }
-.btn-restart:hover { border-color: var(--hit);    color: var(--hit); }
+.btn-quit:hover { border-color: var(--accent); color: var(--accent); }
 
 /* ==============================
    Arena
@@ -229,13 +200,6 @@ h1 {
   inset: 56px 0 0 0;
   cursor: crosshair;
   overflow: hidden;
-  touch-action: none;
-}
-
-/* On touch devices, use default cursor */
-@media (pointer: coarse) {
-  #arena { cursor: default; }
-  .target { cursor: default; }
 }
 
 /* ---- Target ---- */
@@ -413,18 +377,7 @@ h1 {
    ============================== */
 @media (max-width: 480px) {
   .start-card, .results-card { padding: 28px 20px; }
-  .hud { gap: 12px; }
-  .hud-label { font-size: .6rem; }
-  .hud-value { font-size: 1rem; }
+  .hud { gap: 18px; }
   .stats-grid { grid-template-columns: repeat(2, 1fr); }
   h1 { font-size: 1.7rem; }
-  .setting-group { flex-direction: column; align-items: flex-start; gap: 8px; }
-  .setting-group label { min-width: unset; }
-  .opt-btn { padding: 8px 14px; } /* larger tap area on mobile */
-}
-
-/* Extra small screens */
-@media (max-width: 360px) {
-  .hud { gap: 8px; }
-  .hud-value { font-size: .9rem; }
 }
