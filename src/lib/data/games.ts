@@ -36,7 +36,7 @@ export const games: Game[] = [
 		title: 'DodgeLoL',
 		subtitle: 'Dodge skillshots. Survive as long as you can.',
 		description:
-			'A high-intensity micro-mechanics trainer inspired by loldodgegame.com. Dodge League of Legends–style skillshots and AoE explosions rendered from a top-down isometric perspective. Choose a difficulty, use Flash (D/F), and see how long you last.',
+			'A high-intensity micro-mechanics trainer inspired by loldodgegame.com. Dodge League of Legends-style skillshots and AoE explosions rendered from a top-down isometric perspective.',
 		preview: '/games/dodgeLoL-preview.png',
 		playUrl: 'https://mario-belmonte.com/games/dodgeLoL',
 		tags: ['reflex', 'arcade', 'league of legends']
