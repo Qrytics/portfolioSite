@@ -1,22 +1,22 @@
 {
   "repos": [
     {
+      "id": 1174112842,
+      "name": "portfolioSite",
+      "full_name": "Qrytics/portfolioSite",
+      "html_url": "https://github.com/Qrytics/portfolioSite",
+      "description": "This repo is for my portfoio site. It's a showcase of my software engineering projects, technical experiments, and coding journey. It's basically a resume with better syntax highlighting.",
+      "pushed_at": "2026-04-14T18:59:30Z",
+      "private": false,
+      "fork": false
+    },
+    {
       "id": 1207081692,
       "name": "dungeonAgents-ProveAI",
       "full_name": "Qrytics/dungeonAgents-ProveAI",
       "html_url": "https://github.com/Qrytics/dungeonAgents-ProveAI",
       "description": "AI agents vs. an 8x8 dungeon. This simulation prioritizes structured traces over \"smart\" play, using Langfuse to capture tool calls and LLM state. Features a legibility layer to diagnose failures, specifically agents acting on stale info.",
       "pushed_at": "2026-04-14T18:57:55Z",
-      "private": false,
-      "fork": false
-    },
-    {
-      "id": 1174112842,
-      "name": "portfolioSite",
-      "full_name": "Qrytics/portfolioSite",
-      "html_url": "https://github.com/Qrytics/portfolioSite",
-      "description": "This repo is for my portfoio site. It's a showcase of my software engineering projects, technical experiments, and coding journey. It's basically a resume with better syntax highlighting.",
-      "pushed_at": "2026-04-14T17:53:02Z",
       "private": false,
       "fork": false
     },
