@@ -29,6 +29,12 @@ jobs:
       - name: Build Aim Trainer
         run: node scripts/build-aim-trainer.mjs
 
+      - name: Build DodgeLoL
+        run: node scripts/build-dodge-lol.mjs
+
+      - name: Build soundVisual-Avora
+        run: node scripts/build-soundvisual-avora.mjs
+
       - name: Update GitHub recent JSON
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
