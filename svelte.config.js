@@ -15,7 +15,11 @@ const config = {
 		prerender: {
 			handleHttpError: ({ path, message }) => {
 				// Ignore static game paths so the build doesn't fail
-				if (path.startsWith('/games/garticDraw') || path.startsWith('/games/aimTrainer')) {
+				if (
+					path.startsWith('/games/garticDraw') ||
+					path.startsWith('/games/aimTrainer') ||
+					path.startsWith('/games/soundVisual-Avora')
+				) {
 					return;
 				}
 				throw new Error(message);
