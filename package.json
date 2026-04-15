@@ -12,7 +12,8 @@
 		"check:watch": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json --watch",
 		"update:project-language-bytes": "node scripts/update-project-language-bytes.mjs",
 		"build:gartic-draw": "node scripts/build-gartic-draw.mjs",
-		"build:dodge-lol": "node scripts/build-dodge-lol.mjs"
+		"build:dodge-lol": "node scripts/build-dodge-lol.mjs",
+		"build:soundvisual-avora": "node scripts/build-soundvisual-avora.mjs"
 	},
 	"devDependencies": {
 		"@sveltejs/adapter-auto": "^7.0.0",

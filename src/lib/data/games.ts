@@ -40,5 +40,15 @@ export const games: Game[] = [
 		preview: '/games/dodgeLoL-preview.png',
 		playUrl: 'https://mario-belmonte.com/games/dodgeLoL',
 		tags: ['reflex', 'arcade', 'league of legends']
+	},
+	{
+		slug: 'soundVisual-Avora',
+		title: 'soundVisual-Avora',
+		subtitle: 'Audio-reactive visual playground.',
+		description:
+			'An interactive sound visualizer experience that reacts in real time to audio input and transforms it into dynamic visuals.',
+		preview: '/games/soundVisual-Avora-preview-placeholder.svg',
+		playUrl: '/games/soundVisual-Avora/',
+		tags: ['audio', 'visualizer', 'interactive']
 	}
 ];
