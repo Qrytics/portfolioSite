@@ -1,22 +1,22 @@
 {
   "repos": [
     {
+      "id": 1174112842,
+      "name": "portfolioSite",
+      "full_name": "Qrytics/portfolioSite",
+      "html_url": "https://github.com/Qrytics/portfolioSite",
+      "description": "This repo is for my portfoio site. It's a showcase of my software engineering projects, technical experiments, and coding journey. It's basically a resume with better syntax highlighting.",
+      "pushed_at": "2026-04-18T21:18:47Z",
+      "private": false,
+      "fork": false
+    },
+    {
       "id": 1214013570,
       "name": "spotifyHero",
       "full_name": "Qrytics/spotifyHero",
       "html_url": "https://github.com/Qrytics/spotifyHero",
       "description": "Desktop app that turns your Spotify tracks into a Friday Night Funkin' / Guitar Hero-style experience. Auto-generated notes play alongside your screen, jump in anytime via keybind. Includes scoring, leaderboards, and easy sharing to challenge friends on any song.",
       "pushed_at": "2026-04-18T20:53:39Z",
-      "private": false,
-      "fork": false
-    },
-    {
-      "id": 1174112842,
-      "name": "portfolioSite",
-      "full_name": "Qrytics/portfolioSite",
-      "html_url": "https://github.com/Qrytics/portfolioSite",
-      "description": "This repo is for my portfoio site. It's a showcase of my software engineering projects, technical experiments, and coding journey. It's basically a resume with better syntax highlighting.",
-      "pushed_at": "2026-04-18T20:41:09Z",
       "private": false,
       "fork": false
     },
