@@ -6,7 +6,7 @@
       "full_name": "Qrytics/portfolioSite",
       "html_url": "https://github.com/Qrytics/portfolioSite",
       "description": "This repo is for my portfoio site. It's a showcase of my software engineering projects, technical experiments, and coding journey. It's basically a resume with better syntax highlighting.",
-      "pushed_at": "2026-04-19T20:43:59Z",
+      "pushed_at": "2026-04-19T21:20:49Z",
       "private": false,
       "fork": false
     },
@@ -77,26 +77,6 @@
       "html_url": "https://github.com/Qrytics/dodgeLoL",
       "description": "A high-intensity micro-mechanics trainer inspired by loldodgegame.com. Sharpen your reflexes by dodging a relentless barrage of LoL-style skillshots in a top-down arena. Features include precise movement logic, ability cooldowns (Flash), and escalating difficulty levels.",
       "pushed_at": "2026-04-13T03:46:43Z",
-      "private": false,
-      "fork": false
-    },
-    {
-      "id": 1208214865,
-      "name": "garticDraw",
-      "full_name": "Qrytics/garticDraw",
-      "html_url": "https://github.com/Qrytics/garticDraw",
-      "description": "Experience the nostalgic, chaotic charm of Gartic Phone’s drawing engine in a dedicated art tool. This software recreates that specific \"wiggly\" brush feel, simplified palette, and tactile UI, turning every stroke into a playful memory. Perfect for quick sketches or recapturing the fun of social drawing games. Draw fast, keep it messy!",
-      "pushed_at": "2026-04-12T21:53:42Z",
-      "private": false,
-      "fork": false
-    },
-    {
-      "id": 1208347246,
-      "name": "aimTrainer",
-      "full_name": "Qrytics/aimTrainer",
-      "html_url": "https://github.com/Qrytics/aimTrainer",
-      "description": "A high-performance aim trainer built to replicate the aimtrainer.io challenge. Designed for zero-latency flicking, it tracks your accuracy, reaction time, and precision in real-time. Perfect for warming up or fixing a \"potato aim\" before your next match.",
-      "pushed_at": "2026-04-12T21:53:03Z",
       "private": false,
       "fork": false
     }
