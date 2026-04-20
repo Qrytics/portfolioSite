@@ -1,12 +1,22 @@
 {
   "repos": [
     {
+      "id": 1139290623,
+      "name": "smartHome",
+      "full_name": "Qrytics/smartHome",
+      "html_url": "https://github.com/Qrytics/smartHome",
+      "description": "A fully integrated model building and web-based dashboard where a user can authenticate, toggle a light or door lock remotely, view real-time temperature and occupancy data. This project demonstrates a “web-first” reasoning, proving that the model home’s essential functions are entirely managed by the rules engine and secure handshake protocol. ",
+      "pushed_at": "2026-04-20T04:26:30Z",
+      "private": false,
+      "fork": false
+    },
+    {
       "id": 1174112842,
       "name": "portfolioSite",
       "full_name": "Qrytics/portfolioSite",
       "html_url": "https://github.com/Qrytics/portfolioSite",
       "description": "This repo is for my portfoio site. It's a showcase of my software engineering projects, technical experiments, and coding journey. It's basically a resume with better syntax highlighting.",
-      "pushed_at": "2026-04-19T23:51:13Z",
+      "pushed_at": "2026-04-20T01:13:55Z",
       "private": false,
       "fork": false
     },
@@ -41,16 +51,6 @@
       "fork": false
     },
     {
-      "id": 1139290623,
-      "name": "smartHome",
-      "full_name": "Qrytics/smartHome",
-      "html_url": "https://github.com/Qrytics/smartHome",
-      "description": "A fully integrated model building and web-based dashboard where a user can authenticate, toggle a light or door lock remotely, view real-time temperature and occupancy data. This project demonstrates a “web-first” reasoning, proving that the model home’s essential functions are entirely managed by the rules engine and secure handshake protocol. ",
-      "pushed_at": "2026-04-15T16:26:29Z",
-      "private": false,
-      "fork": false
-    },
-    {
       "id": 1207081692,
       "name": "dungeonAgents-ProveAI",
       "full_name": "Qrytics/dungeonAgents-ProveAI",
@@ -67,16 +67,6 @@
       "html_url": "https://github.com/Qrytics/cmuMarchMadness-ML",
       "description": "An ML model created to approximate the winners of CMU’s March Madness basketball tournaments. ",
       "pushed_at": "2026-04-13T14:33:06Z",
-      "private": false,
-      "fork": false
-    },
-    {
-      "id": 1208890519,
-      "name": "dodgeLoL",
-      "full_name": "Qrytics/dodgeLoL",
-      "html_url": "https://github.com/Qrytics/dodgeLoL",
-      "description": "A high-intensity micro-mechanics trainer inspired by loldodgegame.com. Sharpen your reflexes by dodging a relentless barrage of LoL-style skillshots in a top-down arena. Features include precise movement logic, ability cooldowns (Flash), and escalating difficulty levels.",
-      "pushed_at": "2026-04-13T03:46:43Z",
       "private": false,
       "fork": false
     }
