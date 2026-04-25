@@ -1,4 +1,4 @@
-import adapter from '@sveltejs/adapter-static';
+import adapter from '@sveltejs/adapter-vercel';
 
 /** @type {import('@sveltejs/kit').Config} */
 const config = {
@@ -7,11 +7,7 @@ const config = {
 		paths: {
 			relative: false
 		},
-		adapter: adapter({
-			pages: 'build',
-			assets: 'build',
-			fallback: '404.html'
-		}),
+		adapter: adapter(),
 		prerender: {
 			handleHttpError: ({ path, message }) => {
 				// Ignore static game paths so the build doesn't fail

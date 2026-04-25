@@ -1,0 +1,8 @@
+{
+	"rewrites": [
+		{
+			"source": "/tutoring/:path*",
+			"destination": "https://ai-tutoring-pl94lnfiz-qrytics-projects.vercel.app/tutoring/:path*"
+		}
+	]
+}
