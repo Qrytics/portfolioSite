@@ -1,8 +1,16 @@
 {
 	"rewrites": [
 		{
+			"source": "/tutoring",
+			"destination": "https://tutoring.mario-belmonte.com/tutoring/"
+		},
+		{
+			"source": "/tutoring/",
+			"destination": "https://tutoring.mario-belmonte.com/tutoring/"
+		},
+		{
 			"source": "/tutoring/:path*",
-			"destination": "https://ai-tutoring-pl94lnfiz-qrytics-projects.vercel.app/tutoring/:path*"
+			"destination": "https://tutoring.mario-belmonte.com/tutoring/:path*"
 		}
 	]
 }
