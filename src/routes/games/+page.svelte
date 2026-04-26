@@ -4,7 +4,7 @@
 </script>
 
 <svelte:head>
-	<title>{profile.name} — Games</title>
+	<title>Mario Belmonte (Games)</title>
 	<meta name="description" content="Browser games and interactive demos built by {profile.name}." />
 </svelte:head>
 

@@ -7,7 +7,7 @@ const project = $derived(data.project);
 </script>
 
 <svelte:head>
-<title>{project.title} — Project</title>
+<title>Mario Belmonte ({project.title})</title>
 <meta name="description" content={project.description} />
 </svelte:head>
 

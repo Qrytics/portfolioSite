@@ -1,5 +1,4 @@
 <script lang="ts">
-	import { profile } from '$lib/data/profile';
 	import ProjectList from '$lib/components/ProjectList.svelte';
 	import { projectLanguageBytes } from '$lib/data/projectLanguageBytes';
 
@@ -113,7 +112,7 @@
 </script>
 
 <svelte:head>
-	<title>{profile.name} — Projects</title>
+	<title>Mario Belmonte (Projects)</title>
 	<meta name="description" content="All projects and case studies." />
 </svelte:head>
 

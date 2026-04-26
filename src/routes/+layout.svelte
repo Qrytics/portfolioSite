@@ -37,7 +37,7 @@
 	<meta name="twitter:card" content="summary_large_image" />
 	<meta name="twitter:image" content="https://mario-belmonte.com/og.png" />
 	<meta name="theme-color" content="#0b0e12" />
-	<title>{profile.name} — Portfolio</title>
+	<title>Mario Belmonte (Portfolio)</title>
 </svelte:head>
 
 <Nav />

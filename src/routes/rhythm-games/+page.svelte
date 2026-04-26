@@ -1,6 +1,4 @@
 <script lang="ts">
-	import { profile } from '$lib/data/profile';
-
 	type RhythmVideo = {
 		title: string;
 		/** YouTube ID (e.g. `dQw4w9WgXcQ`). */
@@ -27,7 +25,7 @@
 </script>
 
 <svelte:head>
-	<title>{profile.name} — Rhythm Games</title>
+	<title>Mario Belmonte (Rhythm Games)</title>
 	<meta name="description" content="YouTube clips of me playing rhythm games." />
 </svelte:head>
 
