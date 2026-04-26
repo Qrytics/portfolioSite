@@ -1,6 +1,8 @@
 import { base } from '$app/paths';
 import type { PageLoad } from './$types';
 
+export const prerender = false;
+
 type ContributionDay = {
 	date: string;
 	contributionCount: number;
@@ -156,10 +158,10 @@ export const load: PageLoad = async ({ fetch }) => {
 	let recentReposError: string | null = null;
 
 	try {
-		const res = await fetch(withBase('/github-contrib.json'), { headers: { Accept: 'application/json' } });
+		// Prefer live API-backed data; fall back to static JSON if unavailable.
+		const res = await fetch(withBase('/api/github-contrib'), { headers: { Accept: 'application/json' } });
 		const body = (await res.json()) as GithubContribPayload;
 		if (!res.ok) throw new Error(body?.error ?? `Failed to load GitHub contributions (${res.status})`);
-		if (body?.error) throw new Error(body.error);
 
 		const rawYears = Array.isArray(body?.years)
 			? body.years
@@ -175,19 +177,58 @@ export const load: PageLoad = async ({ fetch }) => {
 
 		contribYears = years;
 		contribSelectedYear = selectedYear;
+		contribError = body?.error ?? null;
 	} catch (e) {
-		contribError = e instanceof Error ? e.message : 'Failed to load GitHub contributions.';
+		try {
+			const fallbackRes = await fetch(withBase('/github-contrib.json'), { headers: { Accept: 'application/json' } });
+			const fallbackBody = (await fallbackRes.json()) as GithubContribPayload;
+			if (!fallbackRes.ok) throw new Error(fallbackBody?.error ?? `Failed to load fallback GitHub contributions (${fallbackRes.status})`);
+
+			const rawYears = Array.isArray(fallbackBody?.years)
+				? fallbackBody.years
+				: fallbackBody?.year && Array.isArray(fallbackBody?.weeks)
+					? [{ year: fallbackBody.year, totalContributions: fallbackBody.totalContributions ?? 0, weeks: fallbackBody.weeks }]
+					: [];
+			const sanitizedYears = sanitizeYears(rawYears);
+			const years = sanitizedYears.length > 0 ? sanitizedYears : fallbackContributionYears(fallbackBody);
+			const requestedYear =
+				typeof fallbackBody.currentYear === 'number' && Number.isFinite(fallbackBody.currentYear)
+					? fallbackBody.currentYear
+					: null;
+			const selectedYear =
+				requestedYear && years.some((year) => year.year === requestedYear) ? requestedYear : years[0].year;
+
+			contribYears = years;
+			contribSelectedYear = selectedYear;
+			contribError = fallbackBody?.error ?? (e instanceof Error ? e.message : 'Failed to load live GitHub contributions.');
+		} catch (fallbackError) {
+			contribError =
+				fallbackError instanceof Error ? fallbackError.message : 'Failed to load GitHub contributions.';
+		}
 	}
 
 	try {
-		const res = await fetch(withBase('/github-recent.json'), { headers: { Accept: 'application/json' } });
+		// Prefer API endpoint (fresh data + token-aware), fallback to static JSON.
+		const res = await fetch(withBase('/api/github-recent'), { headers: { Accept: 'application/json' } });
 		const body = (await res.json()) as GithubRecentPayload;
 		if (!res.ok) throw new Error(body?.error ?? `Failed to load recent GitHub activity (${res.status})`);
-		if (body?.error) throw new Error(body.error);
 
 		recentRepos = sanitizeRecentRepos(body?.repos);
+		recentReposError = body?.error ?? null;
 	} catch (e) {
-		recentReposError = e instanceof Error ? e.message : 'Failed to load recent GitHub activity.';
+		try {
+			const fallbackRes = await fetch(withBase('/github-recent.json'), { headers: { Accept: 'application/json' } });
+			const fallbackBody = (await fallbackRes.json()) as GithubRecentPayload;
+			if (!fallbackRes.ok) {
+				throw new Error(fallbackBody?.error ?? `Failed to load fallback recent GitHub activity (${fallbackRes.status})`);
+			}
+
+			recentRepos = sanitizeRecentRepos(fallbackBody?.repos);
+			recentReposError = fallbackBody?.error ?? (e instanceof Error ? e.message : 'Failed to load live GitHub activity.');
+		} catch (fallbackError) {
+			recentReposError =
+				fallbackError instanceof Error ? fallbackError.message : 'Failed to load recent GitHub activity.';
+		}
 	}
 
 	return {

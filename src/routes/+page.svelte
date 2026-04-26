@@ -12,6 +12,7 @@
 	import GitHubContribChart from '$lib/components/GitHubContribChart.svelte';
 
 let { data }: { data: PageData } = $props();
+	let nonCriticalReady = $state(false);
 
 	function scrollToHashTarget(hash: string) {
 		if (typeof window === 'undefined') return;
@@ -67,6 +68,17 @@ let { data }: { data: PageData } = $props();
 		window.scrollTo({ top: 0, left: 0 });
 		html.style.scrollBehavior = prevScrollBehavior;
 		html.classList.remove('instant-home-jump-pending');
+
+		// Defer heavier below-the-fold sections to keep first paint smooth.
+		const runWhenIdle = () => {
+			nonCriticalReady = true;
+		};
+		if ('requestIdleCallback' in window) {
+			(window as Window & { requestIdleCallback: (cb: IdleRequestCallback, opts?: IdleRequestOptions) => number })
+				.requestIdleCallback(() => runWhenIdle(), { timeout: 900 });
+		} else {
+			setTimeout(runWhenIdle, 180);
+		}
 	});
 
 	const firstProject = projects[0];
@@ -86,7 +98,7 @@ let { data }: { data: PageData } = $props();
 </script>
 
 <svelte:head>
-	<title>{profile.name} — Portfolio</title>
+	<title>Mario Belmonte (Portfolio)</title>
 	{#if firstPreloadImageHref}
 		<link rel="preload" href={firstPreloadImageHref} as="image" />
 	{/if}
@@ -97,15 +109,19 @@ let { data }: { data: PageData } = $props();
 	<section id="top-projects" aria-label="Projects">
 		<ProjectList items={topProjects} compactBottom />
 	</section>
-	<GitHubContribChart
-		years={data.contribYears}
-		selectedYear={data.contribSelectedYear}
-		error={data.contribError}
-	/>
-	<CurrentlyBuilding repos={data.recentRepos} error={data.recentReposError} />
-	<Timeline />
-	<AboutMeTeaser />
-	<ReviewCta />
+	{#if nonCriticalReady}
+		<GitHubContribChart
+			years={data.contribYears}
+			selectedYear={data.contribSelectedYear}
+			error={data.contribError}
+		/>
+		<CurrentlyBuilding repos={data.recentRepos} error={data.recentReposError} />
+		<Timeline />
+		<AboutMeTeaser />
+		<ReviewCta />
+	{:else}
+		<div class="defer-shell" aria-hidden="true"></div>
+	{/if}
 </div>
 
 <style>
@@ -113,5 +129,9 @@ let { data }: { data: PageData } = $props();
 		position: relative;
 		/* No isolation: isolate — it created a stacking/compositing boundary that could leave
 		   centered header controls (search/terminal) unclickable on `/` in some Chromium builds. */
+	}
+
+	.defer-shell {
+		height: 60vh;
 	}
 </style>

@@ -2,6 +2,8 @@ import { json } from '@sveltejs/kit';
 import { profile } from '$lib/data/profile';
 import { env } from '$env/dynamic/private';
 
+export const prerender = false;
+
 type Repo = {
 	id: number;
 	name: string;
