@@ -86,7 +86,7 @@ let { data }: { data: PageData } = $props();
 	// Use an explicit allow-list to make the homepage deterministic.
 	const topProjectSlugs = new Set([
 		'smart-home-iot-dashboard',
-		'visual-budget-planner',
+		'spotify-hero',
 		'auto-docker'
 	]);
 	const topProjects = projects.filter((p) => topProjectSlugs.has(p.slug));

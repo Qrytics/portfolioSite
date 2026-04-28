@@ -7,10 +7,33 @@ export interface Game {
 	preview: string;
 	/** URL the "Play" button links to */
 	playUrl: string;
+	/** Optional custom CTA text (e.g., "In Progress"). */
+	playLabel?: string;
 	tags: string[];
 }
 
 export const games: Game[] = [
+	{
+		slug: 'spotifyHero',
+		title: 'spotifyHero',
+		subtitle: 'Turn any Spotify track into a live rhythm challenge.',
+		description:
+			'A desktop rhythm game experience that maps Spotify songs to playable note charts. Jump in with keybinds mid-track, chase high scores, and share leaderboard-worthy runs.',
+		preview: '/games/spotifyHero-preview.png',
+		playUrl: '#',
+		playLabel: 'In Progress',
+		tags: ['rhythm', 'spotify', 'desktop']
+	},
+	{
+		slug: 'vcKaraoke',
+		title: 'vcKaraoke',
+		subtitle: 'Synchronized browser karaoke with scoring and rooms.',
+		description:
+			'Multiplayer karaoke rooms with queueing, scoring, and low-latency in-browser voice chat designed to keep everyone in sync during virtual sing-alongs.',
+		preview: '/games/vcKaraoke-preview.png',
+		playUrl: 'https://mario-belmonte.com/games/vcKaraoke',
+		tags: ['karaoke', 'multiplayer', 'voice']
+	},
 	{
 		slug: 'garticDraw',
 		title: 'GarticDraw',

@@ -179,6 +179,110 @@ export const projects: Project[] = [
 		]
 	},
 	{
+		slug: 'spotify-hero',
+		title: 'Spotify Hero',
+		shortTitle: 'spotifyHero',
+		subtitle: "Desktop rhythm game that transforms Spotify songs into playable note charts",
+		description:
+			"Built a desktop rhythm experience that converts live Spotify playback into Guitar Hero-style note lanes in real time. Players can jump in instantly via keybinds, chase higher scores, and share challenge runs with friends.",
+		longDescription: `Desktop rhythm companion for Spotify-based play sessions.
+
+• Parses Spotify playback into playable chart patterns and timing windows.
+• Supports quick drop-in sessions through global keybind activation.
+• Tracks score performance and supports challenge-style sharing with friends.
+• Designed as a lightweight desktop app with low setup friction and fast launch.`,
+		type: 'open-source',
+		tags: ['TypeScript', 'Desktop App', 'Spotify API', 'Rhythm Game', 'Scoring System'],
+		github: 'https://github.com/Qrytics/spotifyHero',
+		status: 'active',
+		startMonth: 'Apr',
+		startYear: 2026,
+		endMonth: 'Apr',
+		endYear: 2026,
+		year: 2026
+	},
+	{
+		slug: 'ai-tutoring',
+		title: 'AiTutoring',
+		subtitle: 'Monorepo tutoring platform with a modern frontend and serverless backend integrations',
+		description:
+			'Built a high-performance monorepo tutoring platform with a modern frontend and serverless backend primitives. Integrated Stripe for secure checkout and Calendly scheduling flows for streamlined booking and payment.',
+		type: 'open-source',
+		tags: ['TypeScript', 'Svelte', 'Monorepo', 'Stripe', 'Calendly', 'Serverless'],
+		github: 'https://github.com/Qrytics/AiTutoring',
+		status: 'active',
+		startMonth: 'Apr',
+		startYear: 2026,
+		endMonth: 'Apr',
+		endYear: 2026,
+		year: 2026
+	},
+	{
+		slug: 'watchlist-tracker',
+		title: 'watchlistTracker',
+		subtitle: 'Media tracking app for release alerts, franchise updates, and nearby theater discovery',
+		description:
+			'Created a watchlist platform that tracks shows and movies with alerts for episode drops, release dates, and nearby theater availability. Aggregates ecosystem updates (news, social posts, and franchise chatter) so users can follow everything from one place.',
+		type: 'open-source',
+		tags: ['TypeScript', 'Web App', 'Media Discovery', 'Notifications', 'Aggregation'],
+		github: 'https://github.com/Qrytics/watchlistTracker',
+		status: 'active',
+		startMonth: 'Apr',
+		startYear: 2026,
+		endMonth: 'Apr',
+		endYear: 2026,
+		year: 2026
+	},
+	{
+		slug: 'sound-visual-avora',
+		title: 'soundVisual-Avora',
+		subtitle: 'Real-time audio-reactive visual experience built for Avora take-home evaluation',
+		description:
+			'Engineered an interactive sound-visualization project that transforms audio features (frequency, energy, and speech signals) into dynamic visual motion. Focused on responsiveness, visual polish, and clean interaction design.',
+		type: 'open-source',
+		tags: ['TypeScript', 'Audio Visualization', 'WebGL', 'Real-time', 'Interactive'],
+		github: 'https://github.com/Qrytics/soundVisual-Avora',
+		siteUrl: 'https://sound-visual-avora.vercel.app',
+		status: 'active',
+		startMonth: 'Apr',
+		startYear: 2026,
+		endMonth: 'Apr',
+		endYear: 2026,
+		year: 2026
+	},
+	{
+		slug: 'dungeon-agents-prove-ai',
+		title: 'dungeonAgents-ProveAI',
+		subtitle: '8x8 AI-agent dungeon simulation prioritizing interpretable traces over opaque autonomy',
+		description:
+			'Built an AI-agent simulation sandbox where agents navigate an 8x8 dungeon while producing structured execution traces. Integrated Langfuse observability to capture tool calls and model state, enabling rapid diagnosis of stale-context and decision-failure patterns.',
+		type: 'open-source',
+		tags: ['Python', 'AI Agents', 'Langfuse', 'Observability', 'Simulation'],
+		github: 'https://github.com/Qrytics/dungeonAgents-ProveAI',
+		status: 'active',
+		startMonth: 'Apr',
+		startYear: 2026,
+		endMonth: 'Apr',
+		endYear: 2026,
+		year: 2026
+	},
+	{
+		slug: 'brain-feels',
+		title: 'brainFeels',
+		subtitle: 'Chrome extension that estimates emotional intent of thumbnails and web imagery',
+		description:
+			'Developed a TRIBE v2-powered Chrome extension that analyzes YouTube thumbnails and web images for emotional signaling. Interprets visual cues and presents a compact "emotion mosaic" summary to help users quickly understand persuasive framing.',
+		type: 'open-source',
+		tags: ['JavaScript', 'Chrome Extension', 'Computer Vision', 'TRIBE v2', 'UX'],
+		github: 'https://github.com/Qrytics/brainFeels',
+		status: 'active',
+		startMonth: 'Apr',
+		startYear: 2026,
+		endMonth: 'Apr',
+		endYear: 2026,
+		year: 2026
+	},
+	{
 		slug: 'auto-docker',
 		title: 'Automated Docker Configuration Generator',
 		shortTitle: 'Auto Docker Config Gen',

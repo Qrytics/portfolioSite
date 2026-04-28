@@ -1,6 +1,12 @@
 <script lang="ts">
+	import { base } from '$app/paths';
 	import { profile } from '$lib/data/profile';
 	import { games } from '$lib/data/games';
+
+	function withBase(path: string): string {
+		if (path.startsWith('http://') || path.startsWith('https://')) return path;
+		return `${base}${path.startsWith('/') ? path : `/${path}`}`;
+	}
 </script>
 
 <svelte:head>
@@ -16,18 +22,39 @@
 
 			<ul class="game-grid">
 				{#each games as game (game.slug)}
+					{@const hasPlayableUrl = game.playUrl !== '#'}
 					<li class="game-card">
-						<a href={game.playUrl} class="game-card__preview-link" tabindex="-1" aria-hidden="true">
-							<div class="game-card__media">
-								<img
-									class="game-card__img"
-									src={game.preview}
-									alt="{game.title} screenshot"
-									loading="lazy"
-									decoding="async"
-								/>
+						{#if hasPlayableUrl}
+							<button
+								type="button"
+								class="game-card__preview-link game-card__preview-button"
+								tabindex="-1"
+								aria-hidden="true"
+								onclick={() => window.location.assign(withBase(game.playUrl))}
+							>
+								<div class="game-card__media">
+									<img
+										class="game-card__img"
+										src={game.preview}
+										alt="{game.title} screenshot"
+										loading="lazy"
+										decoding="async"
+									/>
+								</div>
+							</button>
+						{:else}
+							<div class="game-card__preview-link" aria-hidden="true">
+								<div class="game-card__media">
+									<img
+										class="game-card__img"
+										src={game.preview}
+										alt="{game.title} screenshot"
+										loading="lazy"
+										decoding="async"
+									/>
+								</div>
 							</div>
-						</a>
+						{/if}
 
 						<div class="game-card__body">
 							<div class="game-card__meta">
@@ -39,11 +66,21 @@
 
 							<div class="game-card__footer">
 								<ul class="tag-list" aria-label="tags">
-									{#each game.tags as tag}
+									{#each game.tags as tag (tag)}
 										<li class="tag">{tag}</li>
 									{/each}
 								</ul>
-								<a href={game.playUrl} class="play-btn">play →</a>
+								{#if hasPlayableUrl}
+									<button
+										type="button"
+										class="play-btn"
+										onclick={() => window.location.assign(withBase(game.playUrl))}
+									>
+										{game.playLabel ?? 'play →'}
+									</button>
+								{:else}
+									<span class="play-btn play-btn--disabled">{game.playLabel ?? 'In Progress'}</span>
+								{/if}
 							</div>
 						</div>
 					</li>
@@ -128,6 +165,16 @@
 		overflow: hidden;
 	}
 
+	.game-card__preview-button {
+		width: 100%;
+		border: 0;
+		padding: 0;
+		margin: 0;
+		background: transparent;
+		text-align: inherit;
+		cursor: pointer;
+	}
+
 	.game-card__media {
 		position: relative;
 		width: 100%;
@@ -210,16 +257,23 @@
 		font-family: var(--font-mono);
 		font-size: 0.82rem;
 		color: var(--accent);
-		text-decoration: none;
 		border: 1px solid var(--accent);
 		padding: 0.3rem 0.75rem;
+		background: transparent;
 		transition:
 			background 0.15s ease,
 			color 0.15s ease;
+		cursor: pointer;
 	}
 
 	.play-btn:hover {
 		background: var(--accent);
 		color: var(--bg);
+	}
+
+	.play-btn--disabled {
+		color: var(--muted);
+		border-color: var(--border-2);
+		cursor: default;
 	}
 </style>

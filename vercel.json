@@ -1,6 +1,26 @@
 {
 	"rewrites": [
 		{
+			"source": "/_next/:path*",
+			"destination": "https://vckaraoke-frontend.vercel.app/_next/:path*"
+		},
+		{
+			"source": "/games/vcKaraoke",
+			"destination": "https://vckaraoke-frontend.vercel.app/"
+		},
+		{
+			"source": "/games/vcKaraoke/",
+			"destination": "https://vckaraoke-frontend.vercel.app/"
+		},
+		{
+			"source": "/games/vcKaraoke/:path*",
+			"destination": "https://vckaraoke-frontend.vercel.app/:path*"
+		},
+		{
+			"source": "/room/:path*",
+			"destination": "https://vckaraoke-frontend.vercel.app/room/:path*"
+		},
+		{
 			"source": "/tutoring",
 			"destination": "https://tutoring.mario-belmonte.com/tutoring/"
 		},
@@ -11,6 +31,18 @@
 		{
 			"source": "/tutoring/:path*",
 			"destination": "https://tutoring.mario-belmonte.com/tutoring/:path*"
+		},
+		{
+			"source": "/games/spotifyHero",
+			"destination": "https://spotifyhero-web.vercel.app/games/spotifyHero"
+		},
+		{
+			"source": "/games/spotifyHero/",
+			"destination": "https://spotifyhero-web.vercel.app/games/spotifyHero"
+		},
+		{
+			"source": "/games/spotifyHero/:path*",
+			"destination": "https://spotifyhero-web.vercel.app/games/spotifyHero/:path*"
 		}
 	]
 }
