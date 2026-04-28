@@ -311,6 +311,12 @@
 
 [data-theme='light'] .github-chart .day[data-level='3'],
 [data-theme='light'] .github-chart .legend__square[data-level='3'] {
+	background: var(--gh-l3);
+	border-color: var(--gh-l3);
+}
+
+[data-theme='light'] .github-chart .day[data-level='4'],
+[data-theme='light'] .github-chart .legend__square[data-level='4'] {
 	background: var(--gh-l4);
 	border-color: var(--gh-l4);
 }

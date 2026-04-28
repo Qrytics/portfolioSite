@@ -5,6 +5,7 @@
 		date: string;
 		contributionCount: number;
 		color?: string | null;
+		outside?: boolean;
 	};
 
 	type ContributionWeek = {
@@ -29,40 +30,33 @@
 		error: initialError = null
 	}: ChartProps = $props();
 
-	/** Sync with props on first run (SSR has no $effect — must not start as null when years exist). */
-	function pickYearFromProps(): number | null {
+	const excludedYearButtons = new Set<number>([2024, 2023, 2022]);
+
+	type Period = 'last365' | number;
+	let userPeriodOverride = $state<Period | null>(null);
+
+	const availableYears = $derived.by(() => initialYears.filter((y) => !excludedYearButtons.has(y.year)));
+
+	const selectedPeriod = $derived.by((): Period | null => {
+		if (availableYears.length === 0) return null;
+
+		if (userPeriodOverride === 'last365') return 'last365';
 		if (
-			initialSelectedYear != null &&
-			initialYears.some((e) => e.year === initialSelectedYear)
+			typeof userPeriodOverride === 'number' &&
+			availableYears.some((e) => e.year === userPeriodOverride)
 		) {
-			return initialSelectedYear;
+			return userPeriodOverride;
 		}
-		return initialYears[0]?.year ?? null;
-	}
 
-	/** User-picked year only; display year is derived so SSR + first client frame always match props. */
-	let userYearOverride = $state<number | null>(null);
-
-	$effect(() => {
-		if (userYearOverride != null && !initialYears.some((e) => e.year === userYearOverride)) {
-			userYearOverride = null;
-		}
-	});
-
-	const selectedYear = $derived.by(() => {
-		if (userYearOverride != null && initialYears.some((e) => e.year === userYearOverride)) {
-			return userYearOverride;
-		}
-		return pickYearFromProps();
+		return 'last365';
 	});
 
 	const weekdayLabels = ['Mon', 'Wed', 'Fri'];
+	const selectedYear = $derived.by(() => (typeof selectedPeriod === 'number' ? selectedPeriod : null));
 	const selected = $derived(
-		selectedYear == null ? null : initialYears.find((e) => e.year === selectedYear) ?? null
+		selectedYear == null ? null : availableYears.find((e) => e.year === selectedYear) ?? null
 	);
-	const visibleWeeks = $derived(selected ? selected.weeks : []);
-	const weeksCount = $derived(Math.max(visibleWeeks.length, 1));
-	const yearOptions = $derived(initialYears.map((e) => e.year).slice(0, 5));
+	const yearOptions = $derived(availableYears.map((e) => e.year).slice(0, 5));
 	const selectedMaxContributions = $derived(
 		selected
 			? Math.max(
@@ -73,6 +67,94 @@
 				)
 			: 0
 	);
+
+	function clampUtcMidnight(date: Date): Date {
+		const d = new Date(date);
+		d.setUTCHours(0, 0, 0, 0);
+		return d;
+	}
+
+	function addUtcDays(date: Date, days: number): Date {
+		const d = new Date(date);
+		d.setUTCDate(d.getUTCDate() + days);
+		return d;
+	}
+
+	function isoDateUTC(date: Date): string {
+		return date.toISOString().slice(0, 10);
+	}
+
+	function startOfWeekMondayUTC(date: Date): Date {
+		const d = clampUtcMidnight(date);
+		const mondayIndex = (d.getUTCDay() + 6) % 7; // Mon=0 ... Sun=6
+		d.setUTCDate(d.getUTCDate() - mondayIndex);
+		return d;
+	}
+
+	const contribLookup = $derived.by(() => {
+		const map = new Map<string, number>();
+		for (const y of availableYears) {
+			for (const w of y.weeks) {
+				for (const d of w.contributionDays) {
+					map.set(d.date, d.contributionCount);
+				}
+			}
+		}
+		return map;
+	});
+
+	function buildRolling365(lookup: Map<string, number>) {
+		const end = clampUtcMidnight(new Date());
+		const start = addUtcDays(end, -364);
+		const gridStart = startOfWeekMondayUTC(start);
+
+		const weeks: ContributionWeek[] = [];
+		let totalContributions = 0;
+		let maxContribution = 0;
+
+		for (let wi = 0; wi < 53; wi += 1) {
+			const contributionDays: ContributionDay[] = [];
+			for (let di = 0; di < 7; di += 1) {
+				const date = addUtcDays(gridStart, wi * 7 + di);
+				const key = isoDateUTC(date);
+				const inRange = date >= start && date <= end;
+				const contributionCount = inRange ? (lookup.get(key) ?? 0) : 0;
+				if (inRange) {
+					totalContributions += contributionCount;
+					maxContribution = Math.max(maxContribution, contributionCount);
+				}
+				contributionDays.push({ date: key, contributionCount, color: null, outside: !inRange });
+			}
+			weeks.push({ contributionDays });
+		}
+
+		return { weeks, totalContributions, start, end, maxContribution };
+	}
+
+	const rolling = $derived.by(() => buildRolling365(contribLookup));
+
+	const visibleWeeks = $derived.by(() => {
+		if (selectedPeriod === 'last365') return rolling.weeks;
+		return selected ? selected.weeks : [];
+	});
+
+	const weeksCount = $derived(Math.max(visibleWeeks.length, 1));
+
+	const totalCommits = $derived.by(() => {
+		if (selectedPeriod === 'last365') return rolling.totalContributions;
+		return selected?.totalContributions ?? null;
+	});
+
+	const activePeriodLabel = $derived.by(() => {
+		if (selectedPeriod === 'last365') return 'last 365 days';
+		if (typeof selectedPeriod === 'number') return String(selectedPeriod);
+		return 'selected period';
+	});
+
+	const maxContribForPeriod = $derived.by(() => {
+		if (selectedPeriod === 'last365') return rolling.maxContribution;
+		return selectedMaxContributions;
+	});
 
 	function monthMarkers(weeks: ContributionWeek[], year: number): Array<{ label: string; index: number }> {
 		const out: Array<{ label: string; index: number }> = [];
@@ -127,25 +209,76 @@
 		return deduped;
 	}
 
-	function levelForDay(day: ContributionDay): 0 | 1 | 2 | 3 {
+	function monthMarkersForRange(
+		weeks: ContributionWeek[],
+		rangeStart: Date,
+		rangeEnd: Date
+	): Array<{ label: string; index: number }> {
+		const out: Array<{ label: string; index: number }> = [];
+		let prevKey = '';
+		const start = clampUtcMidnight(rangeStart);
+		const end = clampUtcMidnight(rangeEnd);
+
+		const dayEntries: Array<{ weekIndex: number; dateStr: string }> = [];
+		for (let wi = 0; wi < weeks.length; wi += 1) {
+			for (const day of weeks[wi]?.contributionDays ?? []) {
+				if (!day?.date) continue;
+				dayEntries.push({ weekIndex: wi, dateStr: day.date });
+			}
+		}
+
+		dayEntries.sort((a, b) => a.dateStr.localeCompare(b.dateStr));
+		for (const entry of dayEntries) {
+			const d = new Date(`${entry.dateStr}T00:00:00Z`);
+			if (d < start || d > end) continue;
+			const key = `${d.getUTCFullYear()}-${d.getUTCMonth()}`;
+			if (key === prevKey) continue;
+			const month = d.toLocaleString('en-US', { month: 'short', timeZone: 'UTC' });
+			out.push({ label: month, index: entry.weekIndex });
+			prevKey = key;
+		}
+
+		const deduped: Array<{ label: string; index: number }> = [];
+		for (const marker of out) {
+			const last = deduped[deduped.length - 1];
+			if (last?.index === marker.index) {
+				deduped[deduped.length - 1] = marker;
+			} else {
+				deduped.push(marker);
+			}
+		}
+
+		return deduped;
+	}
+
+	const visibleMonthMarkers = $derived.by(() => {
+		if (selectedPeriod === 'last365') {
+			return monthMarkersForRange(visibleWeeks, rolling.start, rolling.end);
+		}
+		if (!selected) return [];
+		return monthMarkers(visibleWeeks, selected.year);
+	});
+
+	function levelForDay(day: ContributionDay): 0 | 1 | 2 | 3 | 4 {
 		const color = (day.color ?? '').toLowerCase();
-		const byColor: Record<string, 0 | 1 | 2 | 3> = {
+		const byColor: Record<string, 0 | 1 | 2 | 3 | 4> = {
 			'#ebedf0': 0,
 			'#9be9a8': 1,
 			'#40c463': 2,
 			'#30a14e': 3,
-			'#216e39': 3
+			'#216e39': 4
 		};
 
 		if (day.contributionCount <= 0) return 0;
 		if (color in byColor) return byColor[color];
 
-		const max = selectedMaxContributions;
+		const max = maxContribForPeriod;
 		if (max <= 0) return 0;
 		const normalized = day.contributionCount / max; // 0..1
-		if (normalized < 0.34) return 1;
-		if (normalized < 0.67) return 2;
-		return 3;
+		if (normalized < 0.25) return 1;
+		if (normalized < 0.5) return 2;
+		if (normalized < 0.75) return 3;
+		return 4;
 	}
 
 	function contributionTooltip(day: ContributionDay): string | null {
@@ -163,13 +296,14 @@
 				<a class="termbar__label" href={profile.github} target="_blank" rel="noopener noreferrer">
 					github commit history ↗
 				</a>
+				<span class="termbar__meta">Total commits: {totalCommits ?? '--'}</span>
 			</div>
 
 			{#if initialError}
 				<div class="chart-wrap">
 					<div class="empty">{initialError}</div>
 				</div>
-			{:else if selected}
+			{:else if selectedPeriod != null}
 				<div class="chart-wrap">
 					{#if visibleWeeks.length > 0}
 						<div class="chart-main">
@@ -184,7 +318,7 @@
 
 									<div class="calendar-scroll" style={`--weeks: ${weeksCount};`}>
 										<div class="months__content">
-											{#each monthMarkers(visibleWeeks, selected.year) as marker, markerIdx (`${marker.index}-${marker.label}-${markerIdx}`)}
+											{#each visibleMonthMarkers as marker, markerIdx (`${marker.index}-${marker.label}-${markerIdx}`)}
 												<span
 													class="months__label"
 													style={`left: calc(${marker.index} * (var(--cell) + var(--week-gap, 3px)));`}
@@ -193,13 +327,14 @@
 											{/each}
 										</div>
 
-										<div class="calendar" aria-label={`Contributions for ${selected.year}`}>
+										<div class="calendar" aria-label={`Contributions for ${activePeriodLabel}`}>
 											{#each visibleWeeks as week, wi (wi)}
 												<div class="week">
 													{#each week.contributionDays as day (day.date)}
 														<div
 															class="day"
 															data-level={levelForDay(day)}
+															data-outside={day.outside ? 'true' : undefined}
 															data-tooltip={contributionTooltip(day) ?? undefined}
 														></div>
 													{/each}
@@ -211,13 +346,23 @@
 							</div>
 
 							<div class="years" aria-label="Contribution years">
+								<button
+									type="button"
+									class="year year--wide"
+									class:year--current={selectedPeriod === 'last365'}
+									onclick={() => {
+										userPeriodOverride = 'last365';
+									}}
+								>
+									Last 365d
+								</button>
 								{#each yearOptions as y (y)}
 									<button
 										type="button"
 										class="year"
-										class:year--current={y === selectedYear}
+										class:year--current={y === selectedPeriod}
 										onclick={() => {
-											userYearOverride = y;
+											userPeriodOverride = y;
 										}}>{y}</button
 									>
 								{/each}
@@ -234,13 +379,14 @@
 							<span class="legend__square" data-level="1"></span>
 							<span class="legend__square" data-level="2"></span>
 							<span class="legend__square" data-level="3"></span>
+							<span class="legend__square" data-level="4"></span>
 						</div>
 						<span class="legend__label">More</span>
 					</div>
 				</div>
 			{:else}
 				<div class="chart-wrap">
-					<div class="empty">No contribution data available for the selected year.</div>
+					<div class="empty">No contribution data available for the selected period.</div>
 				</div>
 			{/if}
 		</div>
@@ -282,6 +428,7 @@
 		padding: 0.6rem 0.9rem;
 		border-bottom: 1px solid var(--border-2);
 		background: rgba(0, 0, 0, 0.22);
+		min-width: 0;
 	}
 
 	.termbar__prompt {
@@ -289,6 +436,7 @@
 		font-size: 0.85rem;
 		color: var(--accent);
 		font-weight: 700;
+		flex-shrink: 0;
 	}
 
 	.termbar__label {
@@ -297,10 +445,24 @@
 		color: rgba(243, 246, 255, 0.92);
 		letter-spacing: 0.04em;
 		text-decoration: none;
+		white-space: nowrap;
+		overflow: hidden;
+		text-overflow: ellipsis;
+		min-width: 0;
+		flex: 1 1 auto;
+		text-transform: lowercase;
 	}
 
 	.termbar__label:hover {
 		text-decoration: underline;
+	}
+
+	.termbar__meta {
+		font-family: var(--font-mono);
+		font-size: 0.78rem;
+		color: var(--muted);
+		flex-shrink: 0;
+		white-space: nowrap;
 	}
 
 	.chart-wrap {
@@ -397,13 +559,13 @@
 	}
 
 	.weekdays__label:nth-child(1) {
-		grid-row: 2;
+		grid-row: 1;
 	}
 	.weekdays__label:nth-child(2) {
-		grid-row: 4;
+		grid-row: 3;
 	}
 	.weekdays__label:nth-child(3) {
-		grid-row: 6;
+		grid-row: 5;
 	}
 
 	.week {
@@ -425,6 +587,10 @@
 	.day[data-level='0'] {
 		background: var(--contrib-empty);
 	}
+	.day[data-outside='true'] {
+		background: transparent;
+		border-color: transparent;
+	}
 	.day[data-level='1'] {
 		background: rgba(54, 242, 194, 0.22);
 	}
@@ -432,6 +598,9 @@
 		background: rgba(54, 242, 194, 0.45);
 	}
 	.day[data-level='3'] {
+		background: rgba(54, 242, 194, 0.7);
+	}
+	.day[data-level='4'] {
 		background: rgba(54, 242, 194, 0.95);
 	}
 
@@ -513,6 +682,9 @@
 		background: rgba(54, 242, 194, 0.45);
 	}
 	.legend__square[data-level='3'] {
+		background: rgba(54, 242, 194, 0.7);
+	}
+	.legend__square[data-level='4'] {
 		background: rgba(54, 242, 194, 0.95);
 	}
 
@@ -520,6 +692,7 @@
 		display: grid;
 		gap: 0.45rem;
 		align-content: start;
+		justify-items: end;
 	}
 
 	.year {
@@ -527,20 +700,27 @@
 		font-size: 0.76rem;
 		color: rgba(243, 246, 255, 0.65);
 		padding: 0.22rem 0.45rem;
-		border: 1px solid transparent;
+		border: 1px solid var(--border-2);
 		background: transparent;
 		line-height: 1.15;
 		cursor: pointer;
+		text-align: right;
+		width: 3.7rem;
+	}
+
+	.year--wide {
+		width: auto;
+		text-align: left;
 	}
 
 	.year:hover {
 		color: rgba(243, 246, 255, 0.92);
-		border-color: var(--border-2);
+		border-color: color-mix(in srgb, var(--accent) 28%, var(--border-2));
 	}
 
 	.year--current {
-		color: rgba(243, 246, 255, 0.95);
-		border-color: var(--border);
+		color: rgba(243, 246, 255, 0.98);
+		border-color: var(--accent);
 		background: rgba(54, 242, 194, 0.12);
 	}
 
