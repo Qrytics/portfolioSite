@@ -1,19 +1,37 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="900" viewBox="0 0 1600 900">
+<svg xmlns="http://www.w3.org/2000/svg" width="1024" height="576" viewBox="0 0 1024 576">
   <defs>
-    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0%" stop-color="#0f172a"/>
-      <stop offset="100%" stop-color="#111827"/>
-    </linearGradient>
+    <pattern id="dotGrid" width="32" height="32" patternUnits="userSpaceOnUse">
+      <circle cx="4" cy="4" r="1.25" fill="#84cc16" opacity="0.46"/>
+    </pattern>
   </defs>
-  <rect width="1600" height="900" fill="url(#bg)"/>
-  <circle cx="1440" cy="760" r="170" fill="#22c55e" opacity="0.78"/>
-  <circle cx="150" cy="120" r="140" fill="#f97316" opacity="0.72"/>
-  <rect x="90" y="110" width="1420" height="680" rx="24" fill="#020617" opacity="0.78" stroke="#84cc16" stroke-width="3"/>
-  <text x="140" y="240" fill="#f8fafc" font-size="68" font-family="Inter,Segoe UI,Arial,sans-serif" font-weight="700">dungeonAgents-ProveAI</text>
-  <text x="140" y="300" fill="#bef264" font-size="36" font-family="Inter,Segoe UI,Arial,sans-serif">AI-agent dungeon simulation with trace instrumentation</text>
-  <rect x="140" y="350" width="150" height="48" rx="16" fill="#1d4ed8"/>
-  <text x="173" y="383" fill="#dbeafe" font-size="28" font-family="Inter,Segoe UI,Arial,sans-serif">Python</text>
-  <rect x="310" y="350" width="170" height="48" rx="16" fill="#365314"/>
-  <text x="343" y="383" fill="#ecfccb" font-size="28" font-family="Inter,Segoe UI,Arial,sans-serif">Langfuse</text>
-  <text x="140" y="730" fill="#94a3b8" font-size="34" font-family="JetBrains Mono,Consolas,monospace">github.com/Qrytics/dungeonAgents-ProveAI</text>
+
+  <!-- Base -->
+  <rect width="1024" height="576" fill="#0f1528"/>
+  <rect width="1024" height="576" fill="url(#dotGrid)"/>
+  <rect x="0" y="0" width="4" height="576" fill="#84cc16" opacity="0.9"/>
+
+  <!-- Corner circles (same composition as existing cards) -->
+  <circle cx="956" cy="58" r="90" fill="#84cc16" opacity="0.9"/>
+  <circle cx="960" cy="574" r="86" fill="#65a30d" opacity="0.88"/>
+
+  <!-- Title block -->
+  <text x="64" y="166" fill="#f8fafc" font-size="62" font-family="Inter,Segoe UI,Arial,sans-serif" font-weight="600">
+    dungeonAgents-ProveAI
+  </text>
+  <text x="64" y="224" fill="#bef264" font-size="24" font-family="Inter,Segoe UI,Arial,sans-serif" font-weight="400">
+    AI agents + structured trace instrumentation
+  </text>
+  <line x1="64" y1="252" x2="960" y2="252" stroke="#84cc16" stroke-width="2" opacity="0.62"/>
+
+  <!-- Chips -->
+  <rect x="64" y="270" width="82" height="34" rx="8" fill="#2b3d22"/>
+  <text x="76" y="293" fill="#d9f99d" font-size="17" font-family="Inter,Segoe UI,Arial,sans-serif" font-weight="500">Python</text>
+
+  <rect x="154" y="270" width="102" height="34" rx="8" fill="#2b3d22"/>
+  <text x="166" y="293" fill="#d9f99d" font-size="17" font-family="Inter,Segoe UI,Arial,sans-serif" font-weight="500">Langfuse</text>
+
+  <!-- Footer -->
+  <text x="64" y="536" fill="#a3e635" font-size="20" font-family="Inter,Segoe UI,Arial,sans-serif" font-weight="400">
+    github.com/Qrytics/dungeonAgents-ProveAI
+  </text>
 </svg>

@@ -58,6 +58,36 @@
 			return false;
 		}
 	}
+
+	const languageTags = new Set([
+		'javascript', 'typescript', 'python', 'rust', 'go', 'c++', 'c', 'dart', 'html', 'css', 'systemverilog'
+	]);
+	const frameworkTags = new Set([
+		'react', 'next.js', 'fastapi', 'svelte', 'react native', 'tauri', 'flutter', 'electron'
+	]);
+	const apiTags = new Set([
+		'spotify api', 'stripe api', 'calendly api', 'semantic scholar api', 'twitch api', 'openai api',
+		'github api', 'groq api', 'windows api', 'windows ui automation api', 'lcu api'
+	]);
+	const serviceTags = new Set(['docker', 'postgresql', 'sqlite', 'redis', 'neo4j', 'supabase', 'pocketbase', 'duckdb']);
+	const protocolTags = new Set(['mqtt', 'webrtc', 'manifest v3']);
+	const toolTags = new Set([
+		'discord.js', 'discord.py', 'langchain', 'litellm', 'pytorch', 'opencv', 'mediapipe', 'xgboost',
+		'lightgbm', 'scikit-learn', 'optuna', 'pandas', 'ollama', 'demucs', 'ffmpeg', 'rich', 'argparse',
+		'chokidar', 'xterm.js', 'node-cron', 'cadence virtuoso', 'tribe v2', 'faster-whisper', 'porcupine',
+		'pyyaml', 'pyaudio', 'pyautogui', 'tokio', 'scapy', 'expo', 'ytdl-core'
+	]);
+
+	function getTagKind(tag: string): 'language' | 'framework' | 'api' | 'service' | 'protocol' | 'tool' | 'other' {
+		const key = tag.toLowerCase();
+		if (languageTags.has(key)) return 'language';
+		if (frameworkTags.has(key)) return 'framework';
+		if (apiTags.has(key)) return 'api';
+		if (serviceTags.has(key)) return 'service';
+		if (protocolTags.has(key)) return 'protocol';
+		if (toolTags.has(key)) return 'tool';
+		return 'other';
+	}
 </script>
 
 <article
@@ -98,8 +128,8 @@
 			<p class="card__desc">{project.description}</p>
 
 			<div class="tech-badges">
-				{#each project.tags as tag}
-					<span class="tech-badge" data-tech={tag.toLowerCase()}>{tag}</span>
+				{#each project.tags as tag (tag)}
+					<span class="tech-badge" data-kind={getTagKind(tag)}>{tag}</span>
 				{/each}
 			</div>
 
@@ -345,49 +375,48 @@
 		letter-spacing: 0.02em;
 	}
 
-	/* Per-tech colors */
-	.tech-badge[data-tech='rust'] { border-color: rgba(222, 165, 132, 0.35); color: rgba(222, 165, 132, 0.95); background: rgba(222, 165, 132, 0.08); }
-	.tech-badge[data-tech='postgres'] { border-color: rgba(51, 78, 131, 0.35); color: rgba(34, 151, 201, 0.95); background: rgba(60, 74, 184, 0.08); }
-	.tech-badge[data-tech='kafka'] { border-color: rgba(255, 121, 0, 0.35); color: rgba(255, 151, 30, 0.95); background: rgba(255, 121, 0, 0.08); }
-	.tech-badge[data-tech='nats'], .tech-badge[data-tech='nats jetstream'] { border-color: rgba(0, 173, 216, 0.35); color: rgba(0, 203, 246, 0.95); background: rgba(0, 173, 216, 0.08); }
-	.tech-badge[data-tech='flutter'] { border-color: rgba(69, 209, 253, 0.35); color: rgba(69, 209, 253, 0.95); background: rgba(69, 209, 253, 0.08); }
-	.tech-badge[data-tech='svelte'] { border-color: rgba(255, 62, 0, 0.35); color: rgba(255, 98, 50, 0.95); background: rgba(255, 62, 0, 0.08); }
-	.tech-badge[data-tech='kubernetes'], .tech-badge[data-tech='k8s'] { border-color: rgba(50, 108, 229, 0.35); color: rgba(80, 138, 255, 0.95); background: rgba(50, 108, 229, 0.08); }
-	.tech-badge[data-tech='zig'] { border-color: rgba(247, 164, 29, 0.35); color: rgba(247, 184, 69, 0.95); background: rgba(247, 164, 29, 0.08); }
-	.tech-badge[data-tech='c'],
-	.tech-badge[data-tech='c/c++'] { border-color: rgba(85, 85, 255, 0.35); color: rgba(115, 115, 255, 0.95); background: rgba(85, 85, 255, 0.08); }
-	.tech-badge[data-tech='systemverilog'] { border-color: rgba(218, 165, 32, 0.35); color: rgba(255, 215, 0, 0.95); background: rgba(218, 165, 32, 0.08); }
-	.tech-badge[data-tech='wasm'], .tech-badge[data-tech='webassembly'] { border-color: rgba(101, 79, 240, 0.35); color: rgba(131, 109, 255, 0.95); background: rgba(101, 79, 240, 0.08); }
-	.tech-badge[data-tech='python'] { border-color: rgba(76, 127, 169, 0.35); color: rgba(74, 151, 213, 0.95); background: rgba(43, 93, 134, 0.08); }
-	.tech-badge[data-tech='docker'] { border-color: rgba(0, 123, 255, 0.35); color: rgba(30, 153, 255, 0.95); background: rgba(9, 117, 233, 0.08); }
-	.tech-badge[data-tech='go'] { border-color: rgba(0, 173, 216, 0.35); color: rgba(30, 203, 246, 0.95); background: rgba(0, 173, 216, 0.08); }
-	.tech-badge[data-tech='typescript'] { border-color: rgba(49, 120, 198, 0.35); color: rgba(79, 152, 228, 0.95); background: rgba(49, 120, 198, 0.08); }
-	.tech-badge[data-tech='sveltekit'] { border-color: rgba(255, 62, 0, 0.35); color: rgba(255, 98, 50, 0.95); background: rgba(255, 62, 0, 0.08); }
-	.tech-badge[data-tech='react'] { border-color: rgba(97, 218, 251, 0.35); color: rgba(97, 218, 251, 0.95); background: rgba(97, 218, 251, 0.08); }
-	.tech-badge[data-tech='webrtc'] { border-color: rgba(255, 152, 0, 0.35); color: rgba(255, 172, 50, 0.95); background: rgba(255, 152, 0, 0.08); }
-	.tech-badge[data-tech='pytorch'] { border-color: rgba(238, 76, 44, 0.35); color: rgba(238, 106, 74, 0.95); background: rgba(238, 76, 44, 0.08); }
-	.tech-badge[data-tech='javascript'] { border-color: rgba(247, 223, 30, 0.4); color: rgba(247, 233, 80, 0.95); background: rgba(247, 223, 30, 0.1); }
-	.tech-badge[data-tech='html'] { border-color: rgba(227, 76, 34, 0.35); color: rgba(255, 120, 80, 0.95); background: rgba(227, 76, 34, 0.08); }
-	.tech-badge[data-tech='chrome extension'] { border-color: rgba(66, 133, 244, 0.35); color: rgba(100, 163, 255, 0.95); background: rgba(66, 133, 244, 0.08); }
-	.tech-badge[data-tech='litellm'] { border-color: rgba(139, 92, 246, 0.35); color: rgba(167, 139, 255, 0.95); background: rgba(139, 92, 246, 0.08); }
-	.tech-badge[data-tech='rich'] { border-color: rgba(0, 191, 165, 0.35); color: rgba(0, 221, 195, 0.95); background: rgba(0, 191, 165, 0.08); }
-	.tech-badge[data-tech='argparse'] { border-color: rgba(76, 127, 169, 0.35); color: rgba(74, 151, 213, 0.95); background: rgba(43, 93, 134, 0.08); }
-	.tech-badge[data-tech='cadence virtuoso'] { border-color: rgba(0, 150, 136, 0.35); color: rgba(0, 180, 166, 0.95); background: rgba(0, 150, 136, 0.08); }
-	.tech-badge[data-tech='ota'] { border-color: rgba(156, 39, 176, 0.35); color: rgba(186, 104, 200, 0.95); background: rgba(156, 39, 176, 0.08); }
-	.tech-badge[data-tech='analog modeling'] { border-color: rgba(255, 152, 0, 0.35); color: rgba(255, 183, 77, 0.95); background: rgba(255, 152, 0, 0.08); }
-	.tech-badge[data-tech='parasitic simulation'] { border-color: rgba(121, 85, 72, 0.35); color: rgba(161, 136, 127, 0.95); background: rgba(121, 85, 72, 0.08); }
-	.tech-badge[data-tech='ocr'] { border-color: rgba(63, 81, 181, 0.35); color: rgba(92, 107, 192, 0.95); background: rgba(63, 81, 181, 0.08); }
-	.tech-badge[data-tech='speech synthesis'] { border-color: rgba(233, 30, 99, 0.35); color: rgba(244, 143, 177, 0.95); background: rgba(233, 30, 99, 0.08); }
-	.tech-badge[data-tech='opencv'] { border-color: rgba(0, 150, 199, 0.35); color: rgba(0, 180, 229, 0.95); background: rgba(0, 150, 199, 0.08); }
-	.tech-badge[data-tech='api'] { border-color: rgba(76, 175, 80, 0.35); color: rgba(129, 199, 132, 0.95); background: rgba(76, 175, 80, 0.08); }
-	.tech-badge[data-tech='fpga'] { border-color: rgba(183, 28, 28, 0.35); color: rgba(229, 115, 115, 0.95); background: rgba(183, 28, 28, 0.08); }
-	.tech-badge[data-tech='vga'] { border-color: rgba(93, 64, 55, 0.35); color: rgba(141, 110, 99, 0.95); background: rgba(93, 64, 55, 0.08); }
-	.tech-badge[data-tech='fsm'] { border-color: rgba(218, 165, 32, 0.35); color: rgba(255, 215, 0, 0.95); background: rgba(218, 165, 32, 0.08); }
-	.tech-badge[data-tech='rsa-2048'] { border-color: rgba(46, 125, 50, 0.35); color: rgba(102, 187, 106, 0.95); background: rgba(46, 125, 50, 0.08); }
-	.tech-badge[data-tech='fastapi'] { border-color: rgba(0, 191, 165, 0.35); color: rgba(38, 222, 196, 0.95); background: rgba(0, 191, 165, 0.08); }
-	.tech-badge[data-tech='mqtt'] { border-color: rgba(255, 121, 0, 0.35); color: rgba(255, 151, 30, 0.95); background: rgba(255, 121, 0, 0.08); }
-	.tech-badge[data-tech='next.js'] { border-color: rgba(0, 0, 0, 0.5); color: rgba(243, 246, 255, 0.95); background: rgba(255, 255, 255, 0.12); }
-	.tech-badge[data-tech='postgresql'] { border-color: rgba(51, 78, 131, 0.35); color: rgba(34, 151, 201, 0.95); background: rgba(60, 74, 184, 0.08); }
+	/* Badge type colors */
+	.tech-badge[data-kind='language'] {
+		border-color: rgba(59, 130, 246, 0.4);
+		color: rgba(147, 197, 253, 0.95);
+		background: rgba(59, 130, 246, 0.12);
+	}
+
+	.tech-badge[data-kind='framework'] {
+		border-color: rgba(45, 212, 191, 0.44);
+		color: rgba(153, 246, 228, 0.96);
+		background: rgba(20, 184, 166, 0.14);
+	}
+
+	.tech-badge[data-kind='api'] {
+		border-color: rgba(245, 158, 11, 0.42);
+		color: rgba(252, 211, 77, 0.95);
+		background: rgba(245, 158, 11, 0.12);
+	}
+
+	.tech-badge[data-kind='service'] {
+		border-color: rgba(192, 132, 252, 0.45);
+		color: rgba(233, 213, 255, 0.96);
+		background: rgba(168, 85, 247, 0.14);
+	}
+
+	.tech-badge[data-kind='protocol'] {
+		border-color: rgba(244, 114, 182, 0.46);
+		color: rgba(251, 207, 232, 0.96);
+		background: rgba(236, 72, 153, 0.16);
+	}
+
+	.tech-badge[data-kind='tool'] {
+		border-color: rgba(132, 204, 22, 0.44);
+		color: rgba(217, 249, 157, 0.96);
+		background: rgba(132, 204, 22, 0.14);
+	}
+
+	.tech-badge[data-kind='other'] {
+		border-color: rgba(148, 163, 184, 0.35);
+		color: rgba(203, 213, 225, 0.9);
+		background: rgba(148, 163, 184, 0.1);
+	}
 
 	/* Action links */
 	.links {

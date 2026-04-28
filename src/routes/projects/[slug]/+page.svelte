@@ -4,6 +4,36 @@ import MediaSection from '$lib/components/MediaSection.svelte';
 
 let { data }: { data: PageData } = $props();
 const project = $derived(data.project);
+
+const languageTags = new Set([
+	'javascript', 'typescript', 'python', 'rust', 'go', 'c++', 'c', 'dart', 'html', 'css', 'systemverilog'
+]);
+const frameworkTags = new Set([
+	'react', 'next.js', 'fastapi', 'svelte', 'react native', 'tauri', 'flutter', 'electron'
+]);
+const apiTags = new Set([
+	'spotify api', 'stripe api', 'calendly api', 'semantic scholar api', 'twitch api', 'openai api',
+	'github api', 'groq api', 'windows api', 'windows ui automation api', 'lcu api'
+]);
+const serviceTags = new Set(['docker', 'postgresql', 'sqlite', 'redis', 'neo4j', 'supabase', 'pocketbase', 'duckdb']);
+const protocolTags = new Set(['mqtt', 'webrtc', 'manifest v3']);
+const toolTags = new Set([
+	'discord.js', 'discord.py', 'langchain', 'litellm', 'pytorch', 'opencv', 'mediapipe', 'xgboost',
+	'lightgbm', 'scikit-learn', 'optuna', 'pandas', 'ollama', 'demucs', 'ffmpeg', 'rich', 'argparse',
+	'chokidar', 'xterm.js', 'node-cron', 'cadence virtuoso', 'tribe v2', 'faster-whisper', 'porcupine',
+	'pyyaml', 'pyaudio', 'pyautogui', 'tokio', 'scapy', 'expo', 'ytdl-core'
+]);
+
+function getTagKind(tag: string): 'language' | 'framework' | 'api' | 'service' | 'protocol' | 'tool' | 'other' {
+	const key = tag.toLowerCase();
+	if (languageTags.has(key)) return 'language';
+	if (frameworkTags.has(key)) return 'framework';
+	if (apiTags.has(key)) return 'api';
+	if (serviceTags.has(key)) return 'service';
+	if (protocolTags.has(key)) return 'protocol';
+	if (toolTags.has(key)) return 'tool';
+	return 'other';
+}
 </script>
 
 <svelte:head>
@@ -38,8 +68,8 @@ const project = $derived(data.project);
 <div class="meta-row">
 <span class="year">{project.startMonth} {project.startYear} - {project.endMonth} {project.endYear}</span>
 <div class="tech-badges">
-{#each project.tags as tag}
-<span class="tech-badge" data-tech={tag.toLowerCase()}>{tag}</span>
+{#each project.tags as tag (tag)}
+<span class="tech-badge" data-kind={getTagKind(tag)}>{tag}</span>
 {/each}
 </div>
 </div>
@@ -361,40 +391,13 @@ text-transform: lowercase;
 letter-spacing: 0.02em;
 }
 
-.tech-badge[data-tech='rust'] { border-color: rgba(222,165,132,.35); color: rgba(222,165,132,.95); background: rgba(222,165,132,.08); }
-.tech-badge[data-tech='postgres'], .tech-badge[data-tech='postgresql'] { border-color: rgba(51,78,131,.35); color: rgba(34,151,201,.95); background: rgba(60,74,184,.08); }
-.tech-badge[data-tech='svelte'] { border-color: rgba(255,62,0,.35); color: rgba(255,98,50,.95); background: rgba(255,62,0,.08); }
-.tech-badge[data-tech='kubernetes'], .tech-badge[data-tech='k8s'] { border-color: rgba(50,108,229,.35); color: rgba(80,138,255,.95); background: rgba(50,108,229,.08); }
-.tech-badge[data-tech='python'] { border-color: rgba(76,127,169,.35); color: rgba(74,151,213,.95); background: rgba(43,93,134,.08); }
-.tech-badge[data-tech='docker'] { border-color: rgba(0,123,255,.35); color: rgba(30,153,255,.95); background: rgba(9,117,233,.08); }
-.tech-badge[data-tech='go'] { border-color: rgba(0,173,216,.35); color: rgba(30,203,246,.95); background: rgba(0,173,216,.08); }
-.tech-badge[data-tech='typescript'] { border-color: rgba(49,120,198,.35); color: rgba(79,152,228,.95); background: rgba(49,120,198,.08); }
-.tech-badge[data-tech='wasm'], .tech-badge[data-tech='webassembly'] { border-color: rgba(101,79,240,.35); color: rgba(131,109,255,.95); background: rgba(101,79,240,.08); }
-.tech-badge[data-tech='c'], .tech-badge[data-tech='c/c++'] { border-color: rgba(85,85,255,.35); color: rgba(115,115,255,.95); background: rgba(85,85,255,.08); }
-.tech-badge[data-tech='systemverilog'] { border-color: rgba(218,165,32,.35); color: rgba(255,215,0,.95); background: rgba(218,165,32,.08); }
-.tech-badge[data-tech='react'] { border-color: rgba(97,218,251,.35); color: rgba(97,218,251,.95); background: rgba(97,218,251,.08); }
-.tech-badge[data-tech='pytorch'] { border-color: rgba(238,76,44,.35); color: rgba(238,106,74,.95); background: rgba(238,76,44,.08); }
-.tech-badge[data-tech='javascript'] { border-color: rgba(247,223,30,.4); color: rgba(247,233,80,.95); background: rgba(247,223,30,.1); }
-.tech-badge[data-tech='html'] { border-color: rgba(227,76,34,.35); color: rgba(255,120,80,.95); background: rgba(227,76,34,.08); }
-.tech-badge[data-tech='chrome extension'] { border-color: rgba(66,133,244,.35); color: rgba(100,163,255,.95); background: rgba(66,133,244,.08); }
-.tech-badge[data-tech='litellm'] { border-color: rgba(139,92,246,.35); color: rgba(167,139,255,.95); background: rgba(139,92,246,.08); }
-.tech-badge[data-tech='rich'] { border-color: rgba(0,191,165,.35); color: rgba(0,221,195,.95); background: rgba(0,191,165,.08); }
-.tech-badge[data-tech='argparse'] { border-color: rgba(76,127,169,.35); color: rgba(74,151,213,.95); background: rgba(43,93,134,.08); }
-.tech-badge[data-tech='cadence virtuoso'] { border-color: rgba(0,150,136,.35); color: rgba(0,180,166,.95); background: rgba(0,150,136,.08); }
-.tech-badge[data-tech='ota'] { border-color: rgba(156,39,176,.35); color: rgba(186,104,200,.95); background: rgba(156,39,176,.08); }
-.tech-badge[data-tech='analog modeling'] { border-color: rgba(255,152,0,.35); color: rgba(255,183,77,.95); background: rgba(255,152,0,.08); }
-.tech-badge[data-tech='parasitic simulation'] { border-color: rgba(121,85,72,.35); color: rgba(161,136,127,.95); background: rgba(121,85,72,.08); }
-.tech-badge[data-tech='ocr'] { border-color: rgba(63,81,181,.35); color: rgba(92,107,192,.95); background: rgba(63,81,181,.08); }
-.tech-badge[data-tech='speech synthesis'] { border-color: rgba(233,30,99,.35); color: rgba(244,143,177,.95); background: rgba(233,30,99,.08); }
-.tech-badge[data-tech='opencv'] { border-color: rgba(0,150,199,.35); color: rgba(0,180,229,.95); background: rgba(0,150,199,.08); }
-.tech-badge[data-tech='api'] { border-color: rgba(76,175,80,.35); color: rgba(129,199,132,.95); background: rgba(76,175,80,.08); }
-.tech-badge[data-tech='fpga'] { border-color: rgba(183,28,28,.35); color: rgba(229,115,115,.95); background: rgba(183,28,28,.08); }
-.tech-badge[data-tech='vga'] { border-color: rgba(93,64,55,.35); color: rgba(141,110,99,.95); background: rgba(93,64,55,.08); }
-.tech-badge[data-tech='fsm'] { border-color: rgba(218,165,32,.35); color: rgba(255,215,0,.95); background: rgba(218,165,32,.08); }
-.tech-badge[data-tech='rsa-2048'] { border-color: rgba(46,125,50,.35); color: rgba(102,187,106,.95); background: rgba(46,125,50,.08); }
-.tech-badge[data-tech='fastapi'] { border-color: rgba(0,191,165,.35); color: rgba(38,222,196,.95); background: rgba(0,191,165,.08); }
-.tech-badge[data-tech='mqtt'] { border-color: rgba(255,121,0,.35); color: rgba(255,151,30,.95); background: rgba(255,121,0,.08); }
-.tech-badge[data-tech='next.js'] { border-color: rgba(0,0,0,.5); color: rgba(243,246,255,.95); background: rgba(255,255,255,.12); }
+.tech-badge[data-kind='language'] { border-color: rgba(59,130,246,.4); color: rgba(147,197,253,.95); background: rgba(59,130,246,.12); }
+.tech-badge[data-kind='framework'] { border-color: rgba(45,212,191,.44); color: rgba(153,246,228,.96); background: rgba(20,184,166,.14); }
+.tech-badge[data-kind='api'] { border-color: rgba(245,158,11,.42); color: rgba(252,211,77,.95); background: rgba(245,158,11,.12); }
+.tech-badge[data-kind='service'] { border-color: rgba(192,132,252,.45); color: rgba(233,213,255,.96); background: rgba(168,85,247,.14); }
+.tech-badge[data-kind='protocol'] { border-color: rgba(244,114,182,.46); color: rgba(251,207,232,.96); background: rgba(236,72,153,.16); }
+.tech-badge[data-kind='tool'] { border-color: rgba(132,204,22,.44); color: rgba(217,249,157,.96); background: rgba(132,204,22,.14); }
+.tech-badge[data-kind='other'] { border-color: rgba(148,163,184,.35); color: rgba(203,213,225,.9); background: rgba(148,163,184,.1); }
 
 .subtitle {
 margin: 0;

@@ -13,7 +13,8 @@
 		"update:project-language-bytes": "node scripts/update-project-language-bytes.mjs",
 		"build:gartic-draw": "node scripts/build-gartic-draw.mjs",
 		"build:dodge-lol": "node scripts/build-dodge-lol.mjs",
-		"build:soundvisual-avora": "node scripts/build-soundvisual-avora.mjs"
+		"build:soundvisual-avora": "node scripts/build-soundvisual-avora.mjs",
+		"generate:demo-card": "node scripts/generate-demo-card.mjs"
 	},
 	"devDependencies": {
 		"@sveltejs/adapter-auto": "^7.0.0",
