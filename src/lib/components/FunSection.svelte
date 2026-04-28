@@ -16,67 +16,43 @@
 	];
 </script>
 
+{#snippet mergedContent()}
+	<div class="card">
+		<div class="card__header">
+			<h2 class="card__title">Things I Like</h2>
+		</div>
+		<ul class="list">
+			{#each interests as item (item)}
+				<li class="list__item">
+					<span class="bullet" aria-hidden="true">•</span>
+					{item}
+				</li>
+			{/each}
+		</ul>
+
+		<div class="card__header card__header--subsection">
+			<h2 class="card__title">Fun Facts</h2>
+		</div>
+		<ul class="list">
+			{#each funFacts as item (item)}
+				<li class="list__item">
+					<span class="bullet" aria-hidden="true">•</span>
+					{item}
+				</li>
+			{/each}
+		</ul>
+	</div>
+{/snippet}
+
 {#if embedded}
 	<div class="grid">
-		<div class="card">
-			<div class="card__header">
-				<h2 class="card__title">Things I Like</h2>
-			</div>
-			<ul class="list">
-				{#each interests as item}
-					<li class="list__item">
-						<span class="bullet" aria-hidden="true">•</span>
-						{item}
-					</li>
-				{/each}
-			</ul>
-		</div>
-
-		<div class="card">
-			<div class="card__header">
-				<h2 class="card__title">Fun Facts</h2>
-			</div>
-			<ul class="list">
-				{#each funFacts as item}
-					<li class="list__item">
-						<span class="bullet" aria-hidden="true">•</span>
-						{item}
-					</li>
-				{/each}
-			</ul>
-		</div>
+		{@render mergedContent()}
 	</div>
 {:else}
 	<section class="fun" id="fun" aria-label="Fun facts and interests">
 		<div class="fun__inner">
 			<div class="grid">
-				<div class="card">
-					<div class="card__header">
-						<h2 class="card__title">Things I Like</h2>
-					</div>
-					<ul class="list">
-						{#each interests as item}
-							<li class="list__item">
-								<span class="bullet" aria-hidden="true">•</span>
-								{item}
-							</li>
-						{/each}
-					</ul>
-				</div>
-
-				<div class="card">
-					<div class="card__header">
-						<h2 class="card__title">Fun Facts</h2>
-					</div>
-					<ul class="list">
-						{#each funFacts as item}
-							<li class="list__item">
-								<span class="bullet" aria-hidden="true">•</span>
-								{item}
-							</li>
-						{/each}
-					</ul>
-				</div>
+				{@render mergedContent()}
 			</div>
 		</div>
 	</section>
@@ -98,12 +74,6 @@
 		grid-template-columns: 1fr;
 	}
 
-	@media (min-width: 600px) {
-		.grid {
-			grid-template-columns: 1fr 1fr;
-		}
-	}
-
 	.card {
 		border: 1px solid var(--border);
 		background: linear-gradient(180deg, rgba(255, 255, 255, 0.025), transparent 60%), var(--panel);
@@ -116,6 +86,12 @@
 		display: flex;
 		align-items: center;
 		gap: 0.5rem;
+	}
+
+	.card__header--subsection {
+		margin-top: 0.4rem;
+		padding-top: 0.9rem;
+		border-top: 1px solid var(--border-2);
 	}
 
 	.card__title {

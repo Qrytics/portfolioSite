@@ -31,50 +31,52 @@
 			</div>
 		</div>
 
-		<div class="fun-wrap">
-			<FunSection embedded />
-		</div>
+		<div class="about-lower">
+			<div class="fun-wrap">
+				<FunSection embedded />
+			</div>
 
-		<div class="grid">
-			<a class="card card--rhythm" href="/rhythm-games">
-				<div class="card__inner card__inner--media">
-					<div class="media-copy">
-						<div class="title-row">
-							<h3 class="title">rhythm games</h3>
-							<div class="cta">videos ↗</div>
+			<div class="side-grid">
+				<a class="card card--rhythm" href="/rhythm-games">
+					<div class="card__inner card__inner--media">
+						<div class="media-copy">
+							<div class="title-row">
+								<h3 class="title">rhythm games</h3>
+								<div class="cta">videos ↗</div>
+							</div>
+							<p class="excerpt">A few clips from my favorite rhythm games.</p>
 						</div>
-						<p class="excerpt">A few clips from my favorite rhythm games.</p>
+
+						<img
+							class="rhythm-icon"
+							src="/icons/rhythm-arrows.png"
+							alt="Rhythm game arrow symbols"
+							loading="lazy"
+						/>
 					</div>
+				</a>
 
-					<img
-						class="rhythm-icon"
-						src="/icons/rhythm-arrows.png"
-						alt="Rhythm game arrow symbols"
-						loading="lazy"
-					/>
-				</div>
-			</a>
-
-			<a class="card card--photos" href="/about">
-				<div class="card__inner card__inner--media">
-					<div class="media-copy">
-						<div class="title-row">
-							<h3 class="title">photos</h3>
-							<div class="cta">gallery ↗</div>
+				<a class="card card--photos" href="/about">
+					<div class="card__inner card__inner--media">
+						<div class="media-copy">
+							<div class="title-row">
+								<h3 class="title">photos</h3>
+								<div class="cta">gallery ↗</div>
+							</div>
+							<p class="excerpt">
+								A look into my life outside the keyboard. Friends, family, the moments that matter.
+							</p>
 						</div>
-						<p class="excerpt">
-							Here's a look into my life outside the keyboard. Friends, family, and the moments that matter.
-						</p>
-					</div>
 
-					<img
-						class="card-icon"
-						src="/icons/camera-pixel.png"
-						alt="Pixel art camera"
-						loading="lazy"
-					/>
-				</div>
-			</a>
+						<img
+							class="card-icon"
+							src="/icons/camera-pixel.png"
+							alt="Pixel art camera"
+							loading="lazy"
+						/>
+					</div>
+				</a>
+			</div>
 		</div>
 	</div>
 </section>
@@ -120,14 +122,25 @@
 		align-items: stretch;
 	}
 
-	.grid {
+	.about-lower {
 		display: grid;
 		grid-template-columns: 1fr;
 		gap: 1rem;
+		align-items: stretch;
 	}
 
 	.fun-wrap {
-		margin: 1rem 0 1.2rem;
+		margin: 1rem 0 0;
+		width: 100%;
+		max-width: 29rem;
+		justify-self: start;
+	}
+
+	.side-grid {
+		display: grid;
+		grid-template-columns: 1fr;
+		gap: 1rem;
+		margin-top: 1rem;
 	}
 
 	@media (min-width: 720px) {
@@ -136,16 +149,15 @@
 			gap: 1.25rem;
 		}
 
-		.grid {
-			grid-template-columns: repeat(2, minmax(0, 1fr));
-			gap: 1.2rem;
+		.about-lower {
+			grid-template-columns: minmax(0, 29rem) minmax(0, 1fr);
+			gap: 1rem;
+			align-items: start;
 		}
-	}
 
-	@media (min-width: 1100px) {
-		.grid {
-			grid-template-columns: repeat(3, minmax(0, 1fr));
-			gap: 1.25rem;
+		.side-grid {
+			grid-template-rows: auto;
+			align-self: start;
 		}
 	}
 
@@ -157,11 +169,10 @@
 		border: 1px solid var(--border);
 		background: linear-gradient(180deg, rgba(255, 255, 255, 0.03), transparent 52%), var(--panel);
 		box-shadow: var(--shadow);
-		transition: transform 0.16s ease, border-color 0.16s ease;
+		transition: border-color 0.16s ease;
 	}
 
 	.card:hover {
-		transform: translateY(-2px);
 		border-color: rgba(222, 232, 255, 0.22);
 	}
 
@@ -230,9 +241,13 @@
 
 	.title {
 		margin: 0;
-		font-size: 1.05rem;
-		letter-spacing: 0.01em;
+		font-family: var(--font-mono);
+		font-size: 0.82rem;
+		letter-spacing: 0.04em;
+		line-height: 1.1;
 		color: rgba(243, 246, 255, 0.92);
+		font-weight: 600;
+		text-transform: uppercase;
 	}
 
 	.bio-heading {
@@ -248,7 +263,7 @@
 		display: flex;
 		align-items: baseline;
 		justify-content: flex-start;
-		gap: 0.75rem;
+		gap: 0.55rem;
 	}
 
 	.title-row .cta {
@@ -257,6 +272,7 @@
 
 	.excerpt {
 		margin: 0;
+		font-size: 14.08px;
 		color: rgba(243, 246, 255, 0.72);
 		line-height: 1.65;
 		max-width: 95ch;
@@ -264,9 +280,11 @@
 
 	.cta {
 		font-family: var(--font-mono);
-		font-size: 0.9rem;
+		font-size: 0.82rem;
+		font-weight: 400;
 		color: rgba(54, 242, 194, 0.92);
-		margin-top: 0.15rem;
+		margin-top: 0;
+		line-height: 1.1;
 	}
 
 	.highlight {
@@ -283,6 +301,11 @@
 		}
 
 		.bio-row {
+			gap: 0.85rem;
+		}
+
+		.about-lower,
+		.side-grid {
 			gap: 0.85rem;
 		}
 
