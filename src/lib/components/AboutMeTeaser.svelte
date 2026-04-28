@@ -1,5 +1,6 @@
 <script lang="ts">
 	import FunSection from '$lib/components/FunSection.svelte';
+	import { spotifyFavorites } from '$lib/data/spotify-favorites';
 </script>
 
 <section id="about-me" aria-label="About me" class="section">
@@ -76,6 +77,73 @@
 						/>
 					</div>
 				</a>
+
+				<div class="card card--spotify" aria-label="Spotify favorites">
+					<div class="card__inner">
+						<div class="title-row">
+							<h3 class="title">spotify</h3>
+						</div>
+
+						<div class="spotify-grid" aria-label="Spotify favorites">
+							<a
+								class="spotify-tile spotify-tile--compact"
+								href={spotifyFavorites.artist.href}
+								target="_blank"
+								rel="noopener noreferrer"
+								aria-label={`Open ${spotifyFavorites.artist.label} on Spotify`}
+							>
+								<img
+									class="spotify-shape spotify-shape--circle"
+									src={spotifyFavorites.artist.image}
+									alt={`${spotifyFavorites.artist.label} artist image`}
+									loading="lazy"
+								/>
+								<div class="spotify-tile__meta">
+									<div class="spotify-tile__label">{spotifyFavorites.artist.label}</div>
+									<div class="spotify-tile__sub">{spotifyFavorites.artist.subtitle}</div>
+								</div>
+							</a>
+
+							<a
+								class="spotify-tile spotify-tile--compact"
+								href={spotifyFavorites.album.href}
+								target="_blank"
+								rel="noopener noreferrer"
+								aria-label={`Open ${spotifyFavorites.album.label} on Spotify`}
+							>
+								<img
+									class="spotify-shape spotify-shape--square"
+									src={spotifyFavorites.album.image}
+									alt={`${spotifyFavorites.album.label} album cover`}
+									loading="lazy"
+								/>
+								<div class="spotify-tile__meta">
+									<div class="spotify-tile__label">{spotifyFavorites.album.label}</div>
+									<div class="spotify-tile__sub">{spotifyFavorites.album.subtitle}</div>
+								</div>
+							</a>
+
+							<a
+								class="spotify-tile spotify-tile--track"
+								href={spotifyFavorites.track.href}
+								target="_blank"
+								rel="noopener noreferrer"
+								aria-label={`Open ${spotifyFavorites.track.label} on Spotify`}
+							>
+								<img
+									class="spotify-shape spotify-shape--square"
+									src={spotifyFavorites.track.image}
+									alt={`${spotifyFavorites.track.label} cover art`}
+									loading="lazy"
+								/>
+								<div class="spotify-tile__meta">
+									<div class="spotify-tile__label">{spotifyFavorites.track.label}</div>
+									<div class="spotify-tile__sub">{spotifyFavorites.track.subtitle}</div>
+								</div>
+							</a>
+						</div>
+					</div>
+				</div>
 			</div>
 		</div>
 	</div>
@@ -152,11 +220,11 @@
 		.about-lower {
 			grid-template-columns: minmax(0, 29rem) minmax(0, 1fr);
 			gap: 1rem;
-			align-items: start;
+			align-items: stretch;
 		}
 
 		.side-grid {
-			grid-template-rows: auto;
+			grid-template-rows: auto auto;
 			align-self: start;
 		}
 	}
@@ -285,6 +353,93 @@
 		color: rgba(54, 242, 194, 0.92);
 		margin-top: 0;
 		line-height: 1.1;
+	}
+
+	.spotify-grid {
+		display: grid;
+		grid-template-columns: 1fr;
+		gap: 0.55rem;
+	}
+
+	.card--spotify .card__inner {
+		padding: 0.9rem 1rem;
+		gap: 0.9rem;
+		height: 100%;
+		align-content: start;
+	}
+
+	.spotify-tile {
+		display: grid;
+		grid-template-columns: 40px 1fr;
+		align-items: center;
+		gap: 0.65rem;
+		padding: 0.55rem 0.7rem;
+		border: 1px solid var(--border-2);
+		background: color-mix(in srgb, var(--panel) 72%, var(--bg) 28%);
+		text-decoration: none;
+		color: inherit;
+		min-width: 0;
+	}
+
+	.spotify-tile--compact {
+		justify-self: start;
+	}
+
+	.spotify-tile:hover {
+		border-color: var(--border);
+	}
+
+	.spotify-shape {
+		width: 40px;
+		height: 40px;
+		display: block;
+		object-fit: cover;
+		border: 1px solid color-mix(in srgb, var(--accent) 22%, transparent);
+		background: color-mix(in srgb, var(--panel) 82%, var(--bg) 18%);
+	}
+
+	.spotify-shape--circle {
+		border-radius: 999px;
+	}
+
+	.spotify-shape--square {
+		border-radius: 10px;
+	}
+
+	.spotify-tile__meta {
+		min-width: 0;
+	}
+
+	.spotify-tile__label {
+		font-family: var(--font-mono);
+		font-size: 0.84rem;
+		color: var(--text);
+		line-height: 1.2;
+		white-space: nowrap;
+		overflow: hidden;
+		text-overflow: ellipsis;
+	}
+
+	.spotify-tile__sub {
+		font-family: var(--font-mono);
+		font-size: 0.74rem;
+		color: var(--muted);
+		line-height: 1.2;
+	}
+
+	@media (min-width: 900px) {
+		.card--spotify {
+			min-height: calc(8rem);
+		}
+
+		.spotify-grid {
+			grid-template-columns: max-content max-content minmax(0, 1fr);
+		}
+
+		.spotify-tile--compact {
+			width: fit-content;
+			max-width: 100%;
+		}
 	}
 
 	.highlight {
