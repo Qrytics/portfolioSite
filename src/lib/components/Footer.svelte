@@ -53,6 +53,10 @@
 		border-top: 1px solid var(--border-2);
 		position: relative;
 		z-index: 1;
+		display: grid;
+		grid-template-columns: minmax(0, 1fr) auto;
+		align-items: center;
+		column-gap: 1rem;
 	}
 
 	.footer__inner {
@@ -72,7 +76,7 @@
 		color: rgba(243, 246, 255, 0.35);
 	}
 
-	@media (max-width: 36rem) {
+	@media (max-width: 64rem) {
 		.footer {
 			display: flex;
 			flex-direction: column;
@@ -119,10 +123,10 @@
 	}
 
 	.back-to-top {
-		position: absolute;
-		right: clamp(1.25rem, 4vw, 3rem);
-		top: 50%;
-		transform: translateY(-50%);
+		position: static;
+		transform: none;
+		justify-self: end;
+		white-space: nowrap;
 		background: none;
 		border: none;
 		padding: 0;
