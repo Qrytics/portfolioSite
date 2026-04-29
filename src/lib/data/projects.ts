@@ -28,6 +28,10 @@ export interface Project {
 	demo?: string;
 	/** Live / deployed app URL; shows "Visit Site" button when set. */
 	siteUrl?: string;
+	/** Optional external case-study or project page URL. */
+	projectPageUrl?: string;
+	/** Optional page-only live dashboard URL (used for context-sensitive CTA). */
+	liveDashboardUrl?: string;
 	image?: string;
 	/** Optional poster image (e.g. first frame); shown first, then main image/video when in view or on interaction. */
 	poster?: string;
@@ -71,48 +75,49 @@ export const projects: Project[] = [
 		image: '/gifs/smart-home-iot-demo.mp4',
 		poster: '/gifs/smart-home-iot-demo-poster.png',
 		description:
-			'Architected a full-stack IoT system for a smart home model meant to give full lighting, temperature, and security control through a React dashboard; built with ESP32 firmware in C/C++. Implemented a rules engine with configurable threshold triggers and MQTT pub/sub for real-time sensor data (temperature, occupancy, light, door lock) with sub-second actuation latency.',
-		longDescription: `Full-stack smart home platform spanning embedded firmware to web UI.
+			'Delivered a full-stack smart home platform that integrates ESP32-S3 room-node firmware, MQTT messaging, a FastAPI backend, and a React dashboard for centralized monitoring and control of environmental and access workflows. The final system emphasized reliable subsystem integration, transparent validation evidence, and demo-ready operation across both live and simulated conditions.',
+		longDescription: `Project Summary
 
-• Firmware: ESP32 in C/C++ for sensors (temperature, occupancy, light, door lock) and actuators, with MQTT pub/sub for real-time data.
-• Backend: FastAPI with JWT auth, SQLite persistence, and a rules engine with configurable threshold triggers.
-• Frontend: React dashboard for monitoring and control, deployed via Docker Compose.
-• DevOps: GitHub Actions CI/CD, Pytest (backend) and Jest (frontend) test suites.
-• Real-time: MQTT messaging across the stack for sub-second actuation latency.`,
+Built an end-to-end IoT architecture spanning embedded firmware, backend APIs, messaging infrastructure, and frontend UX:
+
+• **Firmware/Hardware:** Implemented and validated ESP32-S3 node workflows for environmental sensing and access-control behaviors, including staged bring-up and combined-load compatibility testing.
+• **Backend:** Developed FastAPI services for ingest/control paths, health checks, websocket/broker interactions, and rules-oriented behavior.
+• **Frontend:** Delivered a React dashboard with improved metric legibility and clear separation between Demo Mode and Live Mode.
+• **Infrastructure:** Orchestrated services through Docker for repeatable local integration across API, broker, and supporting dependencies.
+• **Validation:** Executed extensive backend pytest coverage and system-level timing/behavior experiments to support performance and reliability claims.`,
 		type: 'open-source',
 		tags: ['JavaScript', 'Python', 'React', 'FastAPI', 'Docker', 'MQTT'],
 		github: 'https://github.com/Qrytics/smartHome',
+		projectPageUrl: 'https://course.ece.cmu.edu/~ece500/projects/s26-teama4/',
+		liveDashboardUrl: 'http://smarthome:3000',
 		status: 'active',
 		startMonth: 'Jan',
 		startYear: 2026,
 		endMonth: 'May',
 		endYear: 2026,
 		year: 2026,
-		problem: 'Build a full-stack smart-home platform that gives homeowners real-time visibility and control over lighting, temperature, occupancy, and door-lock status, all from a single web dashboard.',
+		problem: 'Create a smart-home system that provides real-time visibility and control over environmental and security-related flows from one web interface, while remaining practical to validate and demonstrate under capstone constraints.',
 		architecture: [
-			'ESP32 firmware (C/C++) with sensors + actuators communicating over MQTT',
-			'MQTT broker bridging firmware to backend',
-			'FastAPI backend with JWT auth, SQLite persistence, and configurable rules engine',
-			'React dashboard for real-time monitoring and control',
-			'Docker Compose deployment with GitHub Actions CI/CD'
+			'ESP32-S3 nodes -> MQTT broker -> FastAPI backend -> React dashboard',
+			'Containerized services for repeatable local integration across API, broker, and dependencies',
+			'Requirement-linked test and validation evidence to support final claims'
 		],
 		challenges: [
-			'Achieving sub-second actuation latency end-to-end across MQTT and HTTP layers',
-			'Reliably detecting occupancy with a PIR sensor and debouncing false positives',
-			'Keeping JWT session management consistent between ESP32 and the web client',
-			'Writing cross-platform Docker Compose configs that work on both ARM and x86 hosts'
+			'Balancing hardware bring-up risk with software integration progress under tight final-deliverable timelines',
+			'Managing firmware/hardware uncertainty while preserving reliable demo narratives',
+			'Avoiding overclaims by separating measured end-to-end behaviors from partially exercised paths'
 		],
 		tradeoffs: [
-			'Chose SQLite over PostgreSQL for simplicity; acceptable for a single-home deployment',
-			'Used polling on the frontend for some metrics instead of WebSockets to reduce complexity',
-			'Stored JWT secrets in environment variables rather than a secrets manager to avoid cloud dependency'
+			'Prioritized staged integration and risk reduction over aggressive feature expansion',
+			'Used Demo/Live workflow separation to improve reliability and communication clarity',
+			'Chose evidence transparency over polished but unverifiable claims in final documentation'
 		],
-		outcome: 'End-to-end smart home platform running on real hardware, with sub-second sensor-to-dashboard latency and a passing Pytest + Jest CI suite.',
+		outcome: 'Completed a multi-layer smart-home platform with validated backend reliability, functioning firmware-to-dashboard integration paths, and presentation-ready demo workflows. The project finished with strong software/test maturity and meaningful hardware integration progress, while clearly documenting remaining constraints and scope boundaries.',
 		whatYouLearned: [
-			'Embedded MQTT pub/sub patterns and their tradeoffs vs HTTP polling',
-			'FastAPI dependency injection and JWT middleware design',
-			'How Docker networking affects service discovery between containers',
-			'Debouncing and hardware noise mitigation for PIR sensors'
+			'How to deliver a credible embedded + cloud/web system by tying claims to measurable evidence',
+			'Practical ESP32-S3 bring-up/debug strategy for real wiring, power, and integration constraints',
+			'How MQTT, APIs, and containerized services behave under real integration pressure',
+			'The value of explicit "fully demonstrated vs partially validated" reporting in engineering communication'
 		]
 	},
 	{

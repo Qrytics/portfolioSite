@@ -34,6 +34,22 @@ function getTagKind(tag: string): 'language' | 'framework' | 'api' | 'service' |
 	if (toolTags.has(key)) return 'tool';
 	return 'other';
 }
+
+function escapeHtml(text: string): string {
+	return text
+		.replaceAll('&', '&amp;')
+		.replaceAll('<', '&lt;')
+		.replaceAll('>', '&gt;')
+		.replaceAll('"', '&quot;')
+		.replaceAll("'", '&#39;');
+}
+
+function formatLongDescription(text: string): string {
+	const escaped = escapeHtml(text);
+	return escaped
+		.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+		.replace(/\n/g, '<br>');
+}
 </script>
 
 <svelte:head>
@@ -78,7 +94,7 @@ function getTagKind(tag: string): 'language' | 'framework' | 'api' | 'service' |
 <p class="desc">{project.description}</p>
 
 {#if project.longDescription}
-<div class="long-desc">{project.longDescription}</div>
+<div class="long-desc">{@html formatLongDescription(project.longDescription)}</div>
 {/if}
 
 {#if project.problem || project.architecture?.length || project.challenges?.length || project.tradeoffs?.length || project.outcome || project.whatYouLearned?.length}
@@ -157,6 +173,13 @@ source ↗
 {/if}
 {#if project.siteUrl}
 <a href={project.siteUrl} target="_blank" rel="noopener noreferrer" class="btn btn--primary">Visit Site ↗</a>
+{/if}
+{#if project.projectPageUrl}
+<a href={project.projectPageUrl} target="_blank" rel="noopener noreferrer" class="btn btn--primary">Project Site ↗</a>
+{/if}
+{#if project.slug === 'smart-home-iot-dashboard' && project.liveDashboardUrl}
+<a href={project.liveDashboardUrl} target="_blank" rel="noopener noreferrer" class="btn btn--warn">LIVE Dashboard ↗</a>
+<p class="live-note">(Only works for in-person showcase)</p>
 {/if}
 {#if project.demo}
 {#if /(\.mp4|\.webm|\.ogg)(\?|#|$)/i.test(project.demo) || /youtu\.be|youtube\.com/i.test(project.demo)}
@@ -471,6 +494,25 @@ border-color: var(--border);
 .btn--ghost:hover {
 background: color-mix(in srgb, var(--panel-2) 84%, var(--text));
 border-color: var(--border-2);
+}
+
+.btn--warn {
+	border-color: rgba(245, 158, 11, 0.45);
+	background: rgba(245, 158, 11, 0.14);
+	color: rgba(252, 211, 77, 0.96);
+}
+
+.btn--warn:hover {
+	border-color: rgba(245, 158, 11, 0.62);
+	background: rgba(245, 158, 11, 0.22);
+}
+
+.live-note {
+	margin: 0.15rem 0 0;
+	width: 100%;
+	color: var(--muter);
+	font-size: 0.8rem;
+	font-family: var(--font-mono);
 }
 
 .back-link a {
