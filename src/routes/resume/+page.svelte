@@ -98,7 +98,7 @@
 
 	@media (max-width: 640px) {
 		.frame iframe {
-			height: calc(100vh - 8rem);
+			height: clamp(420px, 62vh, 640px);
 		}
 	}
 </style>

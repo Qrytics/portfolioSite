@@ -465,7 +465,9 @@
 		}
 
 		.portrait-card {
-			max-width: 300px;
+			max-width: 240px;
+			width: 100%;
+			justify-self: center;
 		}
 
 		.card__inner {
