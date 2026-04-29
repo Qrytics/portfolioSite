@@ -49,6 +49,10 @@ let { data }: { data: PageData } = $props();
 		const targetHash = consumeInstantHomeHashScroll();
 		const html = document.documentElement;
 		if (targetHash) {
+			// Ensure deferred sections (including #about-me) are present before scrolling.
+			nonCriticalReady = true;
+			await tick();
+
 			const prevScrollBehavior = html.style.scrollBehavior;
 			html.style.scrollBehavior = 'auto';
 			scrollToHashTarget(targetHash);
