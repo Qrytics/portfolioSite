@@ -143,8 +143,8 @@
 						{/if}
 					</a>
 				{/if}
-				{#if project.siteUrl}
-					<a href={project.siteUrl} target="_blank" rel="noopener noreferrer" class="btn btn--primary">
+				{#if project.siteUrl || project.projectPageUrl}
+					<a href={project.siteUrl ?? project.projectPageUrl} target="_blank" rel="noopener noreferrer" class="btn btn--primary">
 						Visit Site ↗
 					</a>
 				{/if}

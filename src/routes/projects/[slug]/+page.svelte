@@ -162,6 +162,12 @@ function formatLongDescription(text: string): string {
 {/if}
 
 <div class="links">
+{#if project.slug === 'smart-home-iot-dashboard' && project.liveDashboardUrl}
+<div class="live-cta">
+<a href={project.liveDashboardUrl} target="_blank" rel="noopener noreferrer" class="btn btn--warn">LIVE Dashboard ↗</a>
+<p class="live-note">(Only works for in-person showcase)</p>
+</div>
+{/if}
 {#if project.github}
 <a href={project.github} target="_blank" rel="noopener noreferrer" class="btn btn--primary">
 {#if project.github && (new URL(project.github).hostname === 'github.com' || new URL(project.github).hostname.endsWith('.github.com'))}
@@ -175,11 +181,7 @@ source ↗
 <a href={project.siteUrl} target="_blank" rel="noopener noreferrer" class="btn btn--primary">Visit Site ↗</a>
 {/if}
 {#if project.projectPageUrl}
-<a href={project.projectPageUrl} target="_blank" rel="noopener noreferrer" class="btn btn--primary">Project Site ↗</a>
-{/if}
-{#if project.slug === 'smart-home-iot-dashboard' && project.liveDashboardUrl}
-<a href={project.liveDashboardUrl} target="_blank" rel="noopener noreferrer" class="btn btn--warn">LIVE Dashboard ↗</a>
-<p class="live-note">(Only works for in-person showcase)</p>
+<a href={project.projectPageUrl} target="_blank" rel="noopener noreferrer" class="btn btn--primary">Visit Site ↗</a>
 {/if}
 {#if project.demo}
 {#if /(\.mp4|\.webm|\.ogg)(\?|#|$)/i.test(project.demo) || /youtu\.be|youtube\.com/i.test(project.demo)}
@@ -513,6 +515,15 @@ border-color: var(--border-2);
 	color: var(--muter);
 	font-size: 0.8rem;
 	font-family: var(--font-mono);
+}
+
+.live-cta {
+	width: 100%;
+	display: flex;
+	flex-direction: column;
+	align-items: flex-start;
+	gap: 0;
+	margin-bottom: 0.55rem;
 }
 
 .back-link a {
