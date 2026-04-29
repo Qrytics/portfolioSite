@@ -218,14 +218,40 @@
 		}
 
 		.about-lower {
-			grid-template-columns: minmax(0, 29rem) minmax(0, 1fr);
+			grid-template-columns: repeat(2, minmax(0, 1fr));
 			gap: 1rem;
 			align-items: stretch;
+		}
+
+		.fun-wrap {
+			max-width: none;
 		}
 
 		.side-grid {
 			grid-template-rows: auto auto;
 			align-self: start;
+		}
+	}
+
+	@media (min-width: 1200px) {
+		.about-lower {
+			grid-template-columns: minmax(0, 29rem) minmax(0, 1fr);
+		}
+
+		.fun-wrap {
+			max-width: 29rem;
+		}
+	}
+
+	@media (min-width: 720px) and (max-width: 1199px) {
+		.side-grid {
+			align-self: stretch;
+			height: 100%;
+			grid-template-rows: auto auto minmax(0, 1fr);
+		}
+
+		.card--spotify {
+			height: 100%;
 		}
 	}
 
