@@ -147,7 +147,8 @@
 		z-index: 1000;
 		text-align: center;
 		max-width: calc(100vw - 2rem);
-		white-space: nowrap;
+		white-space: normal;
+		overflow-wrap: anywhere;
 		font-family: var(--font-mono);
 		font-size: 0.9rem;
 		animation: toast-in 0.2s ease-out;

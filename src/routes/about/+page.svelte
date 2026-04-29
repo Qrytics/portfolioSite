@@ -194,5 +194,15 @@
 	.back-link a:hover {
 		color: var(--accent);
 	}
+
+	@media (max-width: 640px) {
+		.bottom-row {
+			grid-template-columns: 1fr;
+		}
+
+		.bottom-row .back-link {
+			grid-column: 1;
+		}
+	}
 </style>
 

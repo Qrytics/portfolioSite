@@ -465,5 +465,29 @@
 		border-color: rgba(243, 246, 255, 0.2);
 	}
 
+	:global([data-theme='light']) .btn--ghost {
+		background: var(--clr-surface-tonal-a0);
+		color: var(--clr-primary-a40);
+		border-color: var(--clr-surface-tonal-a10);
+	}
+
+	:global([data-theme='light']) .btn--ghost:hover {
+		background: color-mix(in srgb, var(--clr-primary-a0) 10%, var(--clr-surface-tonal-a0));
+		color: var(--clr-primary-a0);
+		border-color: var(--clr-primary-a30);
+	}
+
+	@media (max-width: 430px) {
+		.links {
+			gap: 0.45rem;
+		}
+
+		.btn {
+			width: 100%;
+			justify-content: center;
+			min-height: 2.5rem;
+		}
+	}
+
 </style>
 

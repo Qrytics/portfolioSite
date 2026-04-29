@@ -53,7 +53,7 @@
 			scrolled = window.scrollY > 8;
 		}
 		function onResize() {
-			compact = window.innerWidth < 640;
+			compact = window.innerWidth < 980;
 			if (!compact) navOpen = false;
 		}
 		window.addEventListener('scroll', onScroll, { passive: true });
@@ -243,15 +243,15 @@
 		display: inline-flex;
 	}
 
-	/* Hide terminal trigger on mobile to keep the header uncluttered. */
-	@media (max-width: 639px) {
+	/* Hide terminal trigger earlier to avoid header crowding on medium widths. */
+	@media (max-width: 900px) {
 		.terminal-tool {
 			display: none;
 		}
 	}
 
-	/* Center tools relative to full header width (desktop). */
-	@media (min-width: 720px) {
+	/* Center tools only on wide desktop where there is guaranteed room. */
+	@media (min-width: 1200px) {
 		.site-header__inner--with-title .site-header__tools {
 			position: absolute;
 			left: 50%;
@@ -291,7 +291,7 @@
 		transform: translateY(0);
 	}
 
-	@media (max-width: 639px) {
+	@media (max-width: 979px) {
 		.theme-toggle {
 			padding: 0.25rem 0.5rem;
 			min-width: 1.95rem;
@@ -424,6 +424,29 @@
 		width: 100%;
 		padding: 0.45rem 0;
 		display: block;
+	}
+
+	@media (max-width: 1199px) and (min-width: 980px) {
+		.site-header__inner {
+			flex-wrap: wrap;
+			row-gap: 0.45rem;
+		}
+
+		.site-header__tools {
+			order: 2;
+			margin-left: auto;
+		}
+
+		.site-nav {
+			order: 3;
+			width: 100%;
+		}
+
+		.site-nav ul {
+			justify-content: flex-end;
+			flex-wrap: wrap;
+			gap: 0.8rem 1rem;
+		}
 	}
 
 </style>

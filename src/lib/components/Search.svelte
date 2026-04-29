@@ -177,6 +177,16 @@
 		font-size: 0.9rem;
 	}
 
+	@media (max-width: 430px) {
+		.trigger {
+			padding-inline: 0.45rem;
+		}
+
+		.trigger__label {
+			display: none;
+		}
+	}
+
 	.backdrop {
 		position: fixed;
 		inset: 0;

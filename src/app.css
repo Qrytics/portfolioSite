@@ -431,6 +431,7 @@ html {
 	scroll-behavior: smooth;
 	scroll-padding-top: 5rem;
 	scrollbar-gutter: stable;
+	overflow-x: clip;
 }
 
 /* Disabled: this could get stuck and blank the entire landing content in Chromium/Electron.
@@ -449,8 +450,22 @@ body {
 	font-size: 16px;
 	line-height: 1.6;
 	min-height: 100svh;
+	overflow-x: clip;
 	-webkit-font-smoothing: antialiased;
 	-moz-osx-font-smoothing: grayscale;
+}
+
+img,
+video,
+canvas,
+svg,
+iframe {
+	max-width: 100%;
+}
+
+p,
+li {
+	overflow-wrap: anywhere;
 }
 
 /* CSS grid overlay */
