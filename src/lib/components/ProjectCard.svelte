@@ -143,9 +143,18 @@
 						{/if}
 					</a>
 				{/if}
-				{#if project.siteUrl || project.projectPageUrl}
-					<a href={project.siteUrl ?? project.projectPageUrl} target="_blank" rel="noopener noreferrer" class="btn btn--primary">
+				{#if project.siteUrl}
+					<a href={project.siteUrl} target="_blank" rel="noopener noreferrer" class="btn btn--primary">
 						Visit Site ↗
+					</a>
+				{:else if project.projectPageUrl}
+					<a href={project.projectPageUrl} target="_blank" rel="noopener noreferrer" class="btn btn--primary">
+						Visit Site ↗
+					</a>
+				{/if}
+				{#if project.siteUrl && project.projectPageUrl}
+					<a href={project.projectPageUrl} target="_blank" rel="noopener noreferrer" class="btn btn--primary">
+						Visit Blog ↗
 					</a>
 				{/if}
 				{#if project.demo && !isVideoDemo(project.demo)}

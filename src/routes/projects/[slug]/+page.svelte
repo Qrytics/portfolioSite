@@ -181,7 +181,7 @@ source ↗
 <a href={project.siteUrl} target="_blank" rel="noopener noreferrer" class="btn btn--primary">Visit Site ↗</a>
 {/if}
 {#if project.projectPageUrl}
-<a href={project.projectPageUrl} target="_blank" rel="noopener noreferrer" class="btn btn--primary">Visit Site ↗</a>
+<a href={project.projectPageUrl} target="_blank" rel="noopener noreferrer" class="btn btn--primary">{project.siteUrl ? 'Visit Blog ↗' : 'Visit Site ↗'}</a>
 {/if}
 {#if project.demo}
 {#if /(\.mp4|\.webm|\.ogg)(\?|#|$)/i.test(project.demo) || /youtu\.be|youtube\.com/i.test(project.demo)}

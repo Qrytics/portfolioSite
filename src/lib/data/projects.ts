@@ -88,6 +88,7 @@ Built an end-to-end IoT architecture spanning embedded firmware, backend APIs, m
 		type: 'open-source',
 		tags: ['JavaScript', 'Python', 'React', 'FastAPI', 'Docker', 'MQTT'],
 		github: 'https://github.com/Qrytics/smartHome',
+		siteUrl: 'https://mario-belmonte.com/projects/smart-home-iot-dashboard/smartHome:3000',
 		projectPageUrl: 'https://course.ece.cmu.edu/~ece500/projects/s26-teama4/',
 		liveDashboardUrl: 'http://smarthome:3000',
 		status: 'active',
