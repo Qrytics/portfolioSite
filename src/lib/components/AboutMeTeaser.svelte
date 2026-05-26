@@ -1,6 +1,75 @@
 <script lang="ts">
+	import { onMount } from 'svelte';
 	import FunSection from '$lib/components/FunSection.svelte';
+	import { aboutPhotos } from '$lib/data/about-photos';
 	import { spotifyFavorites } from '$lib/data/spotify-favorites';
+
+	const PHOTO_ROTATION_INTERVAL_MS = 1500;
+	const PHOTO_FADE_DURATION_MS = 250;
+	const PORTRAIT_FADE_DURATION_MS = 160;
+	const portraitPhotos = [
+		{
+			src: '/about/IMG_7164.PNG',
+			alt: 'Portrait of Mario Belmonte in a blue suit and tie',
+			style: ''
+		},
+		{
+			src: '/about/IMG_7163.PNG',
+			alt: 'Portrait of Mario Belmonte in a blue suit and tie',
+			style: 'object-position: 50% 5%; padding-right: 45px; padding-left: 45px;'
+		}
+	] as const;
+
+	let teaserPhoto = $state(aboutPhotos[0]);
+	let isPhotoVisible = $state(true);
+	let portraitIndex = $state(0);
+	let isPortraitFading = $state(false);
+	const portraitPhoto = $derived(portraitPhotos[portraitIndex]);
+
+	function getNextTeaserPhoto() {
+		if (aboutPhotos.length <= 1) {
+			return aboutPhotos[0];
+		}
+
+		const availablePhotos = aboutPhotos.filter((photo) => photo.src !== teaserPhoto.src);
+
+		return availablePhotos[Math.floor(Math.random() * availablePhotos.length)];
+	}
+
+	function togglePortrait() {
+		if (isPortraitFading) return;
+
+		isPortraitFading = true;
+
+		window.setTimeout(() => {
+			portraitIndex = 1 - portraitIndex;
+			isPortraitFading = false;
+		}, PORTRAIT_FADE_DURATION_MS);
+	}
+
+	onMount(() => {
+		let fadeTimeout: ReturnType<typeof setTimeout> | undefined;
+
+		const rotatePhoto = () => {
+			isPhotoVisible = false;
+
+			fadeTimeout = setTimeout(() => {
+				teaserPhoto = getNextTeaserPhoto();
+				isPhotoVisible = true;
+				fadeTimeout = undefined;
+			}, PHOTO_FADE_DURATION_MS);
+		};
+
+		const rotationInterval = setInterval(rotatePhoto, PHOTO_ROTATION_INTERVAL_MS);
+
+		return () => {
+			clearInterval(rotationInterval);
+
+			if (fadeTimeout) {
+				clearTimeout(fadeTimeout);
+			}
+		};
+	});
 </script>
 
 <section id="about-me" aria-label="About me" class="section">
@@ -12,10 +81,12 @@
 		<div class="bio-row">
 			<div class="portrait-card">
 				<img
-					class="portrait"
-					src="/about/IMG_7164.PNG"
-					alt="Portrait of Mario Belmonte in a blue suit and tie"
+					class={['portrait', isPortraitFading && 'portrait--fading']}
+					src={portraitPhoto.src}
+					alt={portraitPhoto.alt}
 					loading="lazy"
+					style={portraitPhoto.style}
+					onpointerenter={togglePortrait}
 				/>
 			</div>
 
@@ -70,10 +141,11 @@
 						</div>
 
 						<img
-							class="card-icon"
-							src="/icons/camera-pixel.png"
-							alt="Pixel art camera"
+							class={['photo-thumbnail', !isPhotoVisible && 'photo-thumbnail--hidden']}
+							src={teaserPhoto.src}
+							alt="Gallery preview from Mario's life"
 							loading="lazy"
+							style={`object-position: ${teaserPhoto.position ?? '50% 50%'}`}
 						/>
 					</div>
 				</a>
@@ -296,6 +368,12 @@
 		height: 100%;
 		aspect-ratio: 4 / 5;
 		object-fit: cover;
+		opacity: 1;
+		transition: opacity 0.16s ease;
+	}
+
+	.portrait--fading {
+		opacity: 0;
 	}
 
 	.card__inner {
@@ -316,13 +394,23 @@
 		min-width: 0;
 	}
 
-	.card-icon {
+	.photo-thumbnail {
 		width: clamp(44px, 5.2vw, 76px);
-		height: auto;
+		height: clamp(31px, 3.7vw, 54px);
 		justify-self: end;
 		align-self: center;
-		image-rendering: pixelated;
-		filter: drop-shadow(0 8px 18px rgba(0, 0, 0, 0.28));
+		object-fit: cover;
+		object-position: 50% 50%;
+		border: 1px solid color-mix(in srgb, var(--accent) 24%, transparent);
+		border-radius: 10px;
+		background: color-mix(in srgb, var(--panel) 82%, var(--bg) 18%);
+		box-shadow: 0 10px 22px rgba(0, 0, 0, 0.3);
+		opacity: 1;
+		transition: opacity 0.25s ease;
+	}
+
+	.photo-thumbnail--hidden {
+		opacity: 0;
 	}
 
 	.rhythm-icon {
@@ -510,9 +598,10 @@
 			gap: 0.4rem 0.65rem;
 		}
 
-		.card-icon {
+		.photo-thumbnail {
 			justify-self: end;
 			width: clamp(34px, 12vw, 54px);
+			height: clamp(24px, 8.5vw, 38px);
 		}
 
 		.rhythm-icon {
