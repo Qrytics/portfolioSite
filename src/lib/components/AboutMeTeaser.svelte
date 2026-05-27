@@ -16,7 +16,7 @@
 		{
 			src: '/about/IMG_7163.PNG',
 			alt: 'Portrait of Mario Belmonte in a blue suit and tie',
-			style: 'object-position: 50% 5%; padding-right: 45px; padding-left: 45px;'
+			style: 'object-position: 50% 5%;'
 		}
 	] as const;
 
@@ -36,6 +36,16 @@
 		return availablePhotos[Math.floor(Math.random() * availablePhotos.length)];
 	}
 
+	function preloadPhoto(src: string): Promise<void> {
+		return new Promise((resolve) => {
+			const image = new Image();
+
+			image.onload = () => resolve();
+			image.onerror = () => resolve();
+			image.src = src;
+		});
+	}
+
 	function togglePortrait() {
 		if (isPortraitFading) return;
 
@@ -48,25 +58,53 @@
 	}
 
 	onMount(() => {
+		let isMounted = true;
+		let transitioning = false;
 		let fadeTimeout: ReturnType<typeof setTimeout> | undefined;
+		let revealTimeout: ReturnType<typeof setTimeout> | undefined;
 
-		const rotatePhoto = () => {
+		const rotatePhoto = async () => {
+			if (transitioning) return;
+
+			const nextPhoto = getNextTeaserPhoto();
+
+			if (nextPhoto.src === teaserPhoto.src) return;
+
+			transitioning = true;
+			await preloadPhoto(nextPhoto.src);
+
+			if (!isMounted) return;
+
 			isPhotoVisible = false;
 
 			fadeTimeout = setTimeout(() => {
-				teaserPhoto = getNextTeaserPhoto();
-				isPhotoVisible = true;
+				if (!isMounted) return;
+
+				teaserPhoto = nextPhoto;
 				fadeTimeout = undefined;
+
+				revealTimeout = setTimeout(() => {
+					if (!isMounted) return;
+
+					isPhotoVisible = true;
+					transitioning = false;
+					revealTimeout = undefined;
+				}, 0);
 			}, PHOTO_FADE_DURATION_MS);
 		};
 
-		const rotationInterval = setInterval(rotatePhoto, PHOTO_ROTATION_INTERVAL_MS);
+		const rotationInterval = setInterval(() => void rotatePhoto(), PHOTO_ROTATION_INTERVAL_MS);
 
 		return () => {
+			isMounted = false;
 			clearInterval(rotationInterval);
 
 			if (fadeTimeout) {
 				clearTimeout(fadeTimeout);
+			}
+
+			if (revealTimeout) {
+				clearTimeout(revealTimeout);
 			}
 		};
 	});

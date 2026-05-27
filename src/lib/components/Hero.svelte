@@ -33,7 +33,7 @@
 			<button type="button" class="link link__mono email-copy-btn" onclick={copyEmail}>{profile.email}</button>
 			<span class="meta-sep">·</span>
 			<a href={profile.linkedin} target="_blank" rel="noopener noreferrer" class="link link__mono">
-				{profile.linkedin.replace('https://', '')}
+				{profile.linkedin.replace('https://www.', '')}
 			</a>
 		</div>
 	</div>

@@ -50,6 +50,13 @@
 			description: 'Enrolled at Carnegie Mellon to study ECE, combining coursework in circuits, digital systems, and software engineering.',
 			accent: true
 		},
+		{
+			year: 2022,
+			month: 'May',
+			label: 'Graduated from Lamar Academy High School',
+			description:
+				'Graduated after leading robotics, esports, and AMC math clubs as president, building an early foundation in technical leadership and team-driven problem solving.'
+		},
 	];
 
 	const sortedEvents = [...events].sort((a, b) => {
@@ -64,7 +71,7 @@
 	<div class="timeline__inner">
 		<h2 class="section-heading">Timeline</h2>
 		<div class="track">
-			{#each sortedEvents as event, i}
+			{#each sortedEvents as event, i (event.label)}
 				<div class="event" class:event--accent={event.accent}>
 					<div class="event__meta">
 						<span class="event__year">{event.year}</span>
