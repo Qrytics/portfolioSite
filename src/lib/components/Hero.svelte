@@ -32,7 +32,7 @@
 				rel="noopener noreferrer"
 				class="hero-action"
 			>
-				book tutoring ↗
+				book a tutoring session ↗
 			</a>
 		</div>
 		<div class="header__meta">
