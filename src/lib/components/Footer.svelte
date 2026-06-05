@@ -32,6 +32,10 @@
 		<a href={profile.linkedin} target="_blank" rel="noopener noreferrer" class="footer-link">
 			linkedin
 		</a>
+		<span class="footer__sep">·</span>
+		<a href="https://mario-belmonte.com/tutoring" target="_blank" rel="noopener noreferrer" class="footer-link">
+			tutoring
+		</a>
 		{#if profile.twitter}
 			<span class="footer__sep">·</span>
 			<a href={profile.twitter} target="_blank" rel="noopener noreferrer" class="footer-link">

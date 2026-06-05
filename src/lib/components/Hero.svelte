@@ -25,6 +25,16 @@
 		{#if profile.heroCta}
 			<p class="header__cta">{profile.heroCta}</p>
 		{/if}
+		<div class="header__actions">
+			<a
+				href="https://mario-belmonte.com/tutoring"
+				target="_blank"
+				rel="noopener noreferrer"
+				class="hero-action"
+			>
+				book tutoring ↗
+			</a>
+		</div>
 		<div class="header__meta">
 			<a href={profile.github} target="_blank" rel="noopener noreferrer" class="link link__mono">
 				{profile.github.replace('https://', '')}
@@ -180,6 +190,39 @@
 		gap: 0.75rem;
 	}
 
+	.header__actions {
+		position: relative;
+		margin-top: 1.15rem;
+		display: flex;
+		justify-content: center;
+	}
+
+	.hero-action {
+		display: inline-flex;
+		align-items: center;
+		justify-content: center;
+		padding: 0.5rem 0.9rem;
+		border: 1px solid rgba(54, 242, 194, 0.38);
+		background: color-mix(in srgb, var(--panel) 80%, transparent);
+		color: rgba(243, 246, 255, 0.96);
+		font-family: var(--font-mono);
+		font-size: 0.88rem;
+		line-height: 1.2;
+		text-decoration: none;
+		letter-spacing: 0.01em;
+		text-transform: lowercase;
+		transition: border-color 0.16s ease, color 0.16s ease, background-color 0.16s ease,
+			transform 0.16s ease;
+	}
+
+	.hero-action:hover,
+	.hero-action:focus-visible {
+		border-color: rgba(54, 242, 194, 0.6);
+		color: var(--accent);
+		background: color-mix(in srgb, var(--panel) 66%, transparent);
+		transform: translateY(-1px);
+	}
+
 	.link {
 		color: rgba(54, 242, 194, 0.94);
 		text-decoration: none;
@@ -201,6 +244,10 @@
 	@media (max-width: 520px) {
 		.meta-sep {
 			display: none;
+		}
+
+		.hero-action {
+			width: min(100%, 18rem);
 		}
 	}
 

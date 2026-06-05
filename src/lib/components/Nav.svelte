@@ -86,7 +86,8 @@
 		{ href: '/games', label: 'games' },
 		{ href: '/projects', label: 'projects' },
 		{ href: '/#about-me', label: 'about me' },
-		{ href: '/resume', label: 'resume' }
+		{ href: '/resume', label: 'resume' },
+		{ href: 'https://mario-belmonte.com/tutoring', label: 'tutoring', external: true }
 	];
 
 	function handleNavClick(e: MouseEvent, href: string) {
