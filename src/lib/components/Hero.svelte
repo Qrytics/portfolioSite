@@ -204,7 +204,7 @@
 		padding: 0.5rem 0.9rem;
 		border: 1px solid rgba(54, 242, 194, 0.38);
 		background: color-mix(in srgb, var(--panel) 80%, transparent);
-		color: rgba(243, 246, 255, 0.96);
+		color: var(--text);
 		font-family: var(--font-mono);
 		font-size: 0.88rem;
 		line-height: 1.2;
@@ -221,6 +221,18 @@
 		color: var(--accent);
 		background: color-mix(in srgb, var(--panel) 66%, transparent);
 		transform: translateY(-1px);
+	}
+
+	:global([data-theme='light']) .hero-action {
+		border-color: color-mix(in srgb, var(--accent) 38%, var(--border));
+		background: color-mix(in srgb, var(--panel) 94%, white 6%);
+		box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.7) inset;
+	}
+
+	:global([data-theme='light']) .hero-action:hover,
+	:global([data-theme='light']) .hero-action:focus-visible {
+		border-color: color-mix(in srgb, var(--accent) 58%, var(--border));
+		background: color-mix(in srgb, var(--panel) 88%, white 12%);
 	}
 
 	.link {
