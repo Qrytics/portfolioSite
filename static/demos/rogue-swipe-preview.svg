@@ -1,0 +1,62 @@
+<svg width="1280" height="720" viewBox="0 0 1280 720" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="title desc">
+  <title id="title">rogueSwipe preview</title>
+  <desc id="desc">Stylized preview card for rogueSwipe with a dungeon-like palette and title text.</desc>
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#0a1421" />
+      <stop offset="1" stop-color="#1f2f46" />
+    </linearGradient>
+    <linearGradient id="panel" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#c8d8f2" stop-opacity="0.18" />
+      <stop offset="1" stop-color="#6d85a6" stop-opacity="0.25" />
+    </linearGradient>
+  </defs>
+
+  <rect width="1280" height="720" fill="url(#bg)" />
+
+  <g opacity="0.24" fill="#7ca0d6">
+    <rect x="120" y="80" width="80" height="80" rx="12" />
+    <rect x="230" y="80" width="80" height="80" rx="12" />
+    <rect x="340" y="80" width="80" height="80" rx="12" />
+    <rect x="450" y="80" width="80" height="80" rx="12" />
+    <rect x="560" y="80" width="80" height="80" rx="12" />
+
+    <rect x="120" y="190" width="80" height="80" rx="12" />
+    <rect x="230" y="190" width="80" height="80" rx="12" />
+    <rect x="340" y="190" width="80" height="80" rx="12" />
+    <rect x="450" y="190" width="80" height="80" rx="12" />
+    <rect x="560" y="190" width="80" height="80" rx="12" />
+
+    <rect x="120" y="300" width="80" height="80" rx="12" />
+    <rect x="230" y="300" width="80" height="80" rx="12" />
+    <rect x="340" y="300" width="80" height="80" rx="12" />
+    <rect x="450" y="300" width="80" height="80" rx="12" />
+    <rect x="560" y="300" width="80" height="80" rx="12" />
+
+    <rect x="120" y="410" width="80" height="80" rx="12" />
+    <rect x="230" y="410" width="80" height="80" rx="12" />
+    <rect x="340" y="410" width="80" height="80" rx="12" />
+    <rect x="450" y="410" width="80" height="80" rx="12" />
+    <rect x="560" y="410" width="80" height="80" rx="12" />
+
+    <rect x="120" y="520" width="80" height="80" rx="12" />
+    <rect x="230" y="520" width="80" height="80" rx="12" />
+    <rect x="340" y="520" width="80" height="80" rx="12" />
+    <rect x="450" y="520" width="80" height="80" rx="12" />
+    <rect x="560" y="520" width="80" height="80" rx="12" />
+  </g>
+
+  <rect x="700" y="90" width="470" height="540" rx="24" fill="url(#panel)" stroke="#9ab7dc" stroke-opacity="0.45" />
+
+  <text x="740" y="220" fill="#f0f6ff" font-size="72" font-family="Georgia, serif" font-weight="700">RogueSwipe</text>
+  <text x="740" y="280" fill="#bdd2ee" font-size="30" font-family="Georgia, serif">daily seeds • turn-based combat • swipe controls</text>
+
+  <circle cx="390" cy="340" r="30" fill="#9bc6ff" />
+  <circle cx="390" cy="340" r="18" fill="#173457" />
+  <rect x="470" y="322" width="45" height="36" rx="8" fill="#d98d8d" />
+  <polygon points="260,325 290,355 230,355" fill="#f6d78a" />
+
+  <text x="740" y="400" fill="#d9e7fb" font-size="26" font-family="Georgia, serif">Built with TypeScript + Phaser</text>
+  <text x="740" y="446" fill="#c4d9f6" font-size="24" font-family="Georgia, serif">Hosted under /games/rogueSwipe</text>
+  <text x="740" y="540" fill="#b2caeb" font-size="22" font-family="Georgia, serif">Qrytics/rogueSwipe</text>
+</svg>

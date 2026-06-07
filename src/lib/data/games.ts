@@ -14,6 +14,16 @@ export interface Game {
 
 export const games: Game[] = [
 	{
+		slug: 'rogueSwipe',
+		title: 'rogueSwipe',
+		subtitle: 'Mobile-first roguelike board crawler built for swipe controls.',
+		description:
+			'A deterministic 5x5 roguelike prototype with daily seeds, turn-based combat, progression modes, and persistent run/meta progress.',
+		preview: '/demos/rogue-swipe-preview.svg',
+		playUrl: '/games/rogueSwipe/',
+		tags: ['roguelike', 'phaser', 'mobile']
+	},
+	{
 		slug: 'spotifyHero',
 		title: 'spotifyHero',
 		subtitle: 'Turn any Spotify track into a live rhythm challenge.',

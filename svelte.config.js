@@ -14,7 +14,8 @@ const config = {
 				if (
 					path.startsWith('/games/garticDraw') ||
 					path.startsWith('/games/aimTrainer') ||
-					path.startsWith('/games/soundVisual-Avora')
+					path.startsWith('/games/soundVisual-Avora') ||
+					path.startsWith('/games/rogueSwipe')
 				) {
 					return;
 				}
