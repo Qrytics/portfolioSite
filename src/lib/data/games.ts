@@ -20,7 +20,8 @@ export const games: Game[] = [
 		description:
 			'A deterministic 5x5 roguelike prototype with daily seeds, turn-based combat, progression modes, and persistent run/meta progress.',
 		preview: '/demos/rogue-swipe-preview.svg',
-		playUrl: '/games/rogueSwipe/',
+		playUrl: '#',
+		playLabel: 'In Progress',
 		tags: ['roguelike', 'phaser', 'mobile']
 	},
 	{
