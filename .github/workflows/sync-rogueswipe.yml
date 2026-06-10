@@ -1,0 +1,95 @@
+name: Sync rogueSwipe
+
+on:
+  schedule:
+    - cron: '*/30 * * * *'
+  workflow_dispatch:
+  repository_dispatch:
+    types: [rogueswipe-updated]
+
+concurrency:
+  group: sync-rogueswipe
+  cancel-in-progress: true
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Resolve upstream commit
+        id: upstream
+        shell: bash
+        run: |
+          set -euo pipefail
+          SHA="$(git ls-remote https://github.com/Qrytics/rogueSwipe.git refs/heads/main | cut -f1)"
+          if [ -z "$SHA" ]; then
+            echo "Failed to resolve upstream SHA" >&2
+            exit 1
+          fi
+          echo "sha=$SHA" >> "$GITHUB_OUTPUT"
+
+      - name: Check if sync is needed
+        id: should_sync
+        shell: bash
+        run: |
+          set -euo pipefail
+          MARKER="scripts/state/rogue-swipe-upstream-sha.txt"
+          CURRENT=""
+          if [ -f "$MARKER" ]; then
+            CURRENT="$(tr -d '\n\r' < "$MARKER")"
+          fi
+          if [ "$CURRENT" = "${{ steps.upstream.outputs.sha }}" ]; then
+            echo "needed=false" >> "$GITHUB_OUTPUT"
+            echo "rogueSwipe is already up to date (${CURRENT:0:7})"
+          else
+            echo "needed=true" >> "$GITHUB_OUTPUT"
+            echo "Sync required: ${CURRENT:-UNSET} -> ${{ steps.upstream.outputs.sha }}"
+          fi
+
+      - name: Build rogueSwipe
+        if: steps.should_sync.outputs.needed == 'true'
+        run: npm run build:rogue-swipe
+
+      - name: Update sync marker
+        if: steps.should_sync.outputs.needed == 'true'
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p scripts/state
+          printf '%s\n' '${{ steps.upstream.outputs.sha }}' > scripts/state/rogue-swipe-upstream-sha.txt
+
+      - name: Commit and push updates
+        if: steps.should_sync.outputs.needed == 'true'
+        shell: bash
+        env:
+          UPSTREAM_SHA: ${{ steps.upstream.outputs.sha }}
+        run: |
+          set -euo pipefail
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+
+          git add static/games/rogueSwipe scripts/state/rogue-swipe-upstream-sha.txt
+
+          if git diff --cached --quiet; then
+            echo 'No file changes to commit after build.'
+            exit 0
+          fi
+
+          git commit -m "chore(sync): update rogueSwipe to ${UPSTREAM_SHA:0:7}"
+          git push
