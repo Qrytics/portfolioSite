@@ -68,6 +68,22 @@
 			: 0
 	);
 
+	let explodedDays = $state<Set<string>>(new Set());
+	let explosionTimers: Record<string, ReturnType<typeof setTimeout>> = {};
+
+	function handleDayClick(day: ContributionDay) {
+		if (day.outside) return;
+
+		if (explosionTimers[day.date] !== undefined) clearTimeout(explosionTimers[day.date]);
+		explodedDays.add(day.date);
+		explodedDays = new Set(explodedDays);
+		explosionTimers[day.date] = setTimeout(() => {
+			explodedDays.delete(day.date);
+			explodedDays = new Set(explodedDays);
+			delete explosionTimers[day.date];
+		}, 3000);
+	}
+
 	function clampUtcMidnight(date: Date): Date {
 		const d = new Date(date);
 		d.setUTCHours(0, 0, 0, 0);
@@ -331,12 +347,22 @@
 											{#each visibleWeeks as week, wi (wi)}
 												<div class="week">
 													{#each week.contributionDays as day (day.date)}
-														<div
-															class="day"
+														<button
+															type="button"
+															class={['day', explodedDays.has(day.date) && 'day--exploded'].filter(Boolean).join(' ')}
 															data-level={levelForDay(day)}
 															data-outside={day.outside ? 'true' : undefined}
 															data-tooltip={contributionTooltip(day) ?? undefined}
-														></div>
+															disabled={day.outside}
+															onclick={() => handleDayClick(day)}
+															aria-label={`${day.date}: ${day.contributionCount} contributions`}
+														>
+															{#if explodedDays.has(day.date)}
+																{#each Array.from({ length: 12 }) as _, confetti}
+																	<span class={`confetti confetti-${confetti}`}></span>
+																{/each}
+															{/if}
+														</button>
 													{/each}
 												</div>
 											{/each}
@@ -582,6 +608,15 @@
 		flex-shrink: 0;
 		border: 1px solid rgba(255, 255, 255, 0.04);
 		position: relative;
+		padding: 0;
+		appearance: none;
+		-webkit-appearance: none;
+		overflow: visible;
+		cursor: pointer;
+	}
+
+	.day:disabled {
+		cursor: default;
 	}
 
 	.day[data-level='0'] {
@@ -590,6 +625,7 @@
 	.day[data-outside='true'] {
 		background: transparent;
 		border-color: transparent;
+		pointer-events: none;
 	}
 	.day[data-level='1'] {
 		background: rgba(54, 242, 194, 0.22);
@@ -602,6 +638,151 @@
 	}
 	.day[data-level='4'] {
 		background: rgba(54, 242, 194, 0.95);
+	}
+
+	.day:not([data-outside='true']):hover {
+		transform: translateY(-1px) scale(1.08);
+		box-shadow: 0 0 0 1px color-mix(in srgb, var(--accent) 24%, white),
+			0 0 10px color-mix(in srgb, var(--accent) 45%, transparent);
+	}
+
+	.day--exploded {
+		animation: day-explode 0.26s ease-out forwards;
+	}
+
+	.day--exploded::after {
+		content: '';
+		position: absolute;
+		inset: -30%;
+		border-radius: 50%;
+		background: radial-gradient(
+			circle,
+			color-mix(in srgb, var(--accent) 45%, white),
+			color-mix(in srgb, var(--accent) 20%, white) 35%,
+			transparent 72%
+		);
+		animation: day-blast 0.34s ease-out;
+		pointer-events: none;
+	}
+
+	.confetti {
+		position: absolute;
+		left: 50%;
+		top: 50%;
+		width: 0.18rem;
+		height: 0.18rem;
+		border-radius: 1px;
+		background: color-mix(in srgb, var(--accent) 72%, white);
+		box-shadow: 0 0 0.18rem color-mix(in srgb, var(--accent) 58%, white);
+		pointer-events: none;
+	}
+
+	.confetti-0 {
+		animation: confetti-burst-0 0.55s ease-out forwards;
+	}
+	.confetti-1 {
+		animation: confetti-burst-1 0.6s ease-out forwards;
+	}
+	.confetti-2 {
+		animation: confetti-burst-2 0.58s ease-out forwards;
+	}
+	.confetti-3 {
+		animation: confetti-burst-3 0.62s ease-out forwards;
+	}
+	.confetti-4 {
+		animation: confetti-burst-4 0.56s ease-out forwards;
+	}
+	.confetti-5 {
+		animation: confetti-burst-5 0.6s ease-out forwards;
+	}
+	.confetti-6 {
+		animation: confetti-burst-6 0.57s ease-out forwards;
+	}
+	.confetti-7 {
+		animation: confetti-burst-7 0.61s ease-out forwards;
+	}
+	.confetti-8 {
+		animation: confetti-burst-8 0.55s ease-out forwards;
+	}
+	.confetti-9 {
+		animation: confetti-burst-9 0.6s ease-out forwards;
+	}
+	.confetti-10 {
+		animation: confetti-burst-10 0.58s ease-out forwards;
+	}
+	.confetti-11 {
+		animation: confetti-burst-11 0.61s ease-out forwards;
+	}
+
+	@keyframes day-explode {
+		0% {
+			transform: scale(1);
+			opacity: 1;
+		}
+		100% {
+			transform: scale(0.12);
+			opacity: 0;
+		}
+	}
+
+	@keyframes day-blast {
+		0% {
+			transform: scale(0);
+			opacity: 0.75;
+		}
+		100% {
+			transform: scale(2.6);
+			opacity: 0;
+		}
+	}
+
+	@keyframes confetti-burst-0 {
+		0% { opacity: 1; transform: translate(-50%, -50%) scale(1) rotate(0deg); }
+		100% { opacity: 0; transform: translate(120px, -150px) scale(0.2) rotate(720deg); }
+	}
+	@keyframes confetti-burst-1 {
+		0% { opacity: 1; transform: translate(-50%, -50%) scale(1) rotate(0deg); }
+		100% { opacity: 0; transform: translate(-135px, -165px) scale(0.16) rotate(-680deg); }
+	}
+	@keyframes confetti-burst-2 {
+		0% { opacity: 1; transform: translate(-50%, -50%) scale(1) rotate(0deg); }
+		100% { opacity: 0; transform: translate(165px, -90px) scale(0.18) rotate(650deg); }
+	}
+	@keyframes confetti-burst-3 {
+		0% { opacity: 1; transform: translate(-50%, -50%) scale(1) rotate(0deg); }
+		100% { opacity: 0; transform: translate(-155px, 125px) scale(0.17) rotate(-720deg); }
+	}
+	@keyframes confetti-burst-4 {
+		0% { opacity: 1; transform: translate(-50%, -50%) scale(1) rotate(0deg); }
+		100% { opacity: 0; transform: translate(150px, 105px) scale(0.19) rotate(700deg); }
+	}
+	@keyframes confetti-burst-5 {
+		0% { opacity: 1; transform: translate(-50%, -50%) scale(1) rotate(0deg); }
+		100% { opacity: 0; transform: translate(-120px, -135px) scale(0.17) rotate(-650deg); }
+	}
+	@keyframes confetti-burst-6 {
+		0% { opacity: 1; transform: translate(-50%, -50%) scale(1) rotate(0deg); }
+		100% { opacity: 0; transform: translate(135px, 145px) scale(0.2) rotate(680deg); }
+	}
+	@keyframes confetti-burst-7 {
+		0% { opacity: 1; transform: translate(-50%, -50%) scale(1) rotate(0deg); }
+		100% { opacity: 0; transform: translate(-175px, 85px) scale(0.15) rotate(-700deg); }
+	}
+	@keyframes confetti-burst-8 {
+		0% { opacity: 1; transform: translate(-50%, -50%) scale(1) rotate(0deg); }
+		100% { opacity: 0; transform: translate(160px, -115px) scale(0.18) rotate(720deg); }
+	}
+	@keyframes confetti-burst-9 {
+		0% { opacity: 1; transform: translate(-50%, -50%) scale(1) rotate(0deg); }
+		100% { opacity: 0; transform: translate(-140px, 140px) scale(0.16) rotate(-680deg); }
+	}
+	@keyframes confetti-burst-10 {
+		0% { opacity: 1; transform: translate(-50%, -50%) scale(1) rotate(0deg); }
+		100% { opacity: 0; transform: translate(100px, 155px) scale(0.17) rotate(650deg); }
+	}
+	@keyframes confetti-burst-11 {
+		0% { opacity: 1; transform: translate(-50%, -50%) scale(1) rotate(0deg); }
+		100% { opacity: 0; transform: translate(-155px, -100px) scale(0.19) rotate(-720deg); }
 	}
 
 	@media (hover: hover) and (pointer: fine) {

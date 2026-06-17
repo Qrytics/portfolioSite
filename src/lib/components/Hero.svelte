@@ -4,6 +4,28 @@
 
 	let toastVisible = $state(false);
 	let toastTimer: ReturnType<typeof setTimeout> | undefined;
+	const taglineChars = Array.from(profile.tagline);
+	let explodedLetters = $state<Set<number>>(new Set());
+	let respawnTimers: Record<number, ReturnType<typeof setTimeout>> = {};
+
+	function handleLetterClick(index: number) {
+		explodedLetters.add(index);
+		explodedLetters = new Set(explodedLetters);
+
+		if (respawnTimers[index] !== undefined) clearTimeout(respawnTimers[index]);
+		respawnTimers[index] = setTimeout(() => {
+			explodedLetters.delete(index);
+			explodedLetters = new Set(explodedLetters);
+			delete respawnTimers[index];
+		}, 3000);
+	}
+
+	function handleLetterKeydown(e: KeyboardEvent, index: number) {
+		if (e.key === 'Enter' || e.key === ' ') {
+			e.preventDefault();
+			handleLetterClick(index);
+		}
+	}
 
 	function copyEmail() {
 		navigator.clipboard.writeText(profile.email).then(() => {
@@ -20,7 +42,36 @@
 	</div>
 
 	<div class="header__content">
-		<h1 class="header__tagline">{profile.tagline}</h1>
+		<h1 class="header__tagline" aria-label={profile.tagline}>
+			<span class="tagline-letters" aria-hidden="true">
+				{#each taglineChars as char, i (`tag-char-${i}`)}
+					{#if char === ' '}
+						<span class="tag-char tag-char--space">&nbsp;</span>
+					{:else}
+						<span
+							class={['tag-char', explodedLetters.has(i) && 'tag-char--exploded'].filter(Boolean).join(' ')}
+							role="button"
+							tabindex="0"
+							onclick={() => handleLetterClick(i)}
+							onkeydown={(e) => handleLetterKeydown(e, i)}
+						>
+							{char}
+							{#if !explodedLetters.has(i)}
+								<span class="tag-char__star tag-char__star--a">✦</span>
+								<span class="tag-char__star tag-char__star--b">✦</span>
+								<span class="tag-char__star tag-char__star--c">✦</span>
+								<span class="tag-char__star tag-char__star--d">✦</span>
+							{/if}
+							{#if explodedLetters.has(i)}
+								{#each Array(12) as _, confetti}
+									<span class={`confetti confetti-${confetti}`}></span>
+								{/each}
+							{/if}
+						</span>
+					{/if}
+				{/each}
+			</span>
+		</h1>
 		<p class="header__description">{profile.description}</p>
 		{#if profile.heroCta}
 			<p class="header__cta">{profile.heroCta}</p>
@@ -113,6 +164,197 @@
 		line-height: 1.45;
 		padding-bottom: 16px;
 		text-shadow: 0 0 4px #000, 0 2px 12px #000, 0 0 50px #000;
+		cursor: default;
+	}
+
+	.tagline-letters {
+		display: inline;
+	}
+
+	.tag-char {
+		position: relative;
+		display: inline-flex;
+		align-items: center;
+		justify-content: center;
+		line-height: 1;
+		padding: 0.08em 0.06em 0.14em;
+		margin: -0.08em -0.06em -0.14em;
+		transform-origin: 50% 78%;
+		cursor: pointer;
+		user-select: none;
+		transition: transform 0.1s ease, color 0.1s ease, text-shadow 0.1s ease, filter 0.1s ease;
+		will-change: transform, filter;
+	}
+
+	.tag-char--space {
+		display: inline;
+	}
+
+	.tag-char__star {
+		position: absolute;
+		left: 50%;
+		top: 45%;
+		font-size: clamp(0.38rem, 0.75vw, 0.55rem);
+		line-height: 1;
+		color: color-mix(in srgb, var(--accent) 78%, white);
+		opacity: 0;
+		transform: translate(-50%, -50%) scale(0.3);
+		pointer-events: none;
+		filter: drop-shadow(0 0 3px color-mix(in srgb, var(--accent) 60%, white));
+	}
+
+	@media (hover: hover) and (pointer: fine) {
+		.tag-char:not(.tag-char--space):hover {
+			color: color-mix(in srgb, var(--accent) 70%, white);
+			transform: translateY(-0.1em) scale(1.1);
+			filter: saturate(1.14);
+			text-shadow:
+				0 0 0.35rem color-mix(in srgb, var(--accent) 72%, white),
+				0 0 0.8rem color-mix(in srgb, var(--accent) 66%, white),
+				0 0 1.4rem color-mix(in srgb, var(--accent) 44%, white);
+		}
+
+		.tag-char:hover .tag-char__star--a {
+			animation: star-spray-a 0.28s ease-out;
+		}
+
+		.tag-char:hover .tag-char__star--b {
+			animation: star-spray-b 0.28s ease-out;
+		}
+
+		.tag-char:hover .tag-char__star--c {
+			animation: star-spray-c 0.28s ease-out;
+		}
+
+		.tag-char:hover .tag-char__star--d {
+			animation: star-spray-d 0.28s ease-out;
+		}
+	}
+
+	@keyframes star-spray-a {
+		0% { opacity: 0; transform: translate(-50%, -52%) scale(0.25) rotate(0deg); }
+		20% { opacity: 1; }
+		100% { opacity: 0; transform: translate(-145%, -170%) scale(0.95) rotate(32deg); }
+	}
+
+	@keyframes star-spray-b {
+		0% { opacity: 0; transform: translate(-48%, -50%) scale(0.25) rotate(0deg); }
+		20% { opacity: 1; }
+		100% { opacity: 0; transform: translate(18%, -190%) scale(1) rotate(-35deg); }
+	}
+
+	@keyframes star-spray-c {
+		0% { opacity: 0; transform: translate(-50%, -48%) scale(0.25) rotate(0deg); }
+		20% { opacity: 1; }
+		100% { opacity: 0; transform: translate(-190%, -40%) scale(0.82) rotate(26deg); }
+	}
+
+	@keyframes star-spray-d {
+		0% { opacity: 0; transform: translate(-50%, -52%) scale(0.25) rotate(0deg); }
+		20% { opacity: 1; }
+		100% { opacity: 0; transform: translate(55%, -24%) scale(0.76) rotate(-25deg); }
+	}
+
+	.tag-char--exploded {
+		animation: char-explode 0.35s ease-out forwards;
+	}
+
+	.tag-char--exploded::after {
+		content: '';
+		position: absolute;
+		inset: -20%;
+		border-radius: 50%;
+		background: radial-gradient(
+			circle,
+			color-mix(in srgb, var(--accent) 50%, white),
+			color-mix(in srgb, var(--accent) 30%, white) 40%,
+			transparent 70%
+		);
+		animation: blast-wave 0.4s ease-out;
+		pointer-events: none;
+	}
+
+	@keyframes char-explode {
+		0% { opacity: 1; transform: scale(1); }
+		100% { opacity: 0; transform: scale(0.1); }
+	}
+
+	@keyframes blast-wave {
+		0% { transform: scale(0); opacity: 0.6; }
+		100% { transform: scale(2.5); opacity: 0; }
+	}
+
+	.confetti {
+		position: absolute;
+		left: 50%;
+		top: 50%;
+		width: 0.4em;
+		height: 0.4em;
+		background: color-mix(in srgb, var(--accent) 70%, white);
+		pointer-events: none;
+		box-shadow: 0 0 0.2em color-mix(in srgb, var(--accent) 60%, white);
+	}
+
+	.confetti-0 { animation: confetti-burst-0 0.6s ease-out forwards; }
+	.confetti-1 { animation: confetti-burst-1 0.65s ease-out forwards; }
+	.confetti-2 { animation: confetti-burst-2 0.6s ease-out forwards; }
+	.confetti-3 { animation: confetti-burst-3 0.68s ease-out forwards; }
+	.confetti-4 { animation: confetti-burst-4 0.62s ease-out forwards; }
+	.confetti-5 { animation: confetti-burst-5 0.64s ease-out forwards; }
+	.confetti-6 { animation: confetti-burst-6 0.61s ease-out forwards; }
+	.confetti-7 { animation: confetti-burst-7 0.67s ease-out forwards; }
+	.confetti-8 { animation: confetti-burst-8 0.63s ease-out forwards; }
+	.confetti-9 { animation: confetti-burst-9 0.66s ease-out forwards; }
+	.confetti-10 { animation: confetti-burst-10 0.62s ease-out forwards; }
+	.confetti-11 { animation: confetti-burst-11 0.65s ease-out forwards; }
+
+	@keyframes confetti-burst-0 {
+		0% { opacity: 1; transform: translate(-50%, -50%) scale(1) rotate(0deg); }
+		100% { opacity: 0; transform: translate(120px, -160px) scale(0.2) rotate(720deg); }
+	}
+	@keyframes confetti-burst-1 {
+		0% { opacity: 1; transform: translate(-50%, -50%) scale(1) rotate(0deg); }
+		100% { opacity: 0; transform: translate(-140px, -180px) scale(0.15) rotate(-680deg); }
+	}
+	@keyframes confetti-burst-2 {
+		0% { opacity: 1; transform: translate(-50%, -50%) scale(1) rotate(0deg); }
+		100% { opacity: 0; transform: translate(180px, -80px) scale(0.18) rotate(650deg); }
+	}
+	@keyframes confetti-burst-3 {
+		0% { opacity: 1; transform: translate(-50%, -50%) scale(1) rotate(0deg); }
+		100% { opacity: 0; transform: translate(-160px, 120px) scale(0.16) rotate(-720deg); }
+	}
+	@keyframes confetti-burst-4 {
+		0% { opacity: 1; transform: translate(-50%, -50%) scale(1) rotate(0deg); }
+		100% { opacity: 0; transform: translate(150px, 100px) scale(0.19) rotate(700deg); }
+	}
+	@keyframes confetti-burst-5 {
+		0% { opacity: 1; transform: translate(-50%, -50%) scale(1) rotate(0deg); }
+		100% { opacity: 0; transform: translate(-120px, -140px) scale(0.17) rotate(-650deg); }
+	}
+	@keyframes confetti-burst-6 {
+		0% { opacity: 1; transform: translate(-50%, -50%) scale(1) rotate(0deg); }
+		100% { opacity: 0; transform: translate(140px, 140px) scale(0.2) rotate(680deg); }
+	}
+	@keyframes confetti-burst-7 {
+		0% { opacity: 1; transform: translate(-50%, -50%) scale(1) rotate(0deg); }
+		100% { opacity: 0; transform: translate(-180px, 80px) scale(0.15) rotate(-700deg); }
+	}
+	@keyframes confetti-burst-8 {
+		0% { opacity: 1; transform: translate(-50%, -50%) scale(1) rotate(0deg); }
+		100% { opacity: 0; transform: translate(160px, -120px) scale(0.18) rotate(720deg); }
+	}
+	@keyframes confetti-burst-9 {
+		0% { opacity: 1; transform: translate(-50%, -50%) scale(1) rotate(0deg); }
+		100% { opacity: 0; transform: translate(-140px, 140px) scale(0.16) rotate(-680deg); }
+	}
+	@keyframes confetti-burst-10 {
+		0% { opacity: 1; transform: translate(-50%, -50%) scale(1) rotate(0deg); }
+		100% { opacity: 0; transform: translate(100px, 160px) scale(0.17) rotate(650deg); }
+	}
+	@keyframes confetti-burst-11 {
+		0% { opacity: 1; transform: translate(-50%, -50%) scale(1) rotate(0deg); }
+		100% { opacity: 0; transform: translate(-160px, -100px) scale(0.19) rotate(-720deg); }
 	}
 
 	.header__tagline::before {
