@@ -177,7 +177,7 @@
 		font-size: 0.9rem;
 	}
 
-	@media (max-width: 430px) {
+	@media (max-width: 560px) {
 		.trigger {
 			padding-inline: 0.45rem;
 		}

@@ -221,6 +221,7 @@
 		display: flex;
 		justify-content: flex-end;
 		align-items: center;
+		gap: 0.5rem;
 		max-width: 86rem;
 		min-height: 2rem;
 		margin: 0 auto;
@@ -311,6 +312,7 @@
 		font-size: clamp(1rem, 1.5vw, 1.15rem);
 		font-weight: 600;
 		line-height: 1.2;
+		min-width: 0;
 		text-decoration: none;
 		transition: color 0.18s;
 	}
@@ -391,6 +393,19 @@
 		display: inline-block;
 		position: relative;
 		z-index: 3;
+		flex-shrink: 0;
+	}
+
+	.site-header--compact .site-header__title {
+		max-width: clamp(8.5rem, 42vw, 13rem);
+		overflow: hidden;
+		text-overflow: ellipsis;
+		white-space: nowrap;
+	}
+
+	.site-header--compact .site-header__tools {
+		margin-left: auto;
+		gap: 0.35rem;
 	}
 
 	.site-header--compact .site-nav {
@@ -447,6 +462,20 @@
 			justify-content: flex-end;
 			flex-wrap: wrap;
 			gap: 0.8rem 1rem;
+		}
+	}
+
+	@media (max-width: 640px) {
+		.site-header__inner {
+			padding: 0.75rem 0.9rem;
+		}
+
+		.site-header__title {
+			font-size: 0.95rem;
+		}
+
+		.site-header__menu {
+			font-size: 0.95rem;
 		}
 	}
 

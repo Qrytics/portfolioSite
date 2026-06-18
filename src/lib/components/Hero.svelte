@@ -4,11 +4,17 @@
 
 	let toastVisible = $state(false);
 	let toastTimer: ReturnType<typeof setTimeout> | undefined;
-	const taglineChars = Array.from(profile.tagline);
-	let explodedLetters = $state<Set<number>>(new Set());
-	let respawnTimers: Record<number, ReturnType<typeof setTimeout>> = {};
+	const taglineWords = profile.tagline.split(' ').map((word, wordIndex) => ({
+		key: `tag-word-${wordIndex}`,
+		chars: Array.from(word).map((char, charIndex) => ({
+			char,
+			id: `${wordIndex}-${charIndex}`
+		}))
+	}));
+	let explodedLetters = $state<Set<string>>(new Set());
+	let respawnTimers: Record<string, ReturnType<typeof setTimeout>> = {};
 
-	function handleLetterClick(index: number) {
+	function handleLetterClick(index: string) {
 		explodedLetters.add(index);
 		explodedLetters = new Set(explodedLetters);
 
@@ -20,7 +26,7 @@
 		}, 3000);
 	}
 
-	function handleLetterKeydown(e: KeyboardEvent, index: number) {
+	function handleLetterKeydown(e: KeyboardEvent, index: string) {
 		if (e.key === 'Enter' || e.key === ' ') {
 			e.preventDefault();
 			handleLetterClick(index);
@@ -44,30 +50,33 @@
 	<div class="header__content">
 		<h1 class="header__tagline" aria-label={profile.tagline}>
 			<span class="tagline-letters" aria-hidden="true">
-				{#each taglineChars as char, i (`tag-char-${i}`)}
-					{#if char === ' '}
-						<span class="tag-char tag-char--space">&nbsp;</span>
-					{:else}
-						<span
-							class={['tag-char', explodedLetters.has(i) && 'tag-char--exploded'].filter(Boolean).join(' ')}
-							role="button"
-							tabindex="0"
-							onclick={() => handleLetterClick(i)}
-							onkeydown={(e) => handleLetterKeydown(e, i)}
-						>
-							{char}
-							{#if !explodedLetters.has(i)}
-								<span class="tag-char__star tag-char__star--a">✦</span>
-								<span class="tag-char__star tag-char__star--b">✦</span>
-								<span class="tag-char__star tag-char__star--c">✦</span>
-								<span class="tag-char__star tag-char__star--d">✦</span>
-							{/if}
-							{#if explodedLetters.has(i)}
-								{#each Array(12) as _, confetti}
-									<span class={`confetti confetti-${confetti}`}></span>
-								{/each}
-							{/if}
-						</span>
+				{#each taglineWords as word, wordIndex (`${word.key}`)}
+					<span class="tag-word">
+						{#each word.chars as letter (`tag-char-${letter.id}`)}
+							<span
+								class={['tag-char', explodedLetters.has(letter.id) && 'tag-char--exploded'].filter(Boolean).join(' ')}
+								role="button"
+								tabindex="0"
+								onclick={() => handleLetterClick(letter.id)}
+								onkeydown={(e) => handleLetterKeydown(e, letter.id)}
+							>
+								{letter.char}
+								{#if !explodedLetters.has(letter.id)}
+									<span class="tag-char__star tag-char__star--a">✦</span>
+									<span class="tag-char__star tag-char__star--b">✦</span>
+									<span class="tag-char__star tag-char__star--c">✦</span>
+									<span class="tag-char__star tag-char__star--d">✦</span>
+								{/if}
+								{#if explodedLetters.has(letter.id)}
+									{#each Array(12) as _, confetti}
+										<span class={`confetti confetti-${confetti}`}></span>
+									{/each}
+								{/if}
+							</span>
+						{/each}
+					</span>
+					{#if wordIndex < taglineWords.length - 1}
+						<span class="tag-char tag-char--space" aria-hidden="true">&nbsp;</span>
 					{/if}
 				{/each}
 			</span>
@@ -171,23 +180,33 @@
 		display: inline;
 	}
 
+	.tag-word {
+		display: inline-block;
+		white-space: nowrap;
+		vertical-align: baseline;
+	}
+
+	.tag-char--space {
+		display: inline;
+		cursor: default;
+		user-select: text;
+		padding: 0;
+		margin: 0;
+	}
+
 	.tag-char {
 		position: relative;
 		display: inline-flex;
 		align-items: center;
 		justify-content: center;
 		line-height: 1;
-		padding: 0.08em 0.06em 0.14em;
-		margin: -0.08em -0.06em -0.14em;
+		padding: 0;
+		margin: 0;
 		transform-origin: 50% 78%;
 		cursor: pointer;
 		user-select: none;
 		transition: transform 0.1s ease, color 0.1s ease, text-shadow 0.1s ease, filter 0.1s ease;
 		will-change: transform, filter;
-	}
-
-	.tag-char--space {
-		display: inline;
 	}
 
 	.tag-char__star {
@@ -502,6 +521,48 @@
 
 		.hero-action {
 			width: min(100%, 18rem);
+		}
+	}
+
+	@media (max-width: 700px) {
+		.header {
+			min-height: 240px;
+		}
+
+		.header__content {
+			padding: clamp(1.25rem, 6vw, 2rem) clamp(1rem, 4.5vw, 1.5rem);
+			min-height: 240px;
+		}
+
+		.header__tagline {
+			font-size: clamp(1.2rem, 6vw, 1.55rem);
+			line-height: 1.34;
+			max-width: 33ch;
+			padding-bottom: 0.7rem;
+		}
+
+		.header__description,
+		.header__cta {
+			font-size: 0.9rem;
+			line-height: 1.5;
+		}
+
+		.header__meta {
+			margin-top: 1rem;
+			font-size: 0.9rem;
+			gap: 0.5rem 0.65rem;
+		}
+	}
+
+	@media (max-width: 420px) {
+		.header__tagline {
+			font-size: clamp(1.05rem, 7vw, 1.3rem);
+			max-width: 29ch;
+		}
+
+		.tag-char {
+			padding: 0.07em 0.04em 0.12em;
+			margin: -0.07em -0.04em -0.12em;
 		}
 	}
 
