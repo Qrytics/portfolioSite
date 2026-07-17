@@ -491,7 +491,7 @@
 			min-height: 2.5rem;
 		}
 
-		.btn--external:only-of-type {
+		.links:not(:has(.btn--external ~ .btn--external)) .btn--external {
 			grid-column: 1 / -1;
 			width: 75%;
 			justify-self: center;
