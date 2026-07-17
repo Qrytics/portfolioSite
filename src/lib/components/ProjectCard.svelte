@@ -134,23 +134,19 @@
 			</div>
 
 			<div class="links">
-				{#if project.github || project.siteUrl || project.projectPageUrl}
-					<div class="links__primary-row">
-						{#if project.github}
-							<a href={project.github} target="_blank" rel="noopener noreferrer" class="btn btn--primary">
-								{#if isGitHubRepo(project.github)}
-									GitHub Repo ↗
-								{:else}
-									Source ↗
-								{/if}
-							</a>
+				{#if project.github}
+					<a href={project.github} target="_blank" rel="noopener noreferrer" class="btn btn--primary btn--external">
+						{#if isGitHubRepo(project.github)}
+							GitHub Repo ↗
+						{:else}
+							Source ↗
 						{/if}
-						{#if project.siteUrl || project.projectPageUrl}
-							<a href={project.siteUrl ?? project.projectPageUrl} target="_blank" rel="noopener noreferrer" class="btn btn--primary">
-								Visit Site ↗
-							</a>
-						{/if}
-					</div>
+					</a>
+				{/if}
+				{#if project.siteUrl || project.projectPageUrl}
+					<a href={project.siteUrl ?? project.projectPageUrl} target="_blank" rel="noopener noreferrer" class="btn btn--primary btn--external">
+						Visit Site ↗
+					</a>
 				{/if}
 				{#if project.demo && !isVideoDemo(project.demo)}
 					<a href={project.demo} target="_blank" rel="noopener noreferrer" class="btn btn--ghost">
@@ -430,11 +426,6 @@
 		gap: 0.6rem;
 	}
 
-	.links__primary-row {
-		display: contents;
-		width: 100%;
-	}
-
 	.btn {
 		display: inline-flex;
 		align-items: center;
@@ -488,33 +479,36 @@
 
 	@media (max-width: 640px) {
 		.links {
-			display: flex;
-			flex-direction: column;
-			align-items: center;
+			display: grid;
+			grid-template-columns: 1fr 1fr;
 			gap: 0.45rem;
+			justify-items: stretch;
 		}
 
-		.links__primary-row {
-			display: flex !important;
-			flex-direction: row !important;
+		.btn--external {
 			width: 100%;
-			gap: 0.45rem;
-			justify-content: center;
-		}
-
-		.links__primary-row .btn {
-			flex: 1 1 0 !important;
-			min-width: 0;
 			justify-content: center;
 			min-height: 2.5rem;
 		}
 
-		.links__primary-row .btn:only-child {
-			flex: 0 0 75% !important;
+		.btn--external:only-of-type {
+			grid-column: 1 / -1;
+			width: 75%;
+			justify-self: center;
 		}
 
 		.btn--details {
-			width: 75% !important;
+			grid-column: 1 / -1;
+			width: 75%;
+			justify-self: center;
+			justify-content: center;
+			min-height: 2.5rem;
+		}
+
+		.links .btn:not(.btn--external):not(.btn--details) {
+			grid-column: 1 / -1;
+			width: 75%;
+			justify-self: center;
 			justify-content: center;
 			min-height: 2.5rem;
 		}
