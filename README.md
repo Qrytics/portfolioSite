@@ -327,3 +327,11 @@ When the dodgeLoL repo receives new commits, refresh the static assets with:
 npm run build:dodge-lol
 ```
 then commit the updated static/games/dodgeLoL/ files
+
+## Updating paddleBall
+When the paddleBall repo receives new commits, refresh the static assets with:
+
+```
+npm run build:paddle-ball
+```
+then commit the updated static/games/paddleBall/ files

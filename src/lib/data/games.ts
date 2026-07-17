@@ -84,5 +84,15 @@ export const games: Game[] = [
 		preview: '/games/soundVisual-Avora-preview.png',
 		playUrl: '/games/soundVisual-Avora/',
 		tags: ['audio', 'visualizer', 'interactive']
+	},
+	{
+		slug: 'paddleBall',
+		title: 'paddleBall',
+		subtitle: 'Use your phone as a paddle to keep the ball in the air.',
+		description:
+			'A mobile game where you physically smack your phone upward to bounce a ball. Supports multiplayer via PartyKit — share a room code and play with friends.',
+		preview: '/games/paddleBall-preview.png',
+		playUrl: '/games/paddleBall/',
+		tags: ['mobile', 'motion', 'multiplayer']
 	}
 ];
