@@ -432,6 +432,7 @@
 
 	.links__primary-row {
 		display: contents;
+		width: 100%;
 	}
 
 	.btn {
@@ -487,35 +488,33 @@
 
 	@media (max-width: 640px) {
 		.links {
+			display: flex;
 			flex-direction: column;
 			align-items: center;
 			gap: 0.45rem;
 		}
 
 		.links__primary-row {
-			display: flex;
+			display: flex !important;
+			flex-direction: row !important;
 			width: 100%;
 			gap: 0.45rem;
 			justify-content: center;
 		}
 
 		.links__primary-row .btn {
-			flex: 1 1 0;
+			flex: 1 1 0 !important;
 			min-width: 0;
-			width: calc(50% - 0.225rem);
-			max-width: calc(50% - 0.225rem);
 			justify-content: center;
 			min-height: 2.5rem;
 		}
 
 		.links__primary-row .btn:only-child {
-			width: 75%;
-			max-width: 75%;
-			flex: 0 0 auto;
+			flex: 0 0 75% !important;
 		}
 
 		.btn--details {
-			width: 75%;
+			width: 75% !important;
 			justify-content: center;
 			min-height: 2.5rem;
 		}
