@@ -479,11 +479,13 @@
 
 	@media (max-width: 430px) {
 		.links {
+			flex-direction: column;
+			align-items: center;
 			gap: 0.45rem;
 		}
 
 		.btn {
-			width: 100%;
+			width: 50%;
 			justify-content: center;
 			min-height: 2.5rem;
 		}

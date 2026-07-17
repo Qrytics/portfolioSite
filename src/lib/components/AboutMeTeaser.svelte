@@ -636,15 +636,28 @@
 			gap: 0.4rem 0.65rem;
 		}
 
+		.spotify-grid {
+			grid-template-columns: 1fr 1fr;
+		}
+
+		.spotify-tile--compact {
+			justify-self: stretch;
+			width: auto;
+		}
+
+		.spotify-tile--track {
+			grid-column: 1 / -1;
+		}
+
 		.photo-thumbnail {
-			justify-self: end;
-			width: clamp(34px, 12vw, 54px);
-			height: clamp(24px, 8.5vw, 38px);
+			justify-self: center;
+			width: clamp(56px, 28vw, 88px);
+			height: clamp(40px, 20vw, 62px);
 		}
 
 		.rhythm-icon {
-			width: clamp(62px, 30vw, 112px);
-			justify-self: end;
+			width: clamp(82px, 40vw, 140px);
+			justify-self: center;
 		}
 	}
 </style>
