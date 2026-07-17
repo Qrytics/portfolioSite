@@ -1,0 +1,34 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 900" role="img" aria-labelledby="title desc">
+  <title id="title">spotifyHero side-by-side preview</title>
+  <desc id="desc">Two spotifyHero screenshots displayed side by side.</desc>
+
+  <rect width="1600" height="900" fill="#0b1020" />
+
+  <clipPath id="leftClip">
+    <rect x="0" y="0" width="798" height="900" />
+  </clipPath>
+  <clipPath id="rightClip">
+    <rect x="802" y="0" width="798" height="900" />
+  </clipPath>
+
+  <image
+    href="/demos/Screenshot%202026-04-22%20033638.png"
+    x="0"
+    y="0"
+    width="800"
+    height="900"
+    preserveAspectRatio="xMidYMid slice"
+    clip-path="url(#leftClip)"
+  />
+  <image
+    href="/demos/Screenshot%202026-04-22%20033843.png"
+    x="800"
+    y="0"
+    width="800"
+    height="900"
+    preserveAspectRatio="xMidYMid slice"
+    clip-path="url(#rightClip)"
+  />
+
+  <rect x="798" y="0" width="4" height="900" fill="#111827" />
+</svg>
