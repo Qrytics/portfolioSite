@@ -479,36 +479,29 @@
 
 	@media (max-width: 640px) {
 		.links {
-			display: grid;
-			grid-template-columns: 1fr 1fr;
+			display: flex;
+			flex-wrap: wrap;
+			justify-content: center;
 			gap: 0.45rem;
-			justify-items: stretch;
 		}
 
 		.btn--external {
-			width: 100%;
+			width: calc(50% - 0.225rem);
+			flex: 0 0 calc(50% - 0.225rem);
 			justify-content: center;
 			min-height: 2.5rem;
 		}
 
-		.links:not(:has(.btn--external ~ .btn--external)) .btn--external {
-			grid-column: 1 / -1;
-			width: 75%;
-			justify-self: center;
-		}
-
 		.btn--details {
-			grid-column: 1 / -1;
 			width: 75%;
-			justify-self: center;
+			flex: 0 0 75%;
 			justify-content: center;
 			min-height: 2.5rem;
 		}
 
 		.links .btn:not(.btn--external):not(.btn--details) {
-			grid-column: 1 / -1;
 			width: 75%;
-			justify-self: center;
+			flex: 0 0 75%;
 			justify-content: center;
 			min-height: 2.5rem;
 		}
