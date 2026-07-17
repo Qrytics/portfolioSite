@@ -134,26 +134,30 @@
 			</div>
 
 			<div class="links">
-				{#if project.github}
-					<a href={project.github} target="_blank" rel="noopener noreferrer" class="btn btn--primary">
-						{#if isGitHubRepo(project.github)}
-							GitHub Repo ↗
-						{:else}
-							Source ↗
+				{#if project.github || project.siteUrl || project.projectPageUrl}
+					<div class="links__primary-row">
+						{#if project.github}
+							<a href={project.github} target="_blank" rel="noopener noreferrer" class="btn btn--primary">
+								{#if isGitHubRepo(project.github)}
+									GitHub Repo ↗
+								{:else}
+									Source ↗
+								{/if}
+							</a>
 						{/if}
-					</a>
-				{/if}
-				{#if project.siteUrl || project.projectPageUrl}
-					<a href={project.siteUrl ?? project.projectPageUrl} target="_blank" rel="noopener noreferrer" class="btn btn--primary">
-						Visit Site ↗
-					</a>
+						{#if project.siteUrl || project.projectPageUrl}
+							<a href={project.siteUrl ?? project.projectPageUrl} target="_blank" rel="noopener noreferrer" class="btn btn--primary">
+								Visit Site ↗
+							</a>
+						{/if}
+					</div>
 				{/if}
 				{#if project.demo && !isVideoDemo(project.demo)}
 					<a href={project.demo} target="_blank" rel="noopener noreferrer" class="btn btn--ghost">
 						demo ↗
 					</a>
 				{/if}
-				<a href={detailPath} class="btn btn--ghost" data-sveltekit-reload
+				<a href={detailPath} class="btn btn--ghost btn--details" data-sveltekit-reload
 					>details →</a>
 			</div>
 		</div>
@@ -484,8 +488,24 @@
 			gap: 0.45rem;
 		}
 
-		.btn {
-			width: 50%;
+		.links__primary-row {
+			display: flex;
+			width: 100%;
+			gap: 0.45rem;
+			justify-content: center;
+		}
+
+		.links__primary-row .btn {
+			flex: 1 1 0;
+			min-width: 0;
+			width: calc(50% - 0.225rem);
+			max-width: calc(50% - 0.225rem);
+			justify-content: center;
+			min-height: 2.5rem;
+		}
+
+		.btn--details {
+			width: 75%;
 			justify-content: center;
 			min-height: 2.5rem;
 		}
