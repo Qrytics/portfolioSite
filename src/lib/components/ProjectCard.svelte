@@ -430,6 +430,10 @@
 		gap: 0.6rem;
 	}
 
+	.links__primary-row {
+		display: contents;
+	}
+
 	.btn {
 		display: inline-flex;
 		align-items: center;
@@ -481,7 +485,7 @@
 		border-color: var(--clr-primary-a30);
 	}
 
-	@media (max-width: 430px) {
+	@media (max-width: 640px) {
 		.links {
 			flex-direction: column;
 			align-items: center;
@@ -502,6 +506,12 @@
 			max-width: calc(50% - 0.225rem);
 			justify-content: center;
 			min-height: 2.5rem;
+		}
+
+		.links__primary-row .btn:only-child {
+			width: 75%;
+			max-width: 75%;
+			flex: 0 0 auto;
 		}
 
 		.btn--details {
