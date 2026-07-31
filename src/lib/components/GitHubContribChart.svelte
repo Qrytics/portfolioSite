@@ -631,18 +631,20 @@
 		border: 1px solid rgba(255, 255, 255, 0.04);
 		position: relative;
 		padding: 0;
+		margin: 0;
 		appearance: none;
 		-webkit-appearance: none;
 		overflow: visible;
 		cursor: pointer;
+		box-sizing: border-box;
 	}
 
-	/* Expand clickable area to cover gaps */
+	/* Expand clickable area to cover gaps - pseudo-element doesn't affect visual rendering */
 	.day::before {
 		content: '';
 		position: absolute;
 		inset: calc(var(--day-gap, 2px) / -2);
-		z-index: -1;
+		z-index: 1;
 	}
 
 	.day:disabled {

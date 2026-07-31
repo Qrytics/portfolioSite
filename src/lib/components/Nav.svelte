@@ -5,7 +5,6 @@
 	import { assignAppLocation } from '$lib/utils/internalNav';
 	import { lockScroll, unlockScroll } from '$lib/utils/scrollLock';
 	import { getLocalItem, setLocalItem, getSessionItem, setSessionItem } from '$lib/utils/safeStorage';
-	import { soundManager } from '$lib/utils/sound';
 
 	let scrolled = $state(false);
 	let navOpen = $state(false);
@@ -14,7 +13,6 @@
 	let terminalOpen = $state(false);
 	let theme = $state<'dark' | 'light'>('dark');
 	let themeReady = $state(false);
-	let soundEnabled = $state(true);
 	const isOverlayOpen = $derived(searchOpen || terminalOpen);
 	const isDarkTheme = $derived(theme === 'dark');
 
@@ -29,10 +27,6 @@
 		theme = isDarkTheme ? 'light' : 'dark';
 		applyTheme(theme);
 		setLocalItem('theme', theme);
-	}
-
-	function toggleSound() {
-		soundEnabled = soundManager.toggle();
 	}
 
 	$effect(() => {
@@ -53,10 +47,6 @@
 		};
 		media.addEventListener('change', onPrefChange);
 		return () => media.removeEventListener('change', onPrefChange);
-	});
-
-	$effect(() => {
-		soundEnabled = soundManager.isEnabled();
 	});
 
 	$effect(() => {
@@ -145,15 +135,6 @@
 			<div class="terminal-tool">
 				<Terminal bind:open={terminalOpen} />
 			</div>
-			<button
-				type="button"
-				class="sound-toggle"
-				onclick={toggleSound}
-				aria-label={soundEnabled ? 'Disable sound effects' : 'Enable sound effects'}
-				title={soundEnabled ? 'Sound: ON' : 'Sound: OFF'}
-			>
-				<span class="sound-toggle__icon" aria-hidden="true">{soundEnabled ? '🔊' : '🔇'}</span>
-			</button>
 			{#if themeReady}
 				<button
 					type="button"
@@ -504,41 +485,4 @@
 		}
 	}
 
-	.sound-toggle {
-		display: inline-grid;
-		place-items: center;
-		padding: 0.25rem 0.55rem;
-		min-width: 2.05rem;
-		border: 1px solid var(--border-2);
-		background: rgba(255, 255, 255, 0.03);
-		color: var(--text);
-		font-family: var(--font-mono);
-		font-size: 0.88rem;
-		line-height: 1.2;
-		cursor: pointer;
-		transition: border-color 0.14s, color 0.14s, transform 0.14s, background-color 0.14s;
-	}
-
-	.sound-toggle:hover {
-		border-color: rgba(54, 242, 194, 0.5);
-		color: var(--accent);
-	}
-
-	.sound-toggle:active {
-		transform: translateY(1px);
-	}
-
-	.sound-toggle__icon {
-		display: block;
-		line-height: 1;
-		font-size: 0.9rem;
-		opacity: 0.9;
-	}
-
-	@media (max-width: 979px) {
-		.sound-toggle {
-			padding: 0.25rem 0.5rem;
-			min-width: 1.95rem;
-		}
-	}
 </style>

@@ -21,7 +21,7 @@
 	] as const;
 
 	let teaserPhoto = $state(aboutPhotos[0]);
-	let isPhotoVisible = $state(true);
+	let isPhotoVisible = $state(false);
 	let portraitIndex = $state(0);
 	let isPortraitFading = $state(false);
 	const portraitPhoto = $derived(portraitPhotos[portraitIndex]);
@@ -62,6 +62,9 @@
 		let transitioning = false;
 		let fadeTimeout: ReturnType<typeof setTimeout> | undefined;
 		let revealTimeout: ReturnType<typeof setTimeout> | undefined;
+
+		// Show initial photo after mount
+		isPhotoVisible = true;
 
 		const rotatePhoto = async () => {
 			if (transitioning) return;
@@ -333,18 +336,19 @@
 		.about-lower {
 			grid-template-columns: repeat(2, minmax(0, 1fr));
 			gap: 1rem;
-			align-items: start;
+			align-items: stretch;
 		}
 
 		.fun-wrap {
 			max-width: none;
-			height: 100%;
+			display: flex;
+			flex-direction: column;
 		}
 
 		.side-grid {
-			grid-template-rows: auto auto;
-			align-self: stretch;
-			height: 100%;
+			display: flex;
+			flex-direction: column;
+			gap: 1rem;
 		}
 	}
 
@@ -358,17 +362,6 @@
 		}
 	}
 
-	@media (min-width: 720px) and (max-width: 1199px) {
-		.side-grid {
-			align-self: stretch;
-			height: 100%;
-			grid-template-rows: auto auto minmax(0, 1fr);
-		}
-
-		.card--spotify {
-			height: 100%;
-		}
-	}
 
 	.card {
 		display: block;
