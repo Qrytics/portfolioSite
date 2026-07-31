@@ -504,8 +504,6 @@
 		}
 	}
 
-</style>
-
 	.sound-toggle {
 		display: inline-grid;
 		place-items: center;
@@ -543,3 +541,4 @@
 			min-width: 1.95rem;
 		}
 	}
+</style>
