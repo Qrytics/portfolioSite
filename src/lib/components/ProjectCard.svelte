@@ -125,7 +125,7 @@
 		<div class="content">
 			<p class="card__dates">{project.startMonth} {project.startYear} - {project.endMonth} {project.endYear}</p>
 			<p class="card__subtitle">{project.subtitle}</p>
-			<p class="card__desc">{project.description}</p>
+			<p class="card__desc card__desc--desktop-only">{project.description}</p>
 
 			<div class="tech-badges">
 				{#each project.tags as tag (tag)}
@@ -354,6 +354,13 @@
 		line-height: 1.6;
 		font-size: 0.97rem;
 		overflow-wrap: anywhere;
+	}
+
+	/* Hide detailed description on mobile to reduce text heaviness */
+	@media (max-width: 640px) {
+		.card__desc--desktop-only {
+			display: none;
+		}
 	}
 
 	/* Tech badges */

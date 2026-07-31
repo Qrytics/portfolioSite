@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { profile } from '$lib/data/profile';
+	import { playSound } from '$lib/utils/sound';
 
 	type ContributionDay = {
 		date: string;
@@ -71,12 +72,26 @@
 	let explodedDays = $state<Set<string>>(new Set());
 	let explosionTimers: Record<string, ReturnType<typeof setTimeout>> = {};
 
+	// Cleanup all explosion timers on unmount
+	$effect(() => {
+		return () => {
+			Object.values(explosionTimers).forEach((timer) => clearTimeout(timer));
+		};
+	});
+
 	function handleDayClick(day: ContributionDay) {
 		if (day.outside) return;
 
 		if (explosionTimers[day.date] !== undefined) clearTimeout(explosionTimers[day.date]);
 		explodedDays.add(day.date);
 		explodedDays = new Set(explodedDays);
+
+		// Play sound with volume scaled by contribution count
+		const volume = selectedMaxContributions > 0
+			? Math.min(day.contributionCount / selectedMaxContributions, 1.0)
+			: 0.5;
+		playSound('confetti-pop', volume * 0.8); // 80% of max to keep subtle
+
 		explosionTimers[day.date] = setTimeout(() => {
 			explodedDays.delete(day.date);
 			explodedDays = new Set(explodedDays);
@@ -430,6 +445,13 @@
 		--contrib-empty: rgba(255, 255, 255, 0.06);
 	}
 
+	/* Hide on mobile - chart is too complex for small screens */
+	@media (max-width: 640px) {
+		.github-chart {
+			display: none;
+		}
+	}
+
 	.github-chart__inner {
 		max-width: 86rem;
 		margin: 0 auto;
@@ -613,6 +635,14 @@
 		-webkit-appearance: none;
 		overflow: visible;
 		cursor: pointer;
+	}
+
+	/* Expand clickable area to cover gaps */
+	.day::before {
+		content: '';
+		position: absolute;
+		inset: calc(var(--day-gap, 2px) / -2);
+		z-index: -1;
 	}
 
 	.day:disabled {

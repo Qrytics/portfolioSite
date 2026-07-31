@@ -83,13 +83,14 @@
 				teaserPhoto = nextPhoto;
 				fadeTimeout = undefined;
 
+				// Small delay to ensure DOM update completes before revealing
 				revealTimeout = setTimeout(() => {
 					if (!isMounted) return;
 
 					isPhotoVisible = true;
 					transitioning = false;
 					revealTimeout = undefined;
-				}, 0);
+				}, 50); // Increased from 0 to 50ms to prevent flicker
 			}, PHOTO_FADE_DURATION_MS);
 		};
 
@@ -304,7 +305,7 @@
 		display: grid;
 		grid-template-columns: 1fr;
 		gap: 1rem;
-		align-items: stretch;
+		align-items: start;
 	}
 
 	.fun-wrap {
@@ -312,6 +313,8 @@
 		width: 100%;
 		max-width: 29rem;
 		justify-self: start;
+		display: flex;
+		flex-direction: column;
 	}
 
 	.side-grid {
@@ -330,16 +333,18 @@
 		.about-lower {
 			grid-template-columns: repeat(2, minmax(0, 1fr));
 			gap: 1rem;
-			align-items: stretch;
+			align-items: start;
 		}
 
 		.fun-wrap {
 			max-width: none;
+			height: 100%;
 		}
 
 		.side-grid {
 			grid-template-rows: auto auto;
-			align-self: start;
+			align-self: stretch;
+			height: 100%;
 		}
 	}
 

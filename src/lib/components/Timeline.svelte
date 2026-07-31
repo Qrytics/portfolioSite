@@ -1,4 +1,6 @@
 <script lang="ts">
+	import { playSound } from '$lib/utils/sound';
+
 	interface TimelineEvent {
 		year: number;
 		month?: string;
@@ -65,14 +67,60 @@
 		const bm = b.month ? monthIndex[b.month] ?? 0 : 0;
 		return bm - am;
 	});
+
+	let revealed = $state(new Set<string>());
+	let timelineRef = $state<HTMLElement | undefined>(undefined);
+
+	$effect(() => {
+		if (!timelineRef) return;
+
+		const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+		if (prefersReducedMotion) {
+			// Show all immediately if user prefers reduced motion
+			sortedEvents.forEach((event) => revealed.add(event.label));
+			revealed = new Set(revealed);
+			return;
+		}
+
+		const eventElements = timelineRef.querySelectorAll('.event');
+		const io = new IntersectionObserver(
+			(entries) => {
+				entries.forEach((entry) => {
+					if (entry.isIntersecting) {
+						const eventLabel = entry.target.getAttribute('data-event-label');
+						if (eventLabel && !revealed.has(eventLabel)) {
+							const index = Array.from(eventElements).indexOf(entry.target as Element);
+							setTimeout(() => {
+								revealed.add(eventLabel);
+								revealed = new Set(revealed);
+								playSound('timeline-tick', 0.5);
+							}, index * 80); // 80ms stagger
+						}
+					}
+				});
+			},
+			{
+				threshold: 0.3,
+				rootMargin: '0px 0px -10% 0px'
+			}
+		);
+
+		eventElements.forEach((el) => io.observe(el));
+		return () => io.disconnect();
+	});
 </script>
 
 <section class="timeline" id="timeline" aria-label="Career timeline">
 	<div class="timeline__inner">
 		<h2 class="section-heading">Timeline</h2>
-		<div class="track">
+		<div class="track" bind:this={timelineRef}>
 			{#each sortedEvents as event, i (event.label)}
-				<div class="event" class:event--accent={event.accent}>
+				<div
+					class="event"
+					class:event--accent={event.accent}
+					class:event--revealed={revealed.has(event.label)}
+					data-event-label={event.label}
+				>
 					<div class="event__meta">
 						<span class="event__year">{event.year}</span>
 						{#if event.month}
@@ -124,6 +172,22 @@
 		grid-template-columns: 4rem 1.5rem 1fr;
 		gap: 0 0.75rem;
 		align-items: start;
+		opacity: 0;
+		transform: translateX(-20px);
+		transition: opacity 0.4s ease-out, transform 0.4s ease-out;
+	}
+
+	.event--revealed {
+		opacity: 1;
+		transform: translateX(0);
+	}
+
+	@media (prefers-reduced-motion: reduce) {
+		.event {
+			opacity: 1;
+			transform: none;
+			transition: none;
+		}
 	}
 
 	@media (min-width: 560px) {
@@ -168,7 +232,13 @@
 		background: var(--panel);
 		flex-shrink: 0;
 		margin-top: 0.22rem;
-		transition: border-color 0.18s, background 0.18s;
+		transition: border-color 0.18s, background 0.18s, transform 0.2s, box-shadow 0.2s;
+	}
+
+	.event:hover .event__dot {
+		border-color: var(--accent);
+		box-shadow: 0 0 8px rgba(54, 242, 194, 0.4);
+		transform: scale(1.15);
 	}
 
 	.event--accent .event__dot {
@@ -182,6 +252,20 @@
 		min-height: 1.5rem;
 		background: var(--border);
 		margin-top: 4px;
+		transform: scaleY(0);
+		transform-origin: top;
+		transition: transform 0.35s ease-out;
+	}
+
+	.event--revealed .event__line {
+		transform: scaleY(1);
+	}
+
+	@media (prefers-reduced-motion: reduce) {
+		.event__line {
+			transform: scaleY(1);
+			transition: none;
+		}
 	}
 
 	.event__body {

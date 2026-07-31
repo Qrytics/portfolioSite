@@ -4,14 +4,32 @@
 	const year = new Date().getFullYear();
 
 	let toastVisible = $state(false);
+	let toastMessage = $state('email copied to clipboard');
 	let toastTimer: ReturnType<typeof setTimeout> | undefined;
 
-	function copyEmail() {
-		navigator.clipboard.writeText(profile.email).then(() => {
+	// Cleanup timer on unmount
+	$effect(() => {
+		return () => {
 			if (toastTimer !== undefined) clearTimeout(toastTimer);
-			toastVisible = true;
-			toastTimer = setTimeout(() => (toastVisible = false), 2500);
-		});
+		};
+	});
+
+	function copyEmail() {
+		navigator.clipboard
+			.writeText(profile.email)
+			.then(() => {
+				if (toastTimer !== undefined) clearTimeout(toastTimer);
+				toastVisible = true;
+				toastMessage = 'email copied to clipboard';
+				toastTimer = setTimeout(() => (toastVisible = false), 2500);
+			})
+			.catch((err) => {
+				console.warn('Clipboard write failed:', err);
+				if (toastTimer !== undefined) clearTimeout(toastTimer);
+				toastVisible = true;
+				toastMessage = 'clipboard unavailable - see email above';
+				toastTimer = setTimeout(() => (toastVisible = false), 3500);
+			});
 	}
 
 	function backToTop() {
@@ -47,7 +65,7 @@
 </footer>
 
 {#if toastVisible}
-	<div class="toast" role="status" aria-live="polite">email copied to clipboard</div>
+	<div class="toast" role="status" aria-live="polite">{toastMessage}</div>
 {/if}
 
 <style>

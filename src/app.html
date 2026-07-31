@@ -8,7 +8,13 @@
 		<script>
 			(function () {
 				try {
-					var savedTheme = window.localStorage.getItem('theme');
+					var savedTheme = null;
+					try {
+						savedTheme = window.localStorage.getItem('theme');
+					} catch (storageErr) {
+						// localStorage unavailable (private browsing, etc.)
+					}
+
 					var theme =
 						savedTheme === 'dark' || savedTheme === 'light'
 							? savedTheme
@@ -26,7 +32,11 @@
 						document.head.appendChild(themeColor);
 					}
 					themeColor.setAttribute('content', theme === 'dark' ? '#0b0e12' : '#FFFFFF');
-				} catch (_) {}
+				} catch (err) {
+					if (console && console.warn) {
+						console.warn('Theme init failed:', err);
+					}
+				}
 			})();
 		</script>
 		<script>
@@ -34,10 +44,21 @@
 				try {
 					if (window.location.pathname !== '/') return;
 					var key = 'instant-home-hash-scroll';
-					if (window.sessionStorage.getItem(key)) {
+					var hasFlag = false;
+					try {
+						hasFlag = window.sessionStorage.getItem(key) !== null;
+					} catch (storageErr) {
+						// sessionStorage unavailable
+					}
+
+					if (hasFlag) {
 						document.documentElement.classList.add('instant-home-jump-pending');
 					}
-				} catch (_) {}
+				} catch (err) {
+					if (console && console.warn) {
+						console.warn('Hash scroll init failed:', err);
+					}
+				}
 			})();
 		</script>
 		%sveltekit.head%

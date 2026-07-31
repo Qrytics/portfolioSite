@@ -4,6 +4,8 @@
 	import Terminal from '$lib/components/Terminal.svelte';
 	import { assignAppLocation } from '$lib/utils/internalNav';
 	import { lockScroll, unlockScroll } from '$lib/utils/scrollLock';
+	import { getLocalItem, setLocalItem, getSessionItem, setSessionItem } from '$lib/utils/safeStorage';
+	import { soundManager } from '$lib/utils/sound';
 
 	let scrolled = $state(false);
 	let navOpen = $state(false);
@@ -12,6 +14,7 @@
 	let terminalOpen = $state(false);
 	let theme = $state<'dark' | 'light'>('dark');
 	let themeReady = $state(false);
+	let soundEnabled = $state(true);
 	const isOverlayOpen = $derived(searchOpen || terminalOpen);
 	const isDarkTheme = $derived(theme === 'dark');
 
@@ -25,11 +28,15 @@
 	function toggleTheme() {
 		theme = isDarkTheme ? 'light' : 'dark';
 		applyTheme(theme);
-		window.localStorage.setItem('theme', theme);
+		setLocalItem('theme', theme);
+	}
+
+	function toggleSound() {
+		soundEnabled = soundManager.toggle();
 	}
 
 	$effect(() => {
-		const savedTheme = window.localStorage.getItem('theme');
+		const savedTheme = getLocalItem('theme');
 		if (savedTheme === 'dark' || savedTheme === 'light') {
 			theme = savedTheme;
 		} else {
@@ -40,12 +47,16 @@
 
 		const media = window.matchMedia('(prefers-color-scheme: dark)');
 		const onPrefChange = (e: MediaQueryListEvent) => {
-			if (window.localStorage.getItem('theme')) return;
+			if (getLocalItem('theme')) return;
 			theme = e.matches ? 'dark' : 'light';
 			applyTheme(theme);
 		};
 		media.addEventListener('change', onPrefChange);
 		return () => media.removeEventListener('change', onPrefChange);
+	});
+
+	$effect(() => {
+		soundEnabled = soundManager.isEnabled();
 	});
 
 	$effect(() => {
@@ -102,7 +113,7 @@
 
 		// Cross-page click should "teleport" after navigation/hydration.
 		e.preventDefault();
-		window.sessionStorage.setItem('instant-home-hash-scroll', href.replace('/#', '#'));
+		setSessionItem('instant-home-hash-scroll', href.replace('/#', '#'));
 		document.documentElement.classList.add('instant-home-jump-pending');
 		assignAppLocation('/');
 	}
@@ -111,9 +122,14 @@
 <a href="#main" class="skip">Skip to content</a>
 
 {#if navOpen && compact}
-	<!-- svelte-ignore a11y_click_events_have_key_events -->
-	<!-- svelte-ignore a11y_no_static_element_interactions -->
-	<div class="nav-backdrop" onclick={() => (navOpen = false)}></div>
+	<div
+		class="nav-backdrop"
+		role="button"
+		tabindex="0"
+		aria-label="Close navigation menu"
+		onclick={() => (navOpen = false)}
+		onkeydown={(e) => (e.key === 'Enter' || e.key === ' ') && (navOpen = false)}
+	></div>
 {/if}
 
 <header
@@ -129,6 +145,15 @@
 			<div class="terminal-tool">
 				<Terminal bind:open={terminalOpen} />
 			</div>
+			<button
+				type="button"
+				class="sound-toggle"
+				onclick={toggleSound}
+				aria-label={soundEnabled ? 'Disable sound effects' : 'Enable sound effects'}
+				title={soundEnabled ? 'Sound: ON' : 'Sound: OFF'}
+			>
+				<span class="sound-toggle__icon" aria-hidden="true">{soundEnabled ? '🔊' : '🔇'}</span>
+			</button>
 			{#if themeReady}
 				<button
 					type="button"
@@ -481,3 +506,40 @@
 
 </style>
 
+	.sound-toggle {
+		display: inline-grid;
+		place-items: center;
+		padding: 0.25rem 0.55rem;
+		min-width: 2.05rem;
+		border: 1px solid var(--border-2);
+		background: rgba(255, 255, 255, 0.03);
+		color: var(--text);
+		font-family: var(--font-mono);
+		font-size: 0.88rem;
+		line-height: 1.2;
+		cursor: pointer;
+		transition: border-color 0.14s, color 0.14s, transform 0.14s, background-color 0.14s;
+	}
+
+	.sound-toggle:hover {
+		border-color: rgba(54, 242, 194, 0.5);
+		color: var(--accent);
+	}
+
+	.sound-toggle:active {
+		transform: translateY(1px);
+	}
+
+	.sound-toggle__icon {
+		display: block;
+		line-height: 1;
+		font-size: 0.9rem;
+		opacity: 0.9;
+	}
+
+	@media (max-width: 979px) {
+		.sound-toggle {
+			padding: 0.25rem 0.5rem;
+			min-width: 1.95rem;
+		}
+	}

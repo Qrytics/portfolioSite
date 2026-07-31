@@ -5,9 +5,27 @@
 	import { profile } from '$lib/data/profile';
 	import Nav from '$lib/components/Nav.svelte';
 	import Footer from '$lib/components/Footer.svelte';
+	import ScrollProgress from '$lib/components/ScrollProgress.svelte';
+	import MatrixOverlay from '$lib/components/MatrixOverlay.svelte';
 	import { resetScrollLock } from '$lib/utils/scrollLock';
+	import { playSound } from '$lib/utils/sound';
+	import { setLocalItem, getLocalItem } from '$lib/utils/safeStorage';
 
 	let { children } = $props();
+	let showMatrix = $state(false);
+	let konamiSequence = [
+		'ArrowUp',
+		'ArrowUp',
+		'ArrowDown',
+		'ArrowDown',
+		'ArrowLeft',
+		'ArrowRight',
+		'ArrowLeft',
+		'ArrowRight',
+		'b',
+		'a'
+	];
+	let konamiIndex = $state(0);
 
 	beforeNavigate(() => {
 		resetScrollLock();
@@ -23,6 +41,35 @@
 		// Safety: never leave the app hidden if a previous instant-jump state got stuck.
 		resetScrollLock();
 		document.documentElement.classList.remove('instant-home-jump-pending');
+	});
+
+	$effect(() => {
+		function handleKonami(e: KeyboardEvent) {
+			const key = e.key.toLowerCase();
+
+			if (
+				key === konamiSequence[konamiIndex] ||
+				(konamiSequence[konamiIndex].startsWith('Arrow') && e.key === konamiSequence[konamiIndex])
+			) {
+				konamiIndex++;
+
+				if (konamiIndex === konamiSequence.length) {
+					showMatrix = true;
+					playSound('game-start');
+					konamiIndex = 0;
+					setLocalItem('konami-discovered', 'true');
+				}
+			} else {
+				konamiIndex = 0;
+			}
+
+			if (e.key === 'Escape' && showMatrix) {
+				showMatrix = false;
+			}
+		}
+
+		window.addEventListener('keydown', handleKonami);
+		return () => window.removeEventListener('keydown', handleKonami);
 	});
 </script>
 
@@ -40,6 +87,7 @@
 	<title>Mario Belmonte (Portfolio)</title>
 </svelte:head>
 
+<ScrollProgress />
 <Nav />
 
 <main id="main">
@@ -47,3 +95,7 @@
 </main>
 
 <Footer />
+
+{#if showMatrix}
+	<MatrixOverlay onclose={() => (showMatrix = false)} />
+{/if}

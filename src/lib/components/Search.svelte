@@ -82,10 +82,15 @@
 </button>
 
 {#if open}
-	<!-- svelte-ignore a11y_click_events_have_key_events -->
-	<!-- svelte-ignore a11y_no_static_element_interactions -->
 	<div class="portal" use:portal>
-		<div class="backdrop" onclick={() => (open = false)}></div>
+		<div
+			class="backdrop"
+			role="button"
+			tabindex="0"
+			aria-label="Close search"
+			onclick={() => (open = false)}
+			onkeydown={(e) => (e.key === 'Enter' || e.key === ' ') && (open = false)}
+		></div>
 
 		<div class="modal" role="dialog" aria-modal="true" aria-label="Search projects">
 			<div class="modal__bar">
