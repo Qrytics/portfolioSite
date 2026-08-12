@@ -95,7 +95,7 @@
 	}
 
 	.footer__sep {
-		color: rgba(243, 246, 255, 0.35);
+		color: color-mix(in srgb, var(--text) 38%, transparent);
 	}
 
 	@media (max-width: 64rem) {
@@ -123,22 +123,22 @@
 	}
 
 	.footer-link {
-		color: rgba(54, 242, 194, 0.92);
+		color: color-mix(in srgb, var(--accent) 92%, transparent);
 		text-decoration: none;
-		border-bottom: 1px solid rgba(54, 242, 194, 0.3);
+		border-bottom: 1px solid color-mix(in srgb, var(--accent) 30%, transparent);
 		transition: border-color 0.14s ease, color 0.14s ease;
 		font-family: var(--font-mono);
 	}
 
 	.footer-link:hover {
 		color: var(--accent);
-		border-color: rgba(54, 242, 194, 0.55);
+		border-color: color-mix(in srgb, var(--accent) 55%, transparent);
 	}
 
 	.email-btn {
 		background: none;
 		border: none;
-		border-bottom: 1px solid rgba(54, 242, 194, 0.3);
+		border-bottom: 1px solid color-mix(in srgb, var(--accent) 30%, transparent);
 		padding: 0;
 		font: inherit;
 		cursor: pointer;
@@ -156,7 +156,7 @@
 	}
 
 	.back-to-top:focus-visible {
-		outline: 2px solid rgba(54, 242, 194, 0.6);
+		outline: 2px solid color-mix(in srgb, var(--accent) 60%, transparent);
 		outline-offset: 4px;
 	}
 
@@ -166,7 +166,7 @@
 		left: 50%;
 		transform: translate(-50%);
 		background: var(--panel);
-		color: rgba(243, 246, 255, 0.92);
+		color: var(--text);
 		padding: 0.75rem 1.5rem;
 		border: 1px solid var(--border);
 		box-shadow: var(--shadow);

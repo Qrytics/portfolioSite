@@ -372,7 +372,7 @@
 
 	.difficulty-btn--active {
 		border-color: var(--accent);
-		background: rgba(54, 242, 194, 0.1);
+		background: color-mix(in srgb, var(--accent) 10%, transparent);
 		color: var(--accent);
 	}
 
@@ -388,14 +388,14 @@
 	}
 
 	.btn--primary {
-		border-color: rgba(54, 242, 194, 0.32);
-		background: rgba(54, 242, 194, 0.09);
-		color: rgba(54, 242, 194, 0.95);
+		border-color: color-mix(in srgb, var(--accent) 32%, transparent);
+		background: color-mix(in srgb, var(--accent) 9%, transparent);
+		color: color-mix(in srgb, var(--accent) 95%, transparent);
 	}
 
 	.btn--primary:hover {
-		background: rgba(54, 242, 194, 0.15);
-		border-color: rgba(54, 242, 194, 0.5);
+		background: color-mix(in srgb, var(--accent) 15%, transparent);
+		border-color: color-mix(in srgb, var(--accent) 50%, transparent);
 		transform: translateY(-1px);
 	}
 
@@ -424,7 +424,7 @@
 		font-size: 6rem;
 		font-weight: 700;
 		color: var(--accent);
-		text-shadow: 0 0 20px rgba(54, 242, 194, 0.5);
+		text-shadow: 0 0 20px color-mix(in srgb, var(--accent) 50%, transparent);
 		animation: pulse 1s ease-in-out;
 	}
 
@@ -473,12 +473,12 @@
 	}
 
 	.char--current {
-		background: rgba(54, 242, 194, 0.2);
+		background: color-mix(in srgb, var(--accent) 20%, transparent);
 		animation: blink 1s step-end infinite;
 	}
 
 	@keyframes blink {
-		0%, 50% { background: rgba(54, 242, 194, 0.2); }
+		0%, 50% { background: color-mix(in srgb, var(--accent) 20%, transparent); }
 		51%, 100% { background: transparent; }
 	}
 
@@ -557,7 +557,7 @@
 
 	.result-stat--primary {
 		border-color: var(--accent);
-		background: rgba(54, 242, 194, 0.05);
+		background: color-mix(in srgb, var(--accent) 5%, transparent);
 	}
 
 	.result-stat__value {

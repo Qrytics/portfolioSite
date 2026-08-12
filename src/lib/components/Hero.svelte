@@ -188,7 +188,7 @@
 	.header__cta {
 		position: relative;
 		margin: 0.65rem 0 0;
-		color: rgba(243, 246, 255, 0.82);
+		color: color-mix(in srgb, var(--text) 90%, transparent);
 		font-size: clamp(0.9rem, 1.7vw, 1rem);
 		font-weight: 400;
 		max-width: 70ch;
@@ -220,7 +220,7 @@
 		align-items: center;
 		justify-content: center;
 		padding: 0.5rem 0.9rem;
-		border: 1px solid rgba(54, 242, 194, 0.38);
+		border: 1px solid color-mix(in srgb, var(--accent) 38%, transparent);
 		background: color-mix(in srgb, var(--panel) 80%, transparent);
 		color: var(--text);
 		font-family: var(--font-mono);
@@ -235,7 +235,7 @@
 
 	.hero-action:hover,
 	.hero-action:focus-visible {
-		border-color: rgba(54, 242, 194, 0.6);
+		border-color: color-mix(in srgb, var(--accent) 60%, transparent);
 		color: var(--accent);
 		background: color-mix(in srgb, var(--panel) 66%, transparent);
 		transform: translateY(-1px);
@@ -254,20 +254,20 @@
 	}
 
 	.link {
-		color: rgba(54, 242, 194, 0.94);
+		color: color-mix(in srgb, var(--accent) 94%, transparent);
 		text-decoration: none;
-		border-bottom: 1px solid rgba(54, 242, 194, 0.3);
+		border-bottom: 1px solid color-mix(in srgb, var(--accent) 30%, transparent);
 		transition: border-color 0.14s ease, color 0.14s ease;
 		font-family: var(--font-mono);
 	}
 
 	.link:hover {
 		color: var(--accent);
-		border-color: rgba(54, 242, 194, 0.55);
+		border-color: color-mix(in srgb, var(--accent) 55%, transparent);
 	}
 
 	.meta-sep {
-		color: rgba(243, 246, 255, 0.45);
+		color: color-mix(in srgb, var(--text) 48%, transparent);
 		font-family: var(--font-mono);
 	}
 
@@ -328,11 +328,11 @@
 		padding: 0;
 		font: inherit;
 		cursor: pointer;
-		border-bottom: 1px solid rgba(54, 242, 194, 0.3);
+		border-bottom: 1px solid color-mix(in srgb, var(--accent) 30%, transparent);
 	}
 
 	.email-copy-btn:focus-visible {
-		outline: 2px solid rgba(54, 242, 194, 0.6);
+		outline: 2px solid color-mix(in srgb, var(--accent) 60%, transparent);
 		outline-offset: 4px;
 	}
 
@@ -342,7 +342,7 @@
 		left: 50%;
 		transform: translate(-50%);
 		background: var(--panel);
-		color: rgba(243, 246, 255, 0.92);
+		color: var(--text);
 		padding: 0.75rem 1.5rem;
 		border: 1px solid var(--border);
 		box-shadow: var(--shadow);

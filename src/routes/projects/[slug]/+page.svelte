@@ -1,39 +1,10 @@
 <script lang="ts">
 import type { PageData } from './$types';
 import MediaSection from '$lib/components/MediaSection.svelte';
+import { getTagKind } from '$lib/utils/tags';
 
 let { data }: { data: PageData } = $props();
 const project = $derived(data.project);
-
-const languageTags = new Set([
-	'javascript', 'typescript', 'python', 'rust', 'go', 'c++', 'c', 'dart', 'html', 'css', 'systemverilog'
-]);
-const frameworkTags = new Set([
-	'react', 'next.js', 'fastapi', 'svelte', 'react native', 'tauri', 'flutter', 'electron'
-]);
-const apiTags = new Set([
-	'spotify api', 'stripe api', 'calendly api', 'semantic scholar api', 'twitch api', 'openai api',
-	'github api', 'groq api', 'windows api', 'windows ui automation api', 'lcu api'
-]);
-const serviceTags = new Set(['docker', 'postgresql', 'sqlite', 'redis', 'neo4j', 'supabase', 'pocketbase', 'duckdb']);
-const protocolTags = new Set(['mqtt', 'webrtc', 'manifest v3']);
-const toolTags = new Set([
-	'discord.js', 'discord.py', 'langchain', 'litellm', 'pytorch', 'opencv', 'mediapipe', 'xgboost',
-	'lightgbm', 'scikit-learn', 'optuna', 'pandas', 'ollama', 'demucs', 'ffmpeg', 'rich', 'argparse',
-	'chokidar', 'xterm.js', 'node-cron', 'cadence virtuoso', 'tribe v2', 'faster-whisper', 'porcupine',
-	'pyyaml', 'pyaudio', 'pyautogui', 'tokio', 'scapy', 'expo', 'ytdl-core'
-]);
-
-function getTagKind(tag: string): 'language' | 'framework' | 'api' | 'service' | 'protocol' | 'tool' | 'other' {
-	const key = tag.toLowerCase();
-	if (languageTags.has(key)) return 'language';
-	if (frameworkTags.has(key)) return 'framework';
-	if (apiTags.has(key)) return 'api';
-	if (serviceTags.has(key)) return 'service';
-	if (protocolTags.has(key)) return 'protocol';
-	if (toolTags.has(key)) return 'tool';
-	return 'other';
-}
 
 function escapeHtml(text: string): string {
 	return text
@@ -326,8 +297,8 @@ white-space: nowrap;
 flex-shrink: 0;
 }
 
-.badge[data-type='open-source'] { border-color: rgba(54,242,194,.25); color: rgba(54,242,194,.92); background: rgba(54,242,194,.05); }
-.badge[data-type='closed-source'] { border-color: rgba(246,193,119,.22); color: rgba(246,193,119,.92); background: rgba(246,193,119,.05); }
+.badge[data-type='open-source'] { border-color: color-mix(in srgb, var(--accent) 25%, transparent); color: color-mix(in srgb, var(--accent) 92%, transparent); background: color-mix(in srgb, var(--accent) 5%, transparent); }
+.badge[data-type='closed-source'] { border-color: color-mix(in srgb, var(--accent-2) 22%, transparent); color: color-mix(in srgb, var(--accent-2) 92%, transparent); background: color-mix(in srgb, var(--accent-2) 5%, transparent); }
 
 .content {
 padding: 1.25rem;

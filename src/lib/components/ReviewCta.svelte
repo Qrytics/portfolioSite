@@ -21,16 +21,16 @@
 		padding: 0.6rem 1.25rem;
 		font-family: var(--font-mono);
 		font-size: 0.92rem;
-		color: rgba(54, 242, 194, 0.92);
+		color: color-mix(in srgb, var(--accent) 92%, transparent);
 		text-decoration: none;
-		border: 1px solid rgba(54, 242, 194, 0.32);
-		background: rgba(54, 242, 194, 0.09);
+		border: 1px solid color-mix(in srgb, var(--accent) 32%, transparent);
+		background: color-mix(in srgb, var(--accent) 9%, transparent);
 		transition: background 0.14s ease, border-color 0.14s ease, color 0.14s ease;
 	}
 
 	.review-cta__btn:hover {
-		background: rgba(54, 242, 194, 0.13);
-		border-color: rgba(54, 242, 194, 0.42);
+		background: color-mix(in srgb, var(--accent) 13%, transparent);
+		border-color: color-mix(in srgb, var(--accent) 42%, transparent);
 		color: var(--accent);
 	}
 </style>

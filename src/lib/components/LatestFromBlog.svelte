@@ -53,7 +53,7 @@
 		margin: 0;
 		font-size: 0.92rem;
 		letter-spacing: 0.02em;
-		color: rgba(243, 246, 255, 0.82);
+		color: color-mix(in srgb, var(--text) 90%, transparent);
 		font-weight: 600;
 		font-family: var(--font-mono);
 		text-transform: lowercase;
@@ -92,7 +92,7 @@
 
 	.card:hover {
 		transform: translateY(-2px);
-		border-color: rgba(222, 232, 255, 0.22);
+		border-color: color-mix(in srgb, var(--border) 160%, transparent);
 	}
 
 	.card__inner {
@@ -105,18 +105,18 @@
 		margin: 0;
 		font-size: 1.05rem;
 		letter-spacing: 0.01em;
-		color: rgba(243, 246, 255, 0.92);
+		color: var(--text);
 	}
 
 	.meta {
 		font-family: var(--font-mono);
 		font-size: 0.85rem;
-		color: rgba(243, 246, 255, 0.6);
+		color: color-mix(in srgb, var(--text) 65%, transparent);
 	}
 
 	.excerpt {
 		margin: 0;
-		color: rgba(243, 246, 255, 0.72);
+		color: var(--muted);
 		line-height: 1.65;
 		max-width: 95ch;
 	}
@@ -124,7 +124,7 @@
 	.cta {
 		font-family: var(--font-mono);
 		font-size: 0.9rem;
-		color: rgba(54, 242, 194, 0.92);
+		color: color-mix(in srgb, var(--accent) 92%, transparent);
 		margin-top: 0.25rem;
 	}
 </style>

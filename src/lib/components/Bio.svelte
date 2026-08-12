@@ -53,13 +53,13 @@
 		margin: 0;
 		font-size: 0.92rem;
 		letter-spacing: 0.02em;
-		color: rgba(243, 246, 255, 0.82);
+		color: color-mix(in srgb, var(--text) 90%, transparent);
 		font-weight: 600;
 	}
 
 	.badge {
 		font-size: 0.78rem;
-		color: rgba(243, 246, 255, 0.72);
+		color: var(--muted);
 		border: 1px solid var(--border-2);
 		padding: 0.2rem 0.55rem;
 		background: rgba(255, 255, 255, 0.03);
@@ -73,7 +73,7 @@
 	}
 
 	.bio {
-		color: rgba(243, 246, 255, 0.78);
+		color: color-mix(in srgb, var(--text) 85%, transparent);
 		line-height: 1.7;
 		font-size: 0.97rem;
 		max-width: 80ch;
@@ -88,7 +88,7 @@
 	}
 
 	.meta-key {
-		color: rgba(54, 242, 194, 0.7);
+		color: color-mix(in srgb, var(--accent) 70%, transparent);
 	}
 
 	.meta-val {

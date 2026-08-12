@@ -117,7 +117,7 @@
 		gap: 0.5rem;
 		font-family: var(--font-mono);
 		font-size: 0.88rem;
-		color: rgba(243, 246, 255, 0.78);
+		color: color-mix(in srgb, var(--text) 85%, transparent);
 		line-height: 1.5;
 	}
 

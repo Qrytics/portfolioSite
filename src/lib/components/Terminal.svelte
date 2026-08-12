@@ -423,7 +423,7 @@
 		padding: 0.25rem 0.55rem;
 		border: 1px solid var(--border-2);
 		background: rgba(255, 255, 255, 0.03);
-		color: rgba(243, 246, 255, 0.7);
+		color: color-mix(in srgb, var(--text) 72%, transparent);
 		font-family: var(--font-mono);
 		font-size: 0.82rem;
 		cursor: pointer;
@@ -432,8 +432,8 @@
 	}
 
 	.trigger:hover {
-		background: rgba(54, 242, 194, 0.07);
-		border-color: rgba(54, 242, 194, 0.3);
+		background: color-mix(in srgb, var(--accent) 7%, transparent);
+		border-color: color-mix(in srgb, var(--accent) 30%, transparent);
 		color: var(--accent);
 	}
 
@@ -503,7 +503,7 @@
 	}
 
 	.terminal__close:hover {
-		color: rgba(243, 246, 255, 0.9);
+		color: color-mix(in srgb, var(--text) 95%, transparent);
 	}
 
 	.terminal__output {
@@ -515,7 +515,7 @@
 		flex-direction: column;
 		gap: 0.35rem;
 		scrollbar-width: thin;
-		scrollbar-color: rgba(54, 242, 194, 0.2) transparent;
+		scrollbar-color: color-mix(in srgb, var(--accent) 20%, transparent) transparent;
 	}
 
 	.line {
@@ -531,11 +531,11 @@
 	}
 
 	.line--input span {
-		color: rgba(243, 246, 255, 0.55);
+		color: color-mix(in srgb, var(--text) 58%, transparent);
 	}
 
 	.line--output span {
-		color: rgba(243, 246, 255, 0.85);
+		color: color-mix(in srgb, var(--text) 90%, transparent);
 	}
 
 	.line--error span {
@@ -566,7 +566,7 @@
 		outline: none;
 		font-family: var(--font-mono);
 		font-size: 0.88rem;
-		color: rgba(243, 246, 255, 0.92);
+		color: var(--text);
 		caret-color: var(--accent);
 		min-width: 0;
 	}

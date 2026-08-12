@@ -106,13 +106,13 @@
 		margin: 0;
 		font-size: 0.92rem;
 		letter-spacing: 0.02em;
-		color: rgba(243, 246, 255, 0.82);
+		color: color-mix(in srgb, var(--text) 90%, transparent);
 		font-weight: 600;
 	}
 
 	.badge {
 		font-size: 0.78rem;
-		color: rgba(243, 246, 255, 0.72);
+		color: var(--muted);
 		border: 1px solid var(--border-2);
 		padding: 0.2rem 0.55rem;
 		background: rgba(255, 255, 255, 0.03);
@@ -140,15 +140,15 @@
 	.link-key {
 		font-family: var(--font-mono);
 		font-size: 0.78rem;
-		color: rgba(54, 242, 194, 0.6);
+		color: color-mix(in srgb, var(--accent) 60%, transparent);
 		min-width: 72px;
 		letter-spacing: 0.04em;
 	}
 
 	.link {
-		color: rgba(54, 242, 194, 0.94);
+		color: color-mix(in srgb, var(--accent) 94%, transparent);
 		text-decoration: none;
-		border-bottom: 1px solid rgba(54, 242, 194, 0.3);
+		border-bottom: 1px solid color-mix(in srgb, var(--accent) 30%, transparent);
 		transition: border-color 0.14s ease, color 0.14s ease;
 		font-family: var(--font-mono);
 		font-size: 0.88rem;
@@ -156,13 +156,13 @@
 
 	.link:hover {
 		color: var(--accent);
-		border-color: rgba(54, 242, 194, 0.55);
+		border-color: color-mix(in srgb, var(--accent) 55%, transparent);
 	}
 
 	.email-btn {
 		background: none;
 		border: none;
-		border-bottom: 1px solid rgba(54, 242, 194, 0.3);
+		border-bottom: 1px solid color-mix(in srgb, var(--accent) 30%, transparent);
 		padding: 0;
 		font: inherit;
 		cursor: pointer;
@@ -178,7 +178,7 @@
 		left: 50%;
 		transform: translate(-50%);
 		background: var(--panel);
-		color: rgba(243, 246, 255, 0.92);
+		color: var(--text);
 		padding: 0.75rem 1.5rem;
 		border: 1px solid var(--border);
 		box-shadow: var(--shadow);

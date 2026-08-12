@@ -237,13 +237,13 @@
 
 	.event:hover .event__dot {
 		border-color: var(--accent);
-		box-shadow: 0 0 8px rgba(54, 242, 194, 0.4);
+		box-shadow: 0 0 8px color-mix(in srgb, var(--accent) 40%, transparent);
 		transform: scale(1.15);
 	}
 
 	.event--accent .event__dot {
 		border-color: var(--accent);
-		background: rgba(54, 242, 194, 0.15);
+		background: color-mix(in srgb, var(--accent) 15%, transparent);
 	}
 
 	.event__line {
@@ -276,7 +276,7 @@
 		margin: 0 0 0.3rem;
 		font-family: var(--font-mono);
 		font-size: 0.88rem;
-		color: rgba(243, 246, 255, 0.9);
+		color: color-mix(in srgb, var(--text) 95%, transparent);
 		line-height: 1.4;
 		font-weight: 600;
 	}

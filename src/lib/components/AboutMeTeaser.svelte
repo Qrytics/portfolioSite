@@ -291,7 +291,7 @@
 		margin: 0;
 		font-size: 0.92rem;
 		letter-spacing: 0.02em;
-		color: rgba(243, 246, 255, 0.82);
+		color: color-mix(in srgb, var(--text) 90%, transparent);
 		font-weight: 600;
 		font-family: var(--font-mono);
 		text-transform: lowercase;
@@ -463,7 +463,7 @@
 		font-size: 0.82rem;
 		letter-spacing: 0.04em;
 		line-height: 1.1;
-		color: rgba(243, 246, 255, 0.92);
+		color: var(--text);
 		font-weight: 600;
 		text-transform: uppercase;
 	}
@@ -491,7 +491,7 @@
 	.excerpt {
 		margin: 0;
 		font-size: 14.08px;
-		color: rgba(243, 246, 255, 0.72);
+		color: var(--muted);
 		line-height: 1.65;
 		max-width: 95ch;
 	}
@@ -500,7 +500,7 @@
 		font-family: var(--font-mono);
 		font-size: 0.82rem;
 		font-weight: 400;
-		color: rgba(54, 242, 194, 0.92);
+		color: color-mix(in srgb, var(--accent) 92%, transparent);
 		margin-top: 0;
 		line-height: 1.1;
 	}
@@ -593,7 +593,7 @@
 	}
 
 	.highlight {
-		color: rgba(54, 242, 194, 0.95);
+		color: color-mix(in srgb, var(--accent) 95%, transparent);
 	}
 
 	@media (max-width: 640px) {

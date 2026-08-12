@@ -98,7 +98,7 @@
 		padding: 2rem;
 		background: rgba(0, 0, 0, 0.8);
 		border: 2px solid var(--accent);
-		box-shadow: 0 0 20px rgba(54, 242, 194, 0.5);
+		box-shadow: 0 0 20px color-mix(in srgb, var(--accent) 50%, transparent);
 		max-width: 500px;
 	}
 
@@ -107,20 +107,20 @@
 		font-family: var(--font-mono);
 		font-size: 1.5rem;
 		color: var(--accent);
-		text-shadow: 0 0 10px rgba(54, 242, 194, 0.8);
+		text-shadow: 0 0 10px color-mix(in srgb, var(--accent) 80%, transparent);
 	}
 
 	.matrix-subtitle {
 		margin: 0 0 1.5rem;
 		font-family: var(--font-mono);
 		font-size: 0.9rem;
-		color: rgba(243, 246, 255, 0.8);
+		color: color-mix(in srgb, var(--text) 85%, transparent);
 	}
 
 	.matrix-close {
 		padding: 0.6rem 1.2rem;
 		border: 1px solid var(--accent);
-		background: rgba(54, 242, 194, 0.1);
+		background: color-mix(in srgb, var(--accent) 10%, transparent);
 		color: var(--accent);
 		font-family: var(--font-mono);
 		font-size: 0.85rem;
@@ -129,8 +129,8 @@
 	}
 
 	.matrix-close:hover {
-		background: rgba(54, 242, 194, 0.2);
-		box-shadow: 0 0 15px rgba(54, 242, 194, 0.5);
+		background: color-mix(in srgb, var(--accent) 20%, transparent);
+		box-shadow: 0 0 15px color-mix(in srgb, var(--accent) 50%, transparent);
 		transform: translateY(-1px);
 	}
 

@@ -11,6 +11,7 @@
 		"check": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json",
 		"check:watch": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json --watch",
 		"update:project-language-bytes": "node scripts/update-project-language-bytes.mjs",
+		"generate:sounds": "node scripts/generate-sounds.mjs",
 		"build:gartic-draw": "node scripts/build-gartic-draw.mjs",
 		"build:dodge-lol": "node scripts/build-dodge-lol.mjs",
 		"build:rogue-swipe": "node scripts/build-rogue-swipe.mjs",

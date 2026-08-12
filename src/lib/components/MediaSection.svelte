@@ -180,9 +180,9 @@
 		width: 100%;
 		height: 100%;
 		min-height: 0;
-		border: 1px dashed rgba(243, 246, 255, 0.18);
-		background: linear-gradient(180deg, rgba(54, 242, 194, 0.06), transparent 70%), rgba(255, 255, 255, 0.03);
-		color: rgba(243, 246, 255, 0.7);
+		border: 1px dashed color-mix(in srgb, var(--text) 18%, transparent);
+		background: linear-gradient(180deg, color-mix(in srgb, var(--accent) 6%, transparent), transparent 70%), rgba(255, 255, 255, 0.03);
+		color: color-mix(in srgb, var(--text) 72%, transparent);
 		font-family: var(--font-mono);
 	}
 

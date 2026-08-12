@@ -283,7 +283,7 @@
 	}
 
 	.theme-toggle:hover {
-		border-color: rgba(54, 242, 194, 0.5);
+		border-color: color-mix(in srgb, var(--accent) 50%, transparent);
 		color: var(--accent);
 	}
 

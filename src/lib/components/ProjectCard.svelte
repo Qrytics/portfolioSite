@@ -1,6 +1,7 @@
 <script lang="ts">
 	import type { Project } from '$lib/data/projects';
 	import MediaSection from '$lib/components/MediaSection.svelte';
+	import { getTagKind } from '$lib/utils/tags';
 
 	let {
 		project,
@@ -59,35 +60,6 @@
 		}
 	}
 
-	const languageTags = new Set([
-		'javascript', 'typescript', 'python', 'rust', 'go', 'c++', 'c', 'dart', 'html', 'css', 'systemverilog'
-	]);
-	const frameworkTags = new Set([
-		'react', 'next.js', 'fastapi', 'svelte', 'react native', 'tauri', 'flutter', 'electron'
-	]);
-	const apiTags = new Set([
-		'spotify api', 'stripe api', 'calendly api', 'semantic scholar api', 'twitch api', 'openai api',
-		'github api', 'groq api', 'windows api', 'windows ui automation api', 'lcu api'
-	]);
-	const serviceTags = new Set(['docker', 'postgresql', 'sqlite', 'redis', 'neo4j', 'supabase', 'pocketbase', 'duckdb']);
-	const protocolTags = new Set(['mqtt', 'webrtc', 'manifest v3']);
-	const toolTags = new Set([
-		'discord.js', 'discord.py', 'langchain', 'litellm', 'pytorch', 'opencv', 'mediapipe', 'xgboost',
-		'lightgbm', 'scikit-learn', 'optuna', 'pandas', 'ollama', 'demucs', 'ffmpeg', 'rich', 'argparse',
-		'chokidar', 'xterm.js', 'node-cron', 'cadence virtuoso', 'tribe v2', 'faster-whisper', 'porcupine',
-		'pyyaml', 'pyaudio', 'pyautogui', 'tokio', 'scapy', 'expo', 'ytdl-core'
-	]);
-
-	function getTagKind(tag: string): 'language' | 'framework' | 'api' | 'service' | 'protocol' | 'tool' | 'other' {
-		const key = tag.toLowerCase();
-		if (languageTags.has(key)) return 'language';
-		if (frameworkTags.has(key)) return 'framework';
-		if (apiTags.has(key)) return 'api';
-		if (serviceTags.has(key)) return 'service';
-		if (protocolTags.has(key)) return 'protocol';
-		if (toolTags.has(key)) return 'tool';
-		return 'other';
-	}
 </script>
 
 <article
@@ -240,7 +212,7 @@
 
 	.card:hover {
 		z-index: 2;
-		border-color: rgba(54, 242, 194, 0.25);
+		border-color: color-mix(in srgb, var(--accent) 25%, transparent);
 		box-shadow: 0 14px 36px rgba(0, 0, 0, 0.5);
 	}
 
@@ -266,7 +238,7 @@
 	}
 
 	.termbar--collapsible:focus-visible {
-		outline: 2px solid rgba(54, 242, 194, 0.6);
+		outline: 2px solid color-mix(in srgb, var(--accent) 60%, transparent);
 		outline-offset: -2px;
 	}
 
@@ -278,7 +250,7 @@
 		margin: 0;
 		font-size: 0.92rem;
 		letter-spacing: 0.02em;
-		color: rgba(243, 246, 255, 0.82);
+		color: color-mix(in srgb, var(--text) 90%, transparent);
 		white-space: nowrap;
 		overflow: hidden;
 		text-overflow: ellipsis;
@@ -290,7 +262,7 @@
 	/* Source badge */
 	.badge {
 		font-size: 0.78rem;
-		color: rgba(243, 246, 255, 0.72);
+		color: var(--muted);
 		border: 1px solid var(--border-2);
 		padding: 0.2rem 0.55rem;
 		background: rgba(255, 255, 255, 0.03);
@@ -300,15 +272,15 @@
 	}
 
 	.badge[data-type='open-source'] {
-		border-color: rgba(54, 242, 194, 0.25);
-		color: rgba(54, 242, 194, 0.92);
-		background: rgba(54, 242, 194, 0.05);
+		border-color: color-mix(in srgb, var(--accent) 25%, transparent);
+		color: color-mix(in srgb, var(--accent) 92%, transparent);
+		background: color-mix(in srgb, var(--accent) 5%, transparent);
 	}
 
 	.badge[data-type='closed-source'] {
-		border-color: rgba(246, 193, 119, 0.22);
-		color: rgba(246, 193, 119, 0.92);
-		background: rgba(246, 193, 119, 0.05);
+		border-color: color-mix(in srgb, var(--accent-2) 22%, transparent);
+		color: color-mix(in srgb, var(--accent-2) 92%, transparent);
+		background: color-mix(in srgb, var(--accent-2) 5%, transparent);
 	}
 
 	.badge[data-type='community / ecosystem'] {
@@ -344,13 +316,13 @@
 		margin: 0;
 		font-family: var(--font-mono);
 		font-size: 0.78rem;
-		color: rgba(243, 246, 255, 0.6);
+		color: color-mix(in srgb, var(--text) 65%, transparent);
 		letter-spacing: 0.02em;
 	}
 
 	.card__desc {
 		margin: 0;
-		color: rgba(243, 246, 255, 0.78);
+		color: color-mix(in srgb, var(--text) 85%, transparent);
 		line-height: 1.6;
 		font-size: 0.97rem;
 		overflow-wrap: anywhere;
@@ -374,7 +346,7 @@
 	.tech-badge {
 		font-size: 0.72rem;
 		font-weight: 500;
-		color: rgba(243, 246, 255, 0.72);
+		color: var(--muted);
 		border: 1px solid var(--border-2);
 		padding: 0.18rem 0.45rem;
 		background: rgba(255, 255, 255, 0.03);
@@ -451,25 +423,25 @@
 	}
 
 	.btn--primary {
-		border-color: rgba(54, 242, 194, 0.32);
-		background: rgba(54, 242, 194, 0.09);
-		color: rgba(54, 242, 194, 0.95);
+		border-color: color-mix(in srgb, var(--accent) 32%, transparent);
+		background: color-mix(in srgb, var(--accent) 9%, transparent);
+		color: color-mix(in srgb, var(--accent) 95%, transparent);
 	}
 
 	.btn--primary:hover {
-		background: rgba(54, 242, 194, 0.13);
-		border-color: rgba(54, 242, 194, 0.42);
+		background: color-mix(in srgb, var(--accent) 13%, transparent);
+		border-color: color-mix(in srgb, var(--accent) 42%, transparent);
 	}
 
 	.btn--ghost {
 		background: rgba(255, 255, 255, 0.03);
-		color: rgba(243, 246, 255, 0.8);
-		border-color: rgba(243, 246, 255, 0.14);
+		color: color-mix(in srgb, var(--text) 85%, transparent);
+		border-color: color-mix(in srgb, var(--text) 14%, transparent);
 	}
 
 	.btn--ghost:hover {
 		background: rgba(255, 255, 255, 0.06);
-		border-color: rgba(243, 246, 255, 0.2);
+		border-color: color-mix(in srgb, var(--text) 20%, transparent);
 	}
 
 	:global([data-theme='light']) .btn--ghost {

@@ -490,7 +490,7 @@
 	.termbar__label {
 		font-family: var(--font-mono);
 		font-size: 0.82rem;
-		color: rgba(243, 246, 255, 0.92);
+		color: var(--text);
 		letter-spacing: 0.04em;
 		text-decoration: none;
 		white-space: nowrap;
@@ -521,10 +521,10 @@
 	}
 
 	.empty {
-		border: 1px dashed rgba(243, 246, 255, 0.25);
+		border: 1px dashed color-mix(in srgb, var(--text) 25%, transparent);
 		border-radius: 0.5rem;
 		padding: 1rem;
-		color: rgba(243, 246, 255, 0.72);
+		color: var(--muted);
 		font-family: var(--font-mono);
 	}
 
@@ -564,7 +564,7 @@
 		min-width: calc(var(--weeks, 53) * (var(--cell) + var(--week-gap, 3px)));
 		font-family: var(--font-mono);
 		font-size: 0.72rem;
-		color: rgba(243, 246, 255, 0.65);
+		color: color-mix(in srgb, var(--text) 68%, transparent);
 		padding-bottom: 0.15rem;
 	}
 
@@ -599,7 +599,7 @@
 		gap: var(--day-gap, 2px);
 		font-family: var(--font-mono);
 		font-size: 0.72rem;
-		color: rgba(243, 246, 255, 0.65);
+		color: color-mix(in srgb, var(--text) 68%, transparent);
 	}
 
 	.weekdays__label {
@@ -660,16 +660,16 @@
 		pointer-events: none;
 	}
 	.day[data-level='1'] {
-		background: rgba(54, 242, 194, 0.22);
+		background: color-mix(in srgb, var(--accent) 22%, transparent);
 	}
 	.day[data-level='2'] {
-		background: rgba(54, 242, 194, 0.45);
+		background: color-mix(in srgb, var(--accent) 45%, transparent);
 	}
 	.day[data-level='3'] {
-		background: rgba(54, 242, 194, 0.7);
+		background: color-mix(in srgb, var(--accent) 70%, transparent);
 	}
 	.day[data-level='4'] {
-		background: rgba(54, 242, 194, 0.95);
+		background: color-mix(in srgb, var(--accent) 95%, transparent);
 	}
 
 	.day:not([data-outside='true']):hover {
@@ -834,7 +834,7 @@
 			font-size: 0.68rem;
 			line-height: 1.2;
 			white-space: nowrap;
-			color: rgba(243, 246, 255, 0.96);
+			color: color-mix(in srgb, var(--text) 98%, transparent);
 			background: rgba(8, 11, 17, 0.96);
 			border: 1px solid var(--border-2);
 			box-shadow: 0 8px 20px rgba(0, 0, 0, 0.35);
@@ -869,7 +869,7 @@
 	.legend__label {
 		font-family: var(--font-mono);
 		font-size: 0.78rem;
-		color: rgba(243, 246, 255, 0.65);
+		color: color-mix(in srgb, var(--text) 68%, transparent);
 	}
 
 	.legend__squares {
@@ -889,16 +889,16 @@
 		background: var(--contrib-empty);
 	}
 	.legend__square[data-level='1'] {
-		background: rgba(54, 242, 194, 0.22);
+		background: color-mix(in srgb, var(--accent) 22%, transparent);
 	}
 	.legend__square[data-level='2'] {
-		background: rgba(54, 242, 194, 0.45);
+		background: color-mix(in srgb, var(--accent) 45%, transparent);
 	}
 	.legend__square[data-level='3'] {
-		background: rgba(54, 242, 194, 0.7);
+		background: color-mix(in srgb, var(--accent) 70%, transparent);
 	}
 	.legend__square[data-level='4'] {
-		background: rgba(54, 242, 194, 0.95);
+		background: color-mix(in srgb, var(--accent) 95%, transparent);
 	}
 
 	.years {
@@ -911,7 +911,7 @@
 	.year {
 		font-family: var(--font-mono);
 		font-size: 0.76rem;
-		color: rgba(243, 246, 255, 0.65);
+		color: color-mix(in srgb, var(--text) 68%, transparent);
 		padding: 0.22rem 0.45rem;
 		border: 1px solid var(--border-2);
 		background: transparent;
@@ -927,14 +927,14 @@
 	}
 
 	.year:hover {
-		color: rgba(243, 246, 255, 0.92);
+		color: var(--text);
 		border-color: color-mix(in srgb, var(--accent) 28%, var(--border-2));
 	}
 
 	.year--current {
-		color: rgba(243, 246, 255, 0.98);
+		color: var(--text);
 		border-color: var(--accent);
-		background: rgba(54, 242, 194, 0.12);
+		background: color-mix(in srgb, var(--accent) 12%, transparent);
 	}
 
 	@media (max-width: 780px) {

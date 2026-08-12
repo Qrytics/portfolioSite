@@ -10,6 +10,7 @@
 	import CurrentlyBuilding from '$lib/components/CurrentlyBuilding.svelte';
 	import Timeline from '$lib/components/Timeline.svelte';
 	import GitHubContribChart from '$lib/components/GitHubContribChart.svelte';
+	import { getSessionItem, removeSessionItem } from '$lib/utils/safeStorage';
 
 let { data }: { data: PageData } = $props();
 	let nonCriticalReady = $state(false);
@@ -37,10 +38,9 @@ let { data }: { data: PageData } = $props();
 	}
 
 	function consumeInstantHomeHashScroll(): string | null {
-		if (typeof window === 'undefined') return null;
 		const key = 'instant-home-hash-scroll';
-		const hash = window.sessionStorage.getItem(key);
-		if (hash) window.sessionStorage.removeItem(key);
+		const hash = getSessionItem(key);
+		if (hash) removeSessionItem(key);
 		return hash;
 	}
 

@@ -101,7 +101,7 @@
 	.termbar__label {
 		font-family: var(--font-mono);
 		font-size: 0.82rem;
-		color: rgba(243, 246, 255, 0.92);
+		color: var(--text);
 		letter-spacing: 0.04em;
 		text-decoration: none;
 	}
@@ -125,7 +125,7 @@
 		gap: 0.55rem;
 		font-family: var(--font-mono);
 		font-size: 0.93rem;
-		color: rgba(243, 246, 255, 0.82);
+		color: color-mix(in srgb, var(--text) 90%, transparent);
 		line-height: 1.5;
 	}
 
@@ -151,7 +151,7 @@
 	}
 
 	.repo {
-		color: rgba(243, 246, 255, 0.92);
+		color: var(--text);
 		text-decoration: none;
 		white-space: nowrap;
 		overflow: hidden;
@@ -165,12 +165,12 @@
 
 	.repo__meta {
 		font-size: 0.78rem;
-		color: rgba(243, 246, 255, 0.55);
+		color: color-mix(in srgb, var(--text) 58%, transparent);
 		flex-shrink: 0;
 	}
 
 	.repo__desc {
-		color: rgba(243, 246, 255, 0.68);
+		color: var(--muted);
 		font-size: 0.88rem;
 		line-height: 1.55;
 		overflow-wrap: anywhere;

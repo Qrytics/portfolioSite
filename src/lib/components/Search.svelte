@@ -164,7 +164,7 @@
 		padding: 0.25rem 0.55rem;
 		border: 1px solid var(--border-2);
 		background: rgba(255, 255, 255, 0.03);
-		color: rgba(243, 246, 255, 0.7);
+		color: color-mix(in srgb, var(--text) 72%, transparent);
 		font-family: var(--font-mono);
 		font-size: 0.82rem;
 		cursor: pointer;
@@ -173,8 +173,8 @@
 	}
 
 	.trigger:hover {
-		background: rgba(54, 242, 194, 0.07);
-		border-color: rgba(54, 242, 194, 0.3);
+		background: color-mix(in srgb, var(--accent) 7%, transparent);
+		border-color: color-mix(in srgb, var(--accent) 30%, transparent);
 		color: var(--accent);
 	}
 
@@ -238,7 +238,7 @@
 		outline: none;
 		font-family: var(--font-mono);
 		font-size: 0.92rem;
-		color: rgba(243, 246, 255, 0.92);
+		color: var(--text);
 		caret-color: var(--accent);
 		min-width: 0;
 	}
@@ -265,7 +265,7 @@
 	}
 
 	.modal__clear:hover {
-		color: rgba(243, 246, 255, 0.9);
+		color: color-mix(in srgb, var(--text) 95%, transparent);
 	}
 
 	.results {
@@ -275,7 +275,7 @@
 		padding: 0.4rem 0;
 		list-style: none;
 		scrollbar-width: thin;
-		scrollbar-color: rgba(54, 242, 194, 0.2) transparent;
+		scrollbar-color: color-mix(in srgb, var(--accent) 20%, transparent) transparent;
 	}
 
 	.result__btn {
@@ -296,12 +296,12 @@
 
 	.result--selected .result__btn,
 	.result__btn:hover {
-		background: rgba(54, 242, 194, 0.06);
+		background: color-mix(in srgb, var(--accent) 6%, transparent);
 	}
 
 	.result__title {
 		font-size: 0.88rem;
-		color: rgba(243, 246, 255, 0.9);
+		color: color-mix(in srgb, var(--text) 95%, transparent);
 		font-weight: 600;
 		grid-column: 1;
 		grid-row: 1;
@@ -340,7 +340,7 @@
 	}
 
 	.empty strong {
-		color: rgba(243, 246, 255, 0.75);
+		color: color-mix(in srgb, var(--text) 80%, transparent);
 	}
 
 	.modal__footer {
