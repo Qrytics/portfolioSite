@@ -1,12 +1,8 @@
 import fs from 'node:fs/promises';
 import path from 'node:path';
+import { readGithubUser } from './lib/profile-github.mjs';
 
-function getGithubUserFromProfileTs(profileTs) {
-	// profile.ts contains: github: 'https://github.com/<username>',
-	const match = profileTs.match(/github:\s*'https:\/\/github\.com\/([^']+)'/);
-	if (!match) throw new Error('Could not extract github username from src/lib/data/profile.ts');
-	return match[1];
-}
+const FETCH_TIMEOUT_MS = 8000;
 
 function isWithinLastWeek(iso) {
 	const t = Date.parse(iso);
@@ -16,24 +12,25 @@ function isWithinLastWeek(iso) {
 
 async function main() {
 	const repoRoot = process.cwd();
-	const profilePath = path.join(repoRoot, 'src/lib/data/profile.ts');
 	const outPath = path.join(repoRoot, 'static/github-recent.json');
 
-	const profileTs = await fs.readFile(profilePath, 'utf8');
-	const githubUser = getGithubUserFromProfileTs(profileTs);
+	const githubUser = await readGithubUser(repoRoot);
 
 	// Prefer the classic PAT you added as GH_TOKEN over the default Actions token.
 	// This avoids rate limiting / 403s when GitHub's default token is constrained.
 	const token = process.env.GH_TOKEN || process.env.GITHUB_TOKEN;
 
 	const res = await fetch(
-		`https://api.github.com/users/${githubUser}/repos?sort=pushed&per_page=100`,
+		`https://api.github.com/users/${encodeURIComponent(githubUser)}/repos?sort=pushed&per_page=100`,
 		{
 			headers: {
 				Accept: 'application/vnd.github+json',
 				'User-Agent': 'portfolioSite',
 				...(token ? { Authorization: `Bearer ${token}` } : {})
-			}
+			},
+			// Without this, a hung GitHub socket stalls the scheduled job until the runner's job
+			// timeout (6 hours by default) rather than failing fast and keeping the committed data.
+			signal: AbortSignal.timeout(FETCH_TIMEOUT_MS)
 		}
 	);
 
@@ -47,8 +44,12 @@ async function main() {
 		}
 
 		const error = `GitHub request failed (${res.status})${apiMessage ? `: ${apiMessage}` : ''}`;
-		await fs.writeFile(outPath, JSON.stringify({ repos: [], error }, null, 2));
-		return;
+		await fs.writeFile(outPath, JSON.stringify({ repos: [], error }));
+		// Exit non-zero, like the catch handler below. This path used to `return` with status 0, so a
+		// rate-limited run looked successful to CI — and the refresh workflow would then commit this
+		// empty `{ repos: [], error }` payload over the last known-good feed.
+		console.error(`[update-github-recent] ${error}`);
+		process.exit(1);
 	}
 
 	const data = await res.json();
@@ -66,14 +67,17 @@ async function main() {
 			fork: r.fork
 		}));
 
-	await fs.writeFile(outPath, JSON.stringify({ repos }, null, 2));
+	// Unindented: this file is served verbatim to browsers as the client-side fallback.
+	await fs.writeFile(outPath, JSON.stringify({ repos }));
+	console.log(`[update-github-recent] wrote ${repos.length} repo(s) pushed in the last 7 days.`);
 }
 
 main().catch(async (e) => {
 	const repoRoot = process.cwd();
 	const outPath = path.join(repoRoot, 'static/github-recent.json');
 	const message = e instanceof Error ? e.message : 'Failed to update GitHub activity.';
-	await fs.writeFile(outPath, JSON.stringify({ repos: [], error: message }, null, 2));
+	console.error(`[update-github-recent] ${message}`);
+	await fs.writeFile(outPath, JSON.stringify({ repos: [], error: message }));
 	process.exit(1);
 });
 

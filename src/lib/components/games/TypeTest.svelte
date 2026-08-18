@@ -24,6 +24,21 @@
 	let mistakes = $state<number[]>([]);
 	let countdown = $state(3);
 	let inputRef = $state<HTMLInputElement | undefined>(undefined);
+	let scores = $state<Score[]>([]);
+
+	let countdownTimer: ReturnType<typeof setInterval> | null = null;
+	let focusTimer: ReturnType<typeof setTimeout> | null = null;
+
+	function clearTimers() {
+		if (countdownTimer !== null) {
+			clearInterval(countdownTimer);
+			countdownTimer = null;
+		}
+		if (focusTimer !== null) {
+			clearTimeout(focusTimer);
+			focusTimer = null;
+		}
+	}
 
 	const isComplete = $derived(snippet && userInput.length === snippet.text.length);
 	const correctChars = $derived.by(() => {
@@ -48,15 +63,26 @@
 		return Math.round((correctChars / userInput.length) * 100);
 	});
 
-	const leaderboard = $derived.by(() => {
+	const leaderboard = $derived([...scores].sort((a, b) => b.wpm - a.wpm).slice(0, 10));
+
+	function readScores(): Score[] {
 		const stored = getLocalItem('typetest-scores');
 		if (!stored) return [];
 		try {
-			const scores: Score[] = JSON.parse(stored);
-			return scores.sort((a, b) => b.wpm - a.wpm).slice(0, 10);
+			const parsed: unknown = JSON.parse(stored);
+			return Array.isArray(parsed) ? (parsed as Score[]) : [];
 		} catch {
 			return [];
 		}
+	}
+
+	/**
+	 * `localStorage` is not reactive, so the old `$derived.by(() => getLocalItem(...))` computed
+	 * once and never again — a fresh score only showed up after a full page reload. Read it into
+	 * `$state` on mount instead; `saveScore` then writes to both the store and this array.
+	 */
+	$effect(() => {
+		scores = readScores();
 	});
 
 	$effect(() => {
@@ -68,7 +94,17 @@
 		}
 	});
 
+	// Timers outlive the component otherwise: leaving the page mid-countdown left an interval
+	// ticking against a destroyed component, and the focus timeout fired into nothing.
+	$effect(() => {
+		return clearTimers;
+	});
+
 	function startGame() {
+		// Clear first: two live intervals both decrement `countdown`, so it steps straight past 0
+		// and the exit guard never matches again — the old code could leave one running forever.
+		clearTimers();
+
 		snippet = getRandomSnippet(difficulty);
 		userInput = '';
 		mistakes = [];
@@ -77,15 +113,16 @@
 		gameState = 'countdown';
 		countdown = 3;
 
-		const countdownInterval = setInterval(() => {
+		countdownTimer = setInterval(() => {
 			countdown--;
 			playSound('ui-click', 0.6);
 
-			if (countdown === 0) {
-				clearInterval(countdownInterval);
+			// `<= 0`, not `=== 0`: an overshoot must still terminate the interval.
+			if (countdown <= 0) {
+				clearTimers();
 				gameState = 'playing';
 				playSound('game-start');
-				setTimeout(() => inputRef?.focus(), 50);
+				focusTimer = setTimeout(() => inputRef?.focus(), 50);
 			}
 		}, 1000);
 	}
@@ -142,22 +179,15 @@
 			date: new Date().toISOString()
 		};
 
-		const stored = getLocalItem('typetest-scores');
-		let scores: Score[] = [];
-		if (stored) {
-			try {
-				scores = JSON.parse(stored);
-			} catch {}
-		}
+		// Re-read rather than trusting the in-memory copy, so a score set in another tab survives.
+		const next = [...readScores(), newScore].sort((a, b) => b.wpm - a.wpm).slice(0, 50);
 
-		scores.push(newScore);
-		scores.sort((a, b) => b.wpm - a.wpm);
-		scores = scores.slice(0, 50); // Keep top 50
-
-		setLocalItem('typetest-scores', JSON.stringify(scores));
+		setLocalItem('typetest-scores', JSON.stringify(next));
+		scores = next;
 	}
 
 	function reset() {
+		clearTimers();
 		gameState = 'idle';
 		snippet = null;
 		userInput = '';
@@ -175,30 +205,23 @@
 
 	{#if gameState === 'idle'}
 		<div class="typetest__start">
-			<div class="difficulty-selector">
-				<label class="difficulty-label">Difficulty:</label>
+			<!-- A `<label>` with no control is invisible to assistive tech. These are three mutually
+			     exclusive toggles, so the group gets the accessible name and each button reports its
+			     own pressed state. -->
+			<div class="difficulty-selector" role="group" aria-labelledby="difficulty-label">
+				<span class="difficulty-label" id="difficulty-label">Difficulty:</span>
 				<div class="difficulty-buttons">
-					<button
-						class="difficulty-btn"
-						class:difficulty-btn--active={difficulty === 'easy'}
-						onclick={() => (difficulty = 'easy')}
-					>
-						Easy
-					</button>
-					<button
-						class="difficulty-btn"
-						class:difficulty-btn--active={difficulty === 'medium'}
-						onclick={() => (difficulty = 'medium')}
-					>
-						Medium
-					</button>
-					<button
-						class="difficulty-btn"
-						class:difficulty-btn--active={difficulty === 'hard'}
-						onclick={() => (difficulty = 'hard')}
-					>
-						Hard
-					</button>
+					{#each ['easy', 'medium', 'hard'] as const as level (level)}
+						<button
+							type="button"
+							class="difficulty-btn"
+							class:difficulty-btn--active={difficulty === level}
+							aria-pressed={difficulty === level}
+							onclick={() => (difficulty = level)}
+						>
+							{level[0].toUpperCase() + level.slice(1)}
+						</button>
+					{/each}
 				</div>
 			</div>
 			<button class="btn btn--primary btn--large" onclick={startGame}>Start Test</button>

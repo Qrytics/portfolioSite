@@ -1,26 +1,38 @@
 import fs from 'node:fs/promises';
 import path from 'node:path';
+import { readGithubUser } from './lib/profile-github.mjs';
 
+/**
+ * How many years to fetch. Kept equal to `YEAR_SPAN` in `src/routes/api/github-contrib/+server.ts`:
+ * the chart only ever exposes two year buttons, and three of the five years this script used to emit
+ * were unreachable through any UI while still being downloaded by every visitor who hit the fallback.
+ */
+const YEAR_SPAN = 2;
+
+/**
+ * Behavioural twin of `sanitizeContributionWeeks` in `src/lib/utils/contribShape.ts` (called with
+ * `requireDaysArray: false`, matching `api/github-contrib/+server.ts`). Plain Node can't import the TS
+ * module or resolve `$lib`, which is why this exists twice — the same reason documented in
+ * `scripts/lib/profile-github.mjs`. Keep the two in step: this script writes the committed fallback
+ * that `contribShape.ts` then re-validates in the browser, so a divergence shows up as silently
+ * dropped days rather than an error.
+ */
 function isRecord(value) {
 	return typeof value === 'object' && value !== null;
 }
 
 function buildFallbackYears(currentYear) {
-	return [currentYear, currentYear - 1, currentYear - 2, currentYear - 3, currentYear - 4].map((year) => ({
-		year,
+	return Array.from({ length: YEAR_SPAN }, (_, i) => ({
+		year: currentYear - i,
 		weeks: [],
 		totalContributions: 0
 	}));
 }
 
 async function writeFallbackPayload(outPath, currentYear, error) {
-	await fs.writeFile(outPath, JSON.stringify({ error, currentYear, years: buildFallbackYears(currentYear) }, null, 2));
-}
-
-function getGithubUserFromProfileTs(profileTs) {
-	const match = profileTs.match(/github:\s*['"](?:https?:\/\/)?(?:www\.)?github\.com\/([^'"\/\s]+)\/?['"]/i);
-	if (!match) throw new Error('Could not extract github username from src/lib/data/profile.ts');
-	return match[1];
+	// No pretty-printing: this file is served verbatim to browsers as the static fallback, and the
+	// indentation alone accounted for 156 KB of the 275 KB it used to ship.
+	await fs.writeFile(outPath, JSON.stringify({ error, currentYear, years: buildFallbackYears(currentYear) }));
 }
 
 function normalizeCalendar(calendar) {
@@ -39,11 +51,9 @@ function normalizeCalendar(calendar) {
 				if (!Number.isFinite(day.contributionCount) || day.contributionCount < 0) return null;
 				if (!/^\d{4}-\d{2}-\d{2}$/.test(day.date)) return null;
 
-				return {
-					date: day.date,
-					contributionCount: day.contributionCount,
-					color: typeof day.color === 'string' ? day.color : null
-				};
+				// No `color`: the chart derives its level from the count so it can theme with
+				// `--accent`, and GitHub's hex was ~27% of the serialized file.
+				return { date: day.date, contributionCount: day.contributionCount };
 			})
 			.filter(Boolean);
 
@@ -61,11 +71,9 @@ function normalizeCalendar(calendar) {
 
 async function main() {
 	const repoRoot = process.cwd();
-	const profilePath = path.join(repoRoot, 'src/lib/data/profile.ts');
 	const outPath = path.join(repoRoot, 'static/github-contrib.json');
 
-	const profileTs = await fs.readFile(profilePath, 'utf8');
-	const githubUser = getGithubUserFromProfileTs(profileTs);
+	const githubUser = await readGithubUser(repoRoot);
 
 	const token = process.env.GH_TOKEN || process.env.GITHUB_TOKEN;
 	if (!token) {
@@ -89,7 +97,6 @@ async function main() {
 									contributionDays {
 										date
 										contributionCount
-										color
 									}
 								}
 							}
@@ -104,7 +111,9 @@ async function main() {
 
 	// Use UTC years to keep ranges stable regardless of server time zone.
 	const currentYear = new Date().getUTCFullYear();
-	const yearRange = [currentYear, currentYear - 1, currentYear - 2, currentYear - 3, currentYear - 4];
+	// Two years, matching `YEAR_SPAN` in src/routes/api/github-contrib/+server.ts and the chart's
+	// two year buttons. Two Monday-aligned year windows already cover the rolling-365 default view.
+	const yearRange = Array.from({ length: YEAR_SPAN }, (_, i) => currentYear - i);
 
 	const years = [];
 	for (const year of yearRange) {
@@ -181,7 +190,7 @@ async function main() {
 		});
 	}
 
-	await fs.writeFile(outPath, JSON.stringify({ currentYear, years }, null, 2));
+	await fs.writeFile(outPath, JSON.stringify({ currentYear, years }));
 }
 
 main().catch(async (e) => {

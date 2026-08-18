@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { playSound } from '$lib/utils/sound';
+	import { SvelteSet } from 'svelte/reactivity';
 
 	interface TimelineEvent {
 		year: number;
@@ -68,36 +68,41 @@
 		return bm - am;
 	});
 
-	let revealed = $state(new Set<string>());
+	/**
+	 * `SvelteSet`, not a plain `Set` in `$state`: a plain Set isn't deep-proxied, so the old code
+	 * had to reassign (`revealed = new Set(revealed)`) to trigger reactivity — which re-invalidated
+	 * the very effect that wrote it. For reduced-motion users that path ran inside the tracked
+	 * scope and looped to `effect_update_depth_exceeded` on every home-page load.
+	 */
+	const revealed = new SvelteSet<string>();
 	let timelineRef = $state<HTMLElement | undefined>(undefined);
+	let staggerTimers: ReturnType<typeof setTimeout>[] = [];
 
 	$effect(() => {
-		if (!timelineRef) return;
+		const track = timelineRef;
+		if (!track) return;
 
-		const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-		if (prefersReducedMotion) {
-			// Show all immediately if user prefers reduced motion
-			sortedEvents.forEach((event) => revealed.add(event.label));
-			revealed = new Set(revealed);
+		if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+			// Reveal everything at once, and never read `revealed` while doing it.
+			for (const event of sortedEvents) revealed.add(event.label);
 			return;
 		}
 
-		const eventElements = timelineRef.querySelectorAll('.event');
+		const eventElements = Array.from(track.querySelectorAll('.event'));
 		const io = new IntersectionObserver(
 			(entries) => {
-				entries.forEach((entry) => {
-					if (entry.isIntersecting) {
-						const eventLabel = entry.target.getAttribute('data-event-label');
-						if (eventLabel && !revealed.has(eventLabel)) {
-							const index = Array.from(eventElements).indexOf(entry.target as Element);
-							setTimeout(() => {
-								revealed.add(eventLabel);
-								revealed = new Set(revealed);
-								playSound('timeline-tick', 0.5);
-							}, index * 80); // 80ms stagger
-						}
-					}
-				});
+				for (const entry of entries) {
+					if (!entry.isIntersecting) continue;
+					const eventLabel = entry.target.getAttribute('data-event-label');
+					if (!eventLabel || revealed.has(eventLabel)) continue;
+					io.unobserve(entry.target);
+					const index = eventElements.indexOf(entry.target);
+					staggerTimers.push(
+						setTimeout(() => {
+							revealed.add(eventLabel);
+						}, index * 80) // 80ms stagger
+					);
+				}
 			},
 			{
 				threshold: 0.3,
@@ -106,7 +111,11 @@
 		);
 
 		eventElements.forEach((el) => io.observe(el));
-		return () => io.disconnect();
+		return () => {
+			io.disconnect();
+			staggerTimers.forEach(clearTimeout);
+			staggerTimers = [];
+		};
 	});
 </script>
 
