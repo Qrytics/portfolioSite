@@ -22,3 +22,6 @@ Thumbs.db
 vite.config.js.timestamp-*
 vite.config.ts.timestamp-*
 .env*
+
+# Screenshot output from scripts/verify-chart.mjs
+.verify/
