@@ -13,14 +13,18 @@ SvelteKit 2 + Svelte 5 (runes: `$props`, `$state`, `$derived`, `$effect`) deploy
 | Dev server | `npm run dev` |
 | Production build | `npm run build` |
 
-No ESLint, no test framework. `npm run check` (svelte-check + tsc strict mode) is the only automated gate.
+No ESLint, no unit-test framework. `npm run check` (svelte-check + tsc strict mode) is the primary gate.
+
+Three assertion suites cover the rest (~1000 checks): `npm run verify:seo` reads the prerendered build output; `node scripts/verify-ui.mjs` and `node scripts/verify-chart.mjs` drive a browser against `npm run dev` and need `npm i --no-save playwright && npx playwright install chromium` first (playwright is intentionally not a devDependency — Vercel would download browsers on every build).
+
+**`npm run build` fails with `EPERM` on Windows without Developer Mode** — `adapter-vercel` needs symlink privilege. It fails *after* prerendering, so prerender errors are still caught and `verify:seo` still works.
 
 ## Critical Architecture Facts
 
 - **`prerender = true` is set at layout level** (`src/routes/+layout.ts`) — this makes all routes pre-rendered by default. To opt a route out, explicitly set `export const prerender = false;` in its `+page.ts` or `+server.ts`.
-- **The home page (`+page.ts`) overrides to `prerender = false`** because it fetches live GitHub data at request time. The API routes (`/api/github-contrib`, `/api/github-recent`) also do this.
+- **The home page has no `+page.ts` and is prerendered to a static file.** It used to override to `prerender = false` so `load` could fetch GitHub data — blocking first byte on a five-round-trip GraphQL fan-out for data that never reached the HTML, since both consumers render after mount. Don't reintroduce a `load` for client-only data; call `loadContrib`/`loadRecent` from `src/lib/utils/githubData.ts` after mount. The `/api/*` routes do set `prerender = false`, as must any new request-time route.
 - **`paths.relative = false`** is set in `svelte.config.js` — always use `base` from `$app/paths` when constructing internal URLs (see `src/lib/utils/internalNav.ts`).
-- **Prerender build intentionally ignores HTTP errors** for game sub-paths (`/games/garticDraw`, `/games/aimTrainer`, etc.) — those are static sub-apps copied into `static/games/`.
+- **Prerender build intentionally ignores HTTP errors** for the game sub-paths (`/games/garticDraw/`, `/games/aimTrainer/`, …) — those are static sub-apps copied into `static/games/`, and the prerenderer has no notion of a directory index so they always look like 404s. `svelte.config.js` derives the list from the filesystem; do not turn it back into literal slugs (the build broke when a fifth game was added). In dev, the `serveVendoredGameIndexes` plugin in `vite.config.ts` handles the same gap and must stay `enforce: 'pre'` and first in `plugins`.
 - **Several games are proxied externally** via `vercel.json` rewrites (`/games/vcKaraoke` → separate Vercel app, `/games/spotifyHero` → another app, `/tutoring` → external domain). Do not add SvelteKit routes for these slugs.
 - **In-memory caches** live in the API server files (module-level `let cachedPayload`). These are ephemeral and reset on cold starts — do not rely on persistence.
 
@@ -38,7 +42,8 @@ No ESLint, no test framework. `npm run check` (svelte-check + tsc strict mode) i
 - **Scroll lock**: Use `lockScroll`/`unlockScroll` from `src/lib/utils/scrollLock.ts`. Call `resetScrollLock()` in `beforeNavigate`/`afterNavigate` to prevent stuck locks after route transitions (already wired in layout).
 - **DOM portals**: Use the `portal` action from `src/lib/utils/portal.ts` for overlays that must escape parent stacking contexts.
 - **Internal navigation**: Use `navigateInternal` / `assignAppLocation` from `src/lib/utils/internalNav.ts` — never `window.location.href =` directly, as it ignores `base`.
-- **GitHub API calls**: Use `fetchWithRetry` from `src/lib/utils/fetchWithRetry.ts` for resilience against rate limiting (handles 429 with `X-RateLimit-Reset` header).
+- **GitHub API calls**: No retry helper. The `/api/github-*` routes make one attempt with `AbortSignal.timeout(8000)` and, on failure, return `503` with a generic message so `loadContrib`/`loadRecent` in `src/lib/utils/githubData.ts` can fall through to the committed static JSON. Errors are negatively cached for 60 s. Derive the username with `getGithubUser()` from `src/lib/utils/githubUser.ts` (server/`$lib`) or `readGithubUser()` from `scripts/lib/profile-github.mjs` (Node scripts).
+- **Contribution payload shape**: Validate with `src/lib/utils/contribShape.ts` — do not hand-write another day/week sanitiser. `scripts/update-github-contrib.mjs` carries a documented twin because plain Node cannot import the TS module.
 - **Sounds**: Play via `playSound(id: SoundId)` from `src/lib/utils/sound.ts`. Valid IDs: `timeline-tick`, `confetti-pop`, `typing-key`, `typing-complete`, `game-start`, `game-over`, `ui-click`. Sound files live in `static/sounds/`. Regenerate with `npm run generate:sounds`.
 - **Tag classification**: Use `getTagKind(tag)` from `src/lib/utils/tags.ts` — do not duplicate the Sets locally in components.
 
@@ -53,9 +58,17 @@ The env var is checked as `env.GH_TOKEN || env.GITHUB_TOKEN` in server code. Eit
 - `--font-mono` is the only font family defined — the entire UI uses monospace (thavlik.dev-inspired design).
 - Use `color-mix(in srgb, var(--token) N%, transparent)` for alpha variants of tokens — **never raw `rgba(54, 242, 194, ...)` or `rgba(243, 246, 255, ...)` in CSS `<style>` blocks**. Raw values in JS canvas `fillStyle` are acceptable.
 
+## Page Metadata
+
+**Do not add `<svelte:head>` to a route.** Titles, descriptions, canonicals, `og:*`, `twitter:*` and JSON-LD all live in `src/lib/data/seo.ts` and are resolved once in `+layout.svelte`. Edit the `ROUTES` map there.
+
+`<svelte:head>` dedupes `<title>` but **not** arbitrary meta tags, so a per-route head block shipped a second `<meta name="description">` — generic one first — on every page that had one. `og:url` was separately hardcoded to the homepage on all 36 project pages. `npm run verify:seo` asserts one description tag per route and `og:url === canonical`.
+
+The one legitimate exception is a genuinely page-specific non-metadata tag: `src/routes/+page.svelte` keeps a head block solely for its LCP image preload.
+
 ## Component Exports
 
-Components are barrel-exported from `src/lib/components/index.ts`. Not all components are in the barrel (e.g. `MediaSection`, `MatrixOverlay`, `WaveCheckeredBackground`, `EegBackground`); import those directly.
+Import components by direct path. There is no barrel: `src/lib/components/index.ts` (and `src/lib/index.ts`) were imported by nothing while keeping unused components in the module graph, and have been removed.
 
 ## Game Sub-Apps
 

@@ -13,6 +13,6 @@
 - **Adding a new game**: add to `src/lib/data/games.ts` AND create a build script in `scripts/` if it needs a custom static build. Games proxied externally only need an entry in `vercel.json` and `games.ts` — no SvelteKit route.
 - **`src/lib/data/profile.ts` `github` field** must remain a full URL (`https://github.com/<user>`) — scripts regex-parse the username from it.
 - **Sound IDs are typed** — new sounds must be added to `SoundId` in `src/lib/utils/sound.ts` and the corresponding `.mp3` must be placed in `static/sounds/`.
-- **API validation**: new server endpoints should validate/sanitize API responses with manual type-guard functions (pattern: `isRecord()` + field-by-field checks), not Zod. Zod schemas in `src/lib/types/github.ts` exist for reference but are not currently used at runtime in the API routes.
+- **API validation**: validate/sanitize API responses with manual type guards (`isRecord()` + field-by-field checks), not a schema library — the project has **no production dependencies** and `zod` was removed along with the unused `src/lib/types/github.ts`. Contribution-calendar payloads have a shared validator: `src/lib/utils/contribShape.ts`, imported by both `api/github-contrib/+server.ts` and `src/lib/utils/githubData.ts`. Don't write a fourth copy.
 - **CSS naming**: scoped styles inside `.svelte` files; light-mode overrides use `:global([data-theme='light']) .local-class { }`.
 - **Validation gate**: run `npm run check` before considering any change done. There is no ESLint, no test runner.
