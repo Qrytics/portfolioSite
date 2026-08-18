@@ -17,7 +17,8 @@
 		"build:rogue-swipe": "node scripts/build-rogue-swipe.mjs",
 		"build:soundvisual-avora": "node scripts/build-soundvisual-avora.mjs",
 		"build:paddle-ball": "node scripts/build-paddle-ball.mjs",
-		"generate:demo-card": "node scripts/generate-demo-card.mjs"
+		"generate:demo-card": "node scripts/generate-demo-card.mjs",
+		"verify:seo": "node scripts/verify-seo.mjs"
 	},
 	"devDependencies": {
 		"@sveltejs/adapter-auto": "^7.0.0",
@@ -29,8 +30,5 @@
 		"svelte-check": "^4.4.2",
 		"typescript": "^5.9.3",
 		"vite": "^7.3.1"
-	},
-	"dependencies": {
-		"zod": "^4.4.3"
 	}
 }
