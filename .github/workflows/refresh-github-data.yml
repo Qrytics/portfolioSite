@@ -1,0 +1,106 @@
+name: Refresh GitHub data
+
+# Regenerates the committed GitHub JSON fallbacks and the project language-bytes module, then commits
+# them. Pushing to `main` is what triggers a Vercel deploy, so there is no build/publish step here.
+#
+# This replaces the old `refresh-github-recent.yml`, which ran `npm run build` and then published
+# `./build` via `peaceiris/actions-gh-pages`. `adapter-vercel` writes to `.vercel/output`, never
+# `./build`, so that step failed on every run — and because it never committed anything, the
+# regenerated JSON was discarded at the end of each job. `static/github-contrib.json` had therefore
+# been frozen since 2026-03-20 despite the cron firing every six hours.
+
+on:
+  schedule:
+    # Off the hour on purpose: GitHub queues scheduled workflows and :00 is the most contended minute.
+    - cron: '17 */6 * * *'
+  workflow_dispatch:
+
+concurrency:
+  group: refresh-github-data
+  cancel-in-progress: true
+
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      # Each generator gets `continue-on-error` plus a revert guard. Both GitHub generators write a
+      # `{ error, ... }` payload with empty data *before* exiting non-zero, so committing their output
+      # unconditionally would replace good-but-stale data with an empty chart — strictly worse than
+      # doing nothing. A failure here is a warning, not a broken site.
+
+      - name: Update GitHub recent repos JSON
+        id: recent
+        continue-on-error: true
+        env:
+          GH_TOKEN: ${{ secrets.GH_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: node scripts/update-github-recent.mjs
+
+      - name: Keep previous recent-repos data if that failed
+        if: steps.recent.outcome == 'failure'
+        run: |
+          echo "::warning::update-github-recent.mjs failed; keeping the committed data."
+          git checkout -- static/github-recent.json
+
+      - name: Update GitHub contributions JSON
+        id: contrib
+        continue-on-error: true
+        env:
+          # The contributions calendar is GraphQL-only and needs a classic PAT with `read:user`.
+          # The default GITHUB_TOKEN cannot read it, so a missing GH_TOKEN makes this step fail.
+          GH_TOKEN: ${{ secrets.GH_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: node scripts/update-github-contrib.mjs
+
+      - name: Keep previous contributions data if that failed
+        if: steps.contrib.outcome == 'failure'
+        run: |
+          echo "::warning::update-github-contrib.mjs failed; keeping the committed data."
+          git checkout -- static/github-contrib.json
+
+      # Only writes its output file on success, so it needs no revert guard.
+      - name: Update project language bytes
+        id: langbytes
+        continue-on-error: true
+        env:
+          GH_TOKEN: ${{ secrets.GH_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: npm run update:project-language-bytes
+
+      - name: Commit and push updates
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+
+          git add static/github-recent.json static/github-contrib.json src/lib/data/projectLanguageBytes.ts
+
+          if git diff --cached --quiet; then
+            echo 'GitHub data is already up to date; nothing to commit.'
+            exit 0
+          fi
+
+          git commit -m 'chore(data): refresh GitHub contributions, recent repos, language bytes'
+          git push
+
+      - name: Fail the run if every generator failed
+        if: steps.recent.outcome == 'failure' && steps.contrib.outcome == 'failure' && steps.langbytes.outcome == 'failure'
+        run: |
+          echo "::error::All three GitHub data generators failed. Check that the GH_TOKEN secret exists and has not expired."
+          exit 1
