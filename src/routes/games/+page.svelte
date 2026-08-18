@@ -9,12 +9,9 @@
 	}
 </script>
 
-<svelte:head>
-	<title>Mario Belmonte (Games)</title>
-	<meta name="description" content="Browser games and interactive demos built by {profile.name}." />
-</svelte:head>
+<!-- Head metadata for this route lives in $lib/data/seo.ts, resolved once in +layout.svelte. -->
 
-<main class="page">
+<div class="page">
 	<section class="section">
 		<div class="shell">
 			<h1 class="title">games</h1>
@@ -25,12 +22,24 @@
 					{@const hasPlayableUrl = game.playUrl !== '#'}
 					<li class="game-card">
 						{#if hasPlayableUrl}
-							<button
-								type="button"
-								class="game-card__preview-link game-card__preview-button"
+							<!--
+								A real `<a href>`, not a `<button>` calling `window.location.assign`. As a button
+								it had no href at all: middle-click, Ctrl/Cmd-click and "open in new tab" all
+								did nothing, the destination never appeared in the status bar on hover, and a
+								crawler saw no link to any of the games.
+
+								`tabindex="-1" aria-hidden="true"` stays deliberately. This is a *redundant*
+								link to the same place as the `play` control at the bottom of the card, so
+								exposing it would give every card two tab stops and announce the destination
+								twice. `data-sveltekit-reload` because these are standalone builds under
+								`static/games/`, not SvelteKit routes — the client router would 404 on them.
+							-->
+							<a
+								href={withBase(game.playUrl)}
+								class="game-card__preview-link"
 								tabindex="-1"
 								aria-hidden="true"
-								onclick={() => window.location.assign(withBase(game.playUrl))}
+								data-sveltekit-reload
 							>
 								<div class="game-card__media">
 									<img
@@ -41,7 +50,7 @@
 										decoding="async"
 									/>
 								</div>
-							</button>
+							</a>
 						{:else}
 							<div class="game-card__preview-link" aria-hidden="true">
 								<div class="game-card__media">
@@ -71,13 +80,16 @@
 									{/each}
 								</ul>
 								{#if hasPlayableUrl}
-									<button
-										type="button"
+									<!-- The keyboard and screen-reader path to the game; named so it reads
+									     usefully out of context rather than just "play". -->
+									<a
+										href={withBase(game.playUrl)}
 										class="play-btn"
-										onclick={() => window.location.assign(withBase(game.playUrl))}
+										aria-label="Play {game.title}"
+										data-sveltekit-reload
 									>
 										{game.playLabel ?? 'play →'}
-									</button>
+									</a>
 								{:else}
 									<span class="play-btn play-btn--disabled">{game.playLabel ?? 'In Progress'}</span>
 								{/if}
@@ -88,7 +100,7 @@
 			</ul>
 		</div>
 	</section>
-</main>
+</div>
 
 <style>
 	.page {
@@ -163,16 +175,6 @@
 	.game-card__preview-link {
 		display: block;
 		overflow: hidden;
-	}
-
-	.game-card__preview-button {
-		width: 100%;
-		border: 0;
-		padding: 0;
-		margin: 0;
-		background: transparent;
-		text-align: inherit;
-		cursor: pointer;
 	}
 
 	.game-card__media {
@@ -253,13 +255,20 @@
 		padding: 0.15rem 0.45rem;
 	}
 
+	/* `.play-btn` is an `<a>` for the playable case and a `<span>` for the in-progress one, so the
+	   link resets (`text-decoration`, `display`) belong here rather than being inherited. The
+	   `min-height` brings it to WCAG 2.5.5's 44px on a phone; it was ~29px. */
 	.play-btn {
+		display: inline-flex;
+		align-items: center;
 		font-family: var(--font-mono);
 		font-size: 0.82rem;
 		color: var(--accent);
 		border: 1px solid var(--accent);
 		padding: 0.3rem 0.75rem;
+		min-height: 2.75rem;
 		background: transparent;
+		text-decoration: none;
 		transition:
 			background 0.15s ease,
 			color 0.15s ease;

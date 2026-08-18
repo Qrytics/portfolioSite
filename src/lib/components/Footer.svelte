@@ -1,39 +1,17 @@
 <script lang="ts">
 	import { profile } from '$lib/data/profile';
+	import { copyEmail } from '$lib/utils/copyEmail';
 
 	const year = new Date().getFullYear();
 
-	let toastVisible = $state(false);
-	let toastMessage = $state('email copied to clipboard');
-	let toastTimer: ReturnType<typeof setTimeout> | undefined;
-
-	// Cleanup timer on unmount
-	$effect(() => {
-		return () => {
-			if (toastTimer !== undefined) clearTimeout(toastTimer);
-		};
-	});
-
-	function copyEmail() {
-		navigator.clipboard
-			.writeText(profile.email)
-			.then(() => {
-				if (toastTimer !== undefined) clearTimeout(toastTimer);
-				toastVisible = true;
-				toastMessage = 'email copied to clipboard';
-				toastTimer = setTimeout(() => (toastVisible = false), 2500);
-			})
-			.catch((err) => {
-				console.warn('Clipboard write failed:', err);
-				if (toastTimer !== undefined) clearTimeout(toastTimer);
-				toastVisible = true;
-				toastMessage = 'clipboard unavailable - see email above';
-				toastTimer = setTimeout(() => (toastVisible = false), 3500);
-			});
-	}
-
+	/**
+	 * `behavior: 'smooth'` is deliberately not forced here: `app.css` sets
+	 * `html { scroll-behavior: smooth }` and resets it under `prefers-reduced-motion`, and passing
+	 * the option explicitly overrode that reset — so the one control on the page whose entire job is
+	 * a long animated scroll ignored the user's motion preference.
+	 */
 	function backToTop() {
-		window.scrollTo({ top: 0, behavior: 'smooth' });
+		window.scrollTo({ top: 0 });
 	}
 </script>
 
@@ -63,10 +41,6 @@
 	</div>
 	<button class="back-to-top footer-link" type="button" onclick={backToTop}>back to top ↑</button>
 </footer>
-
-{#if toastVisible}
-	<div class="toast" role="status" aria-live="polite">{toastMessage}</div>
-{/if}
 
 <style>
 	.footer {
@@ -160,29 +134,6 @@
 		outline-offset: 4px;
 	}
 
-	.toast {
-		position: fixed;
-		bottom: 2rem;
-		left: 50%;
-		transform: translate(-50%);
-		background: var(--panel);
-		color: var(--text);
-		padding: 0.75rem 1.5rem;
-		border: 1px solid var(--border);
-		box-shadow: var(--shadow);
-		z-index: 1000;
-		text-align: center;
-		max-width: calc(100vw - 2rem);
-		white-space: normal;
-		overflow-wrap: anywhere;
-		font-family: var(--font-mono);
-		font-size: 0.9rem;
-		animation: toast-in 0.2s ease-out;
-	}
-
-	@keyframes toast-in {
-		from { opacity: 0; transform: translate(-50%) translateY(1rem); }
-		to   { opacity: 1; transform: translate(-50%) translateY(0); }
-	}
+	/* The toast panel moved to `$lib/components/Toast.svelte`, rendered once by the layout. */
 </style>
 

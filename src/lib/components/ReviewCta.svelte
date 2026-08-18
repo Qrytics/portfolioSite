@@ -1,4 +1,11 @@
-<section id="resume" class="review-cta" aria-label="Resume section">
+<!--
+	Was `<section id="resume" aria-label="Resume section">`, which was wrong twice over: nothing in the
+	repo links to `#resume` (there is a real `/resume` route instead), and the label announced "Resume
+	section" to a screen reader over content that is a single feedback-form link. An `aria-label` on a
+	`<section>` also promotes it to a region landmark, which is more structure than one button deserves —
+	so this is now a plain `<div>` and the link's own text is the accessible name.
+-->
+<div class="review-cta">
 	<a
 		href="https://forms.gle/LKXFvhHVp84chSpSA"
 		target="_blank"
@@ -7,7 +14,7 @@
 	>
 		Would you like to leave a review?
 	</a>
-</section>
+</div>
 
 <style>
 	.review-cta {

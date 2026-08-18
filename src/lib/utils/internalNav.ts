@@ -1,4 +1,5 @@
 import { base } from '$app/paths';
+import { goto } from '$app/navigation';
 
 function toAppPath(pathname: string): string {
 	const path = pathname.startsWith('/') ? pathname : `/${pathname}`;
@@ -7,10 +8,20 @@ function toAppPath(pathname: string): string {
 
 /**
  * Router-aware internal navigation. Respects `kit.paths.base`.
+ *
+ * This used to call `window.location.assign`, i.e. a full document reload, from the three places that
+ * navigate programmatically — `Nav`, `Search`, and `Terminal`. Every in-app navigation therefore
+ * re-downloaded the entire shell instead of fetching a route's data, and it discarded the
+ * `data-sveltekit-preload-data="hover"` prefetching configured in `app.html`, so a link that had
+ * already been prefetched on hover still paid a cold document load on click.
+ *
+ * `goto` also gives SvelteKit's scroll restoration something to restore *to*, which is what makes
+ * pressing Back from a project page return you to the card you clicked rather than the top of the
+ * home page.
  */
 export function assignAppLocation(pathname: string) {
 	if (typeof window === 'undefined') return;
-	window.location.assign(toAppPath(pathname));
+	void goto(toAppPath(pathname));
 }
 
 /**

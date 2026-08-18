@@ -1,10 +1,18 @@
 <script lang="ts">
 	import { profile } from '$lib/data/profile';
-	import { projects } from '$lib/data/projects';
 	import { assignAppLocation } from '$lib/utils/internalNav';
 	import { portal } from '$lib/utils/portal';
+	import { focusTrap } from '$lib/utils/focusTrap';
+	import { loadProjectsIndex, type ProjectIndexEntry } from '$lib/utils/projectsIndex';
 
 	let { open = $bindable(false) } = $props();
+
+	/**
+	 * Slug, title and year, fetched on first open, instead of importing `$lib/data/projects`. That
+	 * import pulled the whole 72 KB module into the shared layout chunk — this component lives in
+	 * `Nav`, so every route paid for it whether or not the terminal was ever opened.
+	 */
+	let projects = $state<ProjectIndexEntry[]>([]);
 	let inputValue = $state('');
 	let lines = $state<Array<{ type: 'input' | 'output' | 'error'; text: string }>>([
 		{
@@ -69,15 +77,22 @@
 	});
 
 	$effect(() => {
-		if (open) {
-			// Focus input after DOM updates
-			setTimeout(() => {
-				// preventScroll avoids the page jumping to top on focus
-				(inputEl as unknown as { focus: (opts?: { preventScroll?: boolean }) => void })?.focus?.({
-					preventScroll: true
-				});
-			}, 10);
-		}
+		if (!open) return;
+
+		// `loadProjectsIndex` caches its promise, so re-opening doesn't re-request.
+		void loadProjectsIndex().then((entries) => (projects = entries));
+
+		// Focus input after DOM updates
+		const focusTimer = setTimeout(() => {
+			// preventScroll avoids the page jumping to top on focus
+			(inputEl as unknown as { focus: (opts?: { preventScroll?: boolean }) => void })?.focus?.({
+				preventScroll: true
+			});
+		}, 10);
+
+		// Previously never cleared: closing within 10 ms left the timeout to fire and steal focus into
+		// a dialog that no longer existed.
+		return () => clearTimeout(focusTimer);
 	});
 
 	function toggleOpen() {
@@ -345,16 +360,6 @@
 		}
 	}
 
-	// Teleport node to document.body so it escapes any transformed/
-	// backdrop-filter ancestor that would hijack position:fixed containment.
-	//function portal(node: HTMLElement) {
-	//	document.body.appendChild(node);
-	//	return {
-	//		destroy() {
-	//			node.remove();
-	//		}
-	//	};
-	//}
 </script>
 
 <!-- Trigger button -->
@@ -365,25 +370,38 @@
 
 {#if open}
 	<div class="portal" use:portal>
-		<div
-			class="backdrop"
-			role="button"
-			tabindex="0"
-			aria-label="Close terminal"
-			onclick={() => (open = false)}
-			onkeydown={(e) => (e.key === 'Enter' || e.key === ' ') && (open = false)}
-		></div>
+		<!--
+			Decorative scrim, pointer-only, redundant with the `✕` in the title bar. It used to be
+			`<div role="button" tabindex="0" aria-label="Close terminal">`, i.e. a tab stop *inside* an
+			`aria-modal` dialog — Tab from the command input landed on it rather than cycling back.
+			`aria-hidden` plus no tabindex is the correct shape for a scrim.
+		-->
+		<!-- svelte-ignore a11y_click_events_have_key_events -->
+		<!-- svelte-ignore a11y_no_static_element_interactions -->
+		<div class="backdrop" aria-hidden="true" onclick={() => (open = false)}></div>
 
-		<div class="terminal" role="dialog" aria-modal="true" aria-label="Terminal">
+		<div class="terminal" role="dialog" aria-modal="true" aria-label="Terminal" use:focusTrap>
 			<div class="terminal__bar">
 				<span class="terminal__title">mario-belmonte: bash</span>
 				<button type="button" class="terminal__close" aria-label="Close terminal" onclick={() => (open = false)}>✕</button>
 			</div>
 
-			<!-- Output -->
-			<div class="terminal__output" bind:this={containerEl}>
+			<!--
+				`role="log"` on the container rather than `role="alert"` per error line. Typing `help`
+				produces 25 lines of output that a screen reader previously never announced at all —
+				only errors were, and an error here is no more urgent than the answer to the command
+				you just typed. One polite live region on the scroll container announces every append,
+				and nesting an `alert` inside it would have double-announced the errors.
+			-->
+			<div
+				class="terminal__output"
+				bind:this={containerEl}
+				role="log"
+				aria-live="polite"
+				aria-label="Terminal output"
+			>
 				{#each lines as line}
-					<div class="line line--{line.type}" role={line.type === 'error' ? 'alert' : undefined}>
+					<div class="line line--{line.type}">
 						{#each line.text.split('\n') as row}
 							<span>{row}</span>
 						{/each}
@@ -394,7 +412,6 @@
 			<!-- Input row -->
 			<div class="terminal__input-row">
 				<span class="terminal__prompt" aria-hidden="true">{'>'}</span>
-				<!-- svelte-ignore a11y_autofocus -->
 				<input
 					bind:this={inputEl}
 					bind:value={inputValue}
@@ -437,11 +454,9 @@
 		color: var(--accent);
 	}
 
-	@media (max-width: 639px) {
-		.trigger {
-			display: none;
-		}
-	}
+	/* No breakpoint on the trigger here. `Nav` — the only consumer — hides the whole `.terminal-tool`
+	   wrapper below 900px and puts a `terminal` entry in the mobile dropdown instead, so a second
+	   `display: none` at 639px was dead and made the effective breakpoint look like 639px. */
 
 	.trigger__icon {
 		font-weight: 700;
@@ -452,8 +467,17 @@
 		position: fixed;
 		inset: 0;
 		z-index: 7000;
-		background: rgba(0, 0, 0, 0.55);
-		backdrop-filter: blur(4px);
+		/* Darker scrim in place of a full-viewport blur on phones; blur restored at desktop widths
+		   below, where the GPU cost of re-compositing the page behind it is affordable. */
+		background: color-mix(in srgb, #000 70%, transparent);
+	}
+
+	@media (min-width: 901px) {
+		.backdrop {
+			background: color-mix(in srgb, #000 55%, transparent);
+			backdrop-filter: blur(4px);
+			-webkit-backdrop-filter: blur(4px);
+		}
 	}
 
 	.terminal {
@@ -463,7 +487,8 @@
 		transform: translate(-50%, -50%);
 		z-index: 7010;
 		width: min(720px, 94vw);
-		max-height: min(480px, 80vh);
+		/* `dvh` so the panel can't extend under iOS Safari's URL bar. */
+		max-height: min(480px, 80dvh);
 		display: flex;
 		flex-direction: column;
 		border: 1px solid var(--border);

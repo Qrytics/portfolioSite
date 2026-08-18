@@ -2,6 +2,7 @@
 import type { PageData } from './$types';
 import MediaSection from '$lib/components/MediaSection.svelte';
 import { getTagKind } from '$lib/utils/tags';
+import { isGitHubRepo } from '$lib/utils/urls';
 
 let { data }: { data: PageData } = $props();
 const project = $derived(data.project);
@@ -21,19 +22,39 @@ function formatLongDescription(text: string): string {
 		.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
 		.replace(/\n/g, '<br>');
 }
+
+/**
+ * Turn bare URLs in `project.note` into links.
+ *
+ * `escapeHtml` runs **first**, then the linkifier — the reverse order would escape the anchor tags this
+ * function just produced. It was previously missing entirely: the note was passed to `{@html}` raw while
+ * its sibling `formatLongDescription` escaped correctly, so any `<` in a note was live markup. The data
+ * is authored in this repo, which is why it never bit, but a `{@html}` sink with no escaping is a
+ * one-typo-away bug and the escaping costs nothing.
+ *
+ * Escaping does not damage the URLs: `&` becomes `&amp;` and `'` becomes `&#39;`, both of which a
+ * browser decodes back to the original character when it parses the `href`.
+ */
+function formatNote(text: string): string {
+	return escapeHtml(text).replace(
+		/(https?:\/\/[^\s]+)/g,
+		'<a href="$1" target="_blank" rel="noopener noreferrer">$1</a>'
+	);
+}
 </script>
 
-<svelte:head>
-<title>Mario Belmonte ({project.title})</title>
-<meta name="description" content={project.description} />
-</svelte:head>
-
+<!--
+	No `<svelte:head>` here on purpose. Title, description, canonical, `og:*` and the JSON-LD
+	`CreativeWork` for this page are all resolved in `+layout.svelte` from `page.data.project` — see
+	`$lib/data/seo.ts`. A local block would ship a *second* description tag alongside the layout's,
+	which is exactly the bug that made every route advertise the homepage blurb.
+-->
 <div class="page">
 <div class="shell">
 <div class="breadcrumb">
-<a href="/" data-sveltekit-reload>home</a>
+<a href="/">home</a>
 <span class="sep">/</span>
-		<a href="/projects" data-sveltekit-reload>projects</a>
+		<a href="/projects">projects</a>
 <span class="sep">/</span>
 <span class="current">{project.slug}</span>
 </div>
@@ -141,7 +162,7 @@ function formatLongDescription(text: string): string {
 {/if}
 {#if project.github}
 <a href={project.github} target="_blank" rel="noopener noreferrer" class="btn btn--primary">
-{#if project.github && (new URL(project.github).hostname === 'github.com' || new URL(project.github).hostname.endsWith('.github.com'))}
+{#if isGitHubRepo(project.github)}
 GitHub Repo ↗
 {:else}
 source ↗
@@ -162,17 +183,23 @@ source ↗
 live demo ↗
 </a>
 {/if}
+{/if}
+</div>
 
+<!--
+	Deliberately a sibling of `.links` rather than nested inside `{#if project.demo}`, where it used to
+	live. A note has nothing to do with whether there is a demo, and both projects that currently carry
+	one happen to have a demo too — so the gate dropped no content today, but the next note added to a
+	demo-less project would have vanished with no error anywhere.
+-->
 {#if project.note && !project.slides}
 	<div class="resources">
 		<p class="resources__title">Additional resources</p>
 		<p class="note">
-			{@html project.note.replace(/(https?:\/\/[^\s]+)/g, '<a href="$1" target="_blank" rel="noopener noreferrer">$1</a>')}
+			{@html formatNote(project.note)}
 		</p>
 	</div>
 {/if}
-{/if}
-</div>
 
 {#if project.demo}
 	{#if /youtu\.be|youtube\.com/i.test(project.demo)}
@@ -214,7 +241,7 @@ live demo ↗
 </div>
 
 <div class="back-link">
-<a href="/projects" data-sveltekit-reload>← back to projects</a>
+<a href="/projects">← back to projects</a>
 </div>
 </div>
 </div>

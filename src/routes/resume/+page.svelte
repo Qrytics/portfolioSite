@@ -1,7 +1,7 @@
 <script lang="ts">
 </script>
 
-<main class="page">
+<div class="page">
 	<section class="section">
 		<div class="shell">
 			<header class="header">
@@ -30,7 +30,7 @@
 			</div>
 		</div>
 	</section>
-</main>
+</div>
 
 <style>
 	.page {
@@ -91,14 +91,17 @@
 	.frame iframe {
 		display: block;
 		width: 100%;
-		height: min(1200px, calc(100vh - 9rem));
+		/* `dvh` rather than `vh`. On iOS Safari `100vh` is the viewport with the browser chrome
+		   *retracted*, so the bottom ~9% of the PDF sat permanently underneath the URL bar and could
+		   not be scrolled into view — the iframe scrolls its own document, not the page. */
+		height: min(1200px, calc(100dvh - 9rem));
 		border: none;
 		background: var(--panel-2);
 	}
 
 	@media (max-width: 640px) {
 		.frame iframe {
-			height: clamp(420px, 62vh, 640px);
+			height: clamp(420px, 62dvh, 640px);
 		}
 	}
 </style>

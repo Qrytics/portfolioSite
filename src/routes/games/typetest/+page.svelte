@@ -2,10 +2,7 @@
 	import TypeTest from '$lib/components/games/TypeTest.svelte';
 </script>
 
-<svelte:head>
-	<title>Type Speed Test - Mario Belmonte</title>
-	<meta name="description" content="Test your typing speed with real code snippets" />
-</svelte:head>
+<!-- Head metadata for this route lives in $lib/data/seo.ts, resolved once in +layout.svelte. -->
 
 <div class="page">
 	<TypeTest />
@@ -13,7 +10,9 @@
 
 <style>
 	.page {
-		min-height: calc(100vh - 200px);
+		/* `dvh`: with `vh` this reserved space for browser chrome that is retracted, so the page was
+		   taller than the visible viewport on mobile Safari and scrolled for no reason. */
+		min-height: calc(100dvh - 200px);
 		padding: 2rem clamp(1.25rem, 4vw, 3rem);
 	}
 </style>

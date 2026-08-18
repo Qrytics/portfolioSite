@@ -1,35 +1,7 @@
 <script lang="ts">
 	import { profile } from '$lib/data/profile';
 	import WaveCheckeredBackground from './WaveCheckeredBackground.svelte';
-
-	let toastVisible = $state(false);
-	let toastMessage = $state('email copied to clipboard');
-	let toastTimer: ReturnType<typeof setTimeout> | undefined;
-
-	// Cleanup timer on unmount
-	$effect(() => {
-		return () => {
-			if (toastTimer !== undefined) clearTimeout(toastTimer);
-		};
-	});
-
-	function copyEmail() {
-		navigator.clipboard
-			.writeText(profile.email)
-			.then(() => {
-				if (toastTimer !== undefined) clearTimeout(toastTimer);
-				toastVisible = true;
-				toastMessage = 'email copied to clipboard';
-				toastTimer = setTimeout(() => (toastVisible = false), 2500);
-			})
-			.catch((err) => {
-				console.warn('Clipboard write failed:', err);
-				if (toastTimer !== undefined) clearTimeout(toastTimer);
-				toastVisible = true;
-				toastMessage = 'clipboard unavailable - see email above';
-				toastTimer = setTimeout(() => (toastVisible = false), 3500);
-			});
-	}
+	import { copyEmail } from '$lib/utils/copyEmail';
 </script>
 
 <header class="header">
@@ -66,10 +38,6 @@
 		</div>
 	</div>
 </header>
-
-{#if toastVisible}
-	<div class="toast" role="status" aria-live="polite">{toastMessage}</div>
-{/if}
 
 <style>
 	.header {
@@ -147,18 +115,32 @@
 		pointer-events: none;
 	}
 
+	/*
+	 * The two light-mode glows behind the hero text. Both were doing the right thing by accident and
+	 * paying a lot for it.
+	 *
+	 * Their stop lists used to start at `100%` and then step *backwards* (`100%, 90%, 8%, 9%, 10%`). A
+	 * gradient stop smaller than the one before it is clamped up to it, so every stop collapsed to 100%
+	 * and the "radial glow" rendered as a **solid white box**. What actually produced the soft halo was
+	 * the `filter: blur(100px)` feathering that box's edges — which is the most expensive possible way to
+	 * draw a gradient, on the largest element on the page, sitting behind the LCP text, on phones.
+	 *
+	 * Stops are now in ascending order, so the falloff comes from the gradient itself. That leaves the
+	 * blur with nothing to do but soften banding, which needs a fraction of the radius — these are the
+	 * values `app.css` already uses for the same two elements, and these rules only exist to override it.
+	 */
 	:global([data-theme='light']) .header__content::before {
 		width: min(96ch, 94%);
 		height: 82%;
 		background: radial-gradient(
 			ellipse at center,
-			rgb(255, 255, 255) 100%,
-			rgba(247, 253, 251, 0.92) 90%,
-			rgba(228, 247, 243, 0.58) 8%,
-			rgba(210, 240, 234, 0.22) 9%,
-			rgba(255, 255, 255, 0) 10%
+			rgb(255, 255, 255) 0%,
+			rgba(247, 253, 251, 0.92) 34%,
+			rgba(228, 247, 243, 0.58) 58%,
+			rgba(210, 240, 234, 0.22) 78%,
+			rgba(255, 255, 255, 0) 100%
 		);
-		filter: blur(100px);
+		filter: blur(34px);
 	}
 
 	:global([data-theme='light']) .header__tagline::before {
@@ -166,12 +148,12 @@
 		height: calc(100% + 1.5rem);
 		background: radial-gradient(
 			ellipse at center,
-			rgba(255, 255, 255, 0.98) 100%,
-			rgba(240, 252, 248, 0.78) 5%,
-			rgba(223, 247, 241, 0.32) 8%,
+			rgba(255, 255, 255, 0.98) 0%,
+			rgba(240, 252, 248, 0.78) 38%,
+			rgba(223, 247, 241, 0.32) 68%,
 			rgba(255, 255, 255, 0) 100%
 		);
-		filter: blur(100px);
+		filter: blur(20px);
 	}
 
 	.header__description {
@@ -336,29 +318,5 @@
 		outline-offset: 4px;
 	}
 
-	.toast {
-		position: fixed;
-		bottom: 2rem;
-		left: 50%;
-		transform: translate(-50%);
-		background: var(--panel);
-		color: var(--text);
-		padding: 0.75rem 1.5rem;
-		border: 1px solid var(--border);
-		box-shadow: var(--shadow);
-		z-index: 1000;
-		text-align: center;
-		max-width: calc(100vw - 2rem);
-		white-space: normal;
-		overflow-wrap: anywhere;
-		font-family: var(--font-mono);
-		font-size: 0.9rem;
-		animation: toast-in 0.2s ease-out;
-	}
-
-	@keyframes toast-in {
-		from { opacity: 0; transform: translate(-50%) translateY(1rem); }
-		to   { opacity: 1; transform: translate(-50%) translateY(0); }
-	}
-
+	/* The toast panel moved to `$lib/components/Toast.svelte`, rendered once by the layout. */
 </style>

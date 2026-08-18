@@ -111,10 +111,7 @@
 	const collapseButtonLabel = $derived(!isCollapsed || areAllVisibleExpanded ? 'collapse' : 'expand');
 </script>
 
-<svelte:head>
-	<title>Mario Belmonte (Projects)</title>
-	<meta name="description" content="All projects and case studies." />
-</svelte:head>
+<!-- Head metadata for this route lives in $lib/data/seo.ts, resolved once in +layout.svelte. -->
 
 <div class="page">
 	<section id="projects" aria-label="Projects" class:is-collapsed={isCollapsed}>

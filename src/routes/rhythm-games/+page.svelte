@@ -24,12 +24,9 @@
 	const youtubeShorts = videos.filter((v) => v.kind === 'short');
 </script>
 
-<svelte:head>
-	<title>Mario Belmonte (Rhythm Games)</title>
-	<meta name="description" content="YouTube clips of me playing rhythm games." />
-</svelte:head>
+<!-- Head metadata for this route lives in $lib/data/seo.ts, resolved once in +layout.svelte. -->
 
-<main class="page">
+<div class="page">
 	<section class="section">
 		<div class="shell">
 			<h1 class="title">rhythm games</h1>
@@ -92,7 +89,7 @@
 			</div>
 		</div>
 	</section>
-</main>
+</div>
 
 <style>
 	.page {
