@@ -5,29 +5,53 @@
 
 	let imageAspect = $state<number | null>(null);
 	let videoEl = $state<HTMLVideoElement | undefined>(undefined);
-	let mediaActivated = $state(true);
+
+	type NetworkInformation = { saveData?: boolean; effectiveType?: string };
+
+	/**
+	 * Autoplay is a data-cost decision, not a style one. The demo clips are 1-4 MB each, so a
+	 * metered or slow connection gets the poster plus native controls instead — and so does anyone
+	 * who asked the OS for reduced motion, since a looping clip is exactly the motion they opted out
+	 * of. Evaluated at init (not in an `$effect`) so the client's first paint already has the right
+	 * `controls` state; SSR returns `false`, which is the safe default.
+	 */
+	function autoplayAllowed(): boolean {
+		if (typeof window === 'undefined') return false;
+		const connection = (navigator as Navigator & { connection?: NetworkInformation }).connection;
+		if (connection?.saveData === true) return false;
+		if (/(^|-)2g$/.test(connection?.effectiveType ?? '')) return false;
+		return !window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+	}
+
+	const mayAutoplay = autoplayAllowed();
 
 	$effect(() => {
 		project.image;
 		imageAspect = null;
-		mediaActivated = true;
 	});
 
 	$effect(() => {
-		if (!videoEl) return;
 		const video = videoEl;
-		const io = new IntersectionObserver((entries) => {
-			if (entries[0]?.isIntersecting) {
-				video.play().catch((err) => {
-					// Video autoplay failures are expected when user hasn't interacted with page yet
-					if (import.meta.env.DEV) {
-						console.debug('Video autoplay failed:', err);
-					}
-				});
-			} else {
-				video.pause();
-			}
-		}, { threshold: 0.1 });
+		// Without `autoplay` in the markup, `preload="none"` actually holds: nothing is fetched
+		// until this observer calls `play()`. The old markup had both, and `autoplay` wins — the
+		// browser must download in order to honour it, so the first home-page card pulled a 4 MB
+		// clip before the user had scrolled to it.
+		if (!video || !mayAutoplay) return;
+		const io = new IntersectionObserver(
+			(entries) => {
+				if (entries[0]?.isIntersecting) {
+					video.play().catch((err) => {
+						// Expected when the browser's own autoplay policy declines; the poster stays.
+						if (import.meta.env.DEV) {
+							console.debug('Video autoplay failed:', err);
+						}
+					});
+				} else {
+					video.pause();
+				}
+			},
+			{ threshold: 0.1 }
+		);
 		io.observe(video);
 		return () => io.disconnect();
 	});
@@ -64,21 +88,15 @@
 			class="media__frame media__frame--multi {project.mediaAspect === 'schematic' ? 'media__frame--schematic' : project.mediaAspect === 'auto' ? 'media__frame--auto' : ''}"
 			style={frameStyle()}
 		>
-			{#if mediaActivated}
-				{#each project.images as src}
-					<img
-						class="media__img media__img--multi"
-						src={src}
-						alt="{project.title} preview"
-						loading="lazy"
-						decoding="async"
-					/>
-				{/each}
-			{:else}
-				<div class="media__placeholder media__placeholder--single">
-					<span class="media__placeholderText">{project.title}</span>
-				</div>
-			{/if}
+			{#each project.images as src (src)}
+				<img
+					class="media__img media__img--multi"
+					src={src}
+					alt="{project.title} preview"
+					loading="lazy"
+					decoding="async"
+				/>
+			{/each}
 		</div>
 	</div>
 {:else if project.image}
@@ -87,36 +105,30 @@
 			class="media__frame {project.mediaAspect === 'schematic' ? 'media__frame--schematic' : project.mediaAspect === 'auto' ? 'media__frame--auto' : ''}"
 			style={frameStyle(imageAspect != null ? String(imageAspect) : undefined)}
 		>
-			{#if mediaActivated}
-				{#if isVideo(project.image)}
-					<video
-						class="media__img"
-						src={project.image}
-						poster={project.poster}
-						autoplay
-						loop
-						muted
-						playsinline
-						preload="none"
-						aria-label="{project.title} preview"
-						style={mediaInlineStyle()}
-						bind:this={videoEl}
-					></video>
-				{:else}
-					<img
-						class="media__img"
-						src={project.image}
-						alt="{project.title} preview"
-						loading="lazy"
-						decoding="async"
-						onload={onMediaImageLoad}
-						style={mediaInlineStyle()}
-					/>
-				{/if}
+			{#if isVideo(project.image)}
+				<video
+					class="media__img"
+					src={project.image}
+					poster={project.poster}
+					loop
+					muted
+					playsinline
+					preload="none"
+					controls={!mayAutoplay}
+					aria-label="{project.title} preview"
+					style={mediaInlineStyle()}
+					bind:this={videoEl}
+				></video>
 			{:else}
-				<div class="media__placeholder media__placeholder--single">
-					<span class="media__placeholderText">{project.title}</span>
-				</div>
+				<img
+					class="media__img"
+					src={project.image}
+					alt="{project.title} preview"
+					loading="lazy"
+					decoding="async"
+					onload={onMediaImageLoad}
+					style={mediaInlineStyle()}
+				/>
 			{/if}
 		</div>
 	</div>
@@ -137,13 +149,17 @@
 	.media {
 		padding: 0.9rem;
 		border-bottom: 1px solid var(--border-2);
-		background: rgba(0, 0, 0, 0.12);
+		background: color-mix(in srgb, #000 12%, transparent);
 	}
 
 	.media__frame {
 		width: 100%;
 		overflow: hidden;
-		background: rgba(255, 255, 255, 0.03);
+		background: color-mix(in srgb, var(--text) 3%, transparent);
+		/* Reserve the box before any media resolves. Previously the frame had no intrinsic height
+		   until `onload` reported `naturalWidth`, so every card grew from 0 and shoved the rest of
+		   the page down. `object-fit: contain` means the default ratio mattes rather than crops. */
+		aspect-ratio: 383 / 189;
 	}
 
 	.media__frame--schematic {
@@ -181,7 +197,7 @@
 		height: 100%;
 		min-height: 0;
 		border: 1px dashed color-mix(in srgb, var(--text) 18%, transparent);
-		background: linear-gradient(180deg, color-mix(in srgb, var(--accent) 6%, transparent), transparent 70%), rgba(255, 255, 255, 0.03);
+		background: linear-gradient(180deg, color-mix(in srgb, var(--accent) 6%, transparent), transparent 70%), color-mix(in srgb, var(--text) 3%, transparent);
 		color: color-mix(in srgb, var(--text) 72%, transparent);
 		font-family: var(--font-mono);
 	}
@@ -192,9 +208,5 @@
 		text-align: center;
 		padding: 0 0.75rem;
 		overflow-wrap: anywhere;
-	}
-
-	.media__placeholder--single {
-		min-height: 140px;
 	}
 </style>

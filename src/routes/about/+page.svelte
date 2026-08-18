@@ -14,7 +14,7 @@
 	}
 </script>
 
-<main class="page">
+<div class="page">
 	<section class="section">
 		<div class="shell">
 			<h1 class="title">about me</h1>
@@ -23,12 +23,21 @@
 			<div class="grid gallery" role="list">
 				{#each aboutPhotos as photo, i (photo.src)}
 					<div class="card grid-item" class:grid-item--tall={photo.tall} role="listitem">
+						<!--
+							`width`/`height` are set only on the `tall` photos, which is where they do work —
+							see the comment on `AboutPhoto.width` for why the square cards don't need them.
+							They are attributes rather than CSS so the browser derives the aspect ratio before
+							any stylesheet applies; `.grid-item--tall .img` then overrides the used size back
+							to `width: 100%; height: auto`, which preserves that ratio.
+						-->
 						<img
 							class="img"
 							class:img--contain={photo.fit === 'contain'}
 							src={photo.src}
 							alt={`About me photo ${i + 1}`}
 							loading="lazy"
+							width={photo.width}
+							height={photo.height}
 							style={imgStyle(photo)}
 						/>
 					</div>
@@ -42,7 +51,7 @@
 			</div>
 		</div>
 	</section>
-</main>
+</div>
 
 <style>
 	.page {
@@ -115,7 +124,7 @@
 	.grid-item--tall .img {
 		width: 100%;
 		height: auto;
-		max-height: 80vh;
+		max-height: 80dvh;
 		object-fit: contain;
 	}
 

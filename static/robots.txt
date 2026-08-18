@@ -1,3 +1,7 @@
 # allow crawling everything by default
 User-agent: *
 Disallow:
+
+# The 35 project pages are prerendered but only linked from /projects, several of
+# them behind a filter, so a crawler is not guaranteed to reach all of them.
+Sitemap: https://mario-belmonte.com/sitemap.xml

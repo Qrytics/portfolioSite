@@ -54,12 +54,8 @@
 	--accent-2: var(--clr-primary-a0);
 	--shadow: none;
 
-	/* GitHub light palette */
-	--gh-empty: var(--clr-surface-tonal-a10);
-	--gh-l1: #9be9a8;
-	--gh-l2: #40c463;
-	--gh-l3: #30a14e;
-	--gh-l4: #216e39;
+	/* The contribution ramp lives with the chart (`GitHubContribChart.svelte`) so it stays
+	   derived from --accent rather than pinned to GitHub's green hexes. */
 }
 
 [data-theme='light'] body {
@@ -285,40 +281,6 @@
 	border-color: var(--clr-primary-a30) !important;
 	box-shadow: none !important;
 	transform: none;
-}
-
-[data-theme='light'] .github-chart .day,
-[data-theme='light'] .github-chart .legend__square {
-	border-color: var(--clr-surface-tonal-a10);
-}
-
-[data-theme='light'] .github-chart .day[data-level='0'],
-[data-theme='light'] .github-chart .legend__square[data-level='0'] {
-	background: var(--gh-empty);
-}
-
-[data-theme='light'] .github-chart .day[data-level='1'],
-[data-theme='light'] .github-chart .legend__square[data-level='1'] {
-	background: var(--gh-l1);
-	border-color: var(--gh-l1);
-}
-
-[data-theme='light'] .github-chart .day[data-level='2'],
-[data-theme='light'] .github-chart .legend__square[data-level='2'] {
-	background: var(--gh-l2);
-	border-color: var(--gh-l2);
-}
-
-[data-theme='light'] .github-chart .day[data-level='3'],
-[data-theme='light'] .github-chart .legend__square[data-level='3'] {
-	background: var(--gh-l3);
-	border-color: var(--gh-l3);
-}
-
-[data-theme='light'] .github-chart .day[data-level='4'],
-[data-theme='light'] .github-chart .legend__square[data-level='4'] {
-	background: var(--gh-l4);
-	border-color: var(--gh-l4);
 }
 
 [data-theme='light'] .trigger__icon,
@@ -591,6 +553,12 @@ input {
 		animation-duration: 0.01ms !important;
 		transition-duration: 0.01ms !important;
 	}
+
+	/* The block above only shortened durations; smooth scrolling is a separate property and survived
+	   it, so every in-page anchor still animated the viewport for people who asked it not to. */
+	html {
+		scroll-behavior: auto;
+	}
 }
 
 @media (max-width: 900px) {
@@ -598,5 +566,15 @@ input {
 	body::before {
 		display: none;
 	}
+}
+
+/* Kills the legacy 300 ms tap delay everywhere. It was previously set on two individual components,
+   so every other button on the site felt a third of a second slower to the touch than those two. */
+button,
+a,
+[role='button'],
+summary,
+label {
+	touch-action: manipulation;
 }
 

@@ -2,20 +2,25 @@
 	import type { Project } from '$lib/data/projects';
 	import MediaSection from '$lib/components/MediaSection.svelte';
 	import { getTagKind } from '$lib/utils/tags';
+	import { isGitHubRepo } from '$lib/utils/urls';
 
 	let {
 		project,
 		collapsedMode = false,
 		expandedInCollapsedMode = false,
+		toggleable = false,
 		onToggleExpand = (_slug: string) => {}
 	}: {
 		project: Project;
 		collapsedMode?: boolean;
 		expandedInCollapsedMode?: boolean;
+		/** When false the title bar navigates to the detail page instead of toggling the body. */
+		toggleable?: boolean;
 		onToggleExpand?: (slug: string) => void;
 	} = $props();
 
 	const showBody = $derived(collapsedMode ? expandedInCollapsedMode : !expandedInCollapsedMode);
+	const bodyId = $derived(`project-body-${project.slug}`);
 
 	function onCollapsedBarClick() {
 		onToggleExpand(project.slug);
@@ -50,15 +55,6 @@
 		return /\.(mp4|webm|ogg)(\?|#|$)/i.test(url);
 	}
 
-	function isGitHubRepo(url: string | undefined): boolean {
-		if (!url) return false;
-		try {
-			const u = new URL(url);
-			return u.hostname === 'github.com' || u.hostname.endsWith('.github.com');
-		} catch {
-			return false;
-		}
-	}
 
 </script>
 
@@ -66,27 +62,34 @@
 	class="card"
 	class:card--collapsed-only={!showBody}
 >
-	<!-- Terminal title bar -->
-	{#if collapsedMode}
-		<button
-			type="button"
-			class="termbar termbar--collapsible"
-			onclick={onCollapsedBarClick}
-			aria-expanded={expandedInCollapsedMode}
-		>
-			<span class="termbar__title termbar__titleText">{project.shortTitle ?? project.title}</span>
-			<span class="badge" data-type={project.type}>{typeLabelMap[project.type]}</span>
-		</button>
-	{:else}
+	<!--
+		Terminal title bar. This was two byte-identical branches that disagreed about what
+		`aria-expanded` meant — `expandedInCollapsedMode` in one, `showBody` in the other. They
+		resolve to the same value (`showBody` *is* `expandedInCollapsedMode` when `collapsedMode`),
+		so the branch was pure duplication hiding a contradiction.
+
+		The chevron is new: the bar was a full-width pointer-cursor control with no affordance at all,
+		so people tapped it expecting to open the project and instead collapsed the card they were
+		looking at.
+	-->
+	{#if toggleable}
 		<button
 			type="button"
 			class="termbar termbar--collapsible"
 			onclick={onCollapsedBarClick}
 			aria-expanded={showBody}
+			aria-controls={bodyId}
 		>
+			<span class="termbar__chevron" aria-hidden="true">{showBody ? '▾' : '▸'}</span>
 			<span class="termbar__title termbar__titleText">{project.shortTitle ?? project.title}</span>
 			<span class="badge" data-type={project.type}>{typeLabelMap[project.type]}</span>
 		</button>
+	{:else}
+		<a href={detailPath} class="termbar termbar--collapsible termbar--link">
+			<span class="termbar__chevron" aria-hidden="true">→</span>
+			<span class="termbar__title termbar__titleText">{project.shortTitle ?? project.title}</span>
+			<span class="badge" data-type={project.type}>{typeLabelMap[project.type]}</span>
+		</a>
 	{/if}
 
 	{#if showBody}
@@ -94,7 +97,7 @@
 		<MediaSection {project} />
 
 		<!-- Content -->
-		<div class="content">
+		<div class="content" id={bodyId}>
 			<p class="card__dates">{project.startMonth} {project.startYear} - {project.endMonth} {project.endYear}</p>
 			<p class="card__subtitle">{project.subtitle}</p>
 			<p class="card__desc card__desc--desktop-only">{project.description}</p>
@@ -125,8 +128,7 @@
 						demo ↗
 					</a>
 				{/if}
-				<a href={detailPath} class="btn btn--ghost btn--details" data-sveltekit-reload
-					>details →</a>
+				<a href={detailPath} class="btn btn--ghost btn--details">details →</a>
 			</div>
 		</div>
 	{/if}
@@ -240,6 +242,24 @@
 	.termbar--collapsible:focus-visible {
 		outline: 2px solid color-mix(in srgb, var(--accent) 60%, transparent);
 		outline-offset: -2px;
+	}
+
+	.termbar--link {
+		text-decoration: none;
+		color: inherit;
+	}
+
+	.termbar__chevron {
+		flex: 0 0 auto;
+		font-size: 0.8rem;
+		line-height: 1;
+		color: var(--accent);
+		transition: transform 0.14s ease;
+	}
+
+	.termbar--collapsible:hover .termbar__chevron,
+	.termbar--collapsible:focus-visible .termbar__chevron {
+		transform: translateX(1px);
 	}
 
 	.termbar__titleText {

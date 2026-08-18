@@ -73,7 +73,7 @@ export const projects: Project[] = [
 		title: 'Smart Home IoT Dashboard',
 		subtitle: 'Full-stack IoT system with ESP32, FastAPI, React, and real-time MQTT',
 		image: '/gifs/smart-home-iot-demo.mp4',
-		poster: '/gifs/smart-home-iot-demo-poster.png',
+		poster: '/gifs/smart-home-iot-demo-poster.jpg',
 		description:
 			'Delivered a full-stack smart home platform that integrates ESP32-S3 room-node firmware, MQTT messaging, a FastAPI backend, and a React dashboard for centralized monitoring and control of environmental and access workflows. The final system emphasized reliable subsystem integration, transparent validation evidence, and demo-ready operation across both live and simulated conditions.',
 		longDescription: `Project Summary
@@ -126,7 +126,7 @@ Built an end-to-end IoT architecture spanning embedded firmware, backend APIs, m
 		shortTitle: 'Visual Budget Planner',
 		subtitle: 'TartanHacks fintech app with Plaid, XRPL round-ups, and d3 treemaps',
 		image: '/gifs/mosaic-ledger-demo.mp4',
-		poster: '/gifs/mosaic-ledger-demo-poster.png',
+		poster: '/gifs/mosaic-ledger-demo-poster.jpg',
 		mediaStyle: {
 			'object-fit': 'cover',
 			'width': '100%',
@@ -298,7 +298,7 @@ Built an end-to-end IoT architecture spanning embedded firmware, backend APIs, m
 		title: 'Automated Docker Configuration Generator',
 		shortTitle: 'Auto Docker Config Gen',
 		subtitle: 'Python CLI for intelligent Dockerfile generation with self-healing builds',
-		image: '/gifs/autodocker-pic-demo.png',
+		image: '/gifs/autodocker-pic-demo.webp',
 		description:
 			'Architected a containerization automation CLI in Python using LiteLLM for intelligent Dockerfile generation with a self-healing algorithm that auto-diagnoses and retries Docker API builds based on project-specific context. Logic-driven CLI using Rich and Argparse with real-time build status tracking, automated runtime stability testing, and support for distroless/Alpine multi-stage builds to minimize attack surface.',
 		longDescription: `CLI that generates and validates Dockerfiles using LLM reasoning and self-healing builds.
@@ -451,7 +451,7 @@ Built an end-to-end IoT architecture spanning embedded firmware, backend APIs, m
 		title: 'To-Do or Destroy (HackCMU)',
 		subtitle: 'Gamified productivity web app built in a 24-hour hackathon',
 		image: '/gifs/todo-destroy-demo.mp4',
-		poster: '/gifs/todo-destroy-demo-poster.png',
+		poster: '/gifs/todo-destroy-demo-poster.jpg',
 		description:
 			'Team lead on a 24-hour hackathon project: a gamified productivity web app where tasks are “bomb wires” that must be cut before detonation to reinforce accountability through task verification.',
 		type: 'open-source',
@@ -491,7 +491,7 @@ Built an end-to-end IoT architecture spanning embedded firmware, backend APIs, m
 		title: 'Child Companion Robot (CMU Build18)',
 		shortTitle: 'Child Companion Robot',
 		subtitle: 'Webcam + voice triggers mannequin robot, OCR pipeline, and text-to-speech',
-		image: '/gifs/companion-robot-pic-demo.png',
+		image: '/gifs/companion-robot-pic-demo.jpg',
 		mediaScale: 0.75,
 		description:
 			'Designed a mannequin "robot" that used a webcam and voice-command triggers to capture images of books, convert them to text via an API-based OCR pipeline, and generate human-like speech from the extracted text.',
@@ -535,7 +535,7 @@ Built an end-to-end IoT architecture spanning embedded firmware, backend APIs, m
 		slug: 'mixed-signal-dac-system',
 		title: 'Mixed Signal DAC System',
 		subtitle: 'Full-custom 8-bit R-2R DAC with layout-level optimization',
-		images: ['/gifs/mixed-signal-dac-pic.png', '/gifs/mixed-signal-dac-pic2.png'],
+		images: ['/gifs/mixed-signal-dac-pic.webp', '/gifs/mixed-signal-dac-pic2.webp'],
 		description:
 			'Full custom design of an 8-bit R-2R Digital-to-Analog Converter (DAC) with control over gate placement, routing, and layout-level optimization; designed and sized an Operational Transconductance Amplifier (OTA).',
 		type: 'closed-source',

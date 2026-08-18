@@ -51,7 +51,7 @@ export const games: Game[] = [
 		subtitle: 'Draw fast. Keep it messy.',
 		description:
 			'A feature-rich drawing canvas inspired by Gartic Phone. Supports freehand brushes, shapes, filters (neon, glitch, pixelated, …), undo/redo, and GIF animation export — all running locally in the browser.',
-		preview: '/games/garticDraw-preview.png',
+		preview: '/games/garticDraw-preview.jpg',
 		playUrl: '/games/garticDraw/',
 		tags: ['canvas', 'animation', 'drawing']
 	},
@@ -71,7 +71,7 @@ export const games: Game[] = [
 		subtitle: 'Dodge skillshots. Survive as long as you can.',
 		description:
 			'A high-intensity micro-mechanics trainer inspired by loldodgegame.com. Dodge League of Legends-style skillshots and AoE explosions rendered from a top-down isometric perspective.',
-		preview: '/games/dodgeLoL-preview.png',
+		preview: '/games/dodgeLoL-preview.jpg',
 		playUrl: 'https://mario-belmonte.com/games/dodgeLoL',
 		tags: ['reflex', 'arcade', 'league of legends']
 	},

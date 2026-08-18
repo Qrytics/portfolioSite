@@ -2,19 +2,45 @@
 	let scrollProgress = $state(0);
 
 	$effect(() => {
-		function updateProgress() {
-			const windowHeight = window.innerHeight;
-			const documentHeight = document.documentElement.scrollHeight;
-			const scrollTop = window.scrollY;
-			const maxScroll = documentHeight - windowHeight;
+		/**
+		 * `maxScroll` is cached rather than recomputed per scroll event. Reading
+		 * `documentElement.scrollHeight` forces a synchronous layout, and the old handler did it on
+		 * every single scroll tick — the most expensive thing that could run during a phone flick.
+		 * A `ResizeObserver` on the document element refreshes it only when the page actually
+		 * changes height (image loads, card expansion, orientation change).
+		 */
+		let maxScroll = 0;
+		let frame = 0;
 
-			scrollProgress = maxScroll > 0 ? (scrollTop / maxScroll) * 100 : 0;
+		function measure() {
+			maxScroll = document.documentElement.scrollHeight - window.innerHeight;
+			paint();
 		}
 
-		window.addEventListener('scroll', updateProgress, { passive: true });
-		updateProgress(); // Initial calculation
+		function paint() {
+			frame = 0;
+			scrollProgress = maxScroll > 0 ? (window.scrollY / maxScroll) * 100 : 0;
+		}
 
-		return () => window.removeEventListener('scroll', updateProgress);
+		// Coalesce to one write per frame: scroll can fire several times between paints.
+		function onScroll() {
+			if (frame !== 0) return;
+			frame = requestAnimationFrame(paint);
+		}
+
+		const ro = new ResizeObserver(measure);
+		ro.observe(document.documentElement);
+
+		window.addEventListener('scroll', onScroll, { passive: true });
+		window.addEventListener('resize', measure, { passive: true });
+		measure();
+
+		return () => {
+			ro.disconnect();
+			window.removeEventListener('scroll', onScroll);
+			window.removeEventListener('resize', measure);
+			if (frame !== 0) cancelAnimationFrame(frame);
+		};
 	});
 </script>
 
@@ -29,7 +55,7 @@
 		left: 0;
 		width: 100%;
 		height: 2px;
-		background: rgba(255, 255, 255, 0.05);
+		background: color-mix(in srgb, var(--text) 5%, transparent);
 		z-index: 9999;
 		pointer-events: none;
 	}
@@ -39,6 +65,7 @@
 		background: var(--accent);
 		transform-origin: left;
 		will-change: transform;
-		transition: transform 0.1s ease-out;
+		/* No transition: the value is already updated once per frame, so easing it only makes the
+		   bar lag behind the finger. */
 	}
 </style>

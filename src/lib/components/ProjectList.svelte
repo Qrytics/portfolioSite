@@ -8,7 +8,7 @@
 		compactBottom = false,
 		collapsedMode = false,
 		expandedSlugs = [],
-		onToggleExpand = (_slug: string) => {}
+		onToggleExpand
 	}: {
 		items?: Project[];
 		compactBottom?: boolean;
@@ -17,85 +17,41 @@
 		onToggleExpand?: (slug: string) => void;
 	} = $props();
 
-	// Track visible column count so collapsed columns are pre-distributed and
-	// never reflow between each other when a card expands/collapses.
-	let colCount = $state(1);
-
-	$effect(() => {
-		if (typeof window === 'undefined' || typeof window.matchMedia !== 'function') return;
-
-		const mq3 = window.matchMedia('(min-width: 1100px)');
-		const mq2 = window.matchMedia('(min-width: 720px)');
-
-		function update() {
-			if (mq3.matches) colCount = 3;
-			else if (mq2.matches) colCount = 2;
-			else colCount = 1;
-		}
-
-		update();
-
-		if (typeof mq3.addEventListener === 'function') {
-			mq3.addEventListener('change', update);
-			mq2.addEventListener('change', update);
-		} else {
-			mq3.addListener(update);
-			mq2.addListener(update);
-		}
-
-		return () => {
-			if (typeof mq3.removeEventListener === 'function') {
-				mq3.removeEventListener('change', update);
-				mq2.removeEventListener('change', update);
-			} else {
-				mq3.removeListener(update);
-				mq2.removeListener(update);
-			}
-		};
-	});
-
-	// Distribute items into independent column arrays (round-robin by index).
-	const columns = $derived.by(() => {
-		const cols: Project[][] = Array.from({ length: colCount }, () => []);
-		items.forEach((item, i) => cols[i % colCount].push(item));
-		return cols;
-	});
+	/**
+	 * Whether the card title bar toggles the body or navigates to the detail page.
+	 *
+	 * The home page never passed an `onToggleExpand`, so it fell through to a no-op default: the
+	 * title bar rendered as a `<button>` with a pointer cursor and a focus ring that did *nothing*
+	 * when clicked or activated. It now renders as a link to the project, which is what a person
+	 * tapping a project title is trying to do.
+	 */
+	const toggleable = $derived(typeof onToggleExpand === 'function');
+	const handleToggle = (slug: string) => onToggleExpand?.(slug);
 
 	const useColumnLayout = $derived(collapsedMode || (!compactBottom && expandedSlugs.length > 0));
 </script>
 
 <section class="section" class:section--collapsed={collapsedMode}>
 	<div class="shell">
-		{#if useColumnLayout}
-			<!-- Each column is an isolated flex container; items never reflow between columns. -->
-			<div class="columns">
-				{#each columns as col}
-					<div class="column">
-						{#each col as project (project.slug)}
-							<ProjectCard
-								{project}
-								{collapsedMode}
-								expandedInCollapsedMode={expandedSlugs.includes(project.slug)}
-								{onToggleExpand}
-							/>
-						{/each}
-					</div>
-				{/each}
-			</div>
-		{:else}
-			<div class="grid">
-				{#each items as project (project.slug)}
-					<div class="grid-item">
-						<ProjectCard
-							{project}
-							{collapsedMode}
-							expandedInCollapsedMode={expandedSlugs.includes(project.slug)}
-							{onToggleExpand}
-						/>
-					</div>
-				{/each}
-			</div>
-		{/if}
+		<!--
+			One flat list in source order for both layouts. This used to round-robin items into
+			per-column arrays (`cols[i % colCount]`), which put column 1 entirely before column 2 in the
+			DOM while the eye reads across rows — so Tab and screen-reader order moved diagonally
+			(1 → 4 → 7 → 2 → 5 → 8) through a visually row-ordered grid. Column count is now a CSS
+			media query instead of `colCount = $state(1)` measured in an effect, which also removes the
+			one-column flash desktop visitors saw before hydration corrected it.
+		-->
+		<div class="grid" class:grid--start={useColumnLayout}>
+			{#each items as project (project.slug)}
+				<ProjectCard
+					{project}
+					{collapsedMode}
+					{toggleable}
+					expandedInCollapsedMode={expandedSlugs.includes(project.slug)}
+					onToggleExpand={handleToggle}
+				/>
+			{/each}
+		</div>
 	</div>
 </section>
 
@@ -124,23 +80,10 @@
 		align-items: stretch;
 	}
 
-	.grid-item {
-		display: contents;
-	}
-
-	/* Collapsed masonry: each column is an independent flex column. */
-	.columns {
-		display: flex;
-		align-items: flex-start;
-		gap: 1rem;
-	}
-
-	.column {
-		flex: 1 1 0;
-		min-width: 0;
-		display: flex;
-		flex-direction: column;
-		gap: 1rem;
+	/* Collapsed / mixed-expansion layout: cards keep their natural height instead of stretching to
+	   the tallest in their row, so a collapsed title bar stays a title bar next to an expanded card. */
+	.grid--start {
+		align-items: start;
 	}
 
 	@media (min-width: 720px) {
@@ -148,27 +91,11 @@
 			grid-template-columns: repeat(2, minmax(0, 1fr));
 			gap: 1.2rem;
 		}
-
-		.columns {
-			gap: 1.2rem;
-		}
-
-		.column {
-			gap: 1.2rem;
-		}
 	}
 
 	@media (min-width: 1100px) {
 		.grid {
 			grid-template-columns: repeat(3, minmax(0, 1fr));
-			gap: 1.25rem;
-		}
-
-		.columns {
-			gap: 1.25rem;
-		}
-
-		.column {
 			gap: 1.25rem;
 		}
 	}

@@ -4,17 +4,23 @@
 	import { aboutPhotos } from '$lib/data/about-photos';
 	import { spotifyFavorites } from '$lib/data/spotify-favorites';
 
-	const PHOTO_ROTATION_INTERVAL_MS = 1500;
+	/**
+	 * Was 1500 ms. Each tick downloads a full-size photo (23 files, 105-397 KB, ~200 KB average)
+	 * into a 44-76 px thumbnail, so the old cadence burned roughly 8 MB per minute of cellular data
+	 * for as long as the home page stayed open. 4 s is still lively at this size and cuts that by
+	 * nearly two thirds before the visibility and connection gates below take their share.
+	 */
+	const PHOTO_ROTATION_INTERVAL_MS = 4000;
 	const PHOTO_FADE_DURATION_MS = 250;
 	const PORTRAIT_FADE_DURATION_MS = 160;
 	const portraitPhotos = [
 		{
-			src: '/about/IMG_7164.PNG',
+			src: '/about/IMG_7164.jpg',
 			alt: 'Portrait of Mario Belmonte in a blue suit and tie',
 			style: ''
 		},
 		{
-			src: '/about/IMG_7163.PNG',
+			src: '/about/IMG_7163.jpg',
 			alt: 'Portrait of Mario Belmonte in a blue suit and tie',
 			style: 'object-position: 50% 5%;'
 		}
@@ -24,7 +30,22 @@
 	let isPhotoVisible = $state(false);
 	let portraitIndex = $state(0);
 	let isPortraitFading = $state(false);
+	let thumbEl = $state<HTMLImageElement | undefined>(undefined);
 	const portraitPhoto = $derived(portraitPhotos[portraitIndex]);
+
+	type NetworkInformation = { saveData?: boolean; effectiveType?: string };
+
+	/**
+	 * A decorative thumbnail is not worth metered data or an ignored motion preference. Rotation is
+	 * also gated on visibility below — the old interval ran forever regardless of whether the
+	 * element was anywhere near the viewport, and on the home page the component never unmounts.
+	 */
+	function rotationAllowed(): boolean {
+		const connection = (navigator as Navigator & { connection?: NetworkInformation }).connection;
+		if (connection?.saveData === true) return false;
+		if (/(^|-)(2g|3g)$/.test(connection?.effectiveType ?? '')) return false;
+		return !window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+	}
 
 	function getNextTeaserPhoto() {
 		if (aboutPhotos.length <= 1) {
@@ -97,19 +118,38 @@
 			}, PHOTO_FADE_DURATION_MS);
 		};
 
-		const rotationInterval = setInterval(() => void rotatePhoto(), PHOTO_ROTATION_INTERVAL_MS);
+		let rotationInterval: ReturnType<typeof setInterval> | undefined;
+
+		function startRotation() {
+			if (rotationInterval !== undefined) return;
+			rotationInterval = setInterval(() => void rotatePhoto(), PHOTO_ROTATION_INTERVAL_MS);
+		}
+
+		function stopRotation() {
+			if (rotationInterval === undefined) return;
+			clearInterval(rotationInterval);
+			rotationInterval = undefined;
+		}
+
+		let observer: IntersectionObserver | undefined;
+
+		if (thumbEl && rotationAllowed()) {
+			observer = new IntersectionObserver(
+				(entries) => {
+					if (entries[0]?.isIntersecting) startRotation();
+					else stopRotation();
+				},
+				{ threshold: 0 }
+			);
+			observer.observe(thumbEl);
+		}
 
 		return () => {
 			isMounted = false;
-			clearInterval(rotationInterval);
-
-			if (fadeTimeout) {
-				clearTimeout(fadeTimeout);
-			}
-
-			if (revealTimeout) {
-				clearTimeout(revealTimeout);
-			}
+			observer?.disconnect();
+			stopRotation();
+			clearTimeout(fadeTimeout);
+			clearTimeout(revealTimeout);
 		};
 	});
 </script>
@@ -121,16 +161,35 @@
 		</div>
 
 		<div class="bio-row">
-			<div class="portrait-card">
+			<!--
+				A real `<button>`, not a bare `<img onpointerenter>`. The swap used to be reachable only
+				by hovering a mouse: keyboard users had no way to trigger it at all, and on a touchscreen
+				`pointerenter` fires on the tap that precedes a scroll, so the portrait changed out from
+				under anyone who so much as brushed it while reading.
+
+				Hover is kept as a mouse-only nicety (the `pointerType` gate) because it is the
+				interaction the card was designed around; click/Enter/Space now do the same thing
+				deliberately. The `aria-label` names the action rather than letting the button inherit
+				the image's alt, which describes the photo instead of what pressing it does.
+			-->
+			<button
+				type="button"
+				class="portrait-card"
+				aria-label="Show a different portrait of Mario Belmonte"
+				onclick={togglePortrait}
+				onpointerenter={(event) => {
+					if (event.pointerType === 'mouse') togglePortrait();
+				}}
+			>
 				<img
 					class={['portrait', isPortraitFading && 'portrait--fading']}
 					src={portraitPhoto.src}
 					alt={portraitPhoto.alt}
 					loading="lazy"
+					decoding="async"
 					style={portraitPhoto.style}
-					onpointerenter={togglePortrait}
 				/>
-			</div>
+			</button>
 
 			<div class="card card--bio">
 				<div class="card__inner">
@@ -156,16 +215,37 @@
 						<div class="media-copy">
 							<div class="title-row">
 								<h3 class="title">rhythm games</h3>
-								<div class="cta">videos ↗</div>
+								<!-- `→`, not `↗`. Every other arrow of this kind in the codebase sits on a
+								     `target="_blank"` link, so `↗` reads as "leaves the site / opens a new
+								     tab" here too - but `/rhythm-games` is an in-app route in the same tab. -->
+								<div class="cta">videos →</div>
 							</div>
 							<p class="excerpt">A few clips from my favorite rhythm games.</p>
 						</div>
 
+						<!--
+							The file behind this path was 750px wide while `.rhythm-icon` caps at 160px -
+							a 4.7x oversample costing 161,030 B on the home page. It has been downscaled
+							in place to 320px (2x the largest box it is ever painted into, so still crisp
+							on a retina phone) for 44,477 B: a 116 KB saving with no visible difference.
+							Regenerate with `scripts/resize-image.ps1`; git holds the original.
+
+							Deliberately *not* swapped for the `rhythm-arrows.svg` sitting beside it,
+							despite that file being 719 B: the two are not the same drawing. The PNG is
+							five colour LED arrow pads; the SVG is a flat blue four-arrow line sketch.
+							Trading one for the other is a visual downgrade, not an optimisation.
+
+							`width`/`height` give the intrinsic ratio before the bytes arrive, so the
+							card does not reflow when a lazy image resolves. CSS still sizes it.
+						-->
 						<img
 							class="rhythm-icon"
 							src="/icons/rhythm-arrows.png"
 							alt="Rhythm game arrow symbols"
+							width="320"
+							height="61"
 							loading="lazy"
+							decoding="async"
 						/>
 					</div>
 				</a>
@@ -175,7 +255,7 @@
 						<div class="media-copy">
 							<div class="title-row">
 								<h3 class="title">photos</h3>
-								<div class="cta">gallery ↗</div>
+								<div class="cta">gallery →</div>
 							</div>
 							<p class="excerpt">
 								A look into my life outside the keyboard. Friends, family, the moments that matter.
@@ -186,7 +266,9 @@
 							class={['photo-thumbnail', !isPhotoVisible && 'photo-thumbnail--hidden']}
 							src={teaserPhoto.src}
 							alt="Gallery preview from Mario's life"
+							bind:this={thumbEl}
 							loading="lazy"
+							decoding="async"
 							style={`object-position: ${teaserPhoto.position ?? '50% 50%'}`}
 						/>
 					</div>
@@ -391,7 +473,16 @@
 		max-width: none;
 	}
 
+	/* Now a `<button>` (see the markup for why), so it needs the UA button resets it did not need as a
+	   `<div>`. `display: block` in particular: a button defaults to an inline-level box with baseline
+	   alignment, which would leave a descender gap under the portrait inside `.bio-row`'s grid. */
 	.portrait-card {
+		appearance: none;
+		display: block;
+		padding: 0;
+		font: inherit;
+		text-align: inherit;
+		cursor: pointer;
 		border: 1px solid var(--border);
 		background: linear-gradient(180deg, rgba(255, 255, 255, 0.03), transparent 52%), var(--panel);
 		box-shadow: var(--shadow);
@@ -473,7 +564,10 @@
 		font-size: clamp(1.25rem, 2.5vw, 1.7rem);
 		line-height: 1.2;
 		letter-spacing: 0.01em;
-		color: #fff;
+		/* Was a hardcoded `#fff` with no light-mode override, i.e. white text on a light panel —
+		   the name was effectively invisible with the theme toggled. `--text` is near-white in dark
+		   mode, so this is a no-op there and a fix in light mode. */
+		color: var(--text);
 		margin-bottom: 0.95rem;
 	}
 
@@ -490,7 +584,9 @@
 
 	.excerpt {
 		margin: 0;
-		font-size: 14.08px;
+		/* `0.88rem` = the 14.08px this used to hardcode, but it now scales with the user's root font
+		   size instead of pinning body copy to one pixel value. */
+		font-size: 0.88rem;
 		color: var(--muted);
 		line-height: 1.65;
 		max-width: 95ch;
