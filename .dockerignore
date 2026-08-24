@@ -37,3 +37,9 @@ Dockerfile
 .dockerignore
 docker-compose.yml
 Caddyfile
+
+# The deploy tooling runs on the host, outside any container. Excluded not for size but for the build
+# cache: the build stage does `COPY . .`, so without these a commit touching only deploy.sh would
+# invalidate that layer and force a full npm ci + vite rebuild on the Pi for nothing.
+deploy.sh
+deploy/

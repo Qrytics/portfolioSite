@@ -3,8 +3,8 @@
 > **How to use this document.** It is a phase-by-phase migration plan, written to be executed by a
 > fresh Claude Code session. Phases are ordered by dependency. **Phases 0–3 are DONE, and Phase 4 is
 > done except for the three things that need the Cloudflare dashboard — start with those** (create the
-> second tunnel, write `.env` on the Pi, add the apex public hostname). Phase 5 writes a script but
-> changes nothing live; **Phase 4 step 4 is the cutover**, and everything before it is reversible with
+> second tunnel, write `.env` on the Pi, add the apex public hostname). Phase 5 is written and committed but
+> not installed on the Pi; **Phase 4 step 4 is the cutover**, and everything before it is reversible with
 > no downtime. Nothing is live on the Pi yet: the site is still served by Vercel.
 >
 > Pi access: `ssh marioserver` (user `qrytics`, `192.168.1.72`, also reachable over Tailscale). A
@@ -31,7 +31,7 @@
 > | 2 | Write the `Caddyfile` | none | **DONE 2026-08-23** — results below |
 > | 3 | Write `docker-compose.yml` + `.env` | none | **DONE 2026-08-23** (approach **B**) — results below |
 > | 4 | Second tunnel, apex public hostname, **cutover** | steps 1–3 none; step 4 is the switch | **PARTLY DONE 2026-08-23** — steps 1–2 verified, Pi cloned/built/re-verified; ← **the tunnel, step 4 and step 5 need the dashboard** |
-> | 5 | Deploy script + systemd timer | none | **UNBLOCKED** — `main` is pushed at `e1ceecbd` |
+> | 5 | Deploy script + systemd timer | none | **WRITTEN 2026-08-24, NOT INSTALLED** — `deploy.sh` + `deploy/` are on `main`; nothing copied to the Pi yet |
 > | 6 | Verification | none | **run once against `127.0.0.1:8080`** in Phase 4 (all green); re-run after cutover |
 
 ## Context
@@ -781,8 +781,14 @@ so this is a real fallback rather than a trip 10 commits into the past.
 1. `git fetch origin main`; exit 0 if `HEAD == origin/main`.
 2. `git reset --hard origin/main` — safe because the Pi never edits the tree, and it's what makes
    the CI-committed `static/github-*.json` and `static/games/rogueSwipe` land cleanly.
-3. `docker compose build portfolio` → `docker compose up -d portfolio`.
+3. `docker compose build portfolio` → ~~`docker compose up -d portfolio`~~ — **written as `up -d
+   portfolio` only while `docker-compose.yml` is unchanged, `up -d` (the whole project) when it
+   changed, plus a `caddy reload` when the `Caddyfile` changed. This sketch missed the Caddyfile
+   entirely; that gap is now risk #14.**
 4. Poll the healthcheck; on failure, `docker compose up -d` the previous image tag and exit non-zero.
+   **Written so an explicit `unhealthy` breaks the poll at once rather than waiting out the 150 s
+   timeout — the timeout covers only a container stuck in `starting`, and every second spent waiting
+   on a container that has already failed is a second of 502s.**
 5. `docker image prune -f`.
 
 Systemd timer every 5 min with `RandomizedDelaySec`, logging to the journal. This picks up both
@@ -790,6 +796,131 @@ existing cron workflows' commits automatically — `refresh-github-data.yml` (6-
 `sync-rogueswipe.yml` (30-min) — with no CI changes at all.
 
 Because the build runs inside Docker, the host needs no Node toolchain.
+
+### RESULTS — written 2026-08-24 (`deploy.sh` and `deploy/` at the repo root; **committed, NOT installed**, nothing live changed)
+
+**Status: the files exist and are on `main`; the timer is not installed on the Pi.** Phase 5 has
+therefore changed nothing about how the site is served, and the Pi's checkout is still updated by hand
+until someone runs the `cp` below.
+
+**Nothing here has been executed against real Docker.** The Pi was unreachable from the authoring
+machine for this phase — that box was on `9.65.194.38`, not the `192.168.1.x` LAN, and has no Tailscale
+CLI, so `ssh marioserver` failed to resolve and `192.168.1.72:22` timed out. What was verified is the
+repo-side half only: `bash -n deploy.sh` parses, `git check-attr eol` reports `lf` on all three new
+files, `git ls-files -s deploy.sh` is `100755`, and `npm run check` is clean. The end-to-end run, the
+rollback path and `systemd-analyze verify` are **open**; the checklist is at the end of this section.
+
+**Two facts corrected on starting this phase**, both measured against GitHub's API rather than read off
+the local tracking refs, which were stale:
+
+- **Phases 1–4 were already on `origin/main`** at `e0053b8d`, contrary to the belief that nothing from
+  this plan had been pushed. They are inert on Vercel — `adapter-vercel` is still the default and no
+  `adapter-vercel` build reads the `Dockerfile` or the `Caddyfile` — which is why the deployed site
+  looked untouched, and is what made it easy to believe the push had never happened.
+- **`origin/main` was 2 commits ahead of the local `main`**: `49c84dba` (07:32Z) and `f69307bd`
+  (13:17Z), both `chore(data): refresh GitHub contributions…` from `refresh-github-data.yml`.
+  Fast-forwarded before committing. Two CI commits in nine hours is the *measured* case for the
+  five-minute timer — that drift is precisely what this phase exists to absorb.
+
+#### What was written
+
+| File | |
+|---|---|
+| `deploy.sh` | repo root, mode **100755** in the index. Root because it is `~/apps/portfolio/deploy.sh` on the Pi and every `docker compose` call resolves relative to it. |
+| `deploy/portfolio-deploy.service` | `Type=oneshot`, `User=qrytics`, `TimeoutStartSec=1800`, `SyslogIdentifier=portfolio-deploy` |
+| `deploy/portfolio-deploy.timer` | `OnBootSec=3min`, `OnUnitActiveSec=5min`, `RandomizedDelaySec=60` |
+| `.gitattributes` | `*.service` / `*.timer` → `eol=lf` |
+| `.dockerignore` | `deploy.sh`, `deploy/` |
+
+#### Three things the sketch above did not account for
+
+1. **A `Caddyfile`-only commit would have been silently ignored** — now **risk #14**. Step 3 was
+   `up -d portfolio`, but the `Caddyfile` is a read-only bind mount into a container that an app
+   rebuild never touches, and Caddy does not watch it. The file on disk and the config being served
+   would diverge with nothing to see. `deploy.sh` diffs the commit range and issues
+   `docker compose exec -T caddy caddy reload` when that path appears. `reload` validates first and
+   keeps the running config if the new one is bad, so a broken `Caddyfile` is a non-zero exit rather
+   than an outage; `-T` because there is no TTY under systemd.
+2. **`deploy.sh` rewrites itself mid-run** — now **risk #15**. It is a tracked file, so
+   `git reset --hard` replaces it *while bash is executing it*, and bash reads a script by byte
+   offset: a change in length makes it resume at the wrong byte and run a fragment. The whole body is
+   therefore one `main() { … }`, with `main "$@"; exit $?` as the last line. The function forces the
+   file to be parsed before any of it runs, and the `exit` sitting on the *same line* as the call is
+   what stops bash reading the file again after `main` returns.
+3. **The exec bit would not have survived.** `core.filemode` is `false` on the authoring machine and no
+   tracked file in this repo was `100755`, so `deploy.sh` would have committed `100644` and landed
+   non-executable on the Pi — and a `chmod +x` there would be undone by the first `git reset --hard`
+   the script itself performs, because reset restores tracked modes. Fixed at both ends:
+   `git update-index --chmod=+x` in the index, and `ExecStart=/bin/bash …/deploy.sh` in the unit so
+   the exec bit is not load-bearing either way.
+
+#### Smaller decisions, recorded so they are not re-litigated
+
+- **`FETCH_HEAD`, not `origin/main`**, as the target ref: it is exactly what the `git fetch` just wrote,
+  and it does not depend on the clone's `remote.origin.fetch` refspec being configured normally.
+- **`flock -n`, exiting 0** when the lock is held. systemd already refuses to start a second instance of
+  a running unit, so this covers only a human running `./deploy.sh` as the timer fires; exiting non-zero
+  would paint `systemctl status` red for a skipped tick, which is normal operation.
+- **The service has no `[Install]` section.** The timer is the thing to enable; a
+  `WantedBy=multi-user.target` on the service would let `systemctl enable portfolio-deploy.service`
+  quietly schedule a deploy on every boot, which is not what typing that means.
+- **`docker image prune -f`, never `-a`.** Dangling images only, so `portfolio-site:previous` survives:
+  it is tagged, and it is the next rollback point. Pruning is **global to the Docker daemon**, the same
+  class of cross-project hazard as `container_name` — homelab runs prebuilt images and builds nothing,
+  so it has no dangling images to lose, but confirm that before installing the timer.
+- **The units are not self-updating.** They are copied into `/etc/systemd/system`, so editing them in
+  git changes nothing until the `cp` and `daemon-reload` are re-run. `deploy.sh` *is* self-updating,
+  because it is executed straight out of the checkout.
+- **A deploy is not zero-downtime.** Recreating the origin container is a **~2–5 s window of 502s** on
+  origin routes. The four externally proxied route groups are unaffected, because caddy is never cycled
+  for an app-only change. Blue/green was not attempted: for a personal site, a few seconds every few
+  hours does not justify it.
+- **No failure notification** (`OnFailure=`). The journal and a red `systemctl status` are the whole
+  reporting story.
+
+#### Install — three pre-flight checks first
+
+None of these were checkable from the authoring machine, and each would invalidate a decision above:
+
+```bash
+# 1. can the unit's user reach the Docker socket? If not, User=qrytics is wrong and the unit needs
+#    rethinking rather than patching.
+id -nG qrytics | tr ' ' '\n' | grep -x docker
+# 2. does an unauthenticated fetch work? The remote is public HTTPS, so no deploy key should be
+#    needed — confirm rather than assume, because the failure mode is a silent no-op every 5 minutes.
+git -C ~/apps/portfolio fetch origin main
+# 3. does homelab build any images locally? If it does, the global `docker image prune -f` is not as
+#    safe as the reasoning above assumes.
+grep -n 'build:' ~/homelab/docker-compose.yml || echo 'prebuilt images only — prune is safe'
+```
+
+Then:
+
+```bash
+cd ~/apps/portfolio && git pull                   # picks up deploy.sh for the first time
+sudo cp deploy/portfolio-deploy.{service,timer} /etc/systemd/system/
+sudo systemctl daemon-reload
+sudo systemctl start portfolio-deploy.service     # once by hand, BEFORE enabling the timer
+journalctl -u portfolio-deploy -n 50 --no-pager
+sudo systemctl enable --now portfolio-deploy.timer
+systemctl list-timers portfolio-deploy.timer
+```
+
+#### The end-to-end checklist, still open
+
+Once `.env` exists and the stack is up (Phase 4's remaining step 2):
+
+1. `./deploy.sh` with `HEAD` already at `origin/main` → exits 0 in about a second, no Docker call at
+   all. This is the path that runs ~99% of the time and it must stay cheap.
+2. Push a trivial commit and run it again → resets, rebuilds, recreates **only** `portfolio`, logs
+   `healthy after Ns`, prunes. `docker compose ps` must show `caddy` and `cloudflared` uptimes
+   **unchanged** — that is the check that the scoping in step 3 actually works.
+3. Re-run the Phase 6 curl battery. It should be green and unchanged; a deploy must regress nothing.
+4. **Test the rollback deliberately.** Commit a `HEALTHCHECK` pointing at a nonexistent path, run
+   `./deploy.sh`, and confirm it exits non-zero, `docker image inspect portfolio-site:latest` is back
+   to the previous image ID, and the site serves. An untested rollback path is worse than no rollback
+   path, because it is trusted.
+5. Only then `systemctl enable --now` the timer.
 
 ---
 
@@ -899,6 +1030,20 @@ Numbering is stable — Phase 0's notes cross-reference #3 and #5, so retired ri
     restored it across a reboot, and the symptom is a site that looks completely fine with a
     contribution chart frozen on the static-JSON fallback. If `/api/github-contrib` answers **503**
     after the real `.env` is in place, the token is wrong or the container was not recreated.
+14. **A `Caddyfile`-only commit applied with `up -d portfolio`.** The Caddyfile is a read-only bind
+    mount into a container that an app rebuild never touches, and Caddy does not watch it — so the
+    config on disk and the config being served diverge, with nothing to see, until something unrelated
+    restarts caddy. `deploy.sh` diffs the commit range and runs `docker compose exec -T caddy caddy
+    reload` when that path appears; the guard reads as redundant and is not. This is the operational
+    half of the "`vercel.json` and the `Caddyfile` are a pair" rule: the pair can be perfectly correct
+    in git and still not be what is running. Phase 5.
+15. **`deploy.sh` rewriting itself mid-run.** It is a tracked file, so the `git reset --hard` it
+    performs replaces it *while bash is executing it*, and bash reads a script by byte offset — a
+    change in length makes it resume at the wrong byte and execute a fragment of a line. Handled by
+    putting the whole body in `main() { ... }` with `main "$@"; exit $?` as the final line. Both parts
+    are load-bearing: the function forces a full parse before anything runs, and the `exit` on the
+    *same* line as the call is what stops bash reading the file again after `main` returns. Do not
+    tidy that structure away. Phase 5.
 
 ## Out of scope (flagged, not done)
 

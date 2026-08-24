@@ -1,0 +1,36 @@
+# Runs ../deploy.sh once. Triggered by portfolio-deploy.timer, never enabled itself.
+#
+# Install (from ~/apps/portfolio, see PI-HOSTING-PLAN.md Phase 5):
+#   sudo cp deploy/portfolio-deploy.{service,timer} /etc/systemd/system/
+#   sudo systemctl daemon-reload && sudo systemctl enable --now portfolio-deploy.timer
+#
+# These two files are NOT self-updating: they are copied into /etc/systemd/system, so deploy.sh
+# replacing them in the checkout changes nothing until the cp and daemon-reload are re-run by hand.
+# deploy.sh itself IS self-updating, because it is executed from the checkout.
+
+[Unit]
+Description=Deploy the portfolio site from origin/main
+Documentation=https://github.com/Qrytics/portfolioSite/blob/main/PI-HOSTING-PLAN.md
+# Wants=, not Requires=: if docker is down the deploy should fail loudly on its own terms rather than
+# have systemd refuse to start it, and a docker restart should not drag this unit's state around.
+Wants=docker.service network-online.target
+After=docker.service network-online.target
+
+[Service]
+Type=oneshot
+User=qrytics
+WorkingDirectory=/home/qrytics/apps/portfolio
+# Invoked through bash rather than as ./deploy.sh so the timer does not depend on the file's exec bit
+# surviving. It is committed 100755, but core.filemode is false on the Windows box this repo is
+# authored from, and `git reset --hard` inside deploy.sh restores tracked modes — so a chmod applied
+# on the Pi by hand would not stick. Two mechanisms, neither one load-bearing alone.
+ExecStart=/bin/bash /home/qrytics/apps/portfolio/deploy.sh
+# A cold build (npm ci + vite with no layer cache) is minutes on a Pi 5. systemd's default
+# TimeoutStartSec would kill it mid-build, leaving the tree reset to the new commit but the container
+# still on the old image — the one state deploy.sh's rollback cannot reason about.
+TimeoutStartSec=1800
+SyslogIdentifier=portfolio-deploy
+
+# Deliberately no [Install] section. The timer is the thing to enable; giving this unit a
+# WantedBy=multi-user.target would let `systemctl enable portfolio-deploy.service` schedule a deploy
+# on every boot, which is not what anyone typing that means.

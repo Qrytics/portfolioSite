@@ -1,0 +1,22 @@
+# Polls origin/main every 5 minutes. Enable this, not the .service.
+#   sudo systemctl enable --now portfolio-deploy.timer
+#   systemctl list-timers portfolio-deploy.timer
+#   journalctl -u portfolio-deploy -f
+
+[Unit]
+Description=Poll origin/main every 5 minutes and redeploy the portfolio site
+Documentation=https://github.com/Qrytics/portfolioSite/blob/main/PI-HOSTING-PLAN.md
+
+[Timer]
+Unit=portfolio-deploy.service
+OnBootSec=3min
+# Measured from the end of the last run, so a slow build cannot stack up ticks behind itself.
+OnUnitActiveSec=5min
+# Spread the fire, so the git fetch does not land on the same second as every other 5-minute timer on
+# the box and so this never hammers GitHub in lockstep with anything else.
+RandomizedDelaySec=60
+# No Persistent=true. That is for daily/weekly units that must catch up after downtime; on a 5-minute
+# schedule its catch-up fire is redundant with OnBootSec above.
+
+[Install]
+WantedBy=timers.target

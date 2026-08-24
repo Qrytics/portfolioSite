@@ -12,3 +12,9 @@ docker-compose.yml text eol=lf
 Caddyfile          text eol=lf
 .env.example       text eol=lf
 *.sh               text eol=lf
+
+# Same reasoning for the systemd units. systemd does not strip CR: a CRLF unit file gives
+# `ExecStart=` a path with a trailing \r, and the unit fails with a "No such file or directory"
+# naming a path that visibly exists.
+*.service          text eol=lf
+*.timer            text eol=lf
