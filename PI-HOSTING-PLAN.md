@@ -1,9 +1,11 @@
 # Self-host the portfolio on the Raspberry Pi 5 (Cloudflare Tunnel → Caddy → SvelteKit)
 
 > **How to use this document.** It is a phase-by-phase migration plan, written to be executed by a
-> fresh Claude Code session. Phases are ordered by dependency. **Phases 0–3 are DONE — start at
-> Phase 4.** Phase 5 writes a script but changes nothing live; Phase 4 step 4 is
-> the cutover, and everything before it is reversible with no downtime.
+> fresh Claude Code session. Phases are ordered by dependency. **Phases 0–3 are DONE, and Phase 4 is
+> done except for the three things that need the Cloudflare dashboard — start with those** (create the
+> second tunnel, write `.env` on the Pi, add the apex public hostname). Phase 5 writes a script but
+> changes nothing live; **Phase 4 step 4 is the cutover**, and everything before it is reversible with
+> no downtime. Nothing is live on the Pi yet: the site is still served by Vercel.
 >
 > Pi access: `ssh marioserver` (user `qrytics`, `192.168.1.72`, also reachable over Tailscale). A
 > dedicated key is installed, so the bare host alias works; password auth is disabled.
@@ -17,7 +19,10 @@
 > - **No `@gamedir` rewrite in the `Caddyfile`.** adapter-node already resolves the directory index,
 >   and the rewrite as originally drafted broke `/games/typetest/`. (Phase 2)
 > - **Clone `~/apps/portfolio` *before* writing its `.env`.** `git clone` refuses any non-empty
->   destination, and a lone dot-file counts. (Phase 3 results)
+>   destination, and a lone dot-file counts. (Phase 3 results) — **done this way, cleanly.**
+> - **The cutover's public hostnames are the apex and `www`, and nothing else.** Adding `tutoring`
+>   would make `/tutoring` an infinite proxy loop, because the `Caddyfile` proxies it to
+>   `tutoring.mario-belmonte.com`. (Phase 4 results)
 >
 > | Phase | What | Live impact | Status |
 > |---|---|---|---|
@@ -25,9 +30,9 @@
 > | 1 | Repo changes: dual adapter, Dockerfile, 2 small fixes | none | **DONE 2026-08-23** — results below |
 > | 2 | Write the `Caddyfile` | none | **DONE 2026-08-23** — results below |
 > | 3 | Write `docker-compose.yml` + `.env` | none | **DONE 2026-08-23** (approach **B**) — results below |
-> | 4 | Second tunnel, apex public hostname, **cutover** | steps 1–3 none; step 4 is the switch | ← **start here**; zone + nameservers already done |
-> | 5 | Deploy script + systemd timer | none | **blocked** until Phase 1 reaches `main` |
-> | 6 | Verification | none | |
+> | 4 | Second tunnel, apex public hostname, **cutover** | steps 1–3 none; step 4 is the switch | **PARTLY DONE 2026-08-23** — steps 1–2 verified, Pi cloned/built/re-verified; ← **the tunnel, step 4 and step 5 need the dashboard** |
+> | 5 | Deploy script + systemd timer | none | **UNBLOCKED** — `main` is pushed at `e1ceecbd` |
+> | 6 | Verification | none | **run once against `127.0.0.1:8080`** in Phase 4 (all green); re-run after cutover |
 
 ## Context
 
@@ -219,7 +224,7 @@ Do **not** exclude `static/` — the six game builds live there.
 
 Run `npm run check` before pushing.
 
-### RESULTS — executed 2026-08-23 (branch `site-overhaul`; **not committed, not pushed**)
+### RESULTS — executed 2026-08-23 (branch `site-overhaul`; ~~not committed, not pushed~~ — **committed as `77840c09` and pushed to `main` in Phase 4**)
 
 All of 1a/1b/1c done as specified, plus a doc pass that CLAUDE.md's own rules make mandatory.
 
@@ -366,7 +371,7 @@ Notes:
 | 9–11 | `/tutoring`, `/`, `/:path*` | `https://tutoring.mario-belmonte.com/tutoring/...` |
 | 12 | `/_next/:path*` | `https://vckaraoke-frontend.vercel.app/_next/:path*` |
 
-### RESULTS — executed 2026-08-23 (`Caddyfile` at the repo root; **not committed**, nothing live changed)
+### RESULTS — executed 2026-08-23 (`Caddyfile` at the repo root; ~~not committed~~ **committed in Phase 4**, nothing live changed)
 
 The file is `Caddyfile` in the repo root, so Phase 3's `./Caddyfile:/etc/caddy/Caddyfile:ro` bind
 resolves from the checkout directory. `.dockerignore` already excludes it (Phase 1), so it never
@@ -496,7 +501,7 @@ save one ~30 MB container. Rejected, for three reasons in descending order of im
 
 ---
 
-### RESULTS — executed 2026-08-23 (`docker-compose.yml` at the repo root; **not committed**, nothing live changed)
+### RESULTS — executed 2026-08-23 (`docker-compose.yml` at the repo root; ~~not committed~~ **committed in Phase 4**, nothing live changed)
 
 Approach **B** implemented as decided. The file is `docker-compose.yml` in the repo root, so it ships
 with the checkout and `./Caddyfile` resolves next to it; `.dockerignore` already excludes both.
@@ -536,12 +541,12 @@ copies — verified in the resolved config, not assumed. No `container_name` any
 Caddy is published on `127.0.0.1:8080` only (trap 3).
 
 `.gitattributes` is new and is a **precaution, not a fix** — the four Pi-facing files are LF on disk
-today (checked by counting CR bytes; an earlier `grep -c 
-'` reading that suggested otherwise was
-an empty pattern matching every line). It pins `eol=lf` on `Dockerfile`, `docker-compose.yml`,
+today (checked by counting CR bytes; an earlier `grep -c` whose `^M` the shell had already consumed
+read as a *count of every line* rather than of CR bytes, which is why an early note here claimed the
+opposite). It pins `eol=lf` on `Dockerfile`, `docker-compose.yml`,
 `Caddyfile`, `.env.example` and `*.sh` because this clone's `core.autocrlf=true` is a *setting* rather
 than a property of the repo: a commit made without it would ship CRLF, and each of these files then
-fails opaquely rather than loudly — a trailing `` inside `TUNNEL_TOKEN` surfaces as a cloudflared
+fails opaquely rather than loudly — a trailing `^M` inside `TUNNEL_TOKEN` surfaces as a cloudflared
 auth error, and Phase 5's `deploy.sh` would die as `bad interpreter: /bin/bash^M`. Scoped to those
 paths on purpose; a blanket `* text=auto` would renormalise every tracked file and bury the next real
 diff.
@@ -599,15 +604,22 @@ first `docker compose up -d` is exercising exactly one untested service.
 
 ---
 
-## Phase 4 — Cloudflare (do the DNS move *before* the cutover) ← **START HERE**
+## Phase 4 — Cloudflare (do the DNS move *before* the cutover) — **PARTLY DONE, results below**
 
 1. ~~**Add the `mario-belmonte.com` zone** to Cloudflare.~~ **ALREADY DONE** — the zone has existed
-   for ~3 weeks (Phase 0). Still worth one glance at the record list while you're in there, since you
-   are about to edit it: confirm `MX`, `SPF`/`DKIM`/`DMARC` `TXT`, the `tutoring` record and any
-   `www`.
-2. ~~**Change nameservers at the registrar.**~~ **ALREADY DONE** — moved ~2026-08-01, and live email
-   has been running on this DNS since, uneventfully. This is why risk #3 is retired.
-3. **Create a NEW tunnel** (Zero Trust → Networks → Tunnels → Create). It must be a *second, distinct*
+   for ~3 weeks (Phase 0). ~~Still worth one glance at the record list.~~ **DONE — queried rather than
+   eyeballed; results below.** The record set is smaller than this step assumed: there is **no `MX`,
+   no apex `SPF` `TXT` and no `_dmarc`** on this zone at all.
+2. ~~**Change nameservers at the registrar.**~~ **ALREADY DONE** — moved ~2026-08-01. ~~and live email
+   has been running on this DNS since, uneventfully. This is why risk #3 is retired.~~ **The
+   nameserver move is confirmed (`dee`/`walt.ns.cloudflare.com`); the email half of that sentence was
+   never true** — there are no mail records on this zone to have been running. Risk #3 stays retired,
+   for the stronger reason that there is nothing here to break.
+3. **Create a NEW tunnel** (Zero Trust → Networks → Tunnels → Create) — **STILL OPEN; needs the
+   dashboard.** There is no Cloudflare API token on this machine or on the Pi, so this cannot be
+   scripted. **The Pi half of this step is DONE:** `~/apps/portfolio` is cloned at `main`,
+   `portfolio-site:latest` is built and cached, and everything except `cloudflared` has been
+   re-verified there — only `.env` and `docker compose up -d` remain. It must be a *second, distinct*
    tunnel — **not** the one already serving `music.`, and not its token. See Phase 3 trap 1 for what
    goes wrong otherwise. Then, **clone first and write `.env` second** — `git clone` refuses a
    destination holding even one dot-file (measured; Phase 3 results has the exact command sequence):
@@ -623,17 +635,141 @@ first `docker compose up -d` is exercising exactly one untested service.
    edge cache freezing a 503 from a rate limit for the whole TTL. The in-process 30-min memo is
    the cache for those routes now, and it survives (single long-lived process, no cold starts).
 
-**Verify `tutoring.mario-belmonte.com` still resolves to its own host and is not routed through
-the tunnel** — if it points at the Pi, `/tutoring` becomes an infinite proxy loop.
+~~**Verify `tutoring.mario-belmonte.com` still resolves to its own host and is not routed through
+the tunnel**~~ — **DONE, clear:** it is a `CNAME` to `cname.vercel-dns.com`, i.e. Vercel, not the Pi,
+so `/tutoring` proxies off-box and there is no loop. It stays clear only as long as step 4 adds public
+hostnames for the apex and `www` **and nothing else** — adding `tutoring` to this tunnel is precisely
+what would create the loop, because the `Caddyfile` proxies `/tutoring` to that very hostname.
 
-**Rollback is one DNS record**: point the apex back at Vercel. Save the current Vercel A/CNAME
-values before step 4.
+~~**Rollback is one DNS record**: point the apex back at Vercel. Save the current Vercel A/CNAME
+values before step 4.~~ **DONE — values recorded below.** Note that the rollback became *meaningfully*
+better in this phase for a reason unrelated to DNS: `main` now carries the overhaul, so Vercel serves
+the same site. Before that merge, "point the apex back at Vercel" would have rolled back to a
+10-commit-older site — a rollback in name only.
+
+### RESULTS — executed 2026-08-23 (steps 1–2 verified, step 3's Pi half done; **the tunnel, step 4 and step 5 are still open — they need the Cloudflare dashboard**)
+
+**What this phase closed, and what it could not.** Phase 4 is half dashboard work and half Pi work, and
+only the Pi half can be executed from a shell. There is **no Cloudflare API token** on the Windows box
+or on the Pi — checked: no `CF_*`/`CLOUDFLARE_*` in the environment, no local `.env`, no `cloudflared`
+CLI on either host, and `~/homelab` holds only a `docker-compose.yml` and `get-docker.sh` (its tunnel
+token is inline in that compose file, and is homelab's — the one token that must **not** be reused).
+So creating the tunnel, adding the public hostname and flipping the zone settings stay manual.
+Everything that could be measured, was.
+
+**The prerequisite is closed — this was the real blocker.** Risk #11 is gone: Phases 1–3's files are
+committed (`77840c09`) and `main` is pushed at `e1ceecbd`, 12 commits ahead of where `origin/main` sat.
+Gates run before the push, all clean:
+
+| Gate | Result |
+|---|---|
+| `npm run check` | **210 files, 0 errors, 0 warnings** — run twice, before and after merging `origin/main`'s two `rogueSwipe` sync commits |
+| `ADAPTER=node npm run build` | **clean on Windows** (no symlink step, so no `EPERM`); the whitelisted `[404] GET /games/<slug>/` prerender lines appear and are swallowed as designed |
+| `npm run verify:seo` | **893 passed, 0 failed** |
+| merge `origin/main` → `site-overhaul` | no conflicts; `main` then fast-forwarded, so it carries no merge commit of its own |
+
+`.gitattributes` was verified end-to-end rather than assumed, which is the only way this particular
+precaution *can* be checked: `git check-attr` reports `eol=lf` on all four Pi-facing files, the
+**staged blobs** hold 0 CR bytes, and after the clone the **files on the Pi** hold 0 CR bytes —
+authored on a clone with `core.autocrlf=true`, landing on ext4 as pure LF.
+
+#### Steps 1–2: the zone, measured rather than eyeballed
+
+Queried over DNS (`Resolve-DnsName` against 1.1.1.1), not read off the dashboard:
+
+| Record | Value | Bearing on the cutover |
+|---|---|---|
+| `NS` | `dee.ns.cloudflare.com`, `walt.ns.cloudflare.com` | step 2 confirmed done |
+| `mario-belmonte.com` `A` | **`76.76.21.21`** | Vercel's apex IP, **DNS-only (grey cloud)** — we see the origin IP, not a Cloudflare one. **This is the rollback value.** |
+| `www` `CNAME` | `cname.vercel-dns.com` | it **does** exist, so step 4's "and `www` if it exists" is not optional |
+| `tutoring` `CNAME` | `cname.vercel-dns.com` | **risk #5 clear** — off-box, no proxy loop |
+| `MX` | **none** (SOA only) | — |
+| apex `TXT` | **none** | no SPF |
+| `_dmarc` | **NXDOMAIN** | — |
+
+**The document was wrong about email, and it is worth saying why that is good news rather than bad.**
+Step 2 justified retiring risk #3 with "live email has been running on this DNS since". No mail records
+exist on this zone, so nothing has been running. The conclusion survives and gets *stronger* — there is
+no mail configuration for the nameserver move to have broken, and none for step 4 to break — but the
+stated evidence for it was false, and a later reader would otherwise have carried the belief that a
+working mail setup was sitting one bad DNS edit away.
+
+Also worth knowing before step 4: the apex is **grey-cloud today**. Adding the public hostname does not
+merely repoint it, it makes it a *proxied* record — Cloudflare begins terminating TLS on this hostname
+for the first time. That is intended (the `Caddyfile` deliberately has no ACME and serves plain HTTP),
+but it is a larger change than "the A record's value moves".
+
+#### Step 3, Pi half: cloned, built, re-verified
+
+Clone-order trap avoided — `mkdir -p ~/apps && git clone …` with **no `.env` written first**; the clone
+landed clean at `main` (`e1ceecbd`). `.env` is still absent, deliberately.
+
+The `${VAR:?}` guards were re-checked on the real path, and both fail exactly as designed:
+
+| Attempt | Result |
+|---|---|
+| `docker compose config`, no `.env` | **exit 1** — `required variable GH_TOKEN is missing a value: set GH_TOKEN in ~/apps/portfolio/.env (mode 600) — see .env.example` |
+| same, `GH_TOKEN=dummy` + `TUNNEL_TOKEN=` empty | **exit 1** on `TUNNEL_TOKEN` — **empty counts as missing**, which is the whole point of `:?` over `:-` |
+
+`docker compose build portfolio` → **clean, arm64-native, `portfolio-site:latest` 386 MB**, left cached
+so the first real `up -d` takes seconds rather than minutes. Then `portfolio` + `caddy` were brought up
+on `~/apps/portfolio` (cloudflared excluded — no real token yet) with a **dummy** `GH_TOKEN`, and the
+whole Phase 6 curl battery re-run. **Origin healthy in 6 s.**
+
+This re-run was not redundant with Phase 3. Phase 3 tested a copy of the *working tree* in
+`/tmp/portfolio`; this tested the **real checkout at the real path, built from the pushed `main`** —
+including the two `rogueSwipe` sync commits that Phase 3 predates.
+
+| Check | Result |
+|---|---|
+| **six `/games/<slug>/` through Caddy** | **6 × 200** — risk #1 still closed, now on the merged tree |
+| `/games/typetest/` | **308** — still the real route, the thing an `@gamedir` rewrite would have broken |
+| `/`, `/about`, `/games`, `/projects-index.json`, `/sitemap.xml`, `/robots.txt` | 200 |
+| four external proxies (`/games/spotifyHero`, `/games/vcKaraoke`, `/room/test`, `/tutoring`) | 200 |
+| `/games/spotifyHeroFoo`, `/games/vcKaraokeFoo` | **404** — matchers still do not over-reach |
+| **risk #2**: a real Spotify Hero chunk, scoped vs bare `/_next/*` | **200 vs 404** — the two upstreams remain provably distinct |
+| vcKaraoke prefix strip (bare, trailing slash, `/room/x`) | 200 / 200 / 200 |
+| deep vendored asset `/games/paddleBall/_next/static/…/_buildManifest.js` | 200 |
+| `/api/github-contrib`, `/api/github-recent`, dummy token | **503 both** — the load-bearing status survives the whole chain |
+| six security headers on `/` | all present, **each exactly once** (`uniq -d` empty), `Server` stripped |
+| `.JPEG` long-cache rule | `max-age=604800, s-maxage=31536000` — the case-insensitive class fires |
+| `/github-contrib.json`, `/github-recent.json` | `max-age=300, s-maxage=1800` — the short rule, and never both |
+| `/_app/immutable/entry/start.*.js` | `public,max-age=31536000,immutable` — **adapter-node's own header survives untouched**, which is exactly what `js` being absent from `@longcache` buys |
+| `/sitemap.xml` `<loc>` count, `/` canonical | **43**, `https://mario-belmonte.com/` — unchanged by the new host |
+| listener scope | `127.0.0.1:8080` only; `curl http://192.168.1.72:8080/` **refused** |
+| log cap | `json-file map[max-file:3 max-size:10m]` on both containers |
+
+**Torn down again on purpose.** `docker compose down`, volumes and image kept. Leaving the stack up
+would have left containers whose *baked config* holds `GH_TOKEN=dummy-for-verification`, and
+`restart: unless-stopped` would faithfully restore that across a reboot — a site whose contribution
+chart is silently frozen on the static-JSON fallback, which is the precise failure mode `:?` exists to
+prevent. The next `up -d` must be the one that reads a real `.env`. Only `navidrome` and homelab's
+`cloudflared` are running, nothing listens on 8080, 21 GB free.
+
+#### What remains, in order
+
+1. **Create the second tunnel** in Zero Trust → Networks → Tunnels. Not homelab's, not its token.
+2. On the Pi: `cd ~/apps/portfolio && cp .env.example .env && chmod 600 .env`, fill in `GH_TOKEN` and
+   the new `TUNNEL_TOKEN`, then `docker compose up -d`. Confirm **all three** containers are up and
+   `portfolio` is `healthy`; `cloudflared` is the one service never yet started, so read its logs.
+   With a real token `/api/github-contrib` should now answer **200** rather than the 503 measured
+   above — that single status is the check that the token actually works.
+3. **Step 4, the cutover:** add public hostname `mario-belmonte.com` → `http://caddy:8080`, and `www`
+   (it exists). **Nothing else** — no `tutoring`.
+4. **Step 5:** "Always Use HTTPS" on, Brotli on, and **no cache rule over `/api/*`**.
+
+Rollback, if needed: set the apex back to `A 76.76.21.21`, DNS-only. Vercel now serves the same commit,
+so this is a real fallback rather than a trip 10 commits into the past.
 
 ---
 
 ## Phase 5 — Deploy script + timer
 
-> **Prerequisite, currently UNMET.** Phases 1–3's changes live on branch `site-overhaul` and are not
+> **Prerequisite MET in Phase 4 — `deploy.sh` can track `origin/main` as written.** Phases 1–3's
+> changes are committed (`77840c09`) and `main` is pushed at `e1ceecbd`; the Pi's `~/apps/portfolio`
+> is already a clone of it. The paragraph below is kept for the reasoning, not as an open item.
+>
+> ~~Phases 1–3's changes live on branch `site-overhaul` and are not
 > committed or pushed. `deploy.sh` below tracks `origin/main`, so **the branch has to reach `main`
 > before this phase can deploy anything** — otherwise the Pi checks out a tree with no `Dockerfile`,
 > no `docker-compose.yml` and no `Caddyfile`, and `docker compose build` fails. Phase 4 step 3 has
@@ -721,12 +857,20 @@ Numbering is stable — Phase 0's notes cross-reference #3 and #5, so retired ri
    two upstreams are confirmed to be different apps end-to-end. Currently defensive rather than
    load-bearing (Spotify Hero sets Next's `basePath`), and that is exactly why it must not be
    "tidied away" — the next proxied Next app without a `basePath` needs it.
-3. ~~**Missing MX/TXT records** when the nameservers move~~ — **RETIRED.** The move already happened
-   (~2026-08-01) and email has been fine since. Phase 0.
+3. ~~**Missing MX/TXT records** when the nameservers move~~ — **RETIRED, but not for the reason
+   originally given.** The move already happened (~2026-08-01). The claim that "email has been fine
+   since" was never checkable, because **this zone has no `MX`, no apex SPF `TXT` and no `_dmarc` at
+   all** (measured in Phase 4). Retired on the stronger ground that there is no mail configuration
+   here for either the nameserver move or the cutover to break — not on the ground that a working one
+   survived. Phase 0, corrected in Phase 4.
 4. ~~**2TB drive formatted exFAT/NTFS** — `npm ci` fails.~~ **RETIRED as a blocker.** It *is* NTFS,
    but `npm ci` runs inside Docker on the ext4 root and never touches that drive. The app path moved
    to `~/apps/portfolio` instead. Phase 0.
-5. **`tutoring.` pointed at the tunnel** — infinite proxy loop. Still live; confirm in Phase 4.
+5. ~~**`tutoring.` pointed at the tunnel** — infinite proxy loop.~~ **CONFIRMED CLEAR in Phase 4:**
+   `tutoring.mario-belmonte.com` is a `CNAME` to `cname.vercel-dns.com`, so `/tutoring` proxies
+   off-box. **It stays clear only by omission** — the `Caddyfile` proxies `/tutoring` to that exact
+   hostname, so adding `tutoring` as a public hostname on this tunnel, at any point in the future,
+   creates the loop. Not a closed risk so much as a permanent constraint on the tunnel's ingress list.
 6. **`ORIGIN` unset** on adapter-node behind a proxy — subtly wrong request URLs. Set in the
    `Dockerfile`; override it if the image is ever run under a different public hostname.
 7. **A Cloudflare cache rule over `/api/*`** — freezes a 503; the exact trap ISR was rejected for.
@@ -739,11 +883,22 @@ Numbering is stable — Phase 0's notes cross-reference #3 and #5, so retired ri
     `docker-compose.yml` sets no `container_name`; compose derived `portfolio-caddy-1` /
     `portfolio-portfolio-1` alongside the running `cloudflared` and `navidrome` with no conflict.
     Phase 3 results.
-11. **`deploy.sh` tracking `origin/main` while Phases 1–3 sit on `site-overhaul`** — the Pi would
-    build a tree with no `Dockerfile` and no `docker-compose.yml`. Phase 5 prerequisite, and now also
-    Phase 4 step 3's, which clones before it can bring anything up.
-12. **A `.env` written before the clone** — `git clone` refuses a non-empty destination, dot-files
-    included, and the error names the directory rather than the cause. Phase 3 results.
+11. ~~**`deploy.sh` tracking `origin/main` while Phases 1–3 sit on `site-overhaul`** — the Pi would
+    build a tree with no `Dockerfile` and no `docker-compose.yml`.~~ **CLOSED in Phase 4:** committed
+    as `77840c09`, `main` fast-forwarded and pushed at `e1ceecbd`, and `~/apps/portfolio` on the Pi is
+    a clone of it with all four Pi-facing files present. `deploy.sh` can track `origin/main` as
+    drafted. A side effect worth knowing: Vercel now serves the same commit, which is what turns
+    "point the apex back at Vercel" from a rollback in name only into a real fallback (risk #8).
+12. ~~**A `.env` written before the clone** — `git clone` refuses a non-empty destination, dot-files
+    included, and the error names the directory rather than the cause.~~ **AVOIDED in Phase 4:** the
+    clone ran into an empty `~/apps/portfolio` and `.env` is still absent, to be written next. Phase 3
+    results has the sequence; it stays here because a re-clone or a rebuild-from-scratch hits it again.
+13. **A stack left running on a placeholder `GH_TOKEN`.** Phase 4 brought `portfolio`+`caddy` up with
+    a dummy token to run the Phase 6 battery, and took them down afterwards *specifically* so nothing
+    survived with that value baked into the container config — `restart: unless-stopped` would have
+    restored it across a reboot, and the symptom is a site that looks completely fine with a
+    contribution chart frozen on the static-JSON fallback. If `/api/github-contrib` answers **503**
+    after the real `.env` is in place, the token is wrong or the container was not recreated.
 
 ## Out of scope (flagged, not done)
 
