@@ -14,9 +14,12 @@
  */
 import { chromium } from 'playwright';
 import fs from 'node:fs/promises';
+import path from 'node:path';
 
 const URL_BASE = process.env.VERIFY_URL ?? 'http://localhost:5173';
-const OUT = 'C:/Users/MarioBelmonte/git-projects/portfolioSite/.verify';
+// Resolved from the cwd rather than hardcoded: this used to be an absolute Windows path, which meant
+// the script could only ever run on one machine — it fails outright on the Pi.
+const OUT = path.join(process.cwd(), '.verify');
 
 await fs.mkdir(OUT, { recursive: true });
 

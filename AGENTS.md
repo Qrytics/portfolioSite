@@ -3,7 +3,9 @@
 This file provides guidance to agents when working with code in this repository.
 
 ## Stack
-SvelteKit 2 + Svelte 5 (runes: `$props`, `$state`, `$derived`, `$effect`) deployed to **Vercel** via `@sveltejs/adapter-vercel`. Node.js v20+ required (`.npmrc` has `engine-strict=true`).
+SvelteKit 2 + Svelte 5 (runes: `$props`, `$state`, `$derived`, `$effect`). Node.js v20+ required (`.npmrc` has `engine-strict=true`).
+
+**Two adapters, selected by env** in `svelte.config.js`: `ADAPTER=node` → `@sveltejs/adapter-node` (output `build/`, a long-lived Node process — self-hosting on a Raspberry Pi behind Caddy + a Cloudflare Tunnel, see `PI-HOSTING-PLAN.md`); anything else → `@sveltejs/adapter-vercel`, which stays the default so the Vercel deployment remains a working fallback. **Keep both, and keep `vercel.json` — the fallback depends on all three.**
 
 ## Key Commands
 
@@ -11,13 +13,14 @@ SvelteKit 2 + Svelte 5 (runes: `$props`, `$state`, `$derived`, `$effect`) deploy
 |------|---------|
 | Type check (primary quality gate) | `npm run check` |
 | Dev server | `npm run dev` |
-| Production build | `npm run build` |
+| Production build (Vercel) | `npm run build` |
+| Production build (Pi / Docker) | `ADAPTER=node npm run build` |
 
 No ESLint, no unit-test framework. `npm run check` (svelte-check + tsc strict mode) is the primary gate.
 
 Three assertion suites cover the rest (~1000 checks): `npm run verify:seo` reads the prerendered build output; `node scripts/verify-ui.mjs` and `node scripts/verify-chart.mjs` drive a browser against `npm run dev` and need `npm i --no-save playwright && npx playwright install chromium` first (playwright is intentionally not a devDependency — Vercel would download browsers on every build).
 
-**`npm run build` fails with `EPERM` on Windows without Developer Mode** — `adapter-vercel` needs symlink privilege. It fails *after* prerendering, so prerender errors are still caught and `verify:seo` still works.
+**`npm run build` fails with `EPERM` on Windows without Developer Mode** — `adapter-vercel` needs symlink privilege. It fails *after* prerendering, so prerender errors are still caught and `verify:seo` still works. `ADAPTER=node npm run build` has no symlink step and completes cleanly on Windows.
 
 ## Critical Architecture Facts
 
@@ -25,7 +28,7 @@ Three assertion suites cover the rest (~1000 checks): `npm run verify:seo` reads
 - **The home page has no `+page.ts` and is prerendered to a static file.** It used to override to `prerender = false` so `load` could fetch GitHub data — blocking first byte on a five-round-trip GraphQL fan-out for data that never reached the HTML, since both consumers render after mount. Don't reintroduce a `load` for client-only data; call `loadContrib`/`loadRecent` from `src/lib/utils/githubData.ts` after mount. The `/api/*` routes do set `prerender = false`, as must any new request-time route.
 - **`paths.relative = false`** is set in `svelte.config.js` — always use `base` from `$app/paths` when constructing internal URLs (see `src/lib/utils/internalNav.ts`).
 - **Prerender build intentionally ignores HTTP errors** for the game sub-paths (`/games/garticDraw/`, `/games/aimTrainer/`, …) — those are static sub-apps copied into `static/games/`, and the prerenderer has no notion of a directory index so they always look like 404s. `svelte.config.js` derives the list from the filesystem; do not turn it back into literal slugs (the build broke when a fifth game was added). In dev, the `serveVendoredGameIndexes` plugin in `vite.config.ts` handles the same gap and must stay `enforce: 'pre'` and first in `plugins`.
-- **Several games are proxied externally** via `vercel.json` rewrites (`/games/vcKaraoke` → separate Vercel app, `/games/spotifyHero` → another app, `/tutoring` → external domain). Do not add SvelteKit routes for these slugs.
+- **Several games are proxied externally** via `vercel.json` rewrites (`/games/vcKaraoke` → separate Vercel app, `/games/spotifyHero` → another app, `/tutoring` → external domain). Do not add SvelteKit routes for these slugs. The root **`Caddyfile`** is the same set of rewrites and header rules for the Pi host (served by the root `docker-compose.yml`) — **edit both or the two hosts diverge silently.**
 - **In-memory caches** live in the API server files (module-level `let cachedPayload`). These are ephemeral and reset on cold starts — do not rely on persistence.
 
 ## Data Layer

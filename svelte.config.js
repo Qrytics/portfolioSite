@@ -1,4 +1,5 @@
-import adapter from '@sveltejs/adapter-vercel';
+import adapterVercel from '@sveltejs/adapter-vercel';
+import adapterNode from '@sveltejs/adapter-node';
 import { existsSync, readdirSync } from 'node:fs';
 
 /**
@@ -39,19 +40,31 @@ const config = {
 		paths: {
 			relative: false
 		},
-		// Pinned rather than left bare. `runtime` otherwise tracks whatever Node the build environment
-		// happens to be on, so a Vercel default bump silently changes production; `regions` keeps the
-		// two API functions in one place instead of following the project default.
+		// Two adapters on purpose. The Raspberry Pi is the primary host — `ADAPTER=node` builds to
+		// `build/` for a single long-lived Node process behind Caddy — and the Vercel project stays
+		// deployed on its `*.vercel.app` URL as a fallback that is one DNS record away. Vercel is the
+		// default so nothing about that fallback deployment has to know this variable exists.
+		//
+		// The long-lived process is also a real improvement for the two `/api/github-*` routes: their
+		// module-level 30-minute memo actually persists, instead of being re-warmed per lambda.
+		//
+		// Vercel options are pinned rather than left bare. `runtime` otherwise tracks whatever Node the
+		// build environment happens to be on, so a Vercel default bump silently changes production;
+		// `regions` keeps the two API functions in one place instead of following the project default.
 		//
 		// Deliberately NOT setting `isr`. It looks like the right fit for the GitHub routes, but ISR
 		// caches by URL for a fixed duration regardless of response status, so a 503 from a rate-limit
 		// or a missing token would be frozen at the edge for the full expiration window. Both routes
 		// already send `Cache-Control: s-maxage=...`, which Vercel's CDN honours for functions and
 		// which *can* differ per status — 1800s on success, 60s on error. That's strictly better here.
-		adapter: adapter({
-			runtime: 'nodejs22.x',
-			regions: ['iad1']
-		}),
+		// The same trap is why no Cloudflare cache rule may cover `/api/*` on the Pi.
+		adapter:
+			process.env.ADAPTER === 'node'
+				? adapterNode()
+				: adapterVercel({
+						runtime: 'nodejs22.x',
+						regions: ['iad1']
+					}),
 		prerender: {
 			handleHttpError: ({ path, message }) => {
 				if (vendoredGamePaths.some((prefix) => path.startsWith(prefix))) return;

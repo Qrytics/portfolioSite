@@ -1,0 +1,144 @@
+# Caddyfile — the Raspberry Pi's translation of `vercel.json`.
+#
+# Mounted read-only into the `caddy` container at /etc/caddy/Caddyfile (see docker-compose.yml
+# and PI-HOSTING-PLAN.md). Caddy — not adapter-node — owns the external rewrites, the security
+# headers and the cache rules, because that is exactly the work `vercel.json` does on the Vercel
+# deployment. **The two files are a pair: anything added to one must be added to the other, or
+# the two hosts diverge silently.**
+#
+# No TLS and no ACME here on purpose. Cloudflare terminates TLS and the tunnel is authenticated,
+# so Caddy serves plain HTTP on the compose network — no cert volume, no port 80, and nothing is
+# published on the host except 127.0.0.1:8080 for local verification.
+
+:8080 {
+	encode zstd gzip
+
+	# ── vercel.json headers rule A (`source: "/(.*)"`): every response, proxied ones included.
+	#    Caddy's `header` handler wraps everything below it, so these also land on the four
+	#    external proxies and on error responses.
+	header {
+		Strict-Transport-Security "max-age=63072000; includeSubDomains; preload"
+		X-Content-Type-Options nosniff
+		Referrer-Policy strict-origin-when-cross-origin
+		X-Frame-Options SAMEORIGIN
+		Content-Security-Policy "frame-ancestors 'self'"
+		# microphone=(self) is deliberate — the proxied vcKaraoke app needs it. Everything else
+		# in the list is denied.
+		Permissions-Policy "camera=(), geolocation=(), payment=(), usb=(), microphone=(self)"
+		# Vercel advertises no server header; don't start advertising one here.
+		-Server
+	}
+
+	# ── rule B: long-lived asset cache. `vercel.json` spells the extension list with
+	#    per-character case classes ([pP][nN][gG]) because JS regex has no inline (?i) flag;
+	#    Go's RE2 has one, so the classes collapse to this. The case-insensitivity is
+	#    load-bearing either way: `static/about/` holds four `.JPG` and one `.JPEG`, 894 KB in
+	#    total, which a lowercase-only list would silently drop out of the rule. (CLAUDE.md and
+	#    the plan both said `.PNG` — measured, there is no `.PNG` anywhere under `static/`.)
+	#
+	#    `js` is deliberately absent, so /_app/immutable/*.js does not match and adapter-node's
+	#    own `immutable` cache headers survive untouched — matching current Vercel behaviour.
+	@longcache path_regexp (?i)\.(png|jpe?g|gif|webp|avif|svg|ico|mp4|webm|mp3|wav|ogg|woff2?|ttf|otf)$
+	header @longcache Cache-Control "public, max-age=604800, s-maxage=31536000, stale-while-revalidate=86400"
+
+	# ── rule C: the two committed GitHub datasets, short cache. `.json` is absent from
+	#    @longcache above, so these two rules can never both fire on the same path.
+	@ghjson path /github-contrib.json /github-recent.json
+	header @ghjson Cache-Control "public, max-age=300, s-maxage=1800, stale-while-revalidate=86400"
+
+	# ── the external proxies: vercel.json's 12 rewrites, in four groups.
+	#
+	#    Every matcher is an explicit pair — bare path plus subtree — rather than a single `*`
+	#    suffix, because Caddy's `path` is a *literal prefix* match: `/games/spotifyHero*` would
+	#    also swallow `/games/spotifyHeroFoo`, which Vercel's `/games/spotifyHero/:path*` does
+	#    not. `path` accepts several patterns but a directive's inline matcher token is a single
+	#    token, hence the named matchers. Measured: `/games/spotifyHeroFoo` and
+	#    `/games/vcKaraokeFoo` both fall through to the origin, as they must.
+	@spotifyHeroNext path /games/spotifyHero/_next/*
+	@spotifyHero path /games/spotifyHero /games/spotifyHero/*
+	@spotifyHeroSlash path /games/spotifyHero/
+	@vcKaraoke path /games/vcKaraoke /games/vcKaraoke/*
+	@room path /room/*
+	@tutoring path /tutoring /tutoring/*
+	@tutoringBare path /tutoring
+	@nextAssets path /_next/*
+
+	# `@nextAssets` is a root-level catch-all pointing at the karaoke app; `@spotifyHeroNext` is
+	# the scoped rule that keeps a *second* Next.js app's chunks off it. Two measured facts about
+	# that pairing, both worth knowing before editing either one:
+	#
+	#   1. Spotify Hero sets Next's `basePath`, so its markup references
+	#      /games/spotifyHero/_next/... and never bare /_next/... (verified in the served HTML).
+	#      Caddy's `path` is a prefix match, so @nextAssets cannot swallow those today, and
+	#      @spotifyHeroNext is in fact redundant with @spotifyHero — same upstream, same forwarded
+	#      path. Kept anyway, because `vercel.json` carries the same rule and because a future
+	#      proxied Next app *without* basePath needs exactly this shape: its chunks would
+	#      otherwise be fetched from the karaoke origin — a white screen, no console error, and
+	#      nothing pointing back at this file.
+	#   2. Written order is not what orders these. `handle` blocks are mutually exclusive and the
+	#      Caddyfile adapter sorts them by path-matcher specificity, so /games/spotifyHero/_next/*
+	#      lands above /_next/* even when written below it (verified in `caddy adapt` output).
+	#      They are written in the safe order regardless — a sort that is invisible in this file
+	#      is not a thing to lean on.
+	handle @spotifyHeroNext {
+		reverse_proxy https://spotifyhero-web.vercel.app {
+			header_up Host {upstream_hostport}
+		}
+	}
+	# Rewrite 3 maps the trailing-slash form to the upstream path *without* the slash, and that
+	# asymmetry is the whole point of it: the Next app 308s /games/spotifyHero/ → /games/spotifyHero
+	# on its own, so forwarding as-is turns a 200 on Vercel today into a client-visible permanent
+	# redirect (measured against both hosts). Same shape as the /tutoring rewrite below.
+	handle @spotifyHero {
+		rewrite @spotifyHeroSlash /games/spotifyHero
+		reverse_proxy https://spotifyhero-web.vercel.app {
+			header_up Host {upstream_hostport}
+		}
+	}
+
+	# vcKaraoke is the one group whose path is *stripped*: rewrites 5-6 send the bare path and
+	# the trailing-slash form to the upstream **root**, and rewrite 7 sends /games/vcKaraoke/x
+	# to /x. `handle_path` would do this in one line but takes a single literal path, which
+	# would force the over-matching `/games/vcKaraoke*` — so strip explicitly instead.
+	# Measured: bare → `/`, trailing slash → `/`, /games/vcKaraoke/room/x → /room/x.
+	handle @vcKaraoke {
+		uri strip_prefix /games/vcKaraoke
+		reverse_proxy https://vckaraoke-frontend.vercel.app {
+			header_up Host {upstream_hostport}
+		}
+	}
+	handle @room {
+		reverse_proxy https://vckaraoke-frontend.vercel.app {
+			header_up Host {upstream_hostport}
+		}
+	}
+	# Rewrite 9 sends the *bare* path upstream as `/tutoring/`, with the slash. Forwarding
+	# `/tutoring` as-is instead works, but the upstream answers it with a 308 to `/tutoring/`
+	# — turning a URL that is a 200 on Vercel today into a client-visible permanent redirect
+	# (measured on both hosts). Reproduce the rewrite rather than inherit the extra round trip.
+	handle @tutoring {
+		rewrite @tutoringBare /tutoring/
+		reverse_proxy https://tutoring.mario-belmonte.com {
+			header_up Host {upstream_hostport}
+		}
+	}
+	handle @nextAssets {
+		reverse_proxy https://vckaraoke-frontend.vercel.app {
+			header_up Host {upstream_hostport}
+		}
+	}
+
+	# ── directory index for the vendored games: DELIBERATELY ABSENT.
+	#    adapter-node's static handler already resolves /games/<slug>/ (measured: all six → 200),
+	#    unlike the prerenderer and the dev server. A naive `^/games/([^/]+)/$` rewrite here would
+	#    also catch /games/typetest/ — a real SvelteKit route that correctly 308s today — and turn
+	#    it into a 404. Caddy cannot tell the two apart: the static files live inside the
+	#    `portfolio` container, so it cannot do what `serveVendoredGameIndexes` in vite.config.ts
+	#    does and consult games.ts. Let the origin handle it; the six-game curl loop in Phase 6 of
+	#    PI-HOSTING-PLAN.md is what proves it still works.
+
+	# Everything else — every prerendered page, every static asset, and the two /api/* routes.
+	handle {
+		reverse_proxy portfolio:3000
+	}
+}

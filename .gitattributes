@@ -1,0 +1,14 @@
+# Scoped deliberately narrowly — NOT `* text=auto`, which would renormalise every tracked file in
+# the repo and bury the next real diff.
+#
+# These are the files the Raspberry Pi consumes directly (see PI-HOSTING-PLAN.md). They are authored
+# on Windows, where `core.autocrlf=true` normalises CRLF away on commit — but that is a per-clone
+# *setting*, not a property of the repo, so a commit made with it unset would ship CRLF and each of
+# these fails in its own opaque way: `.env` puts a trailing \r inside the tunnel token (cloudflared
+# reports an auth error, not a parse error), and a `.sh` with CRLF dies as
+# `bad interpreter: /bin/bash^M`. Pin the ending instead of depending on the setting.
+Dockerfile         text eol=lf
+docker-compose.yml text eol=lf
+Caddyfile          text eol=lf
+.env.example       text eol=lf
+*.sh               text eol=lf

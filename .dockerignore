@@ -1,0 +1,39 @@
+# Keeps the build context small (~16 MB) and stops host artefacts from leaking into the image.
+#
+# Note what is NOT excluded: `static/`. The six vendored game builds live there and are served as
+# static assets — excluding it would 404 every Play button. `package-lock.json` and `.npmrc` are
+# likewise required (see Dockerfile).
+
+.git
+.github
+node_modules
+
+# Build output — regenerated inside the image; a host copy would only shadow it.
+.svelte-kit
+build
+.vercel
+.netlify
+.wrangler
+.output
+
+# Local-only
+.verify
+.env
+.env.*
+.vscode
+.cursor
+.bob
+.claude
+.mcp.json
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Not needed at build time. Root-scoped (`/*.md`, not `*.md`) so `static/sounds/README.md` still
+# ships — the served static tree should be byte-identical to what Vercel serves.
+/*.md
+Dockerfile
+.dockerignore
+docker-compose.yml
+Caddyfile

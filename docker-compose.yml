@@ -1,0 +1,96 @@
+# The portfolio's own compose project, at ~/apps/portfolio on the Pi's ext4 root — which is also the
+# git checkout, so the relative bind mount below resolves. See PI-HOSTING-PLAN.md.
+#
+# Internet → Cloudflare edge → cloudflared (outbound-only tunnel, no open ports)
+#                                  └─► caddy:8080 ──┬─► portfolio:3000  (adapter-node)
+#                                                   └─► three external Vercel/host apps
+#
+# This project shares **no** network with ~/homelab and owns a *second, distinct* Cloudflare tunnel.
+# That is deliberate: the apex domain's uptime must not sit inside the project you edit for unrelated
+# reasons, and homelab's network name is derived from its directory name rather than declared, so an
+# `external: true` reference to it would break silently on a rename. The argument in full is in
+# PI-HOSTING-PLAN.md, "Why B (own tunnel) rather than A".
+#
+# No `container_name:` on any service. Container names are global to the Docker daemon and homelab
+# already claims `cloudflared` and `navidrome`; setting them here means the container simply fails to
+# create. Compose derives `portfolio-caddy-1` etc., and the *service* names — which are what the
+# Caddyfile and the tunnel's ingress rules resolve over the network — are unaffected.
+#
+# Nothing is on a shared/external network, so the default network is this project's own, named
+# `portfolio_default` after the directory. Nothing outside the project references it; if anything ever
+# needs to, declare a real named network here first rather than depending on that derived string.
+
+services:
+  # The SvelteKit app: every prerendered page, the whole static tree (including the six vendored game
+  # builds), and the two /api/github-* routes that need a live process.
+  portfolio:
+    build: .
+    # Explicit tag rather than compose's derived `portfolio-portfolio`, so Phase 5's deploy script has
+    # a stable name to re-tag as a rollback point before it rebuilds.
+    image: portfolio-site:latest
+    restart: unless-stopped
+    # No `ports:`. Only caddy talks to this, over the compose network. Publishing 3000 would expose an
+    # origin that has none of the Caddyfile's headers or rewrites — and there is no firewall on this Pi.
+    #
+    # GH_TOKEN is interpolated from ./.env rather than passed with `env_file:`, for two reasons:
+    # env_file would hand *every* variable in that file — the tunnel token included — to a container
+    # that has no business with it, and a missing GH_TOKEN would then fail quietly (503 from the API
+    # routes → the static-JSON fallback tier → a chart that looks fine but is frozen at the last
+    # commit). `:?` fails the `up` instead, which on a redeploy leaves the previous container running.
+    #
+    # Read at *request* time via $env/dynamic/private, never a build arg: rotating the token is a
+    # container restart, not a rebuild.
+    environment:
+      - GH_TOKEN=${GH_TOKEN:?set GH_TOKEN in ~/apps/portfolio/.env (mode 600) — see .env.example}
+    # PORT/ORIGIN/ADDRESS_HEADER and the HEALTHCHECK all live in the Dockerfile, so the image is
+    # correct when run by hand too.
+    logging: &logging
+      driver: json-file
+      options:
+        max-size: 10m
+        max-file: '3'
+
+  # Owns the external rewrites, the security headers and the cache rules — i.e. everything vercel.json
+  # does on the Vercel deployment. Plain HTTP, no ACME: Cloudflare terminates TLS and the tunnel is
+  # authenticated, so there is no cert state and no port 80.
+  caddy:
+    image: caddy:2-alpine
+    restart: unless-stopped
+    # 127.0.0.1, never a bare `8080`. This exists only for `curl` during verification; nothing on the
+    # LAN should reach it, and with no firewall installed a bare port is published to the whole subnet.
+    ports:
+      - '127.0.0.1:8080:8080'
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      # The image declares VOLUME /data and /config, so these get created either way; naming them
+      # keeps `up -d` from leaving anonymous volumes behind. Neither holds anything to preserve while
+      # there is no ACME.
+      - caddy_data:/data
+      - caddy_config:/config
+    # Start order only — deliberately NOT `condition: service_healthy`. Caddy answers four proxied
+    # route groups that do not involve the origin at all (/tutoring, /games/vcKaraoke, /room/*,
+    # /_next/*); gating its start on the origin's health would take those down too, and turn a
+    # localised 502 into a dead site plus a Cloudflare error page instead of Caddy's.
+    depends_on:
+      - portfolio
+    logging: *logging
+
+  # The tunnel connector. Remote-managed: the public-hostname → http://caddy:8080 mapping and the DNS
+  # record live in the Cloudflare dashboard, not in a local config.yml.
+  cloudflared:
+    image: cloudflare/cloudflared:latest
+    restart: unless-stopped
+    command: tunnel --no-autoupdate run
+    # This MUST be a token for a second, distinct tunnel — never homelab's. A remote-managed tunnel's
+    # ingress rules are per-tunnel and shared by every connector running that token, and Cloudflare
+    # spreads requests across connectors: a second connector on homelab's token would advertise itself
+    # as able to serve music.mario-belmonte.com, which it cannot (navidrome is on a network it is not
+    # attached to). The result is a fraction of music requests failing at random with nothing pointing
+    # back here.
+    environment:
+      - TUNNEL_TOKEN=${TUNNEL_TOKEN:?set TUNNEL_TOKEN in ~/apps/portfolio/.env (mode 600) — must be a NEW tunnel, not homelab's}
+    logging: *logging
+
+volumes:
+  caddy_data:
+  caddy_config:

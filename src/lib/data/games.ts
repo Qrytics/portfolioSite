@@ -72,7 +72,12 @@ export const games: Game[] = [
 		description:
 			'A high-intensity micro-mechanics trainer inspired by loldodgegame.com. Dodge League of Legends-style skillshots and AoE explosions rendered from a top-down isometric perspective.',
 		preview: '/games/dodgeLoL-preview.jpg',
-		playUrl: 'https://mario-belmonte.com/games/dodgeLoL',
+		// Relative, not the absolute production URL: this game is vendored under `static/games/`, so an
+		// absolute link left `npm run dev` (and any other host) sending players to production instead.
+		// `vendoredGamePaths` in `vite.config.ts` is derived from `playUrl`, so this is also what makes
+		// the dev-server directory-index rewrite cover it. (vcKaraoke's absolute URL is correct — that
+		// one is a genuinely separate deployed app, reached through a proxy rewrite.)
+		playUrl: '/games/dodgeLoL/',
 		tags: ['reflex', 'arcade', 'league of legends']
 	},
 	{

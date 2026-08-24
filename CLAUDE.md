@@ -9,7 +9,8 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 | Dev server (localhost:5173) | `npm run dev` |
 | **Validation gate** — type check | `npm run check` |
 | Type check in watch mode | `npm run check:watch` |
-| Production build | `npm run build` |
+| Production build (Vercel — the default) | `npm run build` |
+| Production build (Pi / Docker) | `ADAPTER=node npm run build` |
 | Serve build output | `npm run preview` |
 
 There is **no ESLint and no unit-test runner**. `npm run check` (`svelte-kit sync` + `svelte-check` against a `strict` + `checkJs` tsconfig) is the primary gate — run it before considering any change done. Node.js ≥ 20 is required (`.npmrc` sets `engine-strict=true`).
@@ -31,7 +32,7 @@ node scripts/verify-chart.mjs     # 34 checks: the contribution heatmap specific
 
 `verify:seo` reads `.svelte-kit/output/prerendered/` rather than driving a browser, because the invariants are per-route and there are 43 routes — and because the bug it exists to prevent (duplicate `<meta name="description">`) was only visible in the served bytes, not the hydrated DOM.
 
-**`npm run build` cannot complete on Windows without Developer Mode.** `adapter-vercel` dedupes identical function bundles with a symlink, which needs the privilege; it fails with `EPERM` *after* prerendering finishes, so `verify:seo` still works and prerender errors are still caught. Enable Settings → System → For developers → Developer Mode to get a clean build. The `[404] GET /games/<slug>/` lines during prerender are expected — see `svelte.config.js`.
+**`npm run build` cannot complete on Windows without Developer Mode.** `adapter-vercel` dedupes identical function bundles with a symlink, which needs the privilege; it fails with `EPERM` *after* prerendering finishes, so `verify:seo` still works and prerender errors are still caught. Enable Settings → System → For developers → Developer Mode to get a clean build. `ADAPTER=node npm run build` has no symlink step and completes cleanly on Windows either way. The `[404] GET /games/<slug>/` lines during prerender are expected — see `svelte.config.js`.
 
 ### Generator scripts (not part of `npm run build`)
 
@@ -52,7 +53,24 @@ Server code reads the token as `env.GH_TOKEN || env.GITHUB_TOKEN` — either nam
 
 ## Architecture
 
-SvelteKit 2 + **Svelte 5 runes** + TypeScript, deployed via `@sveltejs/adapter-vercel`. Global CSS variables only — no CSS framework, no component library. **There are no production dependencies at all** — `package.json` has no `dependencies` key. Keep it that way unless there's a reason a hand-written module can't cover: the previous entry was `zod`, whose schemas were imported by nothing and whose contribution-response schema was wrong (it expected `data.user`; both callers query `viewer`).
+SvelteKit 2 + **Svelte 5 runes** + TypeScript. Global CSS variables only — no CSS framework, no component library. **There are no production dependencies at all** — `package.json` has no `dependencies` key. Keep it that way unless there's a reason a hand-written module can't cover: the previous entry was `zod`, whose schemas were imported by nothing and whose contribution-response schema was wrong (it expected `data.user`; both callers query `viewer`).
+
+### Two hosts, two adapters
+
+`svelte.config.js` selects the adapter from `process.env.ADAPTER`:
+
+| | Adapter | Output | Used by |
+|---|---|---|---|
+| `ADAPTER=node` | `@sveltejs/adapter-node` | `build/` (run `node build`) | Self-hosting on a Raspberry Pi 5 — Cloudflare Tunnel → Caddy → this process. See `PI-HOSTING-PLAN.md`, and the repo `Dockerfile` / `docker-compose.yml` / `Caddyfile`. |
+| *unset* (default) | `@sveltejs/adapter-vercel` | `.vercel/output/` | The Vercel project, kept deployed on its `*.vercel.app` URL as a fallback that is one DNS record away. |
+
+**Keep both adapters and keep `vercel.json` — the fallback depends on all three.** Vercel stays the default so nothing about that deployment needs to know the variable exists.
+
+Only the two `/api/github-*` routes need a running process; everything else prerenders. Total runtime env surface is one `GH_TOKEN`, read via `$env/dynamic/private` — so rotating it is a container restart, not a rebuild. On adapter-node the module-level 30-minute memo in those routes genuinely persists, which is better than Vercel's per-invocation lambdas.
+
+The Pi runs `docker-compose.yml` (three services: the app, `caddy`, its own `cloudflared`) from the checkout at `~/apps/portfolio`, with secrets in a `.env` that exists only there. Two things about that file are deliberate and worth not "simplifying": secrets are passed per-service as `${VAR:?message}` rather than with `env_file:`, so neither container sees the other's secret and a missing value fails `up` loudly instead of degrading to the static-JSON fallback; and no service sets `container_name`, because those are global to the Docker daemon and another compose project on that host already claims `cloudflared`. `.env.example` is the committed template.
+
+`vercel.json` is Vercel-only. On the Pi its work is the root `Caddyfile`'s job instead — **the two are a pair, and anything added to one must be added to the other or the two hosts diverge silently.** Not everything transfers literally: Caddy's `path` matcher is a literal prefix (so each proxied route is an explicit bare-path/subtree pair of patterns, never a bare `*` suffix), Go's RE2 has `(?i)` where JS regex needs per-character case classes, and `handle` blocks are sorted by path-matcher specificity rather than by written order. Directory-index resolution for `static/games/<slug>/` does *not* transfer at all: adapter-node's static handler already does it, and a Caddy rewrite for it would break `/games/typetest/` — a real route. Phase 2 of `PI-HOSTING-PLAN.md` records what was measured.
 
 ### Rendering model (the most important thing to get right)
 
@@ -80,7 +98,7 @@ Payload validation lives in **`src/lib/utils/contribShape.ts`** — one module, 
 **`vercel.json` is strict JSON and cannot carry comments, so the two non-obvious things about it are documented here:**
 
 1. **`rewrites` are first-match-wins, and rule order is a correctness constraint.** `/_next/:path*` is a root-level catch-all pointing at the karaoke app, but `/games/spotifyHero` proxies a *different* Next.js app — and Next emits root-absolute `/_next/*` asset URLs. So `/games/spotifyHero/_next/:path*` must stay **above** the bare `/_next/:path*`, or every Spotify Hero chunk is fetched from the wrong origin: a white screen, no console error, and nothing pointing back at this file. (It also bills the karaoke app's asset bandwidth to this project.) Any future proxied Next app needs its own scoped rule added above the catch-all.
-2. **`headers` rules all merge** (later rules override same-named keys) — unlike `rewrites`. The long-lived asset cache rule matches extensions with **per-character case classes** (`[pP][nN][gG]`, not `png`) because JS regex has no inline `(?i)` flag and two of the about photos are `.PNG`; a lowercase-only alternation silently dropped ~800 KB of images out of the cache rule.
+2. **`headers` rules all merge** (later rules override same-named keys) — unlike `rewrites`. The long-lived asset cache rule matches extensions with **per-character case classes** (`[pP][nN][gG]`, not `png`) because JS regex has no inline `(?i)` flag and `static/about/` holds four `.JPG` and one `.JPEG`; a lowercase-only alternation silently dropped 894 KB of images out of the cache rule. (There is no `.PNG` under `static/` — an earlier revision of this line said there was.)
 3. `Permissions-Policy` deliberately allows `microphone=(self)` — the proxied vcKaraoke app needs it. Everything else in that list is denied.
 
 ### Content lives in data files
@@ -127,7 +145,8 @@ A `<svelte:head>` in a route is only correct for genuinely page-specific, non-me
 
 ## Known inconsistencies
 
-- `README.md` describes `@sveltejs/adapter-static` and a `build/` directory; the project actually uses `@sveltejs/adapter-vercel`. Trust `svelte.config.js`.
+- `README.md` describes `@sveltejs/adapter-static` and a `build/` directory. `adapter-static` is still wrong — but `build/` is now real, since that is where adapter-node emits. Trust `svelte.config.js`.
+- `@sveltejs/adapter-auto` and `@sveltejs/adapter-static` are devDependencies that nothing imports. Only `adapter-node` and `adapter-vercel` are wired up.
 - `scripts/build-{gartic-draw,aim-trainer,dodge-lol,soundvisual-avora}.mjs` are run by **no** CI. The workflow that referenced them (`deploy.yml`) discarded its output at a failing publish step and has been deleted. The built games are committed under `static/games/`; re-run these by hand when a sub-app needs updating.
 - Data-refresh CI is `.github/workflows/refresh-github-data.yml` (cron + `workflow_dispatch`). Each generator runs with `continue-on-error` behind a `git checkout --` revert guard, because both GitHub generators write an *empty* `{ error, ... }` payload before exiting non-zero — committing that unconditionally would replace good-but-stale data with a blank chart.
 - `AGENTS.md` and `.bob/rules-*/AGENTS.md` cover the same ground as this file. If you change a convention, update them too.
