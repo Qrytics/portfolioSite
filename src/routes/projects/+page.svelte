@@ -26,6 +26,28 @@
 	let isCollapsed = $state(false);
 	let expandedSlugs = $state<string[]>([]);
 
+	// Mirrors the column-count breakpoints in ProjectList.svelte's `.grid` media queries, so a
+	// "row" here always matches the row a visitor actually sees.
+	let columns = $state(1);
+
+	$effect(() => {
+		const mqWide = window.matchMedia('(min-width: 1100px)');
+		const mqMedium = window.matchMedia('(min-width: 720px)');
+
+		function updateColumns() {
+			columns = mqWide.matches ? 3 : mqMedium.matches ? 2 : 1;
+		}
+
+		updateColumns();
+		mqWide.addEventListener('change', updateColumns);
+		mqMedium.addEventListener('change', updateColumns);
+
+		return () => {
+			mqWide.removeEventListener('change', updateColumns);
+			mqMedium.removeEventListener('change', updateColumns);
+		};
+	});
+
 	function toggleCollapsedView() {
 		if (!isCollapsed) {
 			isCollapsed = true;
@@ -41,23 +63,19 @@
 		expandedSlugs = [...visibleProjectSlugs];
 	}
 
+	// Toggling one card's membership in `expandedSlugs` flips its `showBody` the same way in either
+	// mode (see ProjectCard's `showBody` derivation) — so applying that same membership change to
+	// every slug in its row keeps the whole row visually in sync instead of letting one card's state
+	// disagree with its neighbors.
 	function toggleProjectExpansion(slug: string) {
-		if (!isCollapsed) {
-			if (expandedSlugs.includes(slug)) {
-				expandedSlugs = expandedSlugs.filter((item) => item !== slug);
-				return;
-			}
-
-			expandedSlugs = [...expandedSlugs, slug];
-			return;
-		}
+		const row = rowForSlug(slug);
 
 		if (expandedSlugs.includes(slug)) {
-			expandedSlugs = expandedSlugs.filter((item) => item !== slug);
+			expandedSlugs = expandedSlugs.filter((item) => !row.includes(item));
 			return;
 		}
 
-		expandedSlugs = [...expandedSlugs, slug];
+		expandedSlugs = [...new Set([...expandedSlugs, ...row])];
 	}
 
 	function monthIndex(year: number, month: Month): number {
@@ -103,6 +121,43 @@
 	});
 
 	const visibleProjectSlugs = $derived(sortedProjects.map((project) => project.slug));
+
+	const projectRows = $derived.by(() => {
+		const rows: string[][] = [];
+		for (let i = 0; i < visibleProjectSlugs.length; i += columns) {
+			rows.push(visibleProjectSlugs.slice(i, i + columns));
+		}
+		return rows;
+	});
+
+	function rowForSlug(slug: string): string[] {
+		return projectRows.find((row) => row.includes(slug)) ?? [slug];
+	}
+
+	function isSlugCollapsed(slug: string): boolean {
+		return isCollapsed ? !expandedSlugs.includes(slug) : expandedSlugs.includes(slug);
+	}
+
+	// A resize (or a sort change) can regroup projects into different rows than the ones a
+	// person's clicks last agreed on — e.g. two cards collapsed side-by-side in a 2-column row
+	// land next to a third, still-expanded card once the viewport widens to 3 columns. Collapse
+	// the whole row in that case rather than expanding it: collapsing is the reversible,
+	// no-surprise-content resolution.
+	$effect(() => {
+		const rowsNeedingCollapse = projectRows.filter((row) => {
+			const collapsedCount = row.filter(isSlugCollapsed).length;
+			return collapsedCount > 0 && collapsedCount < row.length;
+		});
+
+		if (rowsNeedingCollapse.length === 0) return;
+
+		const slugsToCollapse = rowsNeedingCollapse.flat();
+
+		expandedSlugs = isCollapsed
+			? expandedSlugs.filter((slug) => !slugsToCollapse.includes(slug))
+			: [...new Set([...expandedSlugs, ...slugsToCollapse])];
+	});
+
 	const areAllVisibleExpanded = $derived(
 		isCollapsed &&
 			visibleProjectSlugs.length > 0 &&
