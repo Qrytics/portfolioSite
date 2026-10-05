@@ -19,9 +19,8 @@
 			<a
 				href="/tutoring"
 				target="_blank"
-				rel="noopener noreferrer"
+				rel="external noopener noreferrer"
 				class="hero-action"
-				data-sveltekit-reload
 			>
 				book a tutoring session ↗<span class="sr-only"> (opens in new tab)</span>
 			</a>

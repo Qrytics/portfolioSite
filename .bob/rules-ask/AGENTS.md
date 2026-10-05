@@ -2,7 +2,7 @@
 
 ## Counterintuitive structure
 
-- **Two adapters, selected by env, and neither is `adapter-static`** — `svelte.config.js` picks `@sveltejs/adapter-node` when `ADAPTER=node` (self-hosted on a Raspberry Pi, output `build/`) and `@sveltejs/adapter-vercel` otherwise, which is the default and keeps the Vercel deployment alive as a fallback. `@sveltejs/adapter-static` and `adapter-auto` are installed but not active.
+- **Two adapters, selected by env, and neither is `adapter-static`** — `svelte.config.js` picks `@sveltejs/adapter-node` when `ADAPTER=node` (self-hosted on a Raspberry Pi, output `build/`) and `@sveltejs/adapter-vercel` otherwise, which is the default and keeps the Vercel deployment alive as a fallback. (`adapter-static` and `adapter-auto` used to be installed but unused; they were removed in the 2026-10-05 audit — see `docs/SITE-AUDIT.md`.)
 - **Every route is pre-rendered, including the home page.** It has no `+page.ts` at all: the GitHub fetches moved into `src/lib/utils/githubData.ts` and run on the client after mount, because both consumers sit behind a `requestIdleCallback` gate and so were never in the server-rendered HTML anyway — the old `load` blocked TTFB for nothing.
 - **There are no barrel modules.** `src/lib/index.ts` and `src/lib/components/index.ts` were imported by nothing while keeping unused components in the module graph; both are deleted. Import by direct path.
 - **Several "game" routes don't exist as SvelteKit pages** — `/games/vcKaraoke`, `/games/spotifyHero`, `/tutoring` are pure reverse-proxy rewrites to external deployments, declared twice: in `vercel.json` for Vercel and in the root `Caddyfile` (mounted by `docker-compose.yml`) for the self-hosted Pi.

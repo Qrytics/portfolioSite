@@ -41,7 +41,9 @@
 			linkedin<span class="sr-only"> (opens in new tab)</span>
 		</a>
 		<span class="footer__sep">·</span>
-		<a href="/tutoring" target="_blank" rel="noopener noreferrer" class="footer-link" data-sveltekit-reload>
+		<!-- `rel="external"`: /tutoring is a proxy rewrite, not a route — it tells the prerender crawler
+		     not to follow it (it would 404 the build) and the client router not to handle it. -->
+		<a href="/tutoring" target="_blank" rel="external noopener noreferrer" class="footer-link">
 			tutoring<span class="sr-only"> (opens in new tab)</span>
 		</a>
 		{#if profile.twitter}

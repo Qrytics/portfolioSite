@@ -64,7 +64,9 @@
 								exposing it would give every card two tab stops and announce the destination
 								twice. `data-sveltekit-reload` because most of these are standalone builds under
 								`static/` or proxied apps, not SvelteKit routes — the client router would 404 on
-								them. `game.route` entries (the type test) are real routes and navigate normally.
+								them. `rel="external"` as well, so the prerender crawler does not follow a proxied app
+								(`/games/vcKaraoke`) into a build-breaking 404. `game.route` entries (the type test)
+								are real routes and navigate normally.
 							-->
 							<a
 								href={withBase(game.playUrl)}
@@ -72,6 +74,7 @@
 								tabindex="-1"
 								aria-hidden="true"
 								data-sveltekit-reload={game.route ? undefined : ''}
+								rel={game.route ? undefined : 'external'}
 							>
 								<div class="game-card__media">
 									<img
@@ -119,6 +122,7 @@
 										class="play-btn"
 										aria-label="Play {game.title}"
 										data-sveltekit-reload={game.route ? undefined : ''}
+								rel={game.route ? undefined : 'external'}
 									>
 										{game.playLabel ?? 'play →'}
 									</a>

@@ -230,8 +230,7 @@
 						<a
 							href={link.href}
 							target={link.external ? '_blank' : undefined}
-							rel={link.external ? 'noopener noreferrer' : undefined}
-							data-sveltekit-reload={link.external ? '' : undefined}
+							rel={link.external ? 'external noopener noreferrer' : undefined}
 							aria-current={!link.external && page.url.pathname === link.href ? 'page' : undefined}
 							onclick={(e) => handleNavClick(e, link.href)}
 						>

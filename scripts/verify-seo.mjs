@@ -3,8 +3,8 @@
  *
  * `verify-ui.mjs` and `verify-chart.mjs` drive a browser against `npm run dev`, which is the right
  * tool for behaviour but the wrong one here: the thing worth asserting is that *every* route ships
- * correct metadata, and there are 43 of them. Reading `.svelte-kit/output/prerendered/` checks all 43
- * in well under a second with no browser, and it checks the bytes crawlers actually receive rather
+ * correct metadata, and there are dozens of them (one per project plus the static routes). Reading
+ * `.svelte-kit/output/prerendered/` checks every one in well under a second with no browser, and it checks the bytes crawlers actually receive rather
  * than a hydrated DOM — which matters because the bug this replaced (two `<meta name="description">`
  * tags, generic one first) was only visible in the served HTML.
  *

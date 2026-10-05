@@ -75,7 +75,9 @@ const config = {
 					}),
 		prerender: {
 			handleHttpError: ({ path, message }) => {
-				if (vendoredGamePaths.some((prefix) => path.startsWith(prefix))) return;
+				// Exact path or a path *inside* it — a bare `startsWith` also excused a genuinely broken
+				// link that merely shares a prefix, e.g. `/games/aimTrainerX`.
+				if (vendoredGamePaths.some((dir) => path === dir || path.startsWith(`${dir}/`))) return;
 				throw new Error(message);
 			}
 		}
