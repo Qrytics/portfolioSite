@@ -17,6 +17,7 @@
 		"build:rogue-swipe": "node scripts/build-rogue-swipe.mjs",
 		"build:soundvisual-avora": "node scripts/build-soundvisual-avora.mjs",
 		"build:paddle-ball": "node scripts/build-paddle-ball.mjs",
+		"build:moxel": "node scripts/build-moxel.mjs",
 		"generate:demo-card": "node scripts/generate-demo-card.mjs",
 		"verify:seo": "node scripts/verify-seo.mjs"
 	},

@@ -69,6 +69,32 @@ export interface Project {
 
 export const projects: Project[] = [
 	{
+		slug: 'moxel',
+		title: 'Moxel',
+		subtitle: 'Local-first pixel art, animation and Minecraft skin editor with live multiplayer',
+		image: '/demos/moxel-preview.jpg',
+		description:
+			'Built a browser-based illustration app for pixel art, frame animation and Minecraft skins and textures: layers and groups, selections, pressure-sensitive brushes, onion skinning and a real-time Three.js preview that maps the skin UV layout onto a 3D character. Projects autosave to IndexedDB and never leave the device; friends can draw together over peer-to-peer WebRTC.',
+		longDescription: `Professional illustration workflow on top of a Minecraft-native document model.
+
+• Layered, multi-frame document where every edit is a serialisable op with an inverse — one primitive powering undo/redo, autosave and live collaboration.
+• Pixel tools with pixel-perfect lines, symmetry (including character left/right mirroring across the skin UV map), lasso / magic-wand selections and custom brush tips.
+• Three.js preview built from the same UV table as the 2D guides, with paint-on-model and walk/idle animation; blocks preview as cubes and items as extruded voxels.
+• Local-first: IndexedDB persistence with debounced autosave, offline PWA, .moxel project files and full backups — no accounts, no uploads.
+• Exports Minecraft-ready skins (with validation), GIFs, sprite sheets and animated textures with .mcmeta.
+• Live sessions over WebRTC with per-pixel last-writer-wins convergence and per-user undo; a stateless relay on the Pi only brokers the handshake.`,
+		type: 'open-source',
+		tags: ['TypeScript', 'Svelte', 'Three.js', 'WebRTC', 'IndexedDB'],
+		github: 'https://github.com/Qrytics/Moxel',
+		siteUrl: '/Moxel/',
+		status: 'active',
+		startMonth: 'Oct',
+		startYear: 2026,
+		endMonth: 'Oct',
+		endYear: 2026,
+		year: 2026
+	},
+	{
 		slug: 'smart-home-iot-dashboard',
 		title: 'Smart Home IoT Dashboard',
 		subtitle: 'Full-stack IoT system with ESP32, FastAPI, React, and real-time MQTT',
