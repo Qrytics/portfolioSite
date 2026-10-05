@@ -24,6 +24,9 @@
 		"snapshot:live": "VERIFY_URL=https://mario-belmonte.com node scripts/snapshot-site.mjs",
 		"snapshot:local": "VERIFY_URL=http://localhost:5173 node scripts/snapshot-site.mjs"
 	},
+	"engines": {
+		"node": ">=20"
+	},
 	"devDependencies": {
 		"@sveltejs/adapter-auto": "^7.0.0",
 		"@sveltejs/adapter-node": "^5.5.7",
