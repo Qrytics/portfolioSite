@@ -94,7 +94,10 @@ async function newPage({ viewport = DESKTOP, theme = 'dark', javaScriptEnabled =
 // markup plus CSS applies — which is exactly the first paint a real phone gets.
 {
 	const { ctx, page } = await newPage({ viewport: PHONE, javaScriptEnabled: false });
-	await page.goto(URL_BASE, { waitUntil: 'domcontentloaded' });
+	// `load`, not `domcontentloaded`: with JS off, DOMContentLoaded can fire before the stylesheets
+	// arrive, so computed styles are still the UA defaults. Invisible against `npm run dev` (styles
+	// are inline there); against a real host it reported the desktop menu button as visible.
+	await page.goto(URL_BASE, { waitUntil: 'load' });
 
 	const toggle = page.locator('.site-header__menu').first();
 	const toggleVisible = (await toggle.count()) > 0 && (await toggle.isVisible());
@@ -120,7 +123,10 @@ async function newPage({ viewport = DESKTOP, theme = 'dark', javaScriptEnabled =
 // ── 1b. Desktop must paint the expanded nav, also without JS ─────────────────────────────────────
 {
 	const { ctx, page } = await newPage({ viewport: DESKTOP, javaScriptEnabled: false });
-	await page.goto(URL_BASE, { waitUntil: 'domcontentloaded' });
+	// `load`, not `domcontentloaded`: with JS off, DOMContentLoaded can fire before the stylesheets
+	// arrive, so computed styles are still the UA defaults. Invisible against `npm run dev` (styles
+	// are inline there); against a real host it reported the desktop menu button as visible.
+	await page.goto(URL_BASE, { waitUntil: 'load' });
 
 	const navDisplay = await page.$eval('.site-nav', (el) => getComputedStyle(el).display);
 	check(navDisplay !== 'none', 'desktop: nav is expanded by CSS alone', `display: ${navDisplay}`);
