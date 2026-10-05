@@ -466,13 +466,9 @@ text-transform: lowercase;
 letter-spacing: 0.02em;
 }
 
-.tech-badge[data-kind='language'] { border-color: rgba(59,130,246,.4); color: rgba(147,197,253,.95); background: rgba(59,130,246,.12); }
-.tech-badge[data-kind='framework'] { border-color: rgba(45,212,191,.44); color: rgba(153,246,228,.96); background: rgba(20,184,166,.14); }
-.tech-badge[data-kind='api'] { border-color: rgba(245,158,11,.42); color: rgba(252,211,77,.95); background: rgba(245,158,11,.12); }
-.tech-badge[data-kind='service'] { border-color: rgba(192,132,252,.45); color: rgba(233,213,255,.96); background: rgba(168,85,247,.14); }
-.tech-badge[data-kind='protocol'] { border-color: rgba(244,114,182,.46); color: rgba(251,207,232,.96); background: rgba(236,72,153,.16); }
-.tech-badge[data-kind='tool'] { border-color: rgba(132,204,22,.44); color: rgba(217,249,157,.96); background: rgba(132,204,22,.14); }
-.tech-badge[data-kind='other'] { border-color: rgba(148,163,184,.35); color: rgba(203,213,225,.9); background: rgba(148,163,184,.1); }
+/* Palette tokens live in app.css (shared with ProjectCard). */
+.tech-badge[data-kind] { border-color: color-mix(in srgb, var(--tag-c) 42%, transparent); color: color-mix(in srgb, var(--tag-fg) 95%, transparent); background: color-mix(in srgb, var(--tag-c) 13%, transparent); }
+.tech-badge[data-kind='other'] { border-color: color-mix(in srgb, var(--tag-c) 35%, transparent); background: color-mix(in srgb, var(--tag-c) 10%, transparent); }
 
 .subtitle {
 margin: 0;
@@ -561,14 +557,21 @@ border-color: var(--border-2);
 }
 
 .btn--warn {
-	border-color: rgba(245, 158, 11, 0.45);
-	background: rgba(245, 158, 11, 0.14);
-	color: rgba(252, 211, 77, 0.96);
+	border-color: color-mix(in srgb, #f59e0b 45%, transparent);
+	background: color-mix(in srgb, #f59e0b 14%, transparent);
+	color: color-mix(in srgb, #fcd34d 96%, transparent);
 }
 
 .btn--warn:hover {
-	border-color: rgba(245, 158, 11, 0.62);
-	background: rgba(245, 158, 11, 0.22);
+	border-color: color-mix(in srgb, #f59e0b 62%, transparent);
+	background: color-mix(in srgb, #f59e0b 22%, transparent);
+}
+
+/* Pale yellow text was ~1.4:1 on the light panel — effectively invisible. */
+:global([data-theme='light']) .btn--warn {
+	color: #92400e;
+	border-color: color-mix(in srgb, #b45309 50%, transparent);
+	background: color-mix(in srgb, #f59e0b 16%, transparent);
 }
 
 .live-note {

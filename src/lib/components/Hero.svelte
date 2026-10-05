@@ -88,9 +88,9 @@
 		height: 70%;
 		background: radial-gradient(
 			ellipse at center,
-			rgba(0, 0, 0, 0.8) 0%,
-			rgba(0, 0, 0, 0.7) 30%,
-			rgba(0, 0, 0, 0.5) 60%,
+			color-mix(in srgb, #000000 80%, transparent) 0%,
+			color-mix(in srgb, #000000 70%, transparent) 30%,
+			color-mix(in srgb, #000000 50%, transparent) 60%,
 			transparent 85%
 		);
 		filter: blur(16px);
@@ -118,7 +118,7 @@
 		transform: translate(-50%, -50%);
 		width: calc(100% + 2rem);
 		height: calc(100% + 0.75rem);
-		background: rgba(0, 0, 0, 0.4);
+		background: color-mix(in srgb, #000000 40%, transparent);
 		filter: blur(12px);
 		z-index: -1;
 		pointer-events: none;
@@ -144,10 +144,10 @@
 		background: radial-gradient(
 			ellipse at center,
 			rgb(255, 255, 255) 0%,
-			rgba(247, 253, 251, 0.92) 34%,
-			rgba(228, 247, 243, 0.58) 58%,
-			rgba(210, 240, 234, 0.22) 78%,
-			rgba(255, 255, 255, 0) 100%
+			color-mix(in srgb, #f7fdfb 92%, transparent) 34%,
+			color-mix(in srgb, #e4f7f3 58%, transparent) 58%,
+			color-mix(in srgb, #d2f0ea 22%, transparent) 78%,
+			color-mix(in srgb, #ffffff 0%, transparent) 100%
 		);
 		filter: blur(34px);
 	}
@@ -157,10 +157,10 @@
 		height: calc(100% + 1.5rem);
 		background: radial-gradient(
 			ellipse at center,
-			rgba(255, 255, 255, 0.98) 0%,
-			rgba(240, 252, 248, 0.78) 38%,
-			rgba(223, 247, 241, 0.32) 68%,
-			rgba(255, 255, 255, 0) 100%
+			color-mix(in srgb, #ffffff 98%, transparent) 0%,
+			color-mix(in srgb, #f0fcf8 78%, transparent) 38%,
+			color-mix(in srgb, #dff7f1 32%, transparent) 68%,
+			color-mix(in srgb, #ffffff 0%, transparent) 100%
 		);
 		filter: blur(20px);
 	}
@@ -235,7 +235,7 @@
 	:global([data-theme='light']) .hero-action {
 		border-color: color-mix(in srgb, var(--accent) 38%, var(--border));
 		background: color-mix(in srgb, var(--panel) 94%, white 6%);
-		box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.7) inset;
+		box-shadow: 0 0 0 1px color-mix(in srgb, #ffffff 70%, transparent) inset;
 	}
 
 	:global([data-theme='light']) .hero-action:hover,

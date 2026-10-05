@@ -476,7 +476,7 @@
 		gap: 0.4rem;
 		padding: 0.25rem 0.55rem;
 		border: 1px solid var(--border-2);
-		background: rgba(255, 255, 255, 0.03);
+		background: color-mix(in srgb, #ffffff 3%, transparent);
 		color: color-mix(in srgb, var(--text) 72%, transparent);
 		font-family: var(--font-mono);
 		font-size: 0.82rem;
@@ -541,7 +541,7 @@
 		align-items: center;
 		justify-content: space-between;
 		padding: 0.45rem 0.75rem;
-		background: rgba(255, 255, 255, 0.04);
+		background: color-mix(in srgb, #ffffff 4%, transparent);
 		border-bottom: 1px solid var(--border-2);
 		flex-shrink: 0;
 	}
@@ -601,7 +601,11 @@
 	}
 
 	.line--error span {
-		color: rgba(255, 90, 90, 0.9);
+		color: color-mix(in srgb, #ff5a5a 90%, transparent);
+	}
+
+	:global([data-theme='light']) .line--error span {
+		color: #b91c1c;
 	}
 
 	.terminal__input-row {
@@ -610,7 +614,7 @@
 		gap: 0.5rem;
 		padding: 0.6rem 0.75rem;
 		border-top: 1px solid var(--border-2);
-		background: rgba(255, 255, 255, 0.02);
+		background: color-mix(in srgb, #ffffff 2%, transparent);
 		flex-shrink: 0;
 	}
 

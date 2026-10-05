@@ -469,13 +469,13 @@
 		width: 100%;
 		text-decoration: none;
 		border: 1px solid var(--border);
-		background: linear-gradient(180deg, rgba(255, 255, 255, 0.03), transparent 52%), var(--panel);
+		background: linear-gradient(180deg, color-mix(in srgb, #ffffff 3%, transparent), transparent 52%), var(--panel);
 		box-shadow: var(--shadow);
 		transition: border-color 0.16s ease;
 	}
 
 	.card:hover {
-		border-color: rgba(222, 232, 255, 0.22);
+		border-color: color-mix(in srgb, #dee8ff 22%, transparent);
 	}
 
 	.card--bio:hover {
@@ -502,7 +502,7 @@
 		text-align: inherit;
 		cursor: pointer;
 		border: 1px solid var(--border);
-		background: linear-gradient(180deg, rgba(255, 255, 255, 0.03), transparent 52%), var(--panel);
+		background: linear-gradient(180deg, color-mix(in srgb, #ffffff 3%, transparent), transparent 52%), var(--panel);
 		box-shadow: var(--shadow);
 		overflow: hidden;
 	}
@@ -549,7 +549,7 @@
 		border: 1px solid color-mix(in srgb, var(--accent) 24%, transparent);
 		border-radius: 10px;
 		background: color-mix(in srgb, var(--panel) 82%, var(--bg) 18%);
-		box-shadow: 0 10px 22px rgba(0, 0, 0, 0.3);
+		box-shadow: 0 10px 22px color-mix(in srgb, #000000 30%, transparent);
 		opacity: 1;
 		transition: opacity 0.25s ease;
 	}
@@ -563,7 +563,7 @@
 		height: auto;
 		justify-self: end;
 		align-self: center;
-		filter: drop-shadow(0 8px 18px rgba(0, 0, 0, 0.26));
+		filter: drop-shadow(0 8px 18px color-mix(in srgb, #000000 26%, transparent));
 	}
 
 	.title {

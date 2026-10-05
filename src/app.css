@@ -559,6 +559,21 @@ input {
 }
 
 /* ============================================================
+   Tech-badge palette — one copy. `ProjectCard` and the project detail page each carried their own
+   byte-for-byte duplicate of these seven rules. The kind comes from `getTagKind()` in
+   `$lib/utils/tags.ts`; components consume `--tag-c` (base) and `--tag-fg` (text). Light mode
+   deliberately keeps its single teal pill style (the `.tech-badge` override above), so these are
+   only read in dark mode.
+   ============================================================ */
+[data-kind='language'] { --tag-c: #3b82f6; --tag-fg: #93c5fd; }
+[data-kind='framework'] { --tag-c: #14b8a6; --tag-fg: #99f6e4; }
+[data-kind='api'] { --tag-c: #f59e0b; --tag-fg: #fcd34d; }
+[data-kind='service'] { --tag-c: #a855f7; --tag-fg: #e9d5ff; }
+[data-kind='protocol'] { --tag-c: #ec4899; --tag-fg: #fbcfe8; }
+[data-kind='tool'] { --tag-c: #84cc16; --tag-fg: #d9f99d; }
+[data-kind='other'] { --tag-c: #94a3b8; --tag-fg: #cbd5e1; }
+
+/* ============================================================
    Touch targets — 44x44 CSS px on coarse pointers (WCAG 2.5.5 / Apple HIG). Unlayered globals, so
    they lose to any component rule that sets the same property; none of these set min-* sizes.
    ============================================================ */

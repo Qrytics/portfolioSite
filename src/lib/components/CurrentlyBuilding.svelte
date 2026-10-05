@@ -123,7 +123,7 @@
 
 	.card {
 		border: 1px solid var(--border);
-		background: linear-gradient(180deg, rgba(255, 255, 255, 0.025), transparent 60%), var(--panel);
+		background: linear-gradient(180deg, color-mix(in srgb, #ffffff 2.5%, transparent), transparent 60%), var(--panel);
 		overflow: hidden;
 	}
 
@@ -133,7 +133,7 @@
 		gap: 0.55rem;
 		padding: 0.6rem 0.9rem;
 		border-bottom: 1px solid var(--border-2);
-		background: rgba(0, 0, 0, 0.22);
+		background: color-mix(in srgb, #000000 22%, transparent);
 	}
 
 	.termbar__prompt {

@@ -394,7 +394,7 @@
 		padding: 0.25rem 0.55rem;
 		min-width: 2.05rem;
 		border: 1px solid var(--border-2);
-		background: linear-gradient(180deg, rgba(255, 255, 255, 0.045), rgba(255, 255, 255, 0.01)), var(--panel-2);
+		background: linear-gradient(180deg, color-mix(in srgb, #ffffff 4.5%, transparent), color-mix(in srgb, #ffffff 1%, transparent)), var(--panel-2);
 		color: var(--text);
 		font-family: var(--font-mono);
 		font-size: 0.82rem;

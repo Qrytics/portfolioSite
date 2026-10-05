@@ -297,7 +297,7 @@
 		gap: 0.4rem;
 		padding: 0.25rem 0.55rem;
 		border: 1px solid var(--border-2);
-		background: rgba(255, 255, 255, 0.03);
+		background: color-mix(in srgb, #ffffff 3%, transparent);
 		color: color-mix(in srgb, var(--text) 72%, transparent);
 		font-family: var(--font-mono);
 		font-size: 0.82rem;
@@ -419,7 +419,7 @@
 	.modal__close {
 		flex-shrink: 0;
 		border: 1px solid var(--border-2);
-		background: rgba(255, 255, 255, 0.04);
+		background: color-mix(in srgb, #ffffff 4%, transparent);
 		color: var(--muter);
 		font-family: var(--font-mono);
 		font-size: 0.7rem;
@@ -496,7 +496,7 @@
 		color: var(--muted);
 		border: 1px solid var(--border-2);
 		padding: 0.1rem 0.35rem;
-		background: rgba(255, 255, 255, 0.03);
+		background: color-mix(in srgb, #ffffff 3%, transparent);
 	}
 
 	.empty,
@@ -518,7 +518,7 @@
 		border-top: 1px solid var(--border-2);
 		font-size: 0.72rem;
 		color: var(--muter);
-		background: rgba(255, 255, 255, 0.02);
+		background: color-mix(in srgb, #ffffff 2%, transparent);
 		flex-shrink: 0;
 	}
 
@@ -526,7 +526,7 @@
 		font-family: var(--font-mono);
 		padding: 0.1rem 0.3rem;
 		border: 1px solid var(--border-2);
-		background: rgba(255, 255, 255, 0.04);
+		background: color-mix(in srgb, #ffffff 4%, transparent);
 		font-size: 0.7rem;
 	}
 
