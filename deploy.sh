@@ -89,6 +89,14 @@ main() {
 		docker compose up -d portfolio
 	fi
 
+	# The Moxel relay is its own image, so the portfolio build above never touches it. Rebuild it only
+	# when `npm run build:moxel` re-vendored its source — it is stateless, so a recreate just drops
+	# in-flight handshakes, and peers already connected over WebRTC never notice.
+	if grep -q '^services/moxel-signal/' <<<"$changed"; then
+		log 'services/moxel-signal changed — rebuilding the relay'
+		docker compose up -d --build moxel-signal
+	fi
+
 	# The Caddyfile is a read-only bind mount and caddy does not watch it, so without this a
 	# Caddyfile-only commit sits unapplied until something unrelated restarts the container: the config
 	# on disk and the config being served diverge silently, which is the failure mode the whole

@@ -97,8 +97,7 @@ services:
   # services/moxel-signal/ by `npm run build:moxel`. Reached only through caddy (`/Moxel/signal`),
   # so — like `portfolio` — no `ports:`.
   #
-  # deploy.sh only rebuilds `portfolio`; after re-vendoring the relay, rebuild it by hand with
-  # `docker compose up -d --build moxel-signal` (it changes rarely).
+  # deploy.sh rebuilds this whenever a push changes services/moxel-signal/ (it changes rarely).
   moxel-signal:
     build: ./services/moxel-signal
     image: moxel-signal:latest
