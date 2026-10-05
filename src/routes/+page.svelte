@@ -28,6 +28,9 @@
 	let contribError = $state<string | null>(null);
 	let recentRepos = $state<RecentRepo[]>([]);
 	let recentReposError = $state<string | null>(null);
+	/** Until each fetch settles, its section says "loading" rather than claiming there is no data. */
+	let contribLoading = $state(true);
+	let recentLoading = $state(true);
 
 	function scrollToHashTarget(hash: string) {
 		if (typeof window === 'undefined') return;
@@ -66,10 +69,12 @@
 		void loadContrib().then((result) => {
 			contribYears = result.contribYears;
 			contribError = result.contribError;
+			contribLoading = false;
 		});
 		void loadRecent().then((result) => {
 			recentRepos = result.recentRepos;
 			recentReposError = result.recentReposError;
+			recentLoading = false;
 		});
 	}
 
@@ -170,9 +175,9 @@
 		until it scrolls close, with `contain-intrinsic-size` holding the space in the meantime.
 	-->
 	<div class="deferred deferred--chart">
-		<GitHubContribChart years={contribYears} error={contribError} />
+		<GitHubContribChart years={contribYears} error={contribError} loading={contribLoading} />
 	</div>
-	<CurrentlyBuilding repos={recentRepos} error={recentReposError} />
+	<CurrentlyBuilding repos={recentRepos} error={recentReposError} loading={recentLoading} />
 	<div class="deferred deferred--timeline">
 		<Timeline />
 	</div>

@@ -95,6 +95,26 @@
 		return () => media.removeEventListener('change', onChange);
 	});
 
+	let menuBtn = $state<HTMLButtonElement | undefined>(undefined);
+	let navEl = $state<HTMLElement | undefined>(undefined);
+
+	/**
+	 * The compact menu had no Escape and left focus on the toggle, so a keyboard user opening it
+	 * then had to Tab past the rest of the header to reach the links it had just revealed. Opening
+	 * now moves focus to the first link; Escape closes and hands focus back to the toggle.
+	 */
+	$effect(() => {
+		if (!navOpen) return;
+		navEl?.querySelector<HTMLElement>('a, button')?.focus({ preventScroll: true });
+		function onKey(e: KeyboardEvent) {
+			if (e.key !== 'Escape') return;
+			navOpen = false;
+			menuBtn?.focus({ preventScroll: true });
+		}
+		window.addEventListener('keydown', onKey);
+		return () => window.removeEventListener('keydown', onKey);
+	});
+
 	/** Only one overlay at a time so scroll-lock stays balanced and the header stays usable. */
 	$effect(() => {
 		if (searchOpen) terminalOpen = false;
@@ -173,8 +193,9 @@
 				type="button"
 				class="theme-toggle"
 				onclick={toggleTheme}
-				aria-label={isDarkTheme ? 'Switch to light mode' : 'Switch to dark mode'}
+				aria-label="Light mode"
 				aria-pressed={!isDarkTheme}
+				title={isDarkTheme ? 'Switch to light mode' : 'Switch to dark mode'}
 			>
 				<!-- Glyph comes from CSS keyed on `[data-theme]`, which the blocking `app.html` script
 				     has already set. Rendering it from the `theme` rune would show the dark-mode sun for
@@ -183,19 +204,28 @@
 			</button>
 		</div>
 
+		<!-- No aria-label: it replaced the visible word "menu", so a voice-control user saying "click
+		     menu" matched nothing (WCAG 2.5.3, label in name). The visible text is the name. -->
 		<button
+			bind:this={menuBtn}
 			type="button"
 			class="site-header__menu"
-			aria-label="Toggle navigation"
 			aria-expanded={navOpen}
+			aria-controls="site-nav"
 			onclick={() => (navOpen = !navOpen)}
 		>
 			menu
 		</button>
 
-		<nav class="site-nav" class:site-nav--open={navOpen} aria-label="Main navigation">
+		<nav
+			bind:this={navEl}
+			id="site-nav"
+			class="site-nav"
+			class:site-nav--open={navOpen}
+			aria-label="Main navigation"
+		>
 			<ul>
-				{#each navLinks as link}
+				{#each navLinks as link (link.href)}
 					<li>
 						<a
 							href={link.href}

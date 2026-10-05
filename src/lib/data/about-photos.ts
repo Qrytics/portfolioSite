@@ -22,6 +22,12 @@ export type AboutPhoto = {
 	 */
 	width?: number;
 	height?: number;
+	/**
+	 * What the photo shows, for screen readers. Optional because only the person in the photos can
+	 * write these accurately; without one the gallery falls back to a numbered description, which is
+	 * honest but uninformative. Add them as you go.
+	 */
+	alt?: string;
 };
 
 export const aboutPhotos: AboutPhoto[] = [

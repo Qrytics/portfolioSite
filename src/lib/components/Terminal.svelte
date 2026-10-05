@@ -627,7 +627,8 @@
 		border: none;
 		outline: none;
 		font-family: var(--font-mono);
-		font-size: 0.88rem;
+		/* Never below 16px: iOS Safari zooms the whole page into any smaller focused input. */
+		font-size: max(16px, 0.88rem);
 		color: var(--text);
 		caret-color: var(--accent);
 		min-width: 0;

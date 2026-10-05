@@ -92,6 +92,17 @@ async function snapshot(browser, base) {
 					const res = await page.goto(base + route, { waitUntil: 'load', timeout: 30000 });
 					entry.status = res?.status() ?? 0;
 					await page.waitForLoadState('networkidle', { timeout: 8000 }).catch(() => {});
+					// A full-page screenshot does not scroll, so `loading="lazy"` images below the fold
+					// never load and show up as empty boxes. Walk the page once, then return to the top.
+					await page.evaluate(async () => {
+						const step = Math.max(400, window.innerHeight);
+						for (let y = 0; y < document.body.scrollHeight; y += step) {
+							window.scrollTo(0, y);
+							await new Promise((r) => setTimeout(r, 60));
+						}
+						window.scrollTo(0, 0);
+					});
+					await page.waitForLoadState('networkidle', { timeout: 8000 }).catch(() => {});
 					await page.waitForTimeout(400);
 					const file = `${slugFor(route)}.${vpName}.${theme}.png`;
 					await page.screenshot({ path: path.join(outDir, file), fullPage: true });

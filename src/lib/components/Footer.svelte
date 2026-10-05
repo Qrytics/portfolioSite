@@ -12,6 +12,10 @@
 	 */
 	function backToTop() {
 		window.scrollTo({ top: 0 });
+		// Move focus too. Scrolling alone left keyboard focus on this button at the bottom of the
+		// page, so the next Tab jumped the viewport straight back down. The site title is the first
+		// real control at the top. `preventScroll` so focusing doesn't fight the scroll above.
+		document.querySelector<HTMLElement>('.site-header__title')?.focus({ preventScroll: true });
 	}
 </script>
 

@@ -67,6 +67,12 @@
 		});
 	}
 
+	/**
+	 * Hover/focus on the photos card pauses the 4 s rotation (WCAG 2.2.2): someone pointing at, or
+	 * tabbed onto, the thumbnail is looking at it, and it changed under them indefinitely.
+	 */
+	let rotationHeld = $state(false);
+
 	/** Held so unmount can clear it; it used to fire into a destroyed component. */
 	let portraitTimer: ReturnType<typeof setTimeout> | undefined;
 
@@ -92,7 +98,7 @@
 		isPhotoVisible = true;
 
 		const rotatePhoto = async () => {
-			if (transitioning) return;
+			if (transitioning || rotationHeld) return;
 
 			const nextPhoto = getNextTeaserPhoto();
 
@@ -255,7 +261,14 @@
 					</div>
 				</a>
 
-				<a class="card card--photos" href="/about">
+				<a
+					class="card card--photos"
+					href="/about"
+					onpointerenter={() => (rotationHeld = true)}
+					onpointerleave={() => (rotationHeld = false)}
+					onfocus={() => (rotationHeld = true)}
+					onblur={() => (rotationHeld = false)}
+				>
 					<div class="card__inner card__inner--media">
 						<div class="media-copy">
 							<div class="title-row">
@@ -279,13 +292,13 @@
 					</div>
 				</a>
 
-				<div class="card card--spotify" aria-label="Spotify favorites">
+				<div class="card card--spotify" role="group" aria-label="Spotify favorites">
 					<div class="card__inner">
 						<div class="title-row">
 							<h3 class="title">spotify</h3>
 						</div>
 
-						<div class="spotify-grid" aria-label="Spotify favorites">
+						<div class="spotify-grid">
 							<a
 								class="spotify-tile spotify-tile--compact"
 								href={spotifyFavorites.artist.href}

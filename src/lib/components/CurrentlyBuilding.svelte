@@ -15,9 +15,11 @@
 	type Props = {
 		repos?: Repo[];
 		error?: string | null;
+		/** True until the first fetch settles; shows "loading…" instead of a false "no activity". */
+		loading?: boolean;
 	};
 
-	let { repos = [], error = null }: Props = $props();
+	let { repos = [], error = null, loading = false }: Props = $props();
 	const githubProfileUrl = profile.github;
 
 	const WEEK_MS = 7 * 24 * 60 * 60 * 1000;
@@ -63,7 +65,12 @@
 				</a>
 			</div>
 			<ul class="list">
-				{#if error}
+				{#if loading}
+					<li class="list__item">
+						<span class="bullet" aria-hidden="true">•</span>
+						loading recent activity…
+					</li>
+				{:else if error}
 					<li class="list__item">
 						<span class="bullet" aria-hidden="true">•</span>
 						{error}

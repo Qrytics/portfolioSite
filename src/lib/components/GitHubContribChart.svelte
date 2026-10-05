@@ -32,9 +32,11 @@
 	type ChartProps = {
 		years?: GithubContribData[];
 		error?: string | null;
+		/** True until the first fetch settles; shows "loading…" instead of a false "no data". */
+		loading?: boolean;
 	};
 
-	let { years: initialYears = [], error: initialError = null }: ChartProps = $props();
+	let { years: initialYears = [], error: initialError = null, loading = false }: ChartProps = $props();
 
 	/** How many of the most recent years get their own button. Computed, not hardcoded,
 	 *  so the list ages correctly instead of silently gaining a year every January. */
@@ -684,7 +686,11 @@
 			{#if !hasData}
 				<div class="chart-wrap">
 					<div class="empty">
-						{initialError ?? 'No contribution data available for the selected period.'}
+						{#if loading}
+							<span aria-live="polite">loading contribution history…</span>
+						{:else}
+							{initialError ?? 'No contribution data available for the selected period.'}
+						{/if}
 					</div>
 				</div>
 			{:else}
@@ -716,11 +722,12 @@
 							</div>
 						{/if}
 
-						<div class="years" aria-label="Contribution years">
+						<div class="years" role="group" aria-label="Contribution period">
 							<button
 								type="button"
 								class="year year--wide"
 								class:year--current={selectedPeriod === 'last365'}
+								aria-pressed={selectedPeriod === 'last365'}
 								onclick={() => {
 									userPeriodOverride = 'last365';
 								}}
@@ -732,6 +739,7 @@
 									type="button"
 									class="year"
 									class:year--current={y === selectedPeriod}
+									aria-pressed={y === selectedPeriod}
 									onclick={() => {
 										userPeriodOverride = y;
 									}}>{y}</button

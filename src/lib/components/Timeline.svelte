@@ -181,9 +181,17 @@
 		grid-template-columns: 4rem 1.5rem 1fr;
 		gap: 0 0.75rem;
 		align-items: start;
-		opacity: 0;
-		transform: translateX(-20px);
 		transition: opacity 0.4s ease-out, transform 0.4s ease-out;
+	}
+
+	/* Hidden-until-revealed only when script can actually reveal it. Unconditionally, a visitor
+	   without JS (or a crawler's snapshot, or a browser where the observer never fires) got an
+	   invisible timeline. Browsers without `scripting` support skip this and just show it. */
+	@media (scripting: enabled) {
+		.event:not(.event--revealed) {
+			opacity: 0;
+			transform: translateX(-20px);
+		}
 	}
 
 	.event--revealed {

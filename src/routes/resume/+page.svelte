@@ -16,6 +16,25 @@
 						on Google Drive ↗
 					</a>.
 				</p>
+				<!-- The embedded viewer is cramped on a phone and has no obvious download control, so the
+				     two things people actually want from a resume page get their own buttons. -->
+				<div class="actions">
+					<a
+						class="action"
+						href="https://drive.google.com/uc?export=download&id=1N_JbJgcBEc2B89T1k33NA2s_UPsuVoI0"
+						rel="noopener noreferrer"
+					>
+						download PDF ↓
+					</a>
+					<a
+						class="action action--ghost"
+						href="https://drive.google.com/file/d/1N_JbJgcBEc2B89T1k33NA2s_UPsuVoI0/view?usp=sharing"
+						target="_blank"
+						rel="noopener noreferrer"
+					>
+						open full screen ↗<span class="sr-only"> (opens in new tab)</span>
+					</a>
+				</div>
 			</header>
 
 			<div class="frame">
@@ -33,6 +52,36 @@
 </div>
 
 <style>
+	.actions {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 0.6rem;
+		margin-top: 1rem;
+	}
+
+	.action {
+		display: inline-flex;
+		align-items: center;
+		min-height: 2.75rem;
+		padding: 0 1rem;
+		border: 1px solid color-mix(in srgb, var(--accent) 40%, transparent);
+		background: color-mix(in srgb, var(--accent) 9%, transparent);
+		color: var(--accent-text);
+		font-family: var(--font-mono);
+		font-size: 0.86rem;
+		text-decoration: none;
+	}
+
+	.action:hover {
+		background: color-mix(in srgb, var(--accent) 16%, transparent);
+	}
+
+	.action--ghost {
+		border-color: var(--border);
+		background: transparent;
+		color: var(--text);
+	}
+
 	.page {
 		position: relative;
 		isolation: isolate;

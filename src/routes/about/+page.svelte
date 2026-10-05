@@ -34,7 +34,7 @@
 							class="img"
 							class:img--contain={photo.fit === 'contain'}
 							src={photo.src}
-							alt={`About me photo ${i + 1}`}
+							alt={photo.alt ?? `Photo ${i + 1} of ${aboutPhotos.length} from Mario's life outside work`}
 							loading="lazy"
 							width={photo.width}
 							height={photo.height}

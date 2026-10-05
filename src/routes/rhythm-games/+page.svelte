@@ -36,9 +36,8 @@
 				<h2 class="section-title">videos</h2>
 				<div class="video-grid">
 					{#if youtubeVids.length === 0}
-						<div class="empty">
-							Add YouTube videos by setting <code>videos</code> in this file.
-						</div>
+						<!-- Visitor-facing copy; this used to tell the *visitor* to edit the source file. -->
+						<div class="empty">No videos yet — check back soon.</div>
 					{:else}
 						{#each youtubeVids as v (v.youtubeId)}
 							<figure class="video">
@@ -61,9 +60,7 @@
 				<h2 class="section-title">shorts</h2>
 				<div class="video-grid">
 					{#if youtubeShorts.length === 0}
-						<div class="empty">
-							Add YouTube shorts by setting <code>videos</code> in this file.
-						</div>
+						<div class="empty">No shorts yet — check back soon.</div>
 					{:else}
 						{#each youtubeShorts as v (v.youtubeId)}
 							<figure class="video">
