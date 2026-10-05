@@ -104,6 +104,10 @@ async function snapshot(browser, base) {
 					});
 					await page.waitForLoadState('networkidle', { timeout: 8000 }).catch(() => {});
 					await page.waitForTimeout(400);
+					// The home page skips layout/paint of below-the-fold sections with
+					// `content-visibility: auto`; a full-page capture would show them as blank bands.
+					await page.addStyleTag({ content: '* { content-visibility: visible !important; }' });
+					await page.waitForTimeout(300);
 					const file = `${slugFor(route)}.${vpName}.${theme}.png`;
 					await page.screenshot({ path: path.join(outDir, file), fullPage: true });
 					entry.file = file;
