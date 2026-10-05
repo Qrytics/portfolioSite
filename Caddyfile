@@ -128,6 +128,28 @@
 		}
 	}
 
+	# ── Moxel (vendored by scripts/build-moxel.mjs into static/Moxel/).
+	#    vercel.json carries the same three redirects. The bare path must gain its slash: the app's
+	#    service worker is scoped to /Moxel/, so a page at /Moxel would never be controlled by it and
+	#    would not work offline. The lowercase spellings are a courtesy for people typing the URL.
+	#    The directory index itself is served by adapter-node like the games (see below).
+	#
+	#    path_regexp, NOT `path`: Caddy's `path` matcher is case-insensitive ("exact but
+	#    case-insensitive"), so `path /moxel/` would also match `/Moxel/` and loop the app's own URL
+	#    forever. RE2 is case-sensitive by default, which is what vercel.json's redirects are too.
+	@moxelBare path_regexp ^/(Moxel|moxel/?)$
+	redir @moxelBare /Moxel/ permanent
+
+	#    Live-session signaling relay (services/moxel-signal, its own compose service). It only
+	#    forwards WebRTC handshakes; artwork goes browser-to-browser and never reaches the Pi. Caddy
+	#    proxies WebSocket upgrades transparently. Exact path, not a prefix, so nothing else under
+	#    /Moxel/ can reach the relay. Vercel has no equivalent (it can't proxy WebSockets), so on the
+	#    fallback deployment live sessions report themselves unavailable and everything else works.
+	@moxelSignal path /Moxel/signal
+	handle @moxelSignal {
+		reverse_proxy moxel-signal:8787
+	}
+
 	# ── directory index for the vendored games: DELIBERATELY ABSENT.
 	#    adapter-node's static handler already resolves /games/<slug>/ (measured: all six → 200),
 	#    unlike the prerenderer and the dev server. A naive `^/games/([^/]+)/$` rewrite here would

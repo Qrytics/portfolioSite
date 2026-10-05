@@ -36,6 +36,11 @@
 			]
 		}
 	],
+	"redirects": [
+		{ "source": "/Moxel", "destination": "/Moxel/", "permanent": true },
+		{ "source": "/moxel", "destination": "/Moxel/", "permanent": true },
+		{ "source": "/moxel/", "destination": "/Moxel/", "permanent": true }
+	],
 	"rewrites": [
 		{
 			"source": "/games/spotifyHero/_next/:path*",

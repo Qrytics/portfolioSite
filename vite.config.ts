@@ -38,8 +38,11 @@ function serveVendoredGameIndexes(): Plugin {
 				// Cast rather than annotate: `@types/node` is not installed (see `svelte.config.js`), so
 				// the inferred request type carries neither `url` nor connect's `originalUrl`.
 				const request = req as unknown as { url?: string; originalUrl?: string };
-				const match = request.url?.match(/^(\/games\/[^/?#]+)\/?(\?[^#]*)?$/);
-				if (match && vendoredGamePaths.includes(match[1])) {
+				const match =
+					request.url?.match(/^(\/games\/[^/?#]+)\/?(\?[^#]*)?$/) ??
+					// Moxel is the one vendored app mounted at the root (scripts/build-moxel.mjs).
+					request.url?.match(/^(\/Moxel)\/?(\?[^#]*)?$/);
+				if (match && (vendoredGamePaths.includes(match[1]) || match[1] === '/Moxel')) {
 					const rewritten = `${match[1]}/index.html${match[2] ?? ''}`;
 					request.url = rewritten;
 					// `originalUrl` too, not just `url`: connect stamps it when the stack starts, and

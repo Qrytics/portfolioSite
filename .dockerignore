@@ -33,6 +33,8 @@ Thumbs.db
 # Not needed at build time. Root-scoped (`/*.md`, not `*.md`) so `static/sounds/README.md` still
 # ships — the served static tree should be byte-identical to what Vercel serves.
 /*.md
+# The Moxel relay is built from its own context by docker-compose, not into the site image.
+/services
 Dockerfile
 .dockerignore
 docker-compose.yml

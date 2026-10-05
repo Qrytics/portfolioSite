@@ -91,6 +91,20 @@ services:
       - TUNNEL_TOKEN=${TUNNEL_TOKEN:?set TUNNEL_TOKEN in ~/apps/portfolio/.env (mode 600) — must be a NEW tunnel, not homelab's}
     logging: *logging
 
+  # Moxel's live-session signaling relay (https://www.mario-belmonte.com/Moxel). Stateless: it only
+  # introduces browsers to each other over WebSocket so they can open direct WebRTC connections;
+  # no artwork passes through it and nothing is stored. Source is vendored into
+  # services/moxel-signal/ by `npm run build:moxel`. Reached only through caddy (`/Moxel/signal`),
+  # so — like `portfolio` — no `ports:`.
+  #
+  # deploy.sh only rebuilds `portfolio`; after re-vendoring the relay, rebuild it by hand with
+  # `docker compose up -d --build moxel-signal` (it changes rarely).
+  moxel-signal:
+    build: ./services/moxel-signal
+    image: moxel-signal:latest
+    restart: unless-stopped
+    logging: *logging
+
 volumes:
   caddy_data:
   caddy_config:

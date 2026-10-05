@@ -33,6 +33,14 @@ const vendoredGamePaths = existsSync('static/games')
 			.map((e) => `/games/${e.name}`)
 	: [];
 
+/**
+ * Moxel (`scripts/build-moxel.mjs`) is the one vendored app mounted at the root rather than under
+ * `/games/`, because its public URL is `/Moxel`. Same directory-index gap as the games, so the same
+ * whitelist treatment — only when the build is actually present, so a genuinely missing build still
+ * fails the prerender.
+ */
+if (existsSync('static/Moxel/index.html')) vendoredGamePaths.push('/Moxel');
+
 /** @type {import('@sveltejs/kit').Config} */
 const config = {
 	kit: {
