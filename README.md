@@ -38,7 +38,7 @@ A statically-generated developer portfolio built with **SvelteKit 2**, **Svelte 
 - **Skills section** — grouped skill tags (Languages, Frontend & APIs, Backend & DevOps, Testing & QA, Hardware & EDA, ML & Security, Tools, Languages (spoken))
 - **Stats section** — key at-a-glance numbers
 - **Review CTA** — call-to-action banner
-- **Prerendered & static** — built with `@sveltejs/adapter-static`; every page (including `[slug]`) is pre-rendered at build time
+- **Prerendered** — every page (including `[slug]`) is pre-rendered at build time; only the two `/api/github-*` routes run on a server. Built with `@sveltejs/adapter-vercel` by default, or `@sveltejs/adapter-node` with `ADAPTER=node` for the self-hosted Raspberry Pi
 - **SEO + OpenGraph** — `<meta>` description, OG title/description/image, Twitter card, and `theme-color` baked into the root layout
 - **Easy to customize** — update two data files (`profile.ts` + `projects.ts`) and the rest of the UI follows automatically
 
@@ -50,7 +50,7 @@ A statically-generated developer portfolio built with **SvelteKit 2**, **Svelte 
 |---|---|
 | Framework | [SvelteKit 2](https://kit.svelte.dev/) + Svelte 5 |
 | Language | TypeScript 5 |
-| Rendering | Static (adapter-static + full prerender) |
+| Rendering | Full prerender; adapter-vercel (default) or adapter-node (`ADAPTER=node`) |
 | Build tool | Vite 7 |
 | Styling | Global CSS variables (`src/app.css`) — no CSS framework |
 | Type checking | `svelte-check` + `tsc` |
@@ -262,40 +262,39 @@ Change `--accent` to retheme the entire site (nav links, timeline dots, tag high
 ## Build & Deploy
 
 ```bash
-npm run build       # Production build → /build (static files)
-npm run preview     # Serve the /build output locally for verification
+npm run build       # Production build (Vercel adapter → .vercel/output/; ADAPTER=node → build/)
+npm run preview     # Serve the build output locally for verification
 npm run check       # TypeScript + Svelte type checking (svelte-check)
 npm run check:watch # Type checking in watch mode
 ```
 
-### Static output (adapter-static) & hosting
+### Build output & hosting
 
-After `npm run build`, the site is written to **`build/`**. Routes are emitted as **`.html` files** at the root of that folder (not always as `path/index.html`):
+`svelte.config.js` picks the adapter from `ADAPTER`:
 
-| App route | File on disk |
-|-----------|----------------|
-| `/` | `build/index.html` |
-| `/projects` | `build/projects.html` |
-| `/projects/<slug>` | `build/projects/<slug>.html` (one file per project) |
-| `/about`, `/resume`, … | `build/about.html`, `build/resume.html`, … |
+| Command | Adapter | Output | Host |
+|---|---|---|---|
+| `npm run build` | `adapter-vercel` | `.vercel/output/` | Vercel (the fallback deployment) |
+| `ADAPTER=node npm run build` | `adapter-node` | `build/` (run `node build`) | Raspberry Pi, behind Caddy — see `PI-HOSTING-PLAN.md` |
 
-**Why this matters:** Some static hosts only serve “pretty” URLs like `/projects/mono-pix-scout` if they **rewrite** that path to `projects/mono-pix-scout.html`. If they don’t, a **full page load** or **refresh** on that URL may return **`index.html`**, **`404.html`**, or another fallback — so the address bar can look right while the **wrong document** (e.g. the landing page) is what actually loaded.
+`vercel.json` (Vercel) and the root `Caddyfile` (Pi) carry the same proxy rewrites, redirects and headers; change both together.
 
-**How to verify (DevTools):**
+**Internal navigation:** programmatic navigation goes through `assignAppLocation()` in `src/lib/utils/internalNav.ts`, which uses SvelteKit's `goto` with the correct `kit.paths.base` prefix. Vendored games and proxied apps (not SvelteKit routes) use `assignDocumentLocation()`, a full document load.
 
-1. Open **Network**, enable **Preserve log**.
-2. Hard-refresh or open a project URL directly: `/projects/<slug>` (or `/your-base/projects/<slug>` if you use `kit.paths.base`).
-3. Click the **first document** request (type **document**). Check:
-   - **Status 200** and the response is the **project** page (not the home hero), **or**
-   - If it’s always **`index.html`** or a generic **404** shell, fix **host rewrites** or consider SvelteKit’s **`trailingSlash`** / deploy docs so paths match what your host expects.
+### Seeing what the site looks like
 
-**Internal navigation:** Main nav, project cards, search, and terminal use **`assignAppLocation()` / `navigateInternal()`** (`src/lib/utils/internalNav.ts`) which call `window.location.assign()` with the correct `kit.paths.base` prefix. Hash links like `/#about-me` still use normal `<a>` behavior.
+```bash
+npm i --no-save playwright && npx playwright install chromium
+npm run snapshot:live     # screenshots of every page on mario-belmonte.com → .snapshots/
+npm run snapshot:local    # same against npm run dev
+npm run verify:live       # the UI + chart assertion suites against production
+```
 
 ---
 
 ## Scripts
 
-The `scripts/` directory contains two Node.js scripts that pre-generate static JSON files consumed by the home page `load` function. Run them (with a GitHub token) before `npm run build` so the data stays current.
+The `scripts/` directory contains two Node.js scripts that pre-generate the static JSON fallback files the home page loads (via `src/lib/utils/githubData.ts`) when the live API routes are unavailable. CI refreshes them on a schedule (`.github/workflows/refresh-github-data.yml`).
 
 | Script | Output file | What it does |
 |--------|-------------|--------------|

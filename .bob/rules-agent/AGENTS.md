@@ -4,7 +4,9 @@
 
 - **Svelte 5 runes only** — use `$props()`, `$state()`, `$derived()`, `$effect()`. Never use Svelte 4 `export let`, `$:`, or `reactive` blocks.
 - **`prerender = false` is required** on any new `+server.ts` or `+page.ts` that does runtime data fetching — the layout sets `prerender = true` globally.
-- **Never use `window.location.href =`** for internal links — use `assignAppLocation` / `navigateInternal` from `src/lib/utils/internalNav.ts` so that `base` from `$app/paths` is respected.
+- **Never use `window.location.href =`** for internal links — use `assignAppLocation` / `navigateInternal` from `src/lib/utils/internalNav.ts` so that `base` from `$app/paths` is respected (`assignDocumentLocation` for vendored games / proxied apps, which are not routes).
+- **Scroll lock tokens**: `unlockScroll(token)` with the value `lockScroll()` returned.
+- **See the live site**: `npm run snapshot:live` (needs `npm i --no-save playwright && npx playwright install chromium`).
 - **Never use `localStorage` / `sessionStorage` directly** — use the safe wrappers in `src/lib/utils/safeStorage.ts` (handles SSR and private browsing).
 - **Tag classification sets** in `ProjectCard.svelte` and `projects/[slug]/+page.svelte` are duplicated. If you add a new technology tag, update both files.
 - **`projectLanguageBytes.ts` is auto-generated** — never hand-edit; run `npm run update:project-language-bytes` instead.

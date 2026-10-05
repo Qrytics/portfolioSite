@@ -3,6 +3,19 @@
 	import { profile } from '$lib/data/profile';
 	import { games } from '$lib/data/games';
 
+	/** Tags shared by at least two games — a single-game tag would be a filter that finds one card. */
+	const filterTags = (() => {
+		const counts = new Map<string, number>();
+		for (const g of games) for (const t of g.tags) counts.set(t, (counts.get(t) ?? 0) + 1);
+		return [...counts.entries()]
+			.filter(([, n]) => n > 1)
+			.sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]))
+			.map(([t]) => t);
+	})();
+
+	let activeTag = $state<string | null>(null);
+	const shownGames = $derived(activeTag ? games.filter((g) => g.tags.includes(activeTag!)) : games);
+
 	function withBase(path: string): string {
 		if (path.startsWith('http://') || path.startsWith('https://')) return path;
 		return `${base}${path.startsWith('/') ? path : `/${path}`}`;
@@ -17,8 +30,26 @@
 			<h1 class="title">games</h1>
 			<p class="subtitle">Browser-based games and interactive toys I've built.</p>
 
+			{#if filterTags.length > 0}
+				<div class="filter-row" role="group" aria-label="Filter games by tag">
+					<button type="button" class="chip" aria-pressed={activeTag === null} onclick={() => (activeTag = null)}>
+						all
+					</button>
+					{#each filterTags as tag (tag)}
+						<button
+							type="button"
+							class="chip"
+							aria-pressed={activeTag === tag}
+							onclick={() => (activeTag = activeTag === tag ? null : tag)}
+						>
+							{tag}
+						</button>
+					{/each}
+				</div>
+			{/if}
+
 			<ul class="game-grid">
-				{#each games as game (game.slug)}
+				{#each shownGames as game (game.slug)}
 					{@const hasPlayableUrl = game.playUrl !== '#'}
 					<li class="game-card">
 						{#if hasPlayableUrl}
@@ -31,15 +62,19 @@
 								`tabindex="-1" aria-hidden="true"` stays deliberately. This is a *redundant*
 								link to the same place as the `play` control at the bottom of the card, so
 								exposing it would give every card two tab stops and announce the destination
-								twice. `data-sveltekit-reload` because these are standalone builds under
-								`static/games/`, not SvelteKit routes — the client router would 404 on them.
+								twice. `data-sveltekit-reload` because most of these are standalone builds under
+								`static/` or proxied apps, not SvelteKit routes — the client router would 404 on
+								them. `rel="external"` as well, so the prerender crawler does not follow a proxied app
+								(`/games/vcKaraoke`) into a build-breaking 404. `game.route` entries (the type test)
+								are real routes and navigate normally.
 							-->
 							<a
 								href={withBase(game.playUrl)}
 								class="game-card__preview-link"
 								tabindex="-1"
 								aria-hidden="true"
-								data-sveltekit-reload
+								data-sveltekit-reload={game.route ? undefined : ''}
+								rel={game.route ? undefined : 'external'}
 							>
 								<div class="game-card__media">
 									<img
@@ -86,7 +121,8 @@
 										href={withBase(game.playUrl)}
 										class="play-btn"
 										aria-label="Play {game.title}"
-										data-sveltekit-reload
+										data-sveltekit-reload={game.route ? undefined : ''}
+								rel={game.route ? undefined : 'external'}
 									>
 										{game.playLabel ?? 'play →'}
 									</a>
@@ -133,6 +169,36 @@
 		color: var(--muted);
 		max-width: 80ch;
 		line-height: 1.7;
+	}
+
+	.filter-row {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 0.4rem;
+		margin: -1rem 0 1.5rem;
+	}
+
+	.chip {
+		font-family: var(--font-mono);
+		font-size: 0.76rem;
+		min-height: 2rem;
+		padding: 0.3rem 0.65rem;
+		border: 1px solid var(--border-2);
+		background: transparent;
+		color: var(--muted);
+		cursor: pointer;
+		touch-action: manipulation;
+	}
+
+	.chip:hover {
+		border-color: color-mix(in srgb, var(--accent) 50%, transparent);
+		color: var(--text);
+	}
+
+	.chip[aria-pressed='true'] {
+		border-color: var(--accent);
+		color: var(--accent-text);
+		background: color-mix(in srgb, var(--accent) 10%, transparent);
 	}
 
 	/* ── Grid ────────────────────────────────────────────────── */

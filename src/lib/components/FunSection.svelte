@@ -76,7 +76,7 @@
 
 	.card {
 		border: 1px solid var(--border);
-		background: linear-gradient(180deg, rgba(255, 255, 255, 0.025), transparent 60%), var(--panel);
+		background: linear-gradient(180deg, color-mix(in srgb, #ffffff 2.5%, transparent), transparent 60%), var(--panel);
 		padding: 1.1rem;
 		display: grid;
 		gap: 0.75rem;

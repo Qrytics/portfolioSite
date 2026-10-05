@@ -51,7 +51,15 @@ main() {
 	# the clone's remote.origin.fetch refspec being configured the usual way.
 	git fetch --quiet origin main
 	local current target
-	current=$(git rev-parse HEAD)
+	# Compared against the last *successfully deployed* commit, not HEAD. HEAD moves at the reset
+	# below, before the build and the health gate; comparing against it meant a deploy that failed
+	# after the reset (a transient `npm ci` error, a Caddy reload error) set HEAD == target, and every
+	# later tick returned early — that commit was never deployed and nothing retried it. The marker
+	# lives inside .git so `git reset --hard` can never touch it and no .gitignore entry is needed.
+	# A missing marker (first run after install, or after this change) means "unknown" and deploys.
+	local state_file
+	state_file="$(git rev-parse --git-dir)/portfolio-deployed"
+	current=$(cat "$state_file" 2>/dev/null || echo none)
 	target=$(git rev-parse FETCH_HEAD)
 
 	# The common path, ~99% of ticks: silent, and Docker is never invoked.
@@ -64,8 +72,14 @@ main() {
 	# static/github-*.json and static/games/rogueSwipe cleanly, where a pull could conflict.
 	git reset --hard --quiet "$target"
 
+	# Everything since the last good deploy. Without a marker there is no baseline, so treat every
+	# tracked file as changed — that just means caddy and the relay are refreshed too.
 	local changed
-	changed=$(git diff --name-only "$current" HEAD)
+	if [[ "$current" == none ]] || ! git cat-file -e "$current^{commit}" 2>/dev/null; then
+		changed=$(git ls-files)
+	else
+		changed=$(git diff --name-only "$current" HEAD)
+	fi
 
 	# One-generation rollback point. docker-compose.yml pins `image: portfolio-site:latest` precisely
 	# so there is a stable tag to move here rather than compose's derived name.
@@ -95,21 +109,6 @@ main() {
 	if grep -q '^services/moxel-signal/' <<<"$changed"; then
 		log 'services/moxel-signal changed — rebuilding the relay'
 		docker compose up -d --build moxel-signal
-	fi
-
-	# The Caddyfile is a read-only bind mount and caddy does not watch it, so without this a
-	# Caddyfile-only commit sits unapplied until something unrelated restarts the container: the config
-	# on disk and the config being served diverge silently, which is the failure mode the whole
-	# "vercel.json and the Caddyfile are a pair" rule exists to avoid. `reload` validates first and
-	# keeps the running config if the new one is bad, so a broken Caddyfile is a non-zero exit here
-	# rather than an outage. -T because there is no TTY under systemd.
-	if grep -qx 'Caddyfile' <<<"$changed"; then
-		if [[ -n "$(docker compose ps -q caddy)" ]]; then
-			log 'Caddyfile changed — reloading caddy'
-			docker compose exec -T caddy caddy reload --config /etc/caddy/Caddyfile --adapter caddyfile
-		else
-			log 'Caddyfile changed but caddy is not running; it will read the new file on next start'
-		fi
 	fi
 
 	# ── health gate ────────────────────────────────────────────────────────────────────────────────
@@ -159,8 +158,30 @@ main() {
 	# the next rollback point. NB pruning is global to the Docker daemon, the same class of
 	# cross-project hazard as container_name; homelab runs prebuilt images and builds nothing, so it
 	# has no dangling images here to lose.
+	# The Caddyfile is a read-only bind mount and caddy does not watch it, so without this a
+	# Caddyfile-only commit sits unapplied: the config on disk and the config being served diverge
+	# silently, which is the failure mode the whole "vercel.json and the Caddyfile are a pair" rule
+	# exists to avoid.
+	#
+	# Recreate, NOT `caddy reload`. The mount is a single *file*, and Docker pins a single-file bind
+	# mount to the inode it saw at container start. `git reset --hard` replaces a changed file with a
+	# new inode, so the container kept reading the old one — `caddy reload` re-read the stale config,
+	# succeeded, and applied nothing. A recreate re-resolves the mount. It is validated first in a
+	# throwaway container (a fresh mount, so the new inode), so a broken Caddyfile is a non-zero exit
+	# here and the running caddy is left alone rather than replaced by one that won't start.
+	#
+	# After the health gate on purpose: a Caddy failure must not skip the portfolio rollback, and
+	# since the state marker is only written below, a failure here is retried on the next tick.
+	if grep -qx 'Caddyfile' <<<"$changed"; then
+		log 'Caddyfile changed — validating, then recreating caddy'
+		docker compose run --rm --no-deps -T --entrypoint caddy caddy \
+			validate --config /etc/caddy/Caddyfile --adapter caddyfile
+		docker compose up -d --force-recreate --no-deps caddy
+	fi
+
 	docker image prune -f >/dev/null
 
+	printf '%s\n' "$target" >"$state_file"
 	log "deployed ${target:0:8}"
 }
 

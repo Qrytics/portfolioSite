@@ -39,7 +39,12 @@
 		'b',
 		'a'
 	];
-	let konamiIndex = $state(0);
+	/**
+	 * The last N keys, compared against the whole sequence on every press. This used to be a cursor
+	 * that reset to 0 on any mismatch, so a natural "↑ ↑ ↑ ↓ …" (one extra Up) could never match: the
+	 * third Up reset the cursor and the next Down didn't restart it.
+	 */
+	let konamiRecent: string[] = [];
 
 	beforeNavigate(() => {
 		resetScrollLock();
@@ -59,22 +64,14 @@
 
 	$effect(() => {
 		function handleKonami(e: KeyboardEvent) {
-			const key = e.key.toLowerCase();
+			const key = e.key.startsWith('Arrow') ? e.key : e.key.toLowerCase();
+			konamiRecent = [...konamiRecent, key].slice(-konamiSequence.length);
 
-			if (
-				key === konamiSequence[konamiIndex] ||
-				(konamiSequence[konamiIndex].startsWith('Arrow') && e.key === konamiSequence[konamiIndex])
-			) {
-				konamiIndex++;
-
-				if (konamiIndex === konamiSequence.length) {
-					showMatrix = true;
-					playSound('game-start');
-					konamiIndex = 0;
-					setLocalItem('konami-discovered', 'true');
-				}
-			} else {
-				konamiIndex = 0;
+			if (konamiRecent.join() === konamiSequence.join()) {
+				showMatrix = true;
+				playSound('game-start');
+				konamiRecent = [];
+				setLocalItem('konami-discovered', 'true');
 			}
 
 			if (e.key === 'Escape' && showMatrix) {
@@ -119,7 +116,9 @@
 	<meta name="twitter:description" content={seo.description} />
 	<meta name="twitter:image" content={seo.image} />
 
-	<meta name="theme-color" content="#0b0e12" />
+	<!-- No `theme-color` here: the blocking script in `app.html` creates it with the *resolved*
+	     theme and `Nav` updates it on toggle. A static dark one here was a second tag that kept
+	     claiming dark in light mode. -->
 
 	{#if seo.jsonLd}
 		<!-- eslint-disable-next-line svelte/no-at-html-tags — serialised in seo.ts with `<` escaped -->

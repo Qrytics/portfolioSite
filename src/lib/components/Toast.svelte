@@ -11,6 +11,8 @@
 -->
 <div class="toast-region" role="status" aria-live="polite">
 	{#if toast.message}
+		<!-- Deliberately not interactive (no hover-pause, no click-to-dismiss): the panel sits over the
+		     footer, so making it hit-testable swallowed clicks meant for the footer's own copy button. -->
 		<div class="toast">{toast.message}</div>
 	{/if}
 </div>
@@ -18,7 +20,8 @@
 <style>
 	.toast-region {
 		position: fixed;
-		bottom: 2rem;
+		/* Clear the iOS home indicator rather than sitting underneath it. */
+		bottom: calc(2rem + env(safe-area-inset-bottom, 0px));
 		left: 50%;
 		transform: translateX(-50%);
 		z-index: 1000;

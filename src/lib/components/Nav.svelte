@@ -1,4 +1,6 @@
 <script lang="ts">
+	import { onMount } from 'svelte';
+	import { page } from '$app/state';
 	import { profile } from '$lib/data/profile';
 	import Search from '$lib/components/Search.svelte';
 	import Terminal from '$lib/components/Terminal.svelte';
@@ -42,7 +44,9 @@
 		setLocalItem('theme', theme);
 	}
 
-	$effect(() => {
+	// `onMount`, not `$effect`: `applyTheme(theme)` below reads the `theme` rune, so as an effect this
+	// re-ran on every toggle and re-registered the media listener each time.
+	onMount(() => {
 		const savedTheme = getLocalItem('theme');
 		if (savedTheme === 'dark' || savedTheme === 'light') {
 			theme = savedTheme;
@@ -91,6 +95,26 @@
 		return () => media.removeEventListener('change', onChange);
 	});
 
+	let menuBtn = $state<HTMLButtonElement | undefined>(undefined);
+	let navEl = $state<HTMLElement | undefined>(undefined);
+
+	/**
+	 * The compact menu had no Escape and left focus on the toggle, so a keyboard user opening it
+	 * then had to Tab past the rest of the header to reach the links it had just revealed. Opening
+	 * now moves focus to the first link; Escape closes and hands focus back to the toggle.
+	 */
+	$effect(() => {
+		if (!navOpen) return;
+		navEl?.querySelector<HTMLElement>('a, button')?.focus({ preventScroll: true });
+		function onKey(e: KeyboardEvent) {
+			if (e.key !== 'Escape') return;
+			navOpen = false;
+			menuBtn?.focus({ preventScroll: true });
+		}
+		window.addEventListener('keydown', onKey);
+		return () => window.removeEventListener('keydown', onKey);
+	});
+
 	/** Only one overlay at a time so scroll-lock stays balanced and the header stays usable. */
 	$effect(() => {
 		if (searchOpen) terminalOpen = false;
@@ -101,8 +125,8 @@
 
 	$effect(() => {
 		if (!isOverlayOpen) return;
-		lockScroll();
-		return () => unlockScroll();
+		const lock = lockScroll();
+		return () => unlockScroll(lock);
 	});
 
 	// function toggleTheme() { ... }
@@ -113,7 +137,8 @@
 		{ href: '/projects', label: 'projects' },
 		{ href: '/#about-me', label: 'about me' },
 		{ href: '/resume', label: 'resume' },
-		{ href: 'https://mario-belmonte.com/tutoring', label: 'tutoring', external: true }
+		// Relative so the Pi and preview hosts stay on their own host; every host proxies `/tutoring`.
+		{ href: '/tutoring', label: 'tutoring', external: true }
 	];
 
 	function openTerminalFromMenu() {
@@ -168,8 +193,9 @@
 				type="button"
 				class="theme-toggle"
 				onclick={toggleTheme}
-				aria-label={isDarkTheme ? 'Switch to light mode' : 'Switch to dark mode'}
+				aria-label="Light mode"
 				aria-pressed={!isDarkTheme}
+				title={isDarkTheme ? 'Switch to light mode' : 'Switch to dark mode'}
 			>
 				<!-- Glyph comes from CSS keyed on `[data-theme]`, which the blocking `app.html` script
 				     has already set. Rendering it from the `theme` rune would show the dark-mode sun for
@@ -178,27 +204,37 @@
 			</button>
 		</div>
 
+		<!-- No aria-label: it replaced the visible word "menu", so a voice-control user saying "click
+		     menu" matched nothing (WCAG 2.5.3, label in name). The visible text is the name. -->
 		<button
+			bind:this={menuBtn}
 			type="button"
 			class="site-header__menu"
-			aria-label="Toggle navigation"
 			aria-expanded={navOpen}
+			aria-controls="site-nav"
 			onclick={() => (navOpen = !navOpen)}
 		>
 			menu
 		</button>
 
-		<nav class="site-nav" class:site-nav--open={navOpen} aria-label="Main navigation">
+		<nav
+			bind:this={navEl}
+			id="site-nav"
+			class="site-nav"
+			class:site-nav--open={navOpen}
+			aria-label="Main navigation"
+		>
 			<ul>
-				{#each navLinks as link}
+				{#each navLinks as link (link.href)}
 					<li>
 						<a
 							href={link.href}
 							target={link.external ? '_blank' : undefined}
-							rel={link.external ? 'noopener noreferrer' : undefined}
+							rel={link.external ? 'external noopener noreferrer' : undefined}
+							aria-current={!link.external && page.url.pathname === link.href ? 'page' : undefined}
 							onclick={(e) => handleNavClick(e, link.href)}
 						>
-							{link.label}
+							{link.label}{#if link.external}<span class="sr-only"> (opens in new tab)</span>{/if}
 						</a>
 					</li>
 				{/each}
@@ -357,7 +393,7 @@
 		padding: 0.25rem 0.55rem;
 		min-width: 2.05rem;
 		border: 1px solid var(--border-2);
-		background: linear-gradient(180deg, rgba(255, 255, 255, 0.045), rgba(255, 255, 255, 0.01)), var(--panel-2);
+		background: linear-gradient(180deg, color-mix(in srgb, #ffffff 4.5%, transparent), color-mix(in srgb, #ffffff 1%, transparent)), var(--panel-2);
 		color: var(--text);
 		font-family: var(--font-mono);
 		font-size: 0.82rem;

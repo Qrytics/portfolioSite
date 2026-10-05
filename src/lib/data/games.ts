@@ -3,16 +3,46 @@ export interface Game {
 	title: string;
 	subtitle: string;
 	description: string;
-	/** Path to a preview screenshot under /static/games/<slug>/ */
+	/** Preview image path under `static/` — `/games/<slug>-preview.*` or `/demos/…`. */
 	preview: string;
-	/** URL the "Play" button links to */
+	/** URL the "Play" button links to. `'#'` renders a disabled "In Progress" control. */
 	playUrl: string;
+	/**
+	 * `playUrl` is a SvelteKit route in this app (e.g. `/games/typetest`), not a standalone build
+	 * under `static/` or a proxied app. Route links are client-side navigations, so they must NOT carry
+	 * `data-sveltekit-reload`, and the dev-server directory-index rewrite in `vite.config.ts` must skip
+	 * them — rewriting `/games/typetest` to `typetest/index.html` would break a working page.
+	 */
+	route?: boolean;
 	/** Optional custom CTA text (e.g., "In Progress"). */
 	playLabel?: string;
 	tags: string[];
 }
 
 export const games: Game[] = [
+	{
+		slug: 'typetest',
+		title: 'Type Speed Test',
+		subtitle: 'How fast can you type real code?',
+		description:
+			'A typing test built from real code snippets across three difficulty levels. Tracks WPM and accuracy, with a local leaderboard of your best runs.',
+		preview: '/games/typetest-preview.png',
+		playUrl: '/games/typetest',
+		route: true,
+		tags: ['typing', 'speed', 'code']
+	},
+	{
+		slug: 'Moxel',
+		title: 'Moxel',
+		subtitle: 'Pixel art, animation and Minecraft skins — with friends.',
+		description:
+			'A local-first illustration app for pixel art, frame animation and Minecraft skins, with a live 3D preview and peer-to-peer drawing sessions. Projects stay in your browser.',
+		preview: '/demos/moxel-preview.jpg',
+		// Mounted at the site root rather than under `/games/` (see `scripts/build-moxel.mjs`); the
+		// trailing slash matters because its service worker is scoped to `/Moxel/`.
+		playUrl: '/Moxel/',
+		tags: ['pixel art', 'creative', 'multiplayer']
+	},
 	{
 		slug: 'rogueSwipe',
 		title: 'rogueSwipe',
@@ -42,7 +72,9 @@ export const games: Game[] = [
 		description:
 			'Multiplayer karaoke rooms with queueing, scoring, and low-latency in-browser voice chat designed to keep everyone in sync during virtual sing-alongs.',
 		preview: '/demos/Screenshot 2026-04-28 010006.png',
-		playUrl: 'https://mario-belmonte.com/games/vcKaraoke',
+		// Relative so the Pi and preview deployments stay on their own host; vercel.json and the
+		// Caddyfile both proxy it, and `vite.config.ts` proxies it in `npm run dev`.
+		playUrl: '/games/vcKaraoke',
 		tags: ['karaoke', 'multiplayer', 'voice']
 	},
 	{
@@ -75,8 +107,7 @@ export const games: Game[] = [
 		// Relative, not the absolute production URL: this game is vendored under `static/games/`, so an
 		// absolute link left `npm run dev` (and any other host) sending players to production instead.
 		// `vendoredGamePaths` in `vite.config.ts` is derived from `playUrl`, so this is also what makes
-		// the dev-server directory-index rewrite cover it. (vcKaraoke's absolute URL is correct — that
-		// one is a genuinely separate deployed app, reached through a proxy rewrite.)
+		// the dev-server directory-index rewrite cover it.
 		playUrl: '/games/dodgeLoL/',
 		tags: ['reflex', 'arcade', 'league of legends']
 	},

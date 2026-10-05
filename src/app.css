@@ -19,6 +19,12 @@
 	/* Accent colors — change --accent to your brand color */
 	--accent: #36f2c2;
 	--accent-2: #f6c177;
+	/* --accent as *text*. Same value in dark mode; in light mode #0d9488 is only ~3.7:1 on white
+	   (WCAG AA wants 4.5:1 for body text), so links and tags use a darker teal of the same hue there
+	   while fills and borders keep --accent. */
+	--accent-text: var(--accent);
+	/* Focus ring: ≥3:1 against the page in both themes (WCAG 2.4.11). */
+	--focus-ring: color-mix(in srgb, var(--accent) 80%, transparent);
 	--hot: #ff5b57;
 	--warm: #febc2e;
 	--cool: #28c840;
@@ -52,6 +58,8 @@
 	--muter: var(--clr-primary-a30);
 	--accent: var(--clr-primary-a0);
 	--accent-2: var(--clr-primary-a0);
+	--accent-text: #0f766e;
+	--focus-ring: var(--clr-primary-a30);
 	--shadow: none;
 
 	/* The contribution ramp lives with the chart (`GitHubContribChart.svelte`) so it stays
@@ -204,7 +212,7 @@
 [data-theme='light'] .btn--ghost,
 [data-theme='light'] .btn--primary,
 [data-theme='light'] .review-cta__btn {
-	color: var(--clr-primary-a0);
+	color: var(--accent-text);
 }
 
 [data-theme='light'] .site-nav a:hover,
@@ -220,7 +228,7 @@
 [data-theme='light'] .back-link a:hover,
 [data-theme='light'] .link:hover,
 [data-theme='light'] .email-btn:hover {
-	color: var(--clr-primary-a0) !important;
+	color: var(--clr-primary-a30) !important;
 }
 
 [data-theme='light'] .trigger,
@@ -247,7 +255,7 @@
 [data-theme='light'] .tech-badge[data-tech] {
 	background: var(--clr-surface-tonal-a10) !important;
 	border-color: var(--clr-surface-tonal-a10) !important;
-	color: var(--clr-primary-a0) !important;
+	color: var(--accent-text) !important;
 	border-radius: 999px;
 	padding: 0.15rem 0.45rem;
 }
@@ -500,8 +508,21 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 a {
-	color: var(--accent);
+	color: var(--accent-text);
 	font-family: var(--font-mono);
+}
+
+/* Visually hidden but announced — e.g. "(opens in new tab)" after a ↗ link. */
+.sr-only {
+	position: absolute;
+	width: 1px;
+	height: 1px;
+	padding: 0;
+	margin: -1px;
+	overflow: hidden;
+	clip: rect(0, 0, 0, 0);
+	white-space: nowrap;
+	border: 0;
 }
 
 code, pre {
@@ -538,10 +559,44 @@ input {
 }
 
 /* ============================================================
+   Tech-badge palette — one copy. `ProjectCard` and the project detail page each carried their own
+   byte-for-byte duplicate of these seven rules. The kind comes from `getTagKind()` in
+   `$lib/utils/tags.ts`; components consume `--tag-c` (base) and `--tag-fg` (text). Light mode
+   deliberately keeps its single teal pill style (the `.tech-badge` override above), so these are
+   only read in dark mode.
+   ============================================================ */
+[data-kind='language'] { --tag-c: #3b82f6; --tag-fg: #93c5fd; }
+[data-kind='framework'] { --tag-c: #14b8a6; --tag-fg: #99f6e4; }
+[data-kind='api'] { --tag-c: #f59e0b; --tag-fg: #fcd34d; }
+[data-kind='service'] { --tag-c: #a855f7; --tag-fg: #e9d5ff; }
+[data-kind='protocol'] { --tag-c: #ec4899; --tag-fg: #fbcfe8; }
+[data-kind='tool'] { --tag-c: #84cc16; --tag-fg: #d9f99d; }
+[data-kind='other'] { --tag-c: #94a3b8; --tag-fg: #cbd5e1; }
+
+/* ============================================================
+   Touch targets — 44x44 CSS px on coarse pointers (WCAG 2.5.5 / Apple HIG). Unlayered globals, so
+   they lose to any component rule that sets the same property; none of these set min-* sizes.
+   ============================================================ */
+@media (pointer: coarse) {
+	.theme-toggle,
+	.site-header__menu,
+	.trigger,
+	.modal__clear,
+	.modal__close,
+	.terminal__close,
+	.back-to-top,
+	.email-btn,
+	.email-copy-btn {
+		min-height: 2.75rem;
+		min-width: 2.75rem;
+	}
+}
+
+/* ============================================================
    Focus styles (accessibility)
    ============================================================ */
 :focus-visible {
-	outline: 2px solid rgba(54, 242, 194, 0.55);
+	outline: 2px solid var(--focus-ring);
 	outline-offset: 3px;
 }
 
@@ -551,6 +606,9 @@ input {
 @media (prefers-reduced-motion: reduce) {
 	* {
 		animation-duration: 0.01ms !important;
+		/* Without this an `infinite` animation (the type test caret blink, for one) still runs —
+		   just at 0.01ms per cycle, which is a frame-rate flicker rather than no motion. */
+		animation-iteration-count: 1 !important;
 		transition-duration: 0.01ms !important;
 	}
 

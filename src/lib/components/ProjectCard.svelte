@@ -2,7 +2,7 @@
 	import type { Project } from '$lib/data/projects';
 	import MediaSection from '$lib/components/MediaSection.svelte';
 	import { getTagKind } from '$lib/utils/tags';
-	import { isGitHubRepo } from '$lib/utils/urls';
+	import { getYouTubeId, isGitHubRepo } from '$lib/utils/urls';
 
 	let {
 		project,
@@ -35,21 +35,6 @@
 		'multi-site': 'multi-site'
 	};
 
-	function getYouTubeId(url: string): string | null {
-		try {
-			const u = new URL(url);
-			if (u.hostname === 'youtu.be') return u.pathname.replace('/', '') || null;
-			if (u.hostname.endsWith('youtube.com')) {
-				if (u.pathname.startsWith('/embed/')) return u.pathname.replace('/embed/', '') || null;
-				const v = u.searchParams.get('v');
-				return v || null;
-			}
-			return null;
-		} catch {
-			return null;
-		}
-	}
-
 	function isVideoDemo(url: string): boolean {
 		if (getYouTubeId(url)) return true;
 		return /\.(mp4|webm|ogg)(\?|#|$)/i.test(url);
@@ -78,7 +63,7 @@
 			class="termbar termbar--collapsible"
 			onclick={onCollapsedBarClick}
 			aria-expanded={showBody}
-			aria-controls={bodyId}
+			aria-controls={showBody ? bodyId : undefined}
 		>
 			<span class="termbar__chevron" aria-hidden="true">{showBody ? '▾' : '▸'}</span>
 			<span class="termbar__title termbar__titleText">{project.shortTitle ?? project.title}</span>
@@ -115,20 +100,20 @@
 							GitHub Repo ↗
 						{:else}
 							Source ↗
-						{/if}
+						{/if}<span class="sr-only"> for {project.title} (opens in new tab)</span>
 					</a>
 				{/if}
 				{#if project.siteUrl || project.projectPageUrl}
-					<a href={project.siteUrl ?? project.projectPageUrl} target="_blank" rel="noopener noreferrer" class="btn btn--primary btn--external">
-						Visit Site ↗
+					<a href={project.siteUrl ?? project.projectPageUrl} target="_blank" rel="noopener noreferrer" class="btn btn--primary btn--external" data-sveltekit-reload>
+						Visit Site ↗<span class="sr-only"> for {project.title} (opens in new tab)</span>
 					</a>
 				{/if}
 				{#if project.demo && !isVideoDemo(project.demo)}
 					<a href={project.demo} target="_blank" rel="noopener noreferrer" class="btn btn--ghost">
-						demo ↗
+						demo ↗<span class="sr-only"> for {project.title} (opens in new tab)</span>
 					</a>
 				{/if}
-				<a href={detailPath} class="btn btn--ghost btn--details">details →</a>
+				<a href={detailPath} class="btn btn--ghost btn--details">details<span class="sr-only"> for {project.title}</span> →</a>
 			</div>
 		</div>
 	{/if}
@@ -139,8 +124,8 @@
 		position: relative;
 		z-index: 1;
 		border: 1px solid var(--border);
-		background: linear-gradient(180deg, rgba(255, 255, 255, 0.03), transparent 52%), var(--panel);
-		box-shadow: 0 10px 26px rgba(0, 0, 0, 0.4);
+		background: linear-gradient(180deg, color-mix(in srgb, #ffffff 3%, transparent), transparent 52%), var(--panel);
+		box-shadow: 0 10px 26px color-mix(in srgb, #000000 40%, transparent);
 		overflow: hidden;
 		min-width: 0;
 		height: 100%;
@@ -215,7 +200,7 @@
 	.card:hover {
 		z-index: 2;
 		border-color: color-mix(in srgb, var(--accent) 25%, transparent);
-		box-shadow: 0 14px 36px rgba(0, 0, 0, 0.5);
+		box-shadow: 0 14px 36px color-mix(in srgb, #000000 50%, transparent);
 	}
 
 	/* Termbar */
@@ -226,7 +211,7 @@
 		gap: 0.85rem;
 		padding: 0.75rem 0.9rem;
 		border-bottom: 1px solid var(--border-2);
-		background: rgba(0, 0, 0, 0.22);
+		background: color-mix(in srgb, #000000 22%, transparent);
 		min-width: 0;
 	}
 
@@ -285,7 +270,7 @@
 		color: var(--muted);
 		border: 1px solid var(--border-2);
 		padding: 0.2rem 0.55rem;
-		background: rgba(255, 255, 255, 0.03);
+		background: color-mix(in srgb, #ffffff 3%, transparent);
 		text-transform: lowercase;
 		white-space: nowrap;
 		flex-shrink: 0;
@@ -304,15 +289,26 @@
 	}
 
 	.badge[data-type='community / ecosystem'] {
-		border-color: rgba(101, 79, 240, 0.22);
-		color: rgba(131, 109, 255, 0.92);
-		background: rgba(101, 79, 240, 0.05);
+		border-color: color-mix(in srgb, #654ff0 22%, transparent);
+		color: color-mix(in srgb, #836dff 92%, transparent);
+		background: color-mix(in srgb, #654ff0 5%, transparent);
 	}
 
 	.badge[data-type='multi-site'] {
-		border-color: rgba(255, 91, 87, 0.25);
-		color: rgba(255, 121, 117, 0.92);
-		background: rgba(255, 91, 87, 0.05);
+		border-color: color-mix(in srgb, #ff5b57 25%, transparent);
+		color: color-mix(in srgb, #ff7975 92%, transparent);
+		background: color-mix(in srgb, #ff5b57 5%, transparent);
+	}
+
+	/* The dark-mode text colours above are ~2.6:1 on the light panel; same hues, darker. */
+	:global([data-theme='light']) .badge[data-type='community / ecosystem'] {
+		color: #4c3bc2;
+		border-color: color-mix(in srgb, #4c3bc2 35%, transparent);
+	}
+
+	:global([data-theme='light']) .badge[data-type='multi-site'] {
+		color: #b42318;
+		border-color: color-mix(in srgb, #b42318 35%, transparent);
 	}
 
 	/* Content */
@@ -348,10 +344,15 @@
 		overflow-wrap: anywhere;
 	}
 
-	/* Hide detailed description on mobile to reduce text heaviness */
+	/* Keep mobile cards light, but clamp rather than hide: hiding left phone visitors with only the
+	   one-line subtitle and no idea what a project does. The full text is one tap away on "details". */
 	@media (max-width: 640px) {
 		.card__desc--desktop-only {
-			display: none;
+			display: -webkit-box;
+			-webkit-box-orient: vertical;
+			-webkit-line-clamp: 3;
+			line-clamp: 3;
+			overflow: hidden;
 		}
 	}
 
@@ -369,52 +370,21 @@
 		color: var(--muted);
 		border: 1px solid var(--border-2);
 		padding: 0.18rem 0.45rem;
-		background: rgba(255, 255, 255, 0.03);
+		background: color-mix(in srgb, #ffffff 3%, transparent);
 		text-transform: lowercase;
 		letter-spacing: 0.02em;
 	}
 
-	/* Badge type colors */
-	.tech-badge[data-kind='language'] {
-		border-color: rgba(59, 130, 246, 0.4);
-		color: rgba(147, 197, 253, 0.95);
-		background: rgba(59, 130, 246, 0.12);
-	}
-
-	.tech-badge[data-kind='framework'] {
-		border-color: rgba(45, 212, 191, 0.44);
-		color: rgba(153, 246, 228, 0.96);
-		background: rgba(20, 184, 166, 0.14);
-	}
-
-	.tech-badge[data-kind='api'] {
-		border-color: rgba(245, 158, 11, 0.42);
-		color: rgba(252, 211, 77, 0.95);
-		background: rgba(245, 158, 11, 0.12);
-	}
-
-	.tech-badge[data-kind='service'] {
-		border-color: rgba(192, 132, 252, 0.45);
-		color: rgba(233, 213, 255, 0.96);
-		background: rgba(168, 85, 247, 0.14);
-	}
-
-	.tech-badge[data-kind='protocol'] {
-		border-color: rgba(244, 114, 182, 0.46);
-		color: rgba(251, 207, 232, 0.96);
-		background: rgba(236, 72, 153, 0.16);
-	}
-
-	.tech-badge[data-kind='tool'] {
-		border-color: rgba(132, 204, 22, 0.44);
-		color: rgba(217, 249, 157, 0.96);
-		background: rgba(132, 204, 22, 0.14);
+	/* Badge type colors — palette tokens live in app.css. */
+	.tech-badge[data-kind] {
+		border-color: color-mix(in srgb, var(--tag-c) 42%, transparent);
+		color: color-mix(in srgb, var(--tag-fg) 95%, transparent);
+		background: color-mix(in srgb, var(--tag-c) 13%, transparent);
 	}
 
 	.tech-badge[data-kind='other'] {
-		border-color: rgba(148, 163, 184, 0.35);
-		color: rgba(203, 213, 225, 0.9);
-		background: rgba(148, 163, 184, 0.1);
+		border-color: color-mix(in srgb, var(--tag-c) 35%, transparent);
+		background: color-mix(in srgb, var(--tag-c) 10%, transparent);
 	}
 
 	/* Action links */
@@ -454,13 +424,13 @@
 	}
 
 	.btn--ghost {
-		background: rgba(255, 255, 255, 0.03);
+		background: color-mix(in srgb, #ffffff 3%, transparent);
 		color: color-mix(in srgb, var(--text) 85%, transparent);
 		border-color: color-mix(in srgb, var(--text) 14%, transparent);
 	}
 
 	.btn--ghost:hover {
-		background: rgba(255, 255, 255, 0.06);
+		background: color-mix(in srgb, #ffffff 6%, transparent);
 		border-color: color-mix(in srgb, var(--text) 20%, transparent);
 	}
 

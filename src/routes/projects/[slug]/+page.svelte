@@ -2,10 +2,12 @@
 import type { PageData } from './$types';
 import MediaSection from '$lib/components/MediaSection.svelte';
 import { getTagKind } from '$lib/utils/tags';
-import { isGitHubRepo } from '$lib/utils/urls';
+import { getYouTubeId, isGitHubRepo } from '$lib/utils/urls';
 
 let { data }: { data: PageData } = $props();
 const project = $derived(data.project);
+const siteHref = $derived(project.siteUrl ?? project.projectPageUrl);
+const youTubeId = $derived(getYouTubeId(project.demo));
 
 function escapeHtml(text: string): string {
 	return text
@@ -51,13 +53,13 @@ function formatNote(text: string): string {
 -->
 <div class="page">
 <div class="shell">
-<div class="breadcrumb">
+<nav class="breadcrumb" aria-label="Breadcrumb">
 <a href="/">home</a>
-<span class="sep">/</span>
-		<a href="/projects">projects</a>
-<span class="sep">/</span>
-<span class="current">{project.slug}</span>
-</div>
+<span class="sep" aria-hidden="true">/</span>
+<a href="/projects">projects</a>
+<span class="sep" aria-hidden="true">/</span>
+<span class="current" aria-current="page">{project.slug}</span>
+</nav>
 
 <div class="card">
 <!-- Termbar -->
@@ -156,7 +158,7 @@ function formatNote(text: string): string {
 <div class="links">
 {#if project.slug === 'smart-home-iot-dashboard' && project.liveDashboardUrl}
 <div class="live-cta">
-<a href={project.liveDashboardUrl} target="_blank" rel="noopener noreferrer" class="btn btn--warn">LIVE Dashboard ↗</a>
+<a href={project.liveDashboardUrl} target="_blank" rel="noopener noreferrer" class="btn btn--warn">LIVE Dashboard ↗<span class="sr-only"> (opens in new tab)</span></a>
 <p class="live-note">(Only works for in-person showcase)</p>
 </div>
 {/if}
@@ -166,21 +168,21 @@ function formatNote(text: string): string {
 GitHub Repo ↗
 {:else}
 source ↗
-{/if}
+{/if}<span class="sr-only"> (opens in new tab)</span>
 </a>
 {/if}
-{#if project.siteUrl}
-<a href={project.siteUrl} target="_blank" rel="noopener noreferrer" class="btn btn--primary">Visit Site ↗</a>
-{/if}
-{#if project.projectPageUrl}
-<a href={project.projectPageUrl} target="_blank" rel="noopener noreferrer" class="btn btn--primary">Visit Site ↗</a>
+{#if siteHref}
+<!-- One button even when both fields are set (they used to render as two identical "Visit Site"
+     buttons). `data-sveltekit-reload` because a relative `siteUrl` (Moxel's `/Moxel/`) is a vendored
+     build, not a route of this app. -->
+<a href={siteHref} target="_blank" rel="noopener noreferrer" class="btn btn--primary" data-sveltekit-reload>Visit Site ↗<span class="sr-only"> (opens in new tab)</span></a>
 {/if}
 {#if project.demo}
-{#if /(\.mp4|\.webm|\.ogg)(\?|#|$)/i.test(project.demo) || /youtu\.be|youtube\.com/i.test(project.demo)}
+{#if /(\.mp4|\.webm|\.ogg)(\?|#|$)/i.test(project.demo) || youTubeId}
 	<!-- video is embedded below -->
 {:else}
 <a href={project.demo} target="_blank" rel="noopener noreferrer" class="btn btn--ghost">
-live demo ↗
+live demo ↗<span class="sr-only"> (opens in new tab)</span>
 </a>
 {/if}
 {/if}
@@ -202,12 +204,12 @@ live demo ↗
 {/if}
 
 {#if project.demo}
-	{#if /youtu\.be|youtube\.com/i.test(project.demo)}
+	{#if youTubeId}
 		<div class="video">
 			<iframe
 				class="video__frame"
 				title="{project.title} video"
-				src={`https://www.youtube-nocookie.com/embed/${project.demo.includes('youtu.be/') ? project.demo.split('youtu.be/')[1].split(/[?&#]/)[0] : new URL(project.demo).searchParams.get('v') ?? ''}`}
+				src={`https://www.youtube-nocookie.com/embed/${youTubeId}`}
 				loading="lazy"
 				referrerpolicy="strict-origin-when-cross-origin"
 				allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
@@ -240,6 +242,17 @@ live demo ↗
 </div>
 </div>
 
+{#if data.prev || data.next}
+<nav class="pager" aria-label="More projects">
+{#if data.prev}
+<a class="pager__link" href="/projects/{data.prev.slug}" rel="prev"><span class="pager__dir">← prev</span> <span class="pager__title">{data.prev.title}</span></a>
+{/if}
+{#if data.next}
+<a class="pager__link pager__link--next" href="/projects/{data.next.slug}" rel="next"><span class="pager__dir">next →</span> <span class="pager__title">{data.next.title}</span></a>
+{/if}
+</nav>
+{/if}
+
 <div class="back-link">
 <a href="/projects">← back to projects</a>
 </div>
@@ -247,6 +260,45 @@ live demo ↗
 </div>
 
 <style>
+.pager {
+display: flex;
+justify-content: space-between;
+gap: 1rem;
+margin-bottom: 1.25rem;
+font-family: var(--font-mono);
+font-size: 0.82rem;
+}
+
+.pager__link {
+display: flex;
+flex-direction: column;
+gap: 0.2rem;
+max-width: 48%;
+padding: 0.6rem 0.8rem;
+border: 1px solid var(--border-2);
+background: var(--panel);
+text-decoration: none;
+min-height: 2.75rem;
+}
+
+.pager__link:hover {
+border-color: color-mix(in srgb, var(--accent) 45%, transparent);
+}
+
+.pager__link--next {
+margin-left: auto;
+text-align: right;
+}
+
+.pager__dir {
+color: var(--muter);
+font-size: 0.74rem;
+}
+
+.pager__title {
+color: var(--text);
+}
+
 .page {
 position: relative;
 z-index: 1;
@@ -414,13 +466,9 @@ text-transform: lowercase;
 letter-spacing: 0.02em;
 }
 
-.tech-badge[data-kind='language'] { border-color: rgba(59,130,246,.4); color: rgba(147,197,253,.95); background: rgba(59,130,246,.12); }
-.tech-badge[data-kind='framework'] { border-color: rgba(45,212,191,.44); color: rgba(153,246,228,.96); background: rgba(20,184,166,.14); }
-.tech-badge[data-kind='api'] { border-color: rgba(245,158,11,.42); color: rgba(252,211,77,.95); background: rgba(245,158,11,.12); }
-.tech-badge[data-kind='service'] { border-color: rgba(192,132,252,.45); color: rgba(233,213,255,.96); background: rgba(168,85,247,.14); }
-.tech-badge[data-kind='protocol'] { border-color: rgba(244,114,182,.46); color: rgba(251,207,232,.96); background: rgba(236,72,153,.16); }
-.tech-badge[data-kind='tool'] { border-color: rgba(132,204,22,.44); color: rgba(217,249,157,.96); background: rgba(132,204,22,.14); }
-.tech-badge[data-kind='other'] { border-color: rgba(148,163,184,.35); color: rgba(203,213,225,.9); background: rgba(148,163,184,.1); }
+/* Palette tokens live in app.css (shared with ProjectCard). */
+.tech-badge[data-kind] { border-color: color-mix(in srgb, var(--tag-c) 42%, transparent); color: color-mix(in srgb, var(--tag-fg) 95%, transparent); background: color-mix(in srgb, var(--tag-c) 13%, transparent); }
+.tech-badge[data-kind='other'] { border-color: color-mix(in srgb, var(--tag-c) 35%, transparent); background: color-mix(in srgb, var(--tag-c) 10%, transparent); }
 
 .subtitle {
 margin: 0;
@@ -509,14 +557,21 @@ border-color: var(--border-2);
 }
 
 .btn--warn {
-	border-color: rgba(245, 158, 11, 0.45);
-	background: rgba(245, 158, 11, 0.14);
-	color: rgba(252, 211, 77, 0.96);
+	border-color: color-mix(in srgb, #f59e0b 45%, transparent);
+	background: color-mix(in srgb, #f59e0b 14%, transparent);
+	color: color-mix(in srgb, #fcd34d 96%, transparent);
 }
 
 .btn--warn:hover {
-	border-color: rgba(245, 158, 11, 0.62);
-	background: rgba(245, 158, 11, 0.22);
+	border-color: color-mix(in srgb, #f59e0b 62%, transparent);
+	background: color-mix(in srgb, #f59e0b 22%, transparent);
+}
+
+/* Pale yellow text was ~1.4:1 on the light panel — effectively invisible. */
+:global([data-theme='light']) .btn--warn {
+	color: #92400e;
+	border-color: color-mix(in srgb, #b45309 50%, transparent);
+	background: color-mix(in srgb, #f59e0b 16%, transparent);
 }
 
 .live-note {

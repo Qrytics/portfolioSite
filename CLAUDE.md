@@ -28,9 +28,19 @@ node scripts/verify-ui.mjs        # 82 checks: nav, modals, routing, toast, game
 node scripts/verify-chart.mjs     # 34 checks: the contribution heatmap specifically
 ```
 
+**Seeing the live site.** The same browser setup also drives `scripts/snapshot-site.mjs`, which screenshots every route in `/sitemap.xml` at phone and desktop widths in both themes and records console errors, failed requests and non-2xx documents. It needs no installed Chrome (Playwright's bundled Chromium is enough), and it is the way to answer "what does production look like right now":
+
+```bash
+npm run snapshot:live                     # https://mario-belmonte.com → .snapshots/<host>/index.html
+npm run snapshot:local                    # npm run dev
+node scripts/snapshot-site.mjs --compare  # live and local side by side → .snapshots/compare.html
+node scripts/snapshot-site.mjs --only /,/games
+npm run verify:live                       # verify-ui + verify-chart against production (VERIFY_URL)
+```
+
 `playwright` is deliberately **not** a devDependency: its postinstall downloads browsers, which Vercel would pay for on every build to run a script it never executes. Install it with `--no-save` when you need it.
 
-`verify:seo` reads `.svelte-kit/output/prerendered/` rather than driving a browser, because the invariants are per-route and there are 43 routes — and because the bug it exists to prevent (duplicate `<meta name="description">`) was only visible in the served bytes, not the hydrated DOM.
+`verify:seo` reads `.svelte-kit/output/prerendered/` rather than driving a browser, because the invariants are per-route and there are dozens of routes (one per project) — and because the bug it exists to prevent (duplicate `<meta name="description">`) was only visible in the served bytes, not the hydrated DOM.
 
 **`npm run build` cannot complete on Windows without Developer Mode.** `adapter-vercel` dedupes identical function bundles with a symlink, which needs the privilege; it fails with `EPERM` *after* prerendering finishes, so `verify:seo` still works and prerender errors are still caught. Enable Settings → System → For developers → Developer Mode to get a clean build. `ADAPTER=node npm run build` has no symlink step and completes cleanly on Windows either way. The `[404] GET /games/<slug>/` lines during prerender are expected — see `svelte.config.js`.
 
@@ -72,7 +82,7 @@ Only the two `/api/github-*` routes need a running process; everything else prer
 
 The Pi runs `docker-compose.yml` (three services: the app, `caddy`, its own `cloudflared`) from the checkout at `~/apps/portfolio`, with secrets in a `.env` that exists only there. Two things about that file are deliberate and worth not "simplifying": secrets are passed per-service as `${VAR:?message}` rather than with `env_file:`, so neither container sees the other's secret and a missing value fails `up` loudly instead of degrading to the static-JSON fallback; and no service sets `container_name`, because those are global to the Docker daemon and another compose project on that host already claims `cloudflared`. `.env.example` is the committed template. The Pi keeps itself current: the root **`deploy.sh`** (fetch → `git reset --hard FETCH_HEAD` → `docker compose build` → health-gated recreate, rolling back to `portfolio-site:previous` if the container never reports `healthy`) is run by the systemd units in **`deploy/`** every 5 minutes, so a push is the whole deploy and no future change needs an `ssh`. It is written but **not yet installed on the Pi** — Phase 5 of `PI-HOSTING-PLAN.md` has the install steps and, more usefully, why the parts that look redundant are not (the `main()` wrapper, the `flock`, the exec bit set in the git index).
 
-`vercel.json` is Vercel-only. On the Pi its work is the root `Caddyfile`'s job instead — **the two are a pair, and anything added to one must be added to the other or the two hosts diverge silently.** Not everything transfers literally: Caddy's `path` matcher is a literal prefix (so each proxied route is an explicit bare-path/subtree pair of patterns, never a bare `*` suffix), Go's RE2 has `(?i)` where JS regex needs per-character case classes, and `handle` blocks are sorted by path-matcher specificity rather than by written order. Directory-index resolution for `static/games/<slug>/` does *not* transfer at all: adapter-node's static handler already does it, and a Caddy rewrite for it would break `/games/typetest/` — a real route. Phase 2 of `PI-HOSTING-PLAN.md` records what was measured. The pairing has an operational half as well: `caddy` mounts the `Caddyfile` read-only and does not watch it, so a `Caddyfile`-only commit is correct in git and still not live until `deploy.sh` runs `caddy reload` — that branch is the only thing closing the gap, so keep it.
+`vercel.json` is Vercel-only. On the Pi its work is the root `Caddyfile`'s job instead — **the two are a pair, and anything added to one must be added to the other or the two hosts diverge silently.** Not everything transfers literally: Caddy's `path` matcher is a literal prefix (so each proxied route is an explicit bare-path/subtree pair of patterns, never a bare `*` suffix), Go's RE2 has `(?i)` where JS regex needs per-character case classes, and `handle` blocks are sorted by path-matcher specificity rather than by written order. Directory-index resolution for `static/games/<slug>/` does *not* transfer at all: adapter-node's static handler already does it, and a Caddy rewrite for it would break `/games/typetest/` — a real route. Phase 2 of `PI-HOSTING-PLAN.md` records what was measured. The pairing has an operational half as well: `caddy` mounts the `Caddyfile` read-only and does not watch it, so a `Caddyfile`-only commit is correct in git and still not live until `deploy.sh` recreates the `caddy` container — that branch is the only thing closing the gap, so keep it. It is a recreate rather than `caddy reload` on purpose: the single-file bind mount is pinned to the inode `git reset --hard` replaces, so a reload re-reads the stale file. `deploy.sh` also tracks the last *successfully* deployed commit in `.git/portfolio-deployed` rather than comparing against `HEAD`, so a failed deploy is retried on the next tick.
 
 ### Rendering model (the most important thing to get right)
 
@@ -120,16 +130,18 @@ This is enforced by convention rather than by the compiler, and the reason matte
 A `<svelte:head>` in a route is only correct for genuinely page-specific, non-metadata tags — `src/routes/+page.svelte` keeps one solely for its LCP image preload.
 
 - `SITE_URL` is hardcoded, not derived from the request: Vercel also serves `*.vercel.app` preview domains, and a canonical pointing at a preview deployment teaches crawlers the wrong home for the content.
-- Project OG images skip `.svg` on purpose (Facebook, LinkedIn, Slack and X all refuse to render one) and skip `.mp4` (`project.image` is frequently the demo video). 8 of 36 projects therefore fall back to `/og.jpg`, which is correct — a generic preview beats none.
+- Project OG images skip `.svg` on purpose (Facebook, LinkedIn, Slack and X all refuse to render one) and skip `.mp4` (`project.image` is frequently the demo video). Projects whose only artwork is an SVG or video therefore fall back to `/og.jpg`, which is correct — a generic preview beats none.
 - `og:image:width`/`height` are declared **only** for the default image, whose dimensions are known. The previous code declared `1200x630` for a 2880×1800 file.
 - `/sitemap.xml` is a prerendered `+server.ts` generated from `projects.ts` + a static route list; `static/robots.txt` points at it. `npm run verify:seo` asserts the sitemap and the prerendered pages are the same set, in both directions.
 
 ## Conventions
 
 - **Svelte 5 runes only** — `$props()`, `$state()`, `$derived()`, `$effect()`. No `export let`, no `$:`.
-- **Never `window.location.href =`** for internal links — use `navigateInternal` / `assignAppLocation` from `src/lib/utils/internalNav.ts` so `base` is respected.
+- **Never `window.location.href =`** for internal links — use `navigateInternal` / `assignAppLocation` from `src/lib/utils/internalNav.ts` so `base` is respected. For a same-origin path that is *not* a SvelteKit route (a vendored game under `static/games/`, `/Moxel/`, a proxied app like `/games/vcKaraoke`) use `assignDocumentLocation` — `goto` would render this app's 404 for those.
+- **Games**: an entry in `games.ts` whose `playUrl` is a real route in this app (the type test) sets `route: true`. That keeps its link a client-side navigation (no `data-sveltekit-reload`) and keeps the dev-server directory-index rewrite from shadowing it. `playUrl: '#'` renders a disabled "In Progress" card. Links to proxied apps are **relative** (`/games/vcKaraoke`, `/tutoring`), never the production domain, so the Pi and preview hosts stay on their own host; `npm run dev` reaches them through `server.proxy` in `vite.config.ts`, a dev-only third copy of the `vercel.json` rewrites.
 - **Never touch `localStorage` / `sessionStorage` directly** — use `getLocalItem` / `setLocalItem` / `getSessionItem` / `setSessionItem` from `src/lib/utils/safeStorage.ts` (SSR- and private-browsing-safe).
-- **Scroll lock**: `lockScroll` / `unlockScroll` from `src/lib/utils/scrollLock.ts`; `resetScrollLock()` is already wired into layout navigation hooks.
+- **Scroll lock**: `lockScroll` / `unlockScroll` from `src/lib/utils/scrollLock.ts`; `resetScrollLock()` is already wired into layout navigation hooks. `lockScroll()` returns a token — pass it to `unlockScroll(token)` so a release from before a navigation reset can't free a newer lock.
+- **Focus trap**: `focusTrap` from `src/lib/utils/focusTrap.ts` for modal dialogs. A control that needs plain Tab for itself (the terminal's completion) marks itself `data-trap-owns-tab`; Shift+Tab is still trapped.
 - **Overlays** that must escape a stacking context: the `portal` action in `src/lib/utils/portal.ts`.
 - **GitHub fetches**: the API routes deliberately **fail fast** — one attempt with `AbortSignal.timeout(8000)`, no retry — then return a real `503` so `githubData.ts` falls through to the committed static JSON. Retrying in-request would only delay that fallback, and GitHub's primary rate limit (a `403`, not a `429`) can take up to an hour to reset, so sleeping is never the right move inside a serverless function. Errors are negatively cached for 60 s.
 - **GitHub username**: `getGithubUser()` from `src/lib/utils/githubUser.ts` — derived from `profile.github`, never re-parsed inline.
@@ -147,8 +159,7 @@ A `<svelte:head>` in a route is only correct for genuinely page-specific, non-me
 
 ## Known inconsistencies
 
-- `README.md` describes `@sveltejs/adapter-static` and a `build/` directory. `adapter-static` is still wrong — but `build/` is now real, since that is where adapter-node emits. Trust `svelte.config.js`.
-- `@sveltejs/adapter-auto` and `@sveltejs/adapter-static` are devDependencies that nothing imports. Only `adapter-node` and `adapter-vercel` are wired up.
+- `docs/SITE-AUDIT.md` is the full audit (2026-10-05): every finding, what was fixed, and what was deliberately left alone and why. Check it before "fixing" something that looks wrong — several things that look like bugs are documented decisions.
 - `scripts/build-{gartic-draw,aim-trainer,dodge-lol,soundvisual-avora}.mjs` are run by **no** CI. The workflow that referenced them (`deploy.yml`) discarded its output at a failing publish step and has been deleted. The built games are committed under `static/games/`; re-run these by hand when a sub-app needs updating.
 - Data-refresh CI is `.github/workflows/refresh-github-data.yml` (cron + `workflow_dispatch`). Each generator runs with `continue-on-error` behind a `git checkout --` revert guard, because both GitHub generators write an *empty* `{ error, ... }` payload before exiting non-zero — committing that unconditionally would replace good-but-stale data with a blank chart.
 - `AGENTS.md` and `.bob/rules-*/AGENTS.md` cover the same ground as this file. If you change a convention, update them too.

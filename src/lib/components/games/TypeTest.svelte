@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { getRandomSnippet, type Snippet } from '$lib/data/typetest-snippets';
-	import { playSound } from '$lib/utils/sound';
+	import { tick } from 'svelte';
+	import { playSound, soundManager } from '$lib/utils/sound';
 	import { getLocalItem, setLocalItem } from '$lib/utils/safeStorage';
 
 	type Difficulty = 'easy' | 'medium' | 'hard';
@@ -23,8 +24,15 @@
 	let endTime = $state<number | null>(null);
 	let mistakes = $state<number[]>([]);
 	let countdown = $state(3);
-	let inputRef = $state<HTMLInputElement | undefined>(undefined);
+	let inputRef = $state<HTMLTextAreaElement | undefined>(undefined);
 	let scores = $state<Score[]>([]);
+	let soundOn = $state(true);
+	/** `date` of the score just saved, so the leaderboard can mark it. */
+	let latestScoreDate = $state<string | null>(null);
+
+	let startBtn = $state<HTMLButtonElement | undefined>(undefined);
+	let countdownEl = $state<HTMLDivElement | undefined>(undefined);
+	let resultsHeading = $state<HTMLHeadingElement | undefined>(undefined);
 
 	let countdownTimer: ReturnType<typeof setInterval> | null = null;
 	let focusTimer: ReturnType<typeof setTimeout> | null = null;
@@ -50,12 +58,15 @@
 		return correct;
 	});
 
+	/**
+	 * Net WPM: correct characters only (5 chars = 1 word). This used to divide the *snippet* length,
+	 * so a run full of uncorrected typos scored exactly the same as a clean one.
+	 */
 	const wpm = $derived.by(() => {
 		if (!startTime || !endTime || !snippet) return 0;
-		const seconds = (endTime - startTime) / 1000;
-		const words = snippet.text.length / 5; // Standard: 5 chars = 1 word
-		const minutes = seconds / 60;
-		return Math.round(words / minutes);
+		const minutes = (endTime - startTime) / 60000;
+		if (minutes <= 0) return 0;
+		return Math.round(correctChars / 5 / minutes);
 	});
 
 	const accuracy = $derived.by(() => {
@@ -83,7 +94,23 @@
 	 */
 	$effect(() => {
 		scores = readScores();
+		soundOn = soundManager.isEnabled();
 	});
+
+	function toggleSound() {
+		soundOn = soundManager.toggle();
+	}
+
+	/**
+	 * Each state swap removes the control that had focus (Start, the input, Try Again), which dropped
+	 * keyboard and screen-reader users back to `<body>`. Move focus to whatever now leads the panel.
+	 */
+	async function focusFor(state: GameState) {
+		await tick();
+		if (state === 'idle') startBtn?.focus();
+		else if (state === 'countdown') countdownEl?.focus();
+		else if (state === 'finished') resultsHeading?.focus();
+	}
 
 	$effect(() => {
 		if (isComplete && gameState === 'playing') {
@@ -91,6 +118,7 @@
 			gameState = 'finished';
 			playSound('typing-complete');
 			saveScore();
+			void focusFor('finished');
 		}
 	});
 
@@ -112,6 +140,7 @@
 		endTime = null;
 		gameState = 'countdown';
 		countdown = 3;
+		void focusFor('countdown');
 
 		countdownTimer = setInterval(() => {
 			countdown--;
@@ -127,30 +156,34 @@
 		}, 1000);
 	}
 
+	/**
+	 * Tab is deliberately *not* swallowed any more. No snippet contains a tab character, so trapping it
+	 * bought nothing and left keyboard users stuck in the input until they finished the test. Escape
+	 * is the explicit way out.
+	 */
 	function handleKeyDown(e: KeyboardEvent) {
-		if (gameState !== 'playing') return;
-
-		// Start timer on first keypress
-		if (!startTime) {
-			startTime = Date.now();
-		}
-
-		// Ignore special keys except Enter, Tab, Space
-		if (e.key.length > 1 && !['Enter', 'Tab', ' '].includes(e.key)) {
-			return;
-		}
-
-		// Prevent default for Tab and Enter
-		if (e.key === 'Tab') {
+		if (e.key === 'Escape' && (gameState === 'playing' || gameState === 'countdown')) {
 			e.preventDefault();
+			reset();
 		}
+	}
+
+	/** Pasting (or dropping) the snippet in would "win" instantly. */
+	function blockPaste(e: Event) {
+		e.preventDefault();
 	}
 
 	function handleInput(e: Event) {
 		if (gameState !== 'playing' || !snippet) return;
 
-		const target = e.target as HTMLInputElement;
+		const target = e.target as HTMLTextAreaElement;
 		const newValue = target.value;
+
+		// The clock starts on the first character actually typed. It used to start on keydown, so
+		// pressing Shift (or any modifier) to think about the first capital letter cost time.
+		if (!startTime && newValue.length > 0) {
+			startTime = Date.now();
+		}
 
 		// Check if the new character is correct
 		const newCharIndex = newValue.length - 1;
@@ -184,6 +217,14 @@
 
 		setLocalItem('typetest-scores', JSON.stringify(next));
 		scores = next;
+		latestScoreDate = newScore.date;
+	}
+
+	function clearScores() {
+		if (!window.confirm('Clear your local type test leaderboard?')) return;
+		setLocalItem('typetest-scores', '[]');
+		scores = [];
+		latestScoreDate = null;
 	}
 
 	function reset() {
@@ -194,13 +235,23 @@
 		mistakes = [];
 		startTime = null;
 		endTime = null;
+		void focusFor('idle');
 	}
 </script>
 
 <div class="typetest">
 	<div class="typetest__header">
-		<h2 class="typetest__title">Type Speed Test</h2>
+		<h1 class="typetest__title">Type Speed Test</h1>
 		<p class="typetest__subtitle">Test your typing speed with code snippets</p>
+		<button
+			type="button"
+			class="sound-toggle"
+			aria-pressed={!soundOn}
+			onclick={toggleSound}
+			title={soundOn ? 'Mute typing sounds' : 'Unmute typing sounds'}
+		>
+			<span aria-hidden="true">{soundOn ? '♪' : '♪̸'}</span> mute
+		</button>
 	</div>
 
 	{#if gameState === 'idle'}
@@ -224,21 +275,26 @@
 					{/each}
 				</div>
 			</div>
-			<button class="btn btn--primary btn--large" onclick={startGame}>Start Test</button>
+			<button bind:this={startBtn} type="button" class="btn btn--primary btn--large" onclick={startGame}>
+				Start Test
+			</button>
 		</div>
 	{/if}
 
 	{#if gameState === 'countdown'}
-		<div class="typetest__countdown">
+		<div class="typetest__countdown" bind:this={countdownEl} tabindex="-1" aria-live="assertive">
 			<div class="countdown-number">{countdown}</div>
-			<div class="countdown-text">Get Ready...</div>
+			<div class="countdown-text">Get Ready... <span class="hint">(Esc to cancel)</span></div>
 		</div>
 	{/if}
 
 	{#if gameState === 'playing' && snippet}
 		<div class="typetest__game">
-			<div class="typetest__snippet">
-				{#each snippet.text as char, i}
+			<!-- Per-character spans are read one letter at a time by a screen reader, so they are hidden
+			     and the snippet is exposed once as plain text instead. -->
+			<p class="sr-only" id="typetest-snippet-text">Type this: {snippet.text}</p>
+			<div class="typetest__snippet" aria-hidden="true">
+				{#each snippet.text as char, i (i)}
 					<span
 						class="char"
 						class:char--correct={i < userInput.length && userInput[i] === char}
@@ -250,19 +306,26 @@
 				{/each}
 			</div>
 
-			<input
+			<!-- A textarea, not `<input type="text">`: several snippets span lines, and a text input
+			     strips line breaks from its value, so the newline in those snippets could never be typed
+			     and every multi-line run finished with forced mistakes. -->
+			<textarea
 				bind:this={inputRef}
-				type="text"
+				rows="3"
 				bind:value={userInput}
 				onkeydown={handleKeyDown}
 				oninput={handleInput}
+				onpaste={blockPaste}
+				ondrop={blockPaste}
+				aria-label="Type the snippet"
+				aria-describedby="typetest-snippet-text"
 				class="typetest__input"
 				autocomplete="off"
-				autocorrect="off"
+				{...{ autocorrect: 'off' } /* Safari-only; not in Svelte's textarea typings */}
 				autocapitalize="off"
 				spellcheck="false"
 				maxlength={snippet.text.length}
-			/>
+			></textarea>
 
 			<div class="typetest__stats">
 				<div class="stat">
@@ -274,12 +337,15 @@
 					<span class="stat__label">Accuracy</span>
 				</div>
 			</div>
+			<div class="typetest__quit">
+				<button type="button" class="btn btn--ghost" onclick={reset}>quit <span class="hint">(Esc)</span></button>
+			</div>
 		</div>
 	{/if}
 
 	{#if gameState === 'finished' && snippet}
-		<div class="typetest__results">
-			<h3 class="results__title">Test Complete!</h3>
+		<div class="typetest__results" aria-live="polite">
+			<h2 class="results__title" bind:this={resultsHeading} tabindex="-1">Test Complete!</h2>
 			<div class="results__stats">
 				<div class="result-stat result-stat--primary">
 					<span class="result-stat__value">{wpm}</span>
@@ -293,26 +359,34 @@
 					<span class="result-stat__value">{endTime && startTime ? ((endTime - startTime) / 1000).toFixed(1) : 0}s</span>
 					<span class="result-stat__label">Time</span>
 				</div>
+				<div class="result-stat">
+					<span class="result-stat__value">{mistakes.length}</span>
+					<span class="result-stat__label">{mistakes.length === 1 ? 'Mistake' : 'Mistakes'}</span>
+				</div>
 			</div>
 			<div class="results__actions">
-				<button class="btn btn--primary" onclick={startGame}>Try Again</button>
-				<button class="btn btn--ghost" onclick={reset}>Change Difficulty</button>
+				<button type="button" class="btn btn--primary" onclick={startGame}>Try Again</button>
+				<button type="button" class="btn btn--ghost" onclick={reset}>Change Difficulty</button>
 			</div>
 		</div>
 	{/if}
 
 	{#if leaderboard.length > 0}
 		<div class="typetest__leaderboard">
-			<h3 class="leaderboard__title">Leaderboard (Top 10)</h3>
+			<div class="leaderboard__head">
+				<h2 class="leaderboard__title">Leaderboard (Top 10)</h2>
+				<button type="button" class="leaderboard__clear" onclick={clearScores}>clear</button>
+			</div>
 			<div class="leaderboard__list">
-				{#each leaderboard as score, i}
-					<div class="leaderboard__item">
+				{#each leaderboard as score, i (score.date + score.wpm)}
+					<div class="leaderboard__item" class:leaderboard__item--new={score.date === latestScoreDate}>
 						<span class="leaderboard__rank">#{i + 1}</span>
 						<span class="leaderboard__wpm">{score.wpm} WPM</span>
 						<span class="leaderboard__accuracy">{score.accuracy}%</span>
 						<span class="leaderboard__difficulty" data-difficulty={score.difficulty}>
 							{score.difficulty}
 						</span>
+						{#if score.date === latestScoreDate}<span class="sr-only">(your latest run)</span>{/if}
 					</div>
 				{/each}
 			</div>
@@ -322,6 +396,11 @@
 
 <style>
 	.typetest {
+		/* Local palette, overridden for light mode below. The dark values are the originals. */
+		--tt-wrong: #ff5555;
+		--tt-easy: #2ed573;
+		--tt-medium: #ffb142;
+		--tt-hard: #ff3860;
 		max-width: 800px;
 		margin: 0 auto;
 		padding: 2rem 1rem;
@@ -380,7 +459,7 @@
 	.difficulty-btn {
 		padding: 0.6rem 1.2rem;
 		border: 1px solid var(--border-2);
-		background: rgba(255, 255, 255, 0.03);
+		background: color-mix(in srgb, var(--text) 3%, transparent);
 		color: var(--text);
 		font-family: var(--font-mono);
 		font-size: 0.85rem;
@@ -402,7 +481,7 @@
 	.btn {
 		padding: 0.75rem 1.5rem;
 		border: 1px solid var(--border);
-		background: rgba(255, 255, 255, 0.03);
+		background: color-mix(in srgb, var(--text) 3%, transparent);
 		color: var(--text);
 		font-family: var(--font-mono);
 		font-size: 0.9rem;
@@ -423,13 +502,13 @@
 	}
 
 	.btn--ghost {
-		background: rgba(255, 255, 255, 0.03);
+		background: color-mix(in srgb, var(--text) 3%, transparent);
 		color: var(--text);
 	}
 
 	.btn--ghost:hover {
-		background: rgba(255, 255, 255, 0.06);
-		border-color: rgba(255, 255, 255, 0.2);
+		background: color-mix(in srgb, var(--text) 6%, transparent);
+		border-color: color-mix(in srgb, var(--text) 20%, transparent);
 	}
 
 	.btn--large {
@@ -491,8 +570,9 @@
 	}
 
 	.char--incorrect {
-		color: #ff5555;
-		background: rgba(255, 85, 85, 0.1);
+		color: var(--tt-wrong);
+		background: color-mix(in srgb, var(--tt-wrong) 12%, transparent);
+		text-decoration: underline wavy;
 	}
 
 	.char--current {
@@ -506,10 +586,15 @@
 	}
 
 	.typetest__input {
+		display: block;
+		box-sizing: border-box;
+		resize: none;
+		white-space: pre;
+		overflow-x: auto;
 		width: 100%;
 		padding: 1rem;
 		border: 1px solid var(--border);
-		background: rgba(0, 0, 0, 0.3);
+		background: var(--panel-2);
 		color: var(--text);
 		font-family: var(--font-mono);
 		font-size: 1rem;
@@ -529,7 +614,7 @@
 	.stat {
 		padding: 1rem;
 		border: 1px solid var(--border-2);
-		background: rgba(255, 255, 255, 0.02);
+		background: color-mix(in srgb, var(--text) 2%, transparent);
 		text-align: center;
 	}
 
@@ -575,7 +660,7 @@
 	.result-stat {
 		padding: 1.5rem;
 		border: 1px solid var(--border-2);
-		background: rgba(255, 255, 255, 0.02);
+		background: color-mix(in srgb, var(--text) 2%, transparent);
 	}
 
 	.result-stat--primary {
@@ -633,7 +718,7 @@
 		gap: 1rem;
 		padding: 0.75rem 1rem;
 		border: 1px solid var(--border-2);
-		background: rgba(255, 255, 255, 0.02);
+		background: color-mix(in srgb, var(--text) 2%, transparent);
 		align-items: center;
 		font-family: var(--font-mono);
 		font-size: 0.85rem;
@@ -653,28 +738,81 @@
 	}
 
 	.leaderboard__difficulty {
+		--diff: var(--muted);
 		padding: 0.2rem 0.5rem;
-		border: 1px solid var(--border-2);
+		border: 1px solid color-mix(in srgb, var(--diff) 30%, transparent);
+		color: var(--diff);
+		background: color-mix(in srgb, var(--diff) 6%, transparent);
 		font-size: 0.7rem;
 		text-transform: uppercase;
 	}
 
+	.leaderboard__item--new {
+		border-color: color-mix(in srgb, var(--accent) 55%, transparent);
+	}
+
+	.leaderboard__head {
+		display: flex;
+		align-items: baseline;
+		justify-content: space-between;
+		gap: 1rem;
+	}
+
+	.leaderboard__clear {
+		border: 0;
+		background: none;
+		color: var(--muter);
+		font-family: var(--font-mono);
+		font-size: 0.75rem;
+		cursor: pointer;
+		padding: 0.5rem 0;
+	}
+
+	.leaderboard__clear:hover {
+		color: var(--accent-text);
+	}
+
+	.typetest__quit {
+		display: flex;
+		justify-content: flex-end;
+	}
+
+	.hint {
+		color: var(--muter);
+		font-size: 0.8em;
+	}
+
+	.sound-toggle {
+		margin-top: 0.75rem;
+		border: 1px solid var(--border-2);
+		background: transparent;
+		color: var(--muted);
+		font-family: var(--font-mono);
+		font-size: 0.75rem;
+		padding: 0.35rem 0.7rem;
+		cursor: pointer;
+	}
+
+	.sound-toggle[aria-pressed='true'] {
+		color: var(--accent-text);
+		border-color: color-mix(in srgb, var(--accent) 40%, transparent);
+	}
+
+	.typetest__countdown:focus,
+	.results__title:focus {
+		outline: none;
+	}
+
 	.leaderboard__difficulty[data-difficulty='easy'] {
-		border-color: rgba(46, 213, 115, 0.3);
-		color: rgba(46, 213, 115, 0.9);
-		background: rgba(46, 213, 115, 0.05);
+		--diff: var(--tt-easy);
 	}
 
 	.leaderboard__difficulty[data-difficulty='medium'] {
-		border-color: rgba(255, 177, 66, 0.3);
-		color: rgba(255, 177, 66, 0.9);
-		background: rgba(255, 177, 66, 0.05);
+		--diff: var(--tt-medium);
 	}
 
 	.leaderboard__difficulty[data-difficulty='hard'] {
-		border-color: rgba(255, 56, 96, 0.3);
-		color: rgba(255, 56, 96, 0.9);
-		background: rgba(255, 56, 96, 0.05);
+		--diff: var(--tt-hard);
 	}
 
 	@media (max-width: 640px) {
@@ -704,5 +842,28 @@
 		.leaderboard__accuracy {
 			display: none;
 		}
+	}
+
+	/* Darker variants so wrong characters and difficulty pills keep ≥4.5:1 on the light panel. */
+	:global([data-theme='light']) .typetest {
+		--tt-wrong: #b91c1c;
+		--tt-easy: #15803d;
+		--tt-medium: #b45309;
+		--tt-hard: #be123c;
+	}
+
+	:global([data-theme='light']) .typetest__title,
+	:global([data-theme='light']) .stat__value,
+	:global([data-theme='light']) .result-stat__value,
+	:global([data-theme='light']) .leaderboard__wpm,
+	:global([data-theme='light']) .leaderboard__title,
+	:global([data-theme='light']) .results__title,
+	:global([data-theme='light']) .typetest .btn--primary,
+	:global([data-theme='light']) .difficulty-btn--active {
+		color: var(--accent-text);
+	}
+
+	:global([data-theme='light']) .typetest__input {
+		background: var(--bg);
 	}
 </style>

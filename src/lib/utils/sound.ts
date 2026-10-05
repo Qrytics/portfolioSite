@@ -12,7 +12,10 @@
 import { getLocalItem, setLocalItem } from './safeStorage';
 
 export type SoundId =
-	| 'timeline-tick' // Timeline event reveal
+	// Not wired to anything. It must never be played from the timeline's scroll reveal (an
+	// IntersectionObserver): sounds only ever answer a genuine user interaction, and there is no
+	// site-wide mute.
+	| 'timeline-tick'
 	| 'confetti-pop' // GitHub chart explosion
 	| 'typing-key' // Typing test keypress
 	| 'typing-complete' // Typing test finish
@@ -24,6 +27,7 @@ class SoundManager {
 	private sounds = new Map<SoundId, HTMLAudioElement>();
 	private enabled = true;
 	private initialized = false;
+	private preferenceRestored = false;
 
 	constructor() {
 		// Delay initialization until first play attempt to avoid autoplay policy issues
@@ -57,7 +61,15 @@ class SoundManager {
 		}
 	}
 
+	/**
+	 * Separate from `initialize` so reading or toggling the preference doesn't also create and
+	 * preload every `Audio` element. `toggle` used to skip this entirely: toggling before the first
+	 * `play()` flipped the default `true` and ignored a saved `'false'`, so "mute" un-muted.
+	 */
 	private restorePreference() {
+		if (this.preferenceRestored) return;
+		if (typeof window === 'undefined') return;
+		this.preferenceRestored = true;
 		const savedPref = getLocalItem('sound-enabled');
 		if (savedPref !== null) {
 			this.enabled = savedPref !== 'false';
@@ -105,6 +117,7 @@ class SoundManager {
 	 * @returns New enabled state
 	 */
 	toggle(): boolean {
+		this.restorePreference();
 		this.enabled = !this.enabled;
 		setLocalItem('sound-enabled', String(this.enabled));
 		return this.enabled;
@@ -114,9 +127,7 @@ class SoundManager {
 	 * Check if sound is currently enabled
 	 */
 	isEnabled(): boolean {
-		if (!this.initialized) {
-			this.initialize();
-		}
+		this.restorePreference();
 		return this.enabled;
 	}
 
@@ -124,6 +135,7 @@ class SoundManager {
 	 * Set enabled state directly
 	 */
 	setEnabled(enabled: boolean) {
+		this.preferenceRestored = true;
 		this.enabled = enabled;
 		setLocalItem('sound-enabled', String(enabled));
 	}

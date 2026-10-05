@@ -12,6 +12,10 @@
 	 */
 	function backToTop() {
 		window.scrollTo({ top: 0 });
+		// Move focus too. Scrolling alone left keyboard focus on this button at the bottom of the
+		// page, so the next Tab jumped the viewport straight back down. The site title is the first
+		// real control at the top. `preventScroll` so focusing doesn't fight the scroll above.
+		document.querySelector<HTMLElement>('.site-header__title')?.focus({ preventScroll: true });
 	}
 </script>
 
@@ -19,23 +23,33 @@
 	<div class="footer__inner">
 		<span>© {year} {profile.name}</span>
 		<span class="footer__sep">·</span>
-		<button class="email-btn footer-link" onclick={copyEmail}>{profile.email}</button>
+		<button
+			type="button"
+			class="email-btn footer-link"
+			onclick={copyEmail}
+			aria-label="Copy email address {profile.email}"
+			title="Copy email address"
+		>
+			{profile.email}
+		</button>
 		<span class="footer__sep">·</span>
 		<a href={profile.github} target="_blank" rel="noopener noreferrer" class="footer-link">
-			github
+			github<span class="sr-only"> (opens in new tab)</span>
 		</a>
 		<span class="footer__sep">·</span>
 		<a href={profile.linkedin} target="_blank" rel="noopener noreferrer" class="footer-link">
-			linkedin
+			linkedin<span class="sr-only"> (opens in new tab)</span>
 		</a>
 		<span class="footer__sep">·</span>
-		<a href="https://mario-belmonte.com/tutoring" target="_blank" rel="noopener noreferrer" class="footer-link">
-			tutoring
+		<!-- `rel="external"`: /tutoring is a proxy rewrite, not a route — it tells the prerender crawler
+		     not to follow it (it would 404 the build) and the client router not to handle it. -->
+		<a href="/tutoring" target="_blank" rel="external noopener noreferrer" class="footer-link">
+			tutoring<span class="sr-only"> (opens in new tab)</span>
 		</a>
 		{#if profile.twitter}
 			<span class="footer__sep">·</span>
 			<a href={profile.twitter} target="_blank" rel="noopener noreferrer" class="footer-link">
-				twitter
+				twitter<span class="sr-only"> (opens in new tab)</span>
 			</a>
 		{/if}
 	</div>

@@ -25,6 +25,26 @@
 
 	const mayAutoplay = autoplayAllowed();
 
+	/**
+	 * An autoplaying loop had no way to stop it: `controls` is only rendered when autoplay is off.
+	 * WCAG 2.2.2 wants a pause for anything that moves for more than five seconds, so autoplaying
+	 * clips get one small toggle instead of the full native control bar (which would cover the
+	 * demo). Once paused by hand, scrolling back into view does not restart it.
+	 */
+	let userPaused = $state(false);
+	let playing = $state(false);
+
+	function togglePlayback() {
+		if (!videoEl) return;
+		if (videoEl.paused) {
+			userPaused = false;
+			void videoEl.play().catch(() => {});
+		} else {
+			userPaused = true;
+			videoEl.pause();
+		}
+	}
+
 	$effect(() => {
 		project.image;
 		imageAspect = null;
@@ -40,6 +60,7 @@
 		const io = new IntersectionObserver(
 			(entries) => {
 				if (entries[0]?.isIntersecting) {
+					if (userPaused) return;
 					video.play().catch((err) => {
 						// Expected when the browser's own autoplay policy declines; the poster stays.
 						if (import.meta.env.DEV) {
@@ -83,7 +104,7 @@
 </script>
 
 {#if project.images?.length}
-	<div class="media" aria-label="Project media">
+	<div class="media" role="group" aria-label="{project.title} media">
 		<div
 			class="media__frame media__frame--multi {project.mediaAspect === 'schematic' ? 'media__frame--schematic' : project.mediaAspect === 'auto' ? 'media__frame--auto' : ''}"
 			style={frameStyle()}
@@ -100,7 +121,7 @@
 		</div>
 	</div>
 {:else if project.image}
-	<div class="media" aria-label="Project media">
+	<div class="media" role="group" aria-label="{project.title} media">
 		<div
 			class="media__frame {project.mediaAspect === 'schematic' ? 'media__frame--schematic' : project.mediaAspect === 'auto' ? 'media__frame--auto' : ''}"
 			style={frameStyle(imageAspect != null ? String(imageAspect) : undefined)}
@@ -118,7 +139,19 @@
 					aria-label="{project.title} preview"
 					style={mediaInlineStyle()}
 					bind:this={videoEl}
+					onplay={() => (playing = true)}
+					onpause={() => (playing = false)}
 				></video>
+				{#if mayAutoplay}
+					<button
+						type="button"
+						class="media__playback"
+						aria-label={playing ? `Pause ${project.title} preview` : `Play ${project.title} preview`}
+						onclick={togglePlayback}
+					>
+						<span aria-hidden="true">{playing ? '❚❚' : '▶'}</span>
+					</button>
+				{/if}
 			{:else}
 				<img
 					class="media__img"
@@ -133,7 +166,7 @@
 		</div>
 	</div>
 {:else}
-	<div class="media" aria-label="Project media">
+	<div class="media" role="group" aria-label="{project.title} media">
 		<div
 			class="media__frame {project.mediaAspect === 'schematic' ? 'media__frame--schematic' : project.mediaAspect === 'auto' ? 'media__frame--auto' : ''}"
 			style={frameStyle()}
@@ -153,6 +186,7 @@
 	}
 
 	.media__frame {
+		position: relative;
 		width: 100%;
 		overflow: hidden;
 		background: color-mix(in srgb, var(--text) 3%, transparent);
@@ -208,5 +242,36 @@
 		text-align: center;
 		padding: 0 0.75rem;
 		overflow-wrap: anywhere;
+	}
+
+	.media__playback {
+		position: absolute;
+		right: 0.5rem;
+		bottom: 0.5rem;
+		display: grid;
+		place-items: center;
+		min-width: 2.25rem;
+		min-height: 2.25rem;
+		padding: 0 0.5rem;
+		border: 1px solid var(--border);
+		background: color-mix(in srgb, var(--bg) 78%, transparent);
+		color: var(--text);
+		font-family: var(--font-mono);
+		font-size: 0.7rem;
+		cursor: pointer;
+		opacity: 0.75;
+		transition: opacity 0.14s;
+	}
+
+	.media__playback:hover,
+	.media__playback:focus-visible {
+		opacity: 1;
+	}
+
+	@media (pointer: coarse) {
+		.media__playback {
+			min-width: 2.75rem;
+			min-height: 2.75rem;
+		}
 	}
 </style>

@@ -67,14 +67,24 @@
 		});
 	}
 
+	/**
+	 * Hover/focus on the photos card pauses the 4 s rotation (WCAG 2.2.2): someone pointing at, or
+	 * tabbed onto, the thumbnail is looking at it, and it changed under them indefinitely.
+	 */
+	let rotationHeld = $state(false);
+
+	/** Held so unmount can clear it; it used to fire into a destroyed component. */
+	let portraitTimer: ReturnType<typeof setTimeout> | undefined;
+
 	function togglePortrait() {
 		if (isPortraitFading) return;
 
 		isPortraitFading = true;
 
-		window.setTimeout(() => {
+		portraitTimer = setTimeout(() => {
 			portraitIndex = 1 - portraitIndex;
 			isPortraitFading = false;
+			portraitTimer = undefined;
 		}, PORTRAIT_FADE_DURATION_MS);
 	}
 
@@ -88,7 +98,7 @@
 		isPhotoVisible = true;
 
 		const rotatePhoto = async () => {
-			if (transitioning) return;
+			if (transitioning || rotationHeld) return;
 
 			const nextPhoto = getNextTeaserPhoto();
 
@@ -150,6 +160,7 @@
 			stopRotation();
 			clearTimeout(fadeTimeout);
 			clearTimeout(revealTimeout);
+			clearTimeout(portraitTimer);
 		};
 	});
 </script>
@@ -250,7 +261,14 @@
 					</div>
 				</a>
 
-				<a class="card card--photos" href="/about">
+				<a
+					class="card card--photos"
+					href="/about"
+					onpointerenter={() => (rotationHeld = true)}
+					onpointerleave={() => (rotationHeld = false)}
+					onfocus={() => (rotationHeld = true)}
+					onblur={() => (rotationHeld = false)}
+				>
 					<div class="card__inner card__inner--media">
 						<div class="media-copy">
 							<div class="title-row">
@@ -274,13 +292,13 @@
 					</div>
 				</a>
 
-				<div class="card card--spotify" aria-label="Spotify favorites">
+				<div class="card card--spotify" role="group" aria-label="Spotify favorites">
 					<div class="card__inner">
 						<div class="title-row">
 							<h3 class="title">spotify</h3>
 						</div>
 
-						<div class="spotify-grid" aria-label="Spotify favorites">
+						<div class="spotify-grid">
 							<a
 								class="spotify-tile spotify-tile--compact"
 								href={spotifyFavorites.artist.href}
@@ -451,13 +469,13 @@
 		width: 100%;
 		text-decoration: none;
 		border: 1px solid var(--border);
-		background: linear-gradient(180deg, rgba(255, 255, 255, 0.03), transparent 52%), var(--panel);
+		background: linear-gradient(180deg, color-mix(in srgb, #ffffff 3%, transparent), transparent 52%), var(--panel);
 		box-shadow: var(--shadow);
 		transition: border-color 0.16s ease;
 	}
 
 	.card:hover {
-		border-color: rgba(222, 232, 255, 0.22);
+		border-color: color-mix(in srgb, #dee8ff 22%, transparent);
 	}
 
 	.card--bio:hover {
@@ -484,7 +502,7 @@
 		text-align: inherit;
 		cursor: pointer;
 		border: 1px solid var(--border);
-		background: linear-gradient(180deg, rgba(255, 255, 255, 0.03), transparent 52%), var(--panel);
+		background: linear-gradient(180deg, color-mix(in srgb, #ffffff 3%, transparent), transparent 52%), var(--panel);
 		box-shadow: var(--shadow);
 		overflow: hidden;
 	}
@@ -531,7 +549,7 @@
 		border: 1px solid color-mix(in srgb, var(--accent) 24%, transparent);
 		border-radius: 10px;
 		background: color-mix(in srgb, var(--panel) 82%, var(--bg) 18%);
-		box-shadow: 0 10px 22px rgba(0, 0, 0, 0.3);
+		box-shadow: 0 10px 22px color-mix(in srgb, #000000 30%, transparent);
 		opacity: 1;
 		transition: opacity 0.25s ease;
 	}
@@ -545,7 +563,7 @@
 		height: auto;
 		justify-self: end;
 		align-self: center;
-		filter: drop-shadow(0 8px 18px rgba(0, 0, 0, 0.26));
+		filter: drop-shadow(0 8px 18px color-mix(in srgb, #000000 26%, transparent));
 	}
 
 	.title {

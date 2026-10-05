@@ -3,13 +3,42 @@ import { defineConfig, type Plugin } from 'vite';
 import { games } from './src/lib/data/games';
 
 /**
- * The in-app game URLs, e.g. `/games/garticDraw/`. Two games are hosted at the production domain and
- * two are still `#` placeholders, so this is the subset with a same-origin path.
+ * Dev-only mirror of the proxy rewrites in `vercel.json` (and the Caddyfile on the Pi), so the
+ * relative links to these separately deployed apps work in `npm run dev` instead of 404ing. Production
+ * never reads this. Order matters for the same reason it does in `vercel.json`: Vite tries keys in
+ * insertion order, and spotifyHero's own `/_next` must win over the karaoke app's root `/_next`.
+ */
+const VCKARAOKE = 'https://vckaraoke-frontend.vercel.app';
+const devProxy = {
+	'/games/spotifyHero': { target: 'https://spotifyhero-web.vercel.app', changeOrigin: true },
+	'/games/vcKaraoke': {
+		target: VCKARAOKE,
+		changeOrigin: true,
+		rewrite: (p: string) => p.replace(/^\/games\/vcKaraoke/, '') || '/'
+	},
+	'/room': { target: VCKARAOKE, changeOrigin: true },
+	'/_next': { target: VCKARAOKE, changeOrigin: true },
+	'/tutoring': {
+		target: 'https://tutoring.mario-belmonte.com',
+		changeOrigin: true,
+		rewrite: (p: string) => (p === '/tutoring' ? '/tutoring/' : p)
+	}
+};
+
+/**
+ * The in-app game URLs, e.g. `/games/garticDraw`. Routes (`game.route`, the type test) are skipped so
+ * the rewrite below never shadows a real page. A `'#'` placeholder contributes `/games/<slug>`: an
+ * unlinked game can still be built under `static/games/` (rogueSwipe is), and it should be testable
+ * locally by typing the URL. If nothing is built there the rewritten path simply 404s, as before.
  */
 const vendoredGamePaths = games
-	.map((game) => game.playUrl)
+	.filter((game) => !game.route)
+	.map((game) => (game.playUrl === '#' ? `/games/${game.slug}` : game.playUrl))
 	.filter((url) => url.startsWith('/games/'))
-	.map((url) => url.replace(/\/+$/, ''));
+	.map((url) => url.replace(/\/+$/, ''))
+	// A proxied app (vcKaraoke) is not a directory under `static/`; rewriting it to `/index.html`
+	// first would make the proxy forward the wrong path.
+	.filter((url) => !Object.keys(devProxy).some((prefix) => url === prefix || url.startsWith(`${prefix}/`)));
 
 /**
  * Serve the vendored game builds under `static/games/<slug>/` in `npm run dev`.
@@ -56,5 +85,6 @@ function serveVendoredGameIndexes(): Plugin {
 }
 
 export default defineConfig({
-	plugins: [serveVendoredGameIndexes(), sveltekit()]
+	plugins: [serveVendoredGameIndexes(), sveltekit()],
+	server: { proxy: devProxy }
 });

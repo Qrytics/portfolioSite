@@ -27,6 +27,13 @@
 		Permissions-Policy "camera=(), geolocation=(), payment=(), usb=(), microphone=(self)"
 		# Vercel advertises no server header; don't start advertising one here.
 		-Server
+		# Default for anything that sets no Cache-Control of its own — in practice the prerendered
+		# HTML, which adapter-node serves with only ETag/Last-Modified. Without it browsers cache
+		# pages *heuristically* (~10% of the file's age), so after a deploy a cached old page could
+		# request /_app/immutable/ chunks the new container no longer has, and break. Vercel sends
+		# exactly this for HTML. `?` = only when absent, so the @longcache/@ghjson rules below,
+		# adapter-node's `immutable` headers, the /api routes and every proxied upstream keep theirs.
+		?Cache-Control "public, max-age=0, must-revalidate"
 	}
 
 	# ── rule B: long-lived asset cache. `vercel.json` spells the extension list with
@@ -58,7 +65,8 @@
 	@spotifyHero path /games/spotifyHero /games/spotifyHero/*
 	@spotifyHeroSlash path /games/spotifyHero/
 	@vcKaraoke path /games/vcKaraoke /games/vcKaraoke/*
-	@room path /room/*
+	# Bare `/room` too: vercel.json's `/room/:path*` matches it (`:path*` allows zero segments).
+	@room path /room /room/*
 	@tutoring path /tutoring /tutoring/*
 	@tutoringBare path /tutoring
 	@nextAssets path /_next/*
@@ -137,8 +145,9 @@
 	#    path_regexp, NOT `path`: Caddy's `path` matcher is case-insensitive ("exact but
 	#    case-insensitive"), so `path /moxel/` would also match `/Moxel/` and loop the app's own URL
 	#    forever. RE2 is case-sensitive by default, which is what vercel.json's redirects are too.
+	#    308, not `permanent` (which is 301 in Caddy): vercel.json's `permanent: true` sends 308.
 	@moxelBare path_regexp ^/(Moxel|moxel/?)$
-	redir @moxelBare /Moxel/ permanent
+	redir @moxelBare /Moxel/ 308
 
 	#    Live-session signaling relay (services/moxel-signal, its own compose service). It only
 	#    forwards WebRTC handshakes; artwork goes browser-to-browser and never reaches the Pi. Caddy

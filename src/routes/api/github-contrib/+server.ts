@@ -30,14 +30,21 @@ const FETCH_TIMEOUT_MS = 8000;
 
 /**
  * Two years is all the client can reach: the chart shows a rolling 365-day window plus
- * buttons for the newest two years, and two Monday-aligned year windows already cover the
- * rolling window. This used to fetch five, four of which nothing could display.
+ * buttons for the newest two years, and two calendar-year windows always cover the rolling
+ * window. This used to fetch five, four of which nothing could display.
  */
 const YEAR_SPAN = 2;
 
 let cachedAtMs: number | null = null;
 let cachedPayload: GithubContribResponse | null = null;
 let cachedIsError = false;
+/**
+ * The last fully successful payload. A failed refresh used to overwrite `cachedPayload` with the
+ * empty error fallback, throwing away data that was minutes old and pushing the client onto the
+ * committed static JSON, which CI only refreshes every few hours. Serving this instead is strictly
+ * fresher. Module-level, so like the rest of this cache it survives only as long as the process.
+ */
+let lastGood: GithubContribResponse | null = null;
 /** Collapses concurrent post-TTL requests into one upstream fan-out. */
 let inFlight: Promise<GithubContribResponse> | null = null;
 
@@ -88,10 +95,14 @@ function safeError(context: string, detail: unknown): string {
 }
 
 async function fetchYear(year: number, token: string, githubUser: string): Promise<GithubContribData> {
-	const jan1 = new Date(`${year}-01-01T00:00:00Z`);
-	const jan1MondayIndex = (jan1.getUTCDay() + 6) % 7;
-	const fromDate = new Date(jan1.getTime() - jan1MondayIndex * 86400000);
-	const toDate = new Date(fromDate.getTime() + 363 * 86400000 + 86399000);
+	// The calendar year exactly: Jan 1 00:00:00 → Dec 31 23:59:59, which is under GitHub's one-year
+	// limit in leap years too. This used to be 364 days from the Monday on or before Jan 1, which
+	// stopped 1–6 days short of Dec 31 — so from Dec 28 the rolling view showed zero for today, and
+	// each year button counted a few of the *previous* December's days instead of its own. The chart
+	// places every day by its date (`weekdayRow`, `contribLookup`), so it doesn't need the window to
+	// start on a Monday.
+	const fromDate = new Date(`${year}-01-01T00:00:00Z`);
+	const toDate = new Date(`${year}-12-31T23:59:59Z`);
 
 	const res = await fetch('https://api.github.com/graphql', {
 		method: 'POST',
@@ -144,17 +155,28 @@ async function buildPayload(currentYear: number): Promise<GithubContribResponse>
 	const githubUser = getGithubUser();
 	const yearRange = Array.from({ length: YEAR_SPAN }, (_, i) => currentYear - i);
 
-	try {
-		// Parallel, not serial: five sequential round trips were the bulk of this route's latency.
-		const years = await Promise.all(yearRange.map((year) => fetchYear(year, token, githubUser)));
-		return { currentYear, years };
-	} catch (e) {
-		return {
-			currentYear,
-			years: buildFallbackYears(currentYear),
-			error: safeError('fan-out failed', e)
-		};
+	// Parallel, not serial: five sequential round trips were the bulk of this route's latency.
+	// `allSettled` so one failed year can be filled from the last good payload instead of discarding
+	// the year that did succeed.
+	const settled = await Promise.allSettled(yearRange.map((year) => fetchYear(year, token, githubUser)));
+	const years: GithubContribData[] = [];
+	for (const [i, result] of settled.entries()) {
+		if (result.status === 'fulfilled') {
+			years.push(result.value);
+			continue;
+		}
+		const previous = lastGood?.years.find((y) => y.year === yearRange[i]);
+		if (!previous) {
+			return {
+				currentYear,
+				years: buildFallbackYears(currentYear),
+				error: safeError(`year ${yearRange[i]} failed`, result.reason)
+			};
+		}
+		console.error(`[github-contrib] year ${yearRange[i]} failed; reusing last good copy:`, result.reason);
+		years.push(previous);
 	}
+	return { currentYear, years };
 }
 
 export const GET = async ({ setHeaders }) => {
@@ -167,16 +189,19 @@ export const GET = async ({ setHeaders }) => {
 	} else {
 		inFlight ??= buildPayload(currentYear).then((result) => {
 			cachedAtMs = Date.now();
-			cachedPayload = result;
+			// Errors still get the short TTL, so a recovered GitHub is noticed within a minute — but
+			// what is *served* during that minute is the last good data when there is any.
 			cachedIsError = Boolean(result.error);
+			if (!result.error) lastGood = result;
+			cachedPayload = result.error && lastGood ? lastGood : result;
 			inFlight = null;
-			return result;
+			return cachedPayload;
 		});
 		try {
 			payload = await inFlight;
 		} catch (e) {
 			inFlight = null;
-			payload = {
+			payload = lastGood ?? {
 				currentYear,
 				years: buildFallbackYears(currentYear),
 				error: safeError('unexpected failure', e)
@@ -185,12 +210,18 @@ export const GET = async ({ setHeaders }) => {
 	}
 
 	if (payload.error) {
-		// A real status code is what lets `+page.ts` fall through to the committed static JSON.
+		// A real status code is what lets `githubData.ts` fall through to the committed static JSON.
 		// Returning 200 with an `error` field made that entire fallback path unreachable.
 		setHeaders({ 'Cache-Control': 'public, s-maxage=60' });
 		return json(payload, { status: 503 });
 	}
 
-	setHeaders({ 'Cache-Control': 'public, s-maxage=1800, stale-while-revalidate=86400' });
+	// Stale-but-good data during an error window gets the error TTL at the edge too, so the CDN
+	// re-asks as soon as this process would.
+	setHeaders({
+		'Cache-Control': cachedIsError
+			? 'public, s-maxage=60'
+			: 'public, s-maxage=1800, stale-while-revalidate=86400'
+	});
 	return json(payload);
 };

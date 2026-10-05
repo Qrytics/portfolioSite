@@ -19,12 +19,16 @@
 		"build:paddle-ball": "node scripts/build-paddle-ball.mjs",
 		"build:moxel": "node scripts/build-moxel.mjs",
 		"generate:demo-card": "node scripts/generate-demo-card.mjs",
-		"verify:seo": "node scripts/verify-seo.mjs"
+		"verify:seo": "node scripts/verify-seo.mjs",
+		"verify:live": "VERIFY_URL=https://mario-belmonte.com node scripts/verify-ui.mjs && VERIFY_URL=https://mario-belmonte.com node scripts/verify-chart.mjs",
+		"snapshot:live": "VERIFY_URL=https://mario-belmonte.com node scripts/snapshot-site.mjs",
+		"snapshot:local": "VERIFY_URL=http://localhost:5173 node scripts/snapshot-site.mjs"
+	},
+	"engines": {
+		"node": ">=20"
 	},
 	"devDependencies": {
-		"@sveltejs/adapter-auto": "^7.0.0",
 		"@sveltejs/adapter-node": "^5.5.7",
-		"@sveltejs/adapter-static": "^3.0.10",
 		"@sveltejs/adapter-vercel": "^6.3.3",
 		"@sveltejs/kit": "^2.50.2",
 		"@sveltejs/vite-plugin-svelte": "^6.2.4",

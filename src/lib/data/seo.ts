@@ -88,7 +88,7 @@ function canonicalPath(pathname: string): string {
 }
 
 /**
- * Deliberately excludes `.svg`, which is the reason 8 of the 36 projects fall back to the site image:
+ * Deliberately excludes `.svg`, which is why several projects fall back to the site image:
  * their only artwork is a `/demos/*-preview.svg`, and Facebook, LinkedIn, Slack and X all refuse to
  * render an SVG `og:image`. Accepting one would trade a correct generic preview for no preview at all.
  */
@@ -130,9 +130,13 @@ function serializeJsonLd(graph: unknown): string {
 	return JSON.stringify(graph).replaceAll('<', '\\u003c');
 }
 
+/** Stable node id, so every page's JSON-LD describes the *same* Person rather than a new one each time. */
+const PERSON_ID = `${SITE_URL}/#person`;
+
 function personGraph() {
 	return {
 		'@type': 'Person',
+		'@id': PERSON_ID,
 		name: profile.name,
 		alternateName: profile.handle,
 		description: profile.bio,
@@ -166,14 +170,19 @@ export function resolveSeo(pathname: string, project?: Project): SeoMeta {
 			ogType: 'article',
 			jsonLd: serializeJsonLd({
 				'@context': 'https://schema.org',
-				'@type': 'CreativeWork',
+				// `codeRepository` is a `SoftwareSourceCode` property — on a plain `CreativeWork` it is
+				// invalid and validators drop it. `SoftwareSourceCode` is a `CreativeWork` subtype, so a
+				// project with a repo loses nothing by being typed precisely.
+				'@type': project.github ? 'SoftwareSourceCode' : 'CreativeWork',
 				name: project.title,
 				headline: project.title,
 				description: project.description,
 				url: canonical,
 				image: `${SITE_URL}${image ?? DEFAULT_OG_IMAGE}`,
 				keywords: project.tags?.join(', '),
-				author: personGraph(),
+				// Referenced by `@id` (the home page carries the full node) instead of re-embedding the
+				// whole Person on every one of the project pages.
+				author: { '@type': 'Person', '@id': PERSON_ID, name: profile.name, url: SITE_URL },
 				...(project.github ? { codeRepository: project.github } : {})
 			})
 		};
@@ -205,7 +214,7 @@ export function resolveSeo(pathname: string, project?: Project): SeoMeta {
 							inLanguage: 'en',
 							author: { '@id': `${SITE_URL}/#person` }
 						},
-						{ '@id': `${SITE_URL}/#person`, ...personGraph() }
+						personGraph()
 					]
 				})
 			: null

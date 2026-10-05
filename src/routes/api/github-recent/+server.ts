@@ -22,12 +22,14 @@ function isWithinLastWeek(iso: string): boolean {
 }
 
 /**
- * GitHub's own message is safe to surface (it's written for API consumers), but transport-level
- * detail — undici socket errors, `ECONNREFUSED 140.82.121.6:443`, DNS failures — is logged and
- * replaced. `CurrentlyBuilding.svelte` renders this string verbatim.
+ * Nothing from GitHub's response body reaches the browser. Its messages *look* safe — they are
+ * written for API consumers — but the rate-limit one reads "API rate limit exceeded for
+ * <egress IP>", and on the Pi that is the home IP the Cloudflare tunnel exists to hide. This route is
+ * publicly fetchable, so the message is logged and the status mapped to fixed text instead.
+ * `CurrentlyBuilding.svelte` renders the returned string verbatim.
  */
 function friendlyError(status: number, messageFromApi?: string): string {
-	if (messageFromApi) return `GitHub: ${messageFromApi}`;
+	if (messageFromApi) console.error(`[github-recent] GitHub ${status}:`, messageFromApi);
 	if (status === 403 || status === 429) return 'GitHub is rate-limiting requests right now.';
 	if (status === 401) return 'GitHub authentication failed.';
 	if (status === 404) return 'GitHub user/profile not found.';
@@ -48,6 +50,8 @@ type Result = { repos: Repo[]; error?: string };
 let cachedAtMs: number | null = null;
 let cachedResult: Result | null = null;
 let inFlight: Promise<Result> | null = null;
+/** Last successful result, served through an error window instead of an empty list (see contrib). */
+let lastGood: Result | null = null;
 
 async function fetchRecent(): Promise<Result> {
 	const githubUser = getGithubUser();
@@ -122,6 +126,7 @@ export const GET = async ({ setHeaders }) => {
 		inFlight ??= fetchRecent().then((r) => {
 			cachedAtMs = Date.now();
 			cachedResult = r;
+			if (!r.error) lastGood = r;
 			inFlight = null;
 			return r;
 		});
@@ -133,8 +138,14 @@ export const GET = async ({ setHeaders }) => {
 		}
 	}
 
+	if (result.error && lastGood) {
+		// Re-filter: a repo pushed six days ago when this was cached may be past the window now.
+		setHeaders({ 'Cache-Control': 'public, s-maxage=60' });
+		return json({ repos: lastGood.repos.filter((r) => isWithinLastWeek(r.pushed_at)) });
+	}
+
 	if (result.error) {
-		// Real status code, so `+page.ts`'s `!res.ok` guard can fall through to the static JSON.
+		// Real status code, so `githubData.ts`'s `!res.ok` guard can fall through to the static JSON.
 		setHeaders({ 'Cache-Control': 'public, s-maxage=60' });
 		return json(result, { status: 503 });
 	}

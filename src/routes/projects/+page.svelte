@@ -1,4 +1,7 @@
 <script lang="ts">
+	import { onMount } from 'svelte';
+	import { replaceState } from '$app/navigation';
+	import { page } from '$app/state';
 	import ProjectList from '$lib/components/ProjectList.svelte';
 	import { projectLanguageBytes } from '$lib/data/projectLanguageBytes';
 
@@ -23,6 +26,86 @@
 	};
 
 	let sortBy = $state<SortKey>('newest');
+
+	/**
+	 * Text + tag filter. With ~40 projects and no way to narrow them, "show me the Svelte ones"
+	 * meant scrolling the whole grid. State is mirrored into `?q=&tag=&sort=` so a filtered view can
+	 * be linked and survives Back. Read on mount rather than from `page.url` during render: this
+	 * route is prerendered, and SvelteKit refuses `url.searchParams` access while prerendering.
+	 */
+	let query = $state('');
+	let activeTag = $state<string | null>(null);
+	let urlReady = false;
+
+	const SORT_KEYS: SortKey[] = ['newest', 'oldest', 'size'];
+
+	onMount(() => {
+		const params = new URL(window.location.href).searchParams;
+		query = params.get('q') ?? '';
+		const tag = params.get('tag');
+		// Any tag a project actually carries, not only the ones with a chip, so `?tag=svelte` links work.
+		const key = tag?.toLowerCase();
+		activeTag = key && projects.some((p) => p.tags.some((t) => t.toLowerCase() === key)) ? key : null;
+		const sort = params.get('sort');
+		if (sort && (SORT_KEYS as string[]).includes(sort)) sortBy = sort as SortKey;
+		urlReady = true;
+	});
+
+	$effect(() => {
+		// Read every piece first so the effect tracks all three even on the early return.
+		const q = query.trim();
+		const tag = activeTag;
+		const sort = sortBy;
+		if (!urlReady) return;
+		const url = new URL(window.location.href);
+		const set = (k: string, v: string | null) => (v ? url.searchParams.set(k, v) : url.searchParams.delete(k));
+		set('q', q || null);
+		set('tag', tag);
+		set('sort', sort === 'newest' ? null : sort);
+		if (url.href !== window.location.href) replaceState(url, page.state);
+	});
+
+	/** The most-used tags across all projects (case-folded), as filter chips. */
+	const allTags = (() => {
+		const counts = new Map<string, { label: string; count: number }>();
+		for (const p of projects) {
+			for (const t of p.tags) {
+				const key = t.toLowerCase();
+				const hit = counts.get(key);
+				if (hit) hit.count += 1;
+				else counts.set(key, { label: t, count: 1 });
+			}
+		}
+		return [...counts.entries()]
+			.map(([key, v]) => ({ key, ...v }))
+			.filter((t) => t.count > 1)
+			.sort((a, b) => b.count - a.count || a.label.localeCompare(b.label))
+			.slice(0, 14);
+	})();
+
+	/** The chips, plus the active tag when it came from a URL and has no chip of its own. */
+	const chipTags = $derived(
+		activeTag && !allTags.some((t) => t.key === activeTag)
+			? [{ key: activeTag, label: activeTag, count: 0 }, ...allTags]
+			: allTags
+	);
+
+	function matches(p: Project): boolean {
+		if (activeTag && !p.tags.some((t) => t.toLowerCase() === activeTag)) return false;
+		const q = query.trim().toLowerCase();
+		if (!q) return true;
+		return (
+			p.title.toLowerCase().includes(q) ||
+			p.subtitle.toLowerCase().includes(q) ||
+			p.description.toLowerCase().includes(q) ||
+			p.tags.some((t) => t.toLowerCase().includes(q))
+		);
+	}
+
+	function clearFilters() {
+		query = '';
+		activeTag = null;
+	}
 	let isCollapsed = $state(false);
 	let expandedSlugs = $state<string[]>([]);
 
@@ -120,7 +203,10 @@
 		});
 	});
 
-	const visibleProjectSlugs = $derived(sortedProjects.map((project) => project.slug));
+	const filteredProjects = $derived(sortedProjects.filter(matches));
+	const isFiltered = $derived(Boolean(query.trim() || activeTag));
+
+	const visibleProjectSlugs = $derived(filteredProjects.map((project) => project.slug));
 
 	const projectRows = $derived.by(() => {
 		const rows: string[][] = [];
@@ -169,14 +255,53 @@
 <!-- Head metadata for this route lives in $lib/data/seo.ts, resolved once in +layout.svelte. -->
 
 <div class="page">
-	<section id="projects" aria-label="Projects" class:is-collapsed={isCollapsed}>
-		<div class="sort-row" aria-label="Sort projects">
+	<section id="projects" aria-labelledby="projects-title" class:is-collapsed={isCollapsed}>
+		<div class="intro">
+			<h1 class="title" id="projects-title">projects</h1>
+
+			<div class="filter-row">
+				<label class="filter">
+					<span class="sr-only">Filter projects</span>
+					<span class="filter__prompt" aria-hidden="true">⌕</span>
+					<input
+						class="filter__input"
+						type="search"
+						placeholder="filter by name, tech, keyword…"
+						spellcheck="false"
+						autocomplete="off"
+						bind:value={query}
+					/>
+				</label>
+				<p class="count" role="status">
+					{isFiltered ? `${filteredProjects.length} of ${projects.length}` : `${projects.length}`} projects
+					{#if isFiltered}
+						<button type="button" class="clear-btn" onclick={clearFilters}>clear</button>
+					{/if}
+				</p>
+			</div>
+
+			<div class="tag-row" role="group" aria-label="Filter by tag">
+				{#each chipTags as t (t.key)}
+					<button
+						type="button"
+						class="tag-chip"
+						aria-pressed={activeTag === t.key}
+						onclick={() => (activeTag = activeTag === t.key ? null : t.key)}
+					>
+						{t.label}
+					</button>
+				{/each}
+			</div>
+		</div>
+
+		<div class="sort-row" role="group" aria-label="Sort projects">
 			<div class="sort-row__left">
 				<span class="sort-label">sort ↑↓</span>
 				<button
 					type="button"
 					class="sort-btn"
 					class:is-active={sortBy === 'newest'}
+					aria-pressed={sortBy === 'newest'}
 					onclick={() => (sortBy = 'newest')}
 				>
 					newest
@@ -185,6 +310,7 @@
 					type="button"
 					class="sort-btn"
 					class:is-active={sortBy === 'oldest'}
+					aria-pressed={sortBy === 'oldest'}
 					onclick={() => (sortBy = 'oldest')}
 				>
 					oldest
@@ -193,6 +319,7 @@
 					type="button"
 					class="sort-btn"
 					class:is-active={sortBy === 'size'}
+					aria-pressed={sortBy === 'size'}
 					onclick={() => (sortBy = 'size')}
 				>
 					size
@@ -209,8 +336,15 @@
 			</button>
 		</div>
 
+		{#if filteredProjects.length === 0}
+			<p class="no-results">
+				No projects match{query.trim() ? ` "${query.trim()}"` : ''}{activeTag ? ` tagged ${activeTag}` : ''}.
+				<button type="button" class="clear-btn" onclick={clearFilters}>clear filters</button>
+			</p>
+		{/if}
+
 		<ProjectList
-			items={sortedProjects}
+			items={filteredProjects}
 			collapsedMode={isCollapsed}
 			expandedSlugs={expandedSlugs}
 			onToggleExpand={toggleProjectExpansion}
@@ -221,6 +355,131 @@
 <style>
 	.page {
 		position: relative;
+	}
+
+	.intro {
+		max-width: 86rem;
+		margin: 0 auto;
+		padding: clamp(1.25rem, 3vw, 2rem) clamp(1.25rem, 4vw, 3rem) 0;
+	}
+
+	/* Same treatment as the /games title, so the two index pages read as a pair. */
+	.title {
+		margin: 0 0 0.85rem;
+		font-family: var(--font-mono);
+		font-size: clamp(1.35rem, 3.2vw, 1.9rem);
+		letter-spacing: 0.02em;
+		color: var(--text);
+		text-transform: lowercase;
+	}
+
+	.filter-row {
+		display: flex;
+		align-items: center;
+		gap: 0.75rem 1rem;
+		flex-wrap: wrap;
+	}
+
+	.filter {
+		display: flex;
+		align-items: center;
+		gap: 0.5rem;
+		flex: 1 1 18rem;
+		max-width: 32rem;
+		padding: 0 0.7rem;
+		border: 1px solid var(--border);
+		background: var(--panel);
+	}
+
+	.filter:focus-within {
+		border-color: var(--accent);
+	}
+
+	.filter__prompt {
+		color: var(--muter);
+	}
+
+	.filter__input {
+		flex: 1;
+		min-width: 0;
+		min-height: 2.5rem;
+		border: 0;
+		background: transparent;
+		color: var(--text);
+		font-family: var(--font-mono);
+		/* 16px floor: iOS zooms into smaller focused inputs. */
+		font-size: max(16px, 0.86rem);
+		outline: none;
+	}
+
+	.count {
+		margin: 0;
+		font-size: 0.8rem;
+		color: var(--muter);
+	}
+
+	.clear-btn {
+		border: 0;
+		background: none;
+		padding: 0.4rem 0.3rem;
+		color: var(--accent-text);
+		font-family: var(--font-mono);
+		font-size: inherit;
+		cursor: pointer;
+		text-decoration: underline;
+	}
+
+	.tag-row {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 0.4rem;
+		margin-top: 0.75rem;
+	}
+
+	/* One scrollable row on phones; wrapped, fourteen chips took four rows above the first project. */
+	@media (max-width: 640px) {
+		.tag-row {
+			flex-wrap: nowrap;
+			overflow-x: auto;
+			scrollbar-width: none;
+			margin-inline: calc(-1 * clamp(1.25rem, 4vw, 3rem));
+			padding-inline: clamp(1.25rem, 4vw, 3rem);
+		}
+
+		.tag-chip {
+			flex: none;
+		}
+	}
+
+	.tag-chip {
+		font-family: var(--font-mono);
+		font-size: 0.74rem;
+		text-transform: lowercase;
+		min-height: 2rem;
+		padding: 0.3rem 0.6rem;
+		border: 1px solid var(--border-2);
+		background: transparent;
+		color: var(--muted);
+		cursor: pointer;
+		touch-action: manipulation;
+	}
+
+	.tag-chip:hover {
+		border-color: color-mix(in srgb, var(--accent) 50%, transparent);
+		color: var(--text);
+	}
+
+	.tag-chip[aria-pressed='true'] {
+		border-color: var(--accent);
+		color: var(--accent-text);
+		background: color-mix(in srgb, var(--accent) 10%, transparent);
+	}
+
+	.no-results {
+		max-width: 86rem;
+		margin: 1.5rem auto 0;
+		padding: 0 clamp(1.25rem, 4vw, 3rem);
+		color: var(--muted);
 	}
 
 	.sort-row {

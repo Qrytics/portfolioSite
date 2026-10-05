@@ -837,10 +837,16 @@ the local tracking refs, which were stale:
 1. **A `Caddyfile`-only commit would have been silently ignored** — now **risk #14**. Step 3 was
    `up -d portfolio`, but the `Caddyfile` is a read-only bind mount into a container that an app
    rebuild never touches, and Caddy does not watch it. The file on disk and the config being served
-   would diverge with nothing to see. `deploy.sh` diffs the commit range and issues
-   `docker compose exec -T caddy caddy reload` when that path appears. `reload` validates first and
-   keeps the running config if the new one is bad, so a broken `Caddyfile` is a non-zero exit rather
-   than an outage; `-T` because there is no TTY under systemd.
+   would diverge with nothing to see. `deploy.sh` diffs the commit range and acts when that path
+   appears. **Revised 2026-10-05 (site audit):** it originally ran `caddy reload`, which could
+   never work: the mount is a single *file*, Docker pins a single-file bind mount to its inode, and
+   `git reset --hard` writes a changed file as a new inode — so `reload` re-read the old config,
+   succeeded, and applied nothing. It now validates the new file in a throwaway `compose run`
+   container (fresh mount) and then `up -d --force-recreate --no-deps caddy`, *after* the health
+   gate so a Caddy failure can't skip the portfolio rollback. The same pass made `deploy.sh`
+   compare against a last-deployed marker in `.git/portfolio-deployed` instead of `HEAD`, because
+   `HEAD` moves before the build: any failure after the reset used to leave that commit undeployed
+   forever, with nothing retrying it.
 2. **`deploy.sh` rewrites itself mid-run** — now **risk #15**. It is a tracked file, so
    `git reset --hard` replaces it *while bash is executing it*, and bash reads a script by byte
    offset: a change in length makes it resume at the wrong byte and run a fragment. The whole body is

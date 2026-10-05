@@ -15,9 +15,11 @@
 	type Props = {
 		repos?: Repo[];
 		error?: string | null;
+		/** True until the first fetch settles; shows "loading…" instead of a false "no activity". */
+		loading?: boolean;
 	};
 
-	let { repos = [], error = null }: Props = $props();
+	let { repos = [], error = null, loading = false }: Props = $props();
 	const githubProfileUrl = profile.github;
 
 	const WEEK_MS = 7 * 24 * 60 * 60 * 1000;
@@ -63,7 +65,12 @@
 				</a>
 			</div>
 			<ul class="list">
-				{#if error}
+				{#if loading}
+					<li class="list__item">
+						<span class="bullet" aria-hidden="true">•</span>
+						loading recent activity…
+					</li>
+				{:else if error}
 					<li class="list__item">
 						<span class="bullet" aria-hidden="true">•</span>
 						{error}
@@ -116,7 +123,7 @@
 
 	.card {
 		border: 1px solid var(--border);
-		background: linear-gradient(180deg, rgba(255, 255, 255, 0.025), transparent 60%), var(--panel);
+		background: linear-gradient(180deg, color-mix(in srgb, #ffffff 2.5%, transparent), transparent 60%), var(--panel);
 		overflow: hidden;
 	}
 
@@ -126,7 +133,7 @@
 		gap: 0.55rem;
 		padding: 0.6rem 0.9rem;
 		border-bottom: 1px solid var(--border-2);
-		background: rgba(0, 0, 0, 0.22);
+		background: color-mix(in srgb, #000000 22%, transparent);
 	}
 
 	.termbar__prompt {

@@ -51,6 +51,15 @@ export function focusTrap(node: HTMLElement) {
 		if (event.key !== 'Tab' || event.defaultPrevented) return;
 		if (!node.isConnected) return;
 
+		// A control that owns plain Tab for itself (the terminal's tab-completion) opts out with
+		// `data-trap-owns-tab`. This listener runs in the capture phase, i.e. *before* the control's
+		// own handler, so without the opt-out it moved focus to the dialog's first button and the
+		// completion then ran against an input that no longer had focus. Shift+Tab is still trapped,
+		// which keeps a keyboard way out of the control.
+		if (!event.shiftKey && event.target instanceof HTMLElement && event.target.closest('[data-trap-owns-tab]')) {
+			return;
+		}
+
 		const items = focusableWithin(node);
 		if (items.length === 0) {
 			// Nothing to focus, but Tab still must not leak into the page behind.
