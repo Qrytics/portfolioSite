@@ -2,10 +2,12 @@
 import type { PageData } from './$types';
 import MediaSection from '$lib/components/MediaSection.svelte';
 import { getTagKind } from '$lib/utils/tags';
-import { isGitHubRepo } from '$lib/utils/urls';
+import { getYouTubeId, isGitHubRepo } from '$lib/utils/urls';
 
 let { data }: { data: PageData } = $props();
 const project = $derived(data.project);
+const siteHref = $derived(project.siteUrl ?? project.projectPageUrl);
+const youTubeId = $derived(getYouTubeId(project.demo));
 
 function escapeHtml(text: string): string {
 	return text
@@ -51,13 +53,13 @@ function formatNote(text: string): string {
 -->
 <div class="page">
 <div class="shell">
-<div class="breadcrumb">
+<nav class="breadcrumb" aria-label="Breadcrumb">
 <a href="/">home</a>
-<span class="sep">/</span>
-		<a href="/projects">projects</a>
-<span class="sep">/</span>
-<span class="current">{project.slug}</span>
-</div>
+<span class="sep" aria-hidden="true">/</span>
+<a href="/projects">projects</a>
+<span class="sep" aria-hidden="true">/</span>
+<span class="current" aria-current="page">{project.slug}</span>
+</nav>
 
 <div class="card">
 <!-- Termbar -->
@@ -156,7 +158,7 @@ function formatNote(text: string): string {
 <div class="links">
 {#if project.slug === 'smart-home-iot-dashboard' && project.liveDashboardUrl}
 <div class="live-cta">
-<a href={project.liveDashboardUrl} target="_blank" rel="noopener noreferrer" class="btn btn--warn">LIVE Dashboard ↗</a>
+<a href={project.liveDashboardUrl} target="_blank" rel="noopener noreferrer" class="btn btn--warn">LIVE Dashboard ↗<span class="sr-only"> (opens in new tab)</span></a>
 <p class="live-note">(Only works for in-person showcase)</p>
 </div>
 {/if}
@@ -166,21 +168,21 @@ function formatNote(text: string): string {
 GitHub Repo ↗
 {:else}
 source ↗
-{/if}
+{/if}<span class="sr-only"> (opens in new tab)</span>
 </a>
 {/if}
-{#if project.siteUrl}
-<a href={project.siteUrl} target="_blank" rel="noopener noreferrer" class="btn btn--primary">Visit Site ↗</a>
-{/if}
-{#if project.projectPageUrl}
-<a href={project.projectPageUrl} target="_blank" rel="noopener noreferrer" class="btn btn--primary">Visit Site ↗</a>
+{#if siteHref}
+<!-- One button even when both fields are set (they used to render as two identical "Visit Site"
+     buttons). `data-sveltekit-reload` because a relative `siteUrl` (Moxel's `/Moxel/`) is a vendored
+     build, not a route of this app. -->
+<a href={siteHref} target="_blank" rel="noopener noreferrer" class="btn btn--primary" data-sveltekit-reload>Visit Site ↗<span class="sr-only"> (opens in new tab)</span></a>
 {/if}
 {#if project.demo}
-{#if /(\.mp4|\.webm|\.ogg)(\?|#|$)/i.test(project.demo) || /youtu\.be|youtube\.com/i.test(project.demo)}
+{#if /(\.mp4|\.webm|\.ogg)(\?|#|$)/i.test(project.demo) || youTubeId}
 	<!-- video is embedded below -->
 {:else}
 <a href={project.demo} target="_blank" rel="noopener noreferrer" class="btn btn--ghost">
-live demo ↗
+live demo ↗<span class="sr-only"> (opens in new tab)</span>
 </a>
 {/if}
 {/if}
@@ -202,12 +204,12 @@ live demo ↗
 {/if}
 
 {#if project.demo}
-	{#if /youtu\.be|youtube\.com/i.test(project.demo)}
+	{#if youTubeId}
 		<div class="video">
 			<iframe
 				class="video__frame"
 				title="{project.title} video"
-				src={`https://www.youtube-nocookie.com/embed/${project.demo.includes('youtu.be/') ? project.demo.split('youtu.be/')[1].split(/[?&#]/)[0] : new URL(project.demo).searchParams.get('v') ?? ''}`}
+				src={`https://www.youtube-nocookie.com/embed/${youTubeId}`}
 				loading="lazy"
 				referrerpolicy="strict-origin-when-cross-origin"
 				allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
@@ -240,6 +242,17 @@ live demo ↗
 </div>
 </div>
 
+{#if data.prev || data.next}
+<nav class="pager" aria-label="More projects">
+{#if data.prev}
+<a class="pager__link" href="/projects/{data.prev.slug}" rel="prev"><span class="pager__dir">← prev</span> <span class="pager__title">{data.prev.title}</span></a>
+{/if}
+{#if data.next}
+<a class="pager__link pager__link--next" href="/projects/{data.next.slug}" rel="next"><span class="pager__dir">next →</span> <span class="pager__title">{data.next.title}</span></a>
+{/if}
+</nav>
+{/if}
+
 <div class="back-link">
 <a href="/projects">← back to projects</a>
 </div>
@@ -247,6 +260,45 @@ live demo ↗
 </div>
 
 <style>
+.pager {
+display: flex;
+justify-content: space-between;
+gap: 1rem;
+margin-bottom: 1.25rem;
+font-family: var(--font-mono);
+font-size: 0.82rem;
+}
+
+.pager__link {
+display: flex;
+flex-direction: column;
+gap: 0.2rem;
+max-width: 48%;
+padding: 0.6rem 0.8rem;
+border: 1px solid var(--border-2);
+background: var(--panel);
+text-decoration: none;
+min-height: 2.75rem;
+}
+
+.pager__link:hover {
+border-color: color-mix(in srgb, var(--accent) 45%, transparent);
+}
+
+.pager__link--next {
+margin-left: auto;
+text-align: right;
+}
+
+.pager__dir {
+color: var(--muter);
+font-size: 0.74rem;
+}
+
+.pager__title {
+color: var(--text);
+}
+
 .page {
 position: relative;
 z-index: 1;

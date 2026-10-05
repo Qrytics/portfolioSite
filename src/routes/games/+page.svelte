@@ -31,15 +31,16 @@
 								`tabindex="-1" aria-hidden="true"` stays deliberately. This is a *redundant*
 								link to the same place as the `play` control at the bottom of the card, so
 								exposing it would give every card two tab stops and announce the destination
-								twice. `data-sveltekit-reload` because these are standalone builds under
-								`static/games/`, not SvelteKit routes — the client router would 404 on them.
+								twice. `data-sveltekit-reload` because most of these are standalone builds under
+								`static/` or proxied apps, not SvelteKit routes — the client router would 404 on
+								them. `game.route` entries (the type test) are real routes and navigate normally.
 							-->
 							<a
 								href={withBase(game.playUrl)}
 								class="game-card__preview-link"
 								tabindex="-1"
 								aria-hidden="true"
-								data-sveltekit-reload
+								data-sveltekit-reload={game.route ? undefined : ''}
 							>
 								<div class="game-card__media">
 									<img
@@ -86,7 +87,7 @@
 										href={withBase(game.playUrl)}
 										class="play-btn"
 										aria-label="Play {game.title}"
-										data-sveltekit-reload
+										data-sveltekit-reload={game.route ? undefined : ''}
 									>
 										{game.playLabel ?? 'play →'}
 									</a>

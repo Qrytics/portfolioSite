@@ -2,7 +2,7 @@
 	import type { Project } from '$lib/data/projects';
 	import MediaSection from '$lib/components/MediaSection.svelte';
 	import { getTagKind } from '$lib/utils/tags';
-	import { isGitHubRepo } from '$lib/utils/urls';
+	import { getYouTubeId, isGitHubRepo } from '$lib/utils/urls';
 
 	let {
 		project,
@@ -35,21 +35,6 @@
 		'multi-site': 'multi-site'
 	};
 
-	function getYouTubeId(url: string): string | null {
-		try {
-			const u = new URL(url);
-			if (u.hostname === 'youtu.be') return u.pathname.replace('/', '') || null;
-			if (u.hostname.endsWith('youtube.com')) {
-				if (u.pathname.startsWith('/embed/')) return u.pathname.replace('/embed/', '') || null;
-				const v = u.searchParams.get('v');
-				return v || null;
-			}
-			return null;
-		} catch {
-			return null;
-		}
-	}
-
 	function isVideoDemo(url: string): boolean {
 		if (getYouTubeId(url)) return true;
 		return /\.(mp4|webm|ogg)(\?|#|$)/i.test(url);
@@ -78,7 +63,7 @@
 			class="termbar termbar--collapsible"
 			onclick={onCollapsedBarClick}
 			aria-expanded={showBody}
-			aria-controls={bodyId}
+			aria-controls={showBody ? bodyId : undefined}
 		>
 			<span class="termbar__chevron" aria-hidden="true">{showBody ? '▾' : '▸'}</span>
 			<span class="termbar__title termbar__titleText">{project.shortTitle ?? project.title}</span>
@@ -115,20 +100,20 @@
 							GitHub Repo ↗
 						{:else}
 							Source ↗
-						{/if}
+						{/if}<span class="sr-only"> for {project.title} (opens in new tab)</span>
 					</a>
 				{/if}
 				{#if project.siteUrl || project.projectPageUrl}
-					<a href={project.siteUrl ?? project.projectPageUrl} target="_blank" rel="noopener noreferrer" class="btn btn--primary btn--external">
-						Visit Site ↗
+					<a href={project.siteUrl ?? project.projectPageUrl} target="_blank" rel="noopener noreferrer" class="btn btn--primary btn--external" data-sveltekit-reload>
+						Visit Site ↗<span class="sr-only"> for {project.title} (opens in new tab)</span>
 					</a>
 				{/if}
 				{#if project.demo && !isVideoDemo(project.demo)}
 					<a href={project.demo} target="_blank" rel="noopener noreferrer" class="btn btn--ghost">
-						demo ↗
+						demo ↗<span class="sr-only"> for {project.title} (opens in new tab)</span>
 					</a>
 				{/if}
-				<a href={detailPath} class="btn btn--ghost btn--details">details →</a>
+				<a href={detailPath} class="btn btn--ghost btn--details">details<span class="sr-only"> for {project.title}</span> →</a>
 			</div>
 		</div>
 	{/if}
@@ -348,10 +333,15 @@
 		overflow-wrap: anywhere;
 	}
 
-	/* Hide detailed description on mobile to reduce text heaviness */
+	/* Keep mobile cards light, but clamp rather than hide: hiding left phone visitors with only the
+	   one-line subtitle and no idea what a project does. The full text is one tap away on "details". */
 	@media (max-width: 640px) {
 		.card__desc--desktop-only {
-			display: none;
+			display: -webkit-box;
+			-webkit-box-orient: vertical;
+			-webkit-line-clamp: 3;
+			line-clamp: 3;
+			overflow: hidden;
 		}
 	}
 

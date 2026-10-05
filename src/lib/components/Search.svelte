@@ -1,5 +1,7 @@
 <script lang="ts">
-	import { assignAppLocation } from '$lib/utils/internalNav';
+	import { untrack } from 'svelte';
+	import { assignAppLocation, assignDocumentLocation } from '$lib/utils/internalNav';
+	import { games } from '$lib/data/games';
 	import { portal } from '$lib/utils/portal';
 	import { focusTrap } from '$lib/utils/focusTrap';
 	import { loadProjectsIndex, type ProjectIndexEntry } from '$lib/utils/projectsIndex';
@@ -26,17 +28,75 @@
 	 * `Nav`, so every route paid for it, including the four that render no projects at all.
 	 */
 	let index = $state<ProjectIndexEntry[]>([]);
+	let indexLoading = $state(false);
+
+	/**
+	 * One result shape for projects, games and pages. Search used to cover projects only, so typing
+	 * "aim trainer", "karaoke" or "resume" found nothing even though each has a page on the site.
+	 * `games.ts` is small and has no long-form fields, so it is imported directly rather than adding
+	 * another prerendered index. `document: true` marks a target the client router can't render (a
+	 * vendored build or a proxied app) — those need a full document load, see `go`.
+	 */
+	type SearchItem = {
+		key: string;
+		kind: 'project' | 'game' | 'page';
+		href: string;
+		title: string;
+		meta: string;
+		haystack: string;
+		tags: string[];
+		document?: boolean;
+	};
+
+	const PAGES: Array<{ href: string; title: string; keywords: string }> = [
+		{ href: '/projects', title: 'all projects', keywords: 'portfolio work list' },
+		{ href: '/games', title: 'games', keywords: 'play browser toys' },
+		{ href: '/about', title: 'about me', keywords: 'photos bio' },
+		{ href: '/rhythm-games', title: 'rhythm games', keywords: 'osu music videos' },
+		{ href: '/resume', title: 'resume', keywords: 'cv pdf experience' }
+	];
+
+	const staticItems: SearchItem[] = [
+		...games
+			.filter((g) => g.playUrl !== '#')
+			.map((g) => ({
+				key: `game:${g.slug}`,
+				kind: 'game' as const,
+				href: g.playUrl,
+				title: g.title,
+				meta: 'game',
+				haystack: `${g.title} ${g.subtitle} ${g.description} ${g.tags.join(' ')}`.toLowerCase(),
+				tags: g.tags,
+				document: !g.route
+			})),
+		...PAGES.map((p) => ({
+			key: `page:${p.href}`,
+			kind: 'page' as const,
+			href: p.href,
+			title: p.title,
+			meta: 'page',
+			haystack: `${p.title} ${p.keywords}`.toLowerCase(),
+			tags: []
+		}))
+	];
+
+	const projectItems = $derived<SearchItem[]>(
+		index.map((p) => ({
+			key: `project:${p.slug}`,
+			kind: 'project',
+			href: `/projects/${p.slug}`,
+			title: p.title,
+			meta: String(p.year),
+			haystack: `${p.title} ${p.subtitle} ${p.description} ${p.tags.join(' ')}`.toLowerCase(),
+			tags: p.tags
+		}))
+	);
 
 	const results = $derived.by(() => {
 		const q = query.toLowerCase().trim();
-		if (!q) return [] as ProjectIndexEntry[];
-		return index.filter(
-			(p) =>
-				p.title.toLowerCase().includes(q) ||
-				p.subtitle.toLowerCase().includes(q) ||
-				p.description.toLowerCase().includes(q) ||
-				p.tags.some((t) => t.toLowerCase().includes(q))
-		);
+		if (!q) return [] as SearchItem[];
+		// Projects first: they are the bulk of the site and what most searches are for.
+		return [...projectItems, ...staticItems].filter((item) => item.haystack.includes(q));
 	});
 
 	/**
@@ -63,8 +123,16 @@
 	$effect(() => {
 		if (!open) return;
 
-		// `loadProjectsIndex` caches its promise, so re-opening doesn't re-request.
-		void loadProjectsIndex().then((entries) => (index = entries));
+		// `loadProjectsIndex` caches its promise, so re-opening doesn't re-request. `untrack`: this
+		// effect must depend on `open` only. Reading `index` here made the assignment below re-run
+		// the effect, which re-assigned `index` (a fresh proxy each time) — an infinite loop.
+		untrack(() => {
+			indexLoading = index.length === 0;
+			void loadProjectsIndex().then((entries) => {
+				index = entries;
+				indexLoading = false;
+			});
+		});
 
 		const focusTimer = setTimeout(() => {
 			(inputEl as unknown as { focus: (opts?: { preventScroll?: boolean }) => void })?.focus?.({
@@ -95,9 +163,10 @@
 		open = !open;
 	}
 
-	function navigate(slug: string) {
+	function go(item: SearchItem) {
 		open = false;
-		assignAppLocation(`/projects/${slug}`);
+		if (item.document) assignDocumentLocation(item.href);
+		else assignAppLocation(item.href);
 	}
 
 	function handleKey(e: KeyboardEvent) {
@@ -109,14 +178,14 @@
 			selectedRaw = Math.max(selectedIdx - 1, 0);
 		} else if (e.key === 'Enter' && results[selectedIdx]) {
 			e.preventDefault();
-			navigate(results[selectedIdx].slug);
+			go(results[selectedIdx]);
 		}
 	}
 
 </script>
 
 <!-- Trigger button -->
-<button type="button" class="trigger" aria-label="Search projects (Ctrl+K)" onclick={toggleOpen}>
+<button type="button" class="trigger" aria-label="search (Ctrl+K)" onclick={toggleOpen}>
 	<span class="trigger__icon" aria-hidden="true">⌕</span>
 	<span class="trigger__label">search</span>
 </button>
@@ -134,7 +203,7 @@
 		<!-- svelte-ignore a11y_no_static_element_interactions -->
 		<div class="backdrop" aria-hidden="true" onclick={() => (open = false)}></div>
 
-		<div class="modal" role="dialog" aria-modal="true" aria-label="Search projects" use:focusTrap>
+		<div class="modal" role="dialog" aria-modal="true" aria-label="Search the site" use:focusTrap>
 			<div class="modal__bar">
 				<span class="modal__icon" aria-hidden="true">⌕</span>
 				<input
@@ -144,9 +213,9 @@
 					oninput={() => (selectedRaw = 0)}
 					class="modal__input"
 					type="search"
-					placeholder="Search by title, tech, or keyword…"
+					placeholder="Search projects, games, pages…"
 					spellcheck="false"
-					aria-label="Search projects"
+					aria-label="Search the site"
 					role="combobox"
 					aria-controls={LISTBOX_ID}
 					aria-expanded={results.length > 0}
@@ -173,7 +242,7 @@
 					did — is invalid ARIA and made every result its own tab stop.
 				-->
 				<ul class="results" role="listbox" id={LISTBOX_ID} aria-label="Search results" bind:this={listEl}>
-					{#each results as project, i (project.slug)}
+					{#each results as item, i (item.key)}
 						<!-- svelte-ignore a11y_click_events_have_key_events -->
 						<li
 							class="result"
@@ -181,24 +250,32 @@
 							id={optionId(i)}
 							role="option"
 							aria-selected={i === selectedIdx}
-							onclick={() => navigate(project.slug)}
+							onclick={() => go(item)}
 							onmouseenter={() => (selectedRaw = i)}
 						>
-							<span class="result__title">{project.title}</span>
-							<span class="result__year">{project.year}</span>
+							<span class="result__title">{item.title}</span>
+							<span class="result__year">{item.meta}</span>
 							<div class="result__tags">
-								{#each project.tags.slice(0, 4) as tag}
+								{#each item.tags.slice(0, 4) as tag (tag)}
 									<span class="tag">{tag}</span>
 								{/each}
 							</div>
 						</li>
 					{/each}
 				</ul>
+			{:else if query.trim() && indexLoading}
+				<div class="hint">loading index…</div>
 			{:else if query.trim()}
 				<div class="empty">No results for "<strong>{query}</strong>"</div>
 			{:else}
-				<div class="hint">Start typing to search projects…</div>
+				<div class="hint">Start typing to search projects, games and pages…</div>
 			{/if}
+
+			<!-- The listbox is silent about how many options it holds; this is what tells a screen
+			     reader the query did something. Empty while there is no query, so opening is quiet. -->
+			<p class="sr-only" role="status">
+				{query.trim() && !indexLoading ? `${results.length} result${results.length === 1 ? '' : 's'}` : ''}
+			</p>
 
 			<div class="modal__footer">
 				<span><kbd>↑↓</kbd> navigate</span>

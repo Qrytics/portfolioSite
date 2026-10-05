@@ -340,13 +340,21 @@ async function checkModal(page, { name, trigger: triggerSelector, panel }) {
 	);
 	check(playLinks.length > 0 && playLinks.every((l) => l.href && l.href !== '#'),
 		'games: every play control is an <a> with a real href', `${playLinks.length} links`);
-	check(playLinks.every((l) => l.reload),
-		'games: play links carry data-sveltekit-reload (standalone builds under static/)');
+	// `/games/typetest` is the one entry that is a real SvelteKit route (`route: true` in games.ts), so
+	// it must navigate client-side; everything else is a standalone build or a proxied app.
+	const ROUTE_GAMES = new Set(['/games/typetest']);
+	check(playLinks.every((l) => l.reload !== ROUTE_GAMES.has(l.href)),
+		'games: standalone/proxied play links carry data-sveltekit-reload, route links do not');
+	check(playLinks.some((l) => l.href === '/games/typetest'), 'games: the type test has a card on /games');
+	check(playLinks.some((l) => l.href === '/Moxel/'), 'games: Moxel has a card on /games');
+	check(playLinks.every((l) => !/^https?:\/\/mario-belmonte\.com/.test(l.href)),
+		'games: no play link hardcodes the production domain');
 
 	// The hrefs must actually resolve, not just exist. Each playable game is a vendored build at
 	// `static/games/<slug>/index.html` reached as `/games/<slug>/`, which is a directory request — the
-	// exact shape that silently 404s unless something maps it to the index file. Absolute hrefs are
-	// skipped: two games are hosted at the production domain, which this run is not.
+	// exact shape that silently 404s unless something maps it to the index file. Proxied apps
+	// (vcKaraoke) resolve through vercel.json / the Caddyfile in production and through
+	// `server.proxy` in `vite.config.ts` under `npm run dev`.
 	for (const link of playLinks) {
 		if (!link.href.startsWith('/')) continue;
 		const res = await page.request.get(`${URL_BASE}${link.href}`);
@@ -452,7 +460,7 @@ async function checkModal(page, { name, trigger: triggerSelector, panel }) {
 }
 
 // ── 9. Every route: no broken assets, no console errors, no nested <main> ────────────────────────
-for (const route of ['/', '/about', '/projects', '/games', '/rhythm-games', '/resume']) {
+for (const route of ['/', '/about', '/projects', '/games', '/games/typetest', '/rhythm-games', '/resume']) {
 	const { ctx, page, errors, failedRequests } = await newPage({ viewport: PHONE });
 	const res = await page.goto(`${URL_BASE}${route}`, { waitUntil: 'load' }).catch(() => null);
 	await page.waitForTimeout(1000);

@@ -158,6 +158,8 @@
 	<Hero />
 	<section id="top-projects" aria-label="Projects">
 		<ProjectList items={topProjects} compactBottom />
+		<!-- The top three are a curated slice of ~40; without this the only way to the rest was the nav. -->
+		<p class="all-projects"><a href="/projects">view all {projects.length} projects →</a></p>
 	</section>
 	<!--
 		These used to live behind an `{#if nonCriticalReady}` gate flipped in `requestIdleCallback`,
@@ -179,6 +181,24 @@
 </div>
 
 <style>
+	.all-projects {
+		max-width: 86rem;
+		margin: -0.5rem auto 0;
+		padding: 0 clamp(1.25rem, 4vw, 3rem) 1rem;
+		text-align: right;
+		font-size: 0.86rem;
+	}
+
+	.all-projects a {
+		display: inline-block;
+		padding: 0.6rem 0;
+		text-decoration: none;
+	}
+
+	.all-projects a:hover {
+		text-decoration: underline;
+	}
+
 	.page {
 		position: relative;
 		/* No isolation: isolate — it created a stacking/compositing boundary that could leave

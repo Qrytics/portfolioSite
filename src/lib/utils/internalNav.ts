@@ -33,3 +33,14 @@ export function navigateInternal(e: MouseEvent, pathname: string) {
 	e.preventDefault();
 	assignAppLocation(pathname);
 }
+
+/**
+ * Full document navigation to a same-origin path that is *not* a SvelteKit route: a vendored game
+ * build under `static/games/<slug>/`, `/Moxel/`, or a proxied app such as `/games/vcKaraoke`. The
+ * client router has no route for those, so `goto` would render this app's 404 instead of letting the
+ * host serve the file. Still respects `base`, which is the point of routing through this module.
+ */
+export function assignDocumentLocation(pathname: string) {
+	if (typeof window === 'undefined') return;
+	window.location.assign(toAppPath(pathname));
+}

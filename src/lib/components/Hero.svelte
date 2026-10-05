@@ -17,23 +17,32 @@
 		{/if}
 		<div class="header__actions">
 			<a
-				href="https://mario-belmonte.com/tutoring"
+				href="/tutoring"
 				target="_blank"
 				rel="noopener noreferrer"
 				class="hero-action"
+				data-sveltekit-reload
 			>
-				book a tutoring session ↗
+				book a tutoring session ↗<span class="sr-only"> (opens in new tab)</span>
 			</a>
 		</div>
 		<div class="header__meta">
 			<a href={profile.github} target="_blank" rel="noopener noreferrer" class="link link__mono">
-				{profile.github.replace('https://', '')}
+				{profile.github.replace('https://', '')}<span class="sr-only"> (opens in new tab)</span>
 			</a>
 			<span class="meta-sep">·</span>
-			<button type="button" class="link link__mono email-copy-btn" onclick={copyEmail}>{profile.email}</button>
+			<button
+				type="button"
+				class="link link__mono email-copy-btn"
+				onclick={copyEmail}
+				aria-label="Copy email address {profile.email}"
+				title="Copy email address"
+			>
+				{profile.email}
+			</button>
 			<span class="meta-sep">·</span>
 			<a href={profile.linkedin} target="_blank" rel="noopener noreferrer" class="link link__mono">
-				{profile.linkedin.replace('https://www.', '')}
+				{profile.linkedin.replace('https://www.', '')}<span class="sr-only"> (opens in new tab)</span>
 			</a>
 		</div>
 	</div>

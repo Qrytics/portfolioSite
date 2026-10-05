@@ -19,23 +19,31 @@
 	<div class="footer__inner">
 		<span>© {year} {profile.name}</span>
 		<span class="footer__sep">·</span>
-		<button class="email-btn footer-link" onclick={copyEmail}>{profile.email}</button>
+		<button
+			type="button"
+			class="email-btn footer-link"
+			onclick={copyEmail}
+			aria-label="Copy email address {profile.email}"
+			title="Copy email address"
+		>
+			{profile.email}
+		</button>
 		<span class="footer__sep">·</span>
 		<a href={profile.github} target="_blank" rel="noopener noreferrer" class="footer-link">
-			github
+			github<span class="sr-only"> (opens in new tab)</span>
 		</a>
 		<span class="footer__sep">·</span>
 		<a href={profile.linkedin} target="_blank" rel="noopener noreferrer" class="footer-link">
-			linkedin
+			linkedin<span class="sr-only"> (opens in new tab)</span>
 		</a>
 		<span class="footer__sep">·</span>
-		<a href="https://mario-belmonte.com/tutoring" target="_blank" rel="noopener noreferrer" class="footer-link">
-			tutoring
+		<a href="/tutoring" target="_blank" rel="noopener noreferrer" class="footer-link" data-sveltekit-reload>
+			tutoring<span class="sr-only"> (opens in new tab)</span>
 		</a>
 		{#if profile.twitter}
 			<span class="footer__sep">·</span>
 			<a href={profile.twitter} target="_blank" rel="noopener noreferrer" class="footer-link">
-				twitter
+				twitter<span class="sr-only"> (opens in new tab)</span>
 			</a>
 		{/if}
 	</div>
