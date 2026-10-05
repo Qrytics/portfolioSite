@@ -1,5 +1,38 @@
 <script lang="ts">
 	import { aboutPhotos, type AboutPhoto } from '$lib/data/about-photos';
+	import { portal } from '$lib/utils/portal';
+	import { focusTrap } from '$lib/utils/focusTrap';
+	import { lockScroll, unlockScroll } from '$lib/utils/scrollLock';
+
+	const altFor = (photo: AboutPhoto, i: number) =>
+		photo.alt ?? `Photo ${i + 1} of ${aboutPhotos.length} from Mario's life outside work`;
+
+	/**
+	 * Lightbox. The gallery crops every photo to a square, and there was no way to see one whole or
+	 * larger. Index of the open photo, or `null` when closed.
+	 */
+	let openIndex = $state<number | null>(null);
+	const current = $derived(openIndex === null ? null : aboutPhotos[openIndex]);
+
+	function step(delta: number) {
+		if (openIndex === null) return;
+		openIndex = (openIndex + delta + aboutPhotos.length) % aboutPhotos.length;
+	}
+
+	$effect(() => {
+		if (openIndex === null) return;
+		const lock = lockScroll();
+		function onKey(e: KeyboardEvent) {
+			if (e.key === 'Escape') openIndex = null;
+			else if (e.key === 'ArrowRight') step(1);
+			else if (e.key === 'ArrowLeft') step(-1);
+		}
+		window.addEventListener('keydown', onKey);
+		return () => {
+			window.removeEventListener('keydown', onKey);
+			unlockScroll(lock);
+		};
+	});
 
 	function imgStyle(photo: AboutPhoto): string {
 		const pos = `object-position: ${photo.position ?? '50% 50%'}`;
@@ -30,16 +63,18 @@
 							any stylesheet applies; `.grid-item--tall .img` then overrides the used size back
 							to `width: 100%; height: auto`, which preserves that ratio.
 						-->
-						<img
-							class="img"
-							class:img--contain={photo.fit === 'contain'}
-							src={photo.src}
-							alt={photo.alt ?? `Photo ${i + 1} of ${aboutPhotos.length} from Mario's life outside work`}
-							loading="lazy"
-							width={photo.width}
-							height={photo.height}
-							style={imgStyle(photo)}
-						/>
+						<button type="button" class="open" onclick={() => (openIndex = i)} aria-label="View larger: {altFor(photo, i)}">
+							<img
+								class="img"
+								class:img--contain={photo.fit === 'contain'}
+								src={photo.src}
+								alt=""
+								loading="lazy"
+								width={photo.width}
+								height={photo.height}
+								style={imgStyle(photo)}
+							/>
+						</button>
 					</div>
 				{/each}
 			</div>
@@ -53,7 +88,103 @@
 	</section>
 </div>
 
+{#if current && openIndex !== null}
+	<div class="lightbox-portal" use:portal>
+		<!-- svelte-ignore a11y_click_events_have_key_events -->
+		<!-- svelte-ignore a11y_no_static_element_interactions -->
+		<div class="lightbox__scrim" aria-hidden="true" onclick={() => (openIndex = null)}></div>
+		<div class="lightbox" role="dialog" aria-modal="true" aria-label="Photo viewer" use:focusTrap>
+			<div class="lightbox__bar">
+				<span class="lightbox__count" aria-live="polite">{openIndex + 1} / {aboutPhotos.length}</span>
+				<button type="button" class="lightbox__btn" onclick={() => (openIndex = null)}>esc ✕</button>
+			</div>
+			<img class="lightbox__img" src={current.src} alt={altFor(current, openIndex)} />
+			<div class="lightbox__nav">
+				<button type="button" class="lightbox__btn" onclick={() => step(-1)}>← prev</button>
+				<button type="button" class="lightbox__btn" onclick={() => step(1)}>next →</button>
+			</div>
+		</div>
+	</div>
+{/if}
+
 <style>
+	.open {
+		display: block;
+		width: 100%;
+		height: 100%;
+		padding: 0;
+		border: 0;
+		background: none;
+		cursor: zoom-in;
+	}
+
+	.lightbox-portal {
+		display: contents;
+	}
+
+	.lightbox__scrim {
+		position: fixed;
+		inset: 0;
+		z-index: 1100;
+		background: color-mix(in srgb, #000 90%, transparent);
+	}
+
+	.lightbox {
+		position: fixed;
+		inset: 0;
+		z-index: 1101;
+		display: grid;
+		grid-template-rows: auto 1fr auto;
+		gap: 0.75rem;
+		padding: clamp(0.75rem, 3vw, 2rem);
+		pointer-events: none;
+	}
+
+	.lightbox > * {
+		pointer-events: auto;
+	}
+
+	.lightbox__bar,
+	.lightbox__nav {
+		display: flex;
+		justify-content: space-between;
+		align-items: center;
+		gap: 1rem;
+		max-width: 72rem;
+		width: 100%;
+		margin: 0 auto;
+	}
+
+	.lightbox__count {
+		font-family: var(--font-mono);
+		font-size: 0.82rem;
+		color: #e2e8f0;
+	}
+
+	.lightbox__img {
+		place-self: center;
+		max-width: 100%;
+		max-height: 100%;
+		min-height: 0;
+		object-fit: contain;
+		border: 1px solid color-mix(in srgb, #fff 14%, transparent);
+	}
+
+	.lightbox__btn {
+		min-height: 2.75rem;
+		padding: 0 0.9rem;
+		border: 1px solid color-mix(in srgb, #fff 22%, transparent);
+		background: color-mix(in srgb, #0b0e12 70%, transparent);
+		color: #e2e8f0;
+		font-family: var(--font-mono);
+		font-size: 0.82rem;
+		cursor: pointer;
+	}
+
+	.lightbox__btn:hover {
+		border-color: var(--accent);
+	}
+
 	.page {
 		position: relative;
 		isolation: isolate;
@@ -141,8 +272,11 @@
 		object-fit: contain;
 	}
 
-	.grid-item:hover .img {
-		transform: scale(1.05);
+	/* Hover-capable pointers only: on touch, :hover sticks after a tap and left one photo zoomed. */
+	@media (hover: hover) {
+		.grid-item:hover .img {
+			transform: scale(1.05);
+		}
 	}
 
 	.bottom-row {
