@@ -49,6 +49,8 @@ node scripts/build-aim-trainer.mjs
 
 Game build scripts download the upstream source, patch the `base` path, build, and copy output into `static/games/<slug>/`. Run them individually and commit the resulting static files.
 
+`npm run build:moxel` is the same pattern for **Moxel** (https://github.com/Qrytics/Moxel), the one vendored app mounted at the site root: it builds with `MOXEL_BASE=/Moxel/` into `static/Moxel/` and copies the live-session signaling relay into `services/moxel-signal/` (`--local <path>` builds from a local checkout instead of GitHub `main`). Moxel is local-first — projects live in the visitor's IndexedDB — and its only server-side piece is that relay: the `moxel-signal` compose service, reached through the Caddyfile's exact-path `/Moxel/signal` proxy. It forwards WebRTC handshakes only and stores nothing; `deploy.sh` doesn't rebuild it, so after re-vendoring run `docker compose up -d --build moxel-signal`. Vercel can't proxy WebSockets, so on the fallback deployment live sessions report themselves unavailable and the rest of the app works. Both `vercel.json` and the `Caddyfile` redirect `/Moxel`, `/moxel` and `/moxel/` to `/Moxel/` (the service worker is scoped to `/Moxel/`); the Caddy side uses `path_regexp` because Caddy's `path` matcher is case-insensitive and would loop `/Moxel/`.
+
 Server code reads the token as `env.GH_TOKEN || env.GITHUB_TOKEN` — either name works. Without a token, GitHub data falls back to the committed static JSON.
 
 ## Architecture
