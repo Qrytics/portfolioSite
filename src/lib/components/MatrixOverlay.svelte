@@ -156,10 +156,10 @@
 	// it — otherwise Tab walks straight into content the user can no longer see.
 	$effect(() => {
 		const previouslyFocused = document.activeElement as HTMLElement | null;
-		lockScroll();
+		const lock = lockScroll();
 		closeRef?.focus({ preventScroll: true });
 		return () => {
-			unlockScroll();
+			unlockScroll(lock);
 			previouslyFocused?.focus?.({ preventScroll: true });
 		};
 	});

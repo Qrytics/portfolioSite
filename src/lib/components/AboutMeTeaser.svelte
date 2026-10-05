@@ -67,14 +67,18 @@
 		});
 	}
 
+	/** Held so unmount can clear it; it used to fire into a destroyed component. */
+	let portraitTimer: ReturnType<typeof setTimeout> | undefined;
+
 	function togglePortrait() {
 		if (isPortraitFading) return;
 
 		isPortraitFading = true;
 
-		window.setTimeout(() => {
+		portraitTimer = setTimeout(() => {
 			portraitIndex = 1 - portraitIndex;
 			isPortraitFading = false;
+			portraitTimer = undefined;
 		}, PORTRAIT_FADE_DURATION_MS);
 	}
 
@@ -150,6 +154,7 @@
 			stopRotation();
 			clearTimeout(fadeTimeout);
 			clearTimeout(revealTimeout);
+			clearTimeout(portraitTimer);
 		};
 	});
 </script>

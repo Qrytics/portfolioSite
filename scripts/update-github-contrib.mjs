@@ -112,21 +112,16 @@ async function main() {
 	// Use UTC years to keep ranges stable regardless of server time zone.
 	const currentYear = new Date().getUTCFullYear();
 	// Two years, matching `YEAR_SPAN` in src/routes/api/github-contrib/+server.ts and the chart's
-	// two year buttons. Two Monday-aligned year windows already cover the rolling-365 default view.
+	// two year buttons. Two calendar-year windows always cover the rolling-365 default view.
 	const yearRange = Array.from({ length: YEAR_SPAN }, (_, i) => currentYear - i);
 
 	const years = [];
 	for (const year of yearRange) {
-		// GitHub enforces that `from`..`to` must be <= 1 year.
-		// To still get the trailing "Jan" spillover columns (and keep month labels correct),
-		// we query exactly 52 weeks aligned to the week containing Jan 1 (Mon..Sun).
-		const jan1 = new Date(`${year}-01-01T00:00:00Z`);
-		// Convert Sunday(0)..Saturday(6) -> Monday(0)..Sunday(6)
-		const jan1MondayIndex = (jan1.getUTCDay() + 6) % 7;
-		const fromDate = new Date(jan1.getTime() - jan1MondayIndex * 86400000);
-
-		// 52 weeks minus 1 second (end at Sunday 23:59:59.000)
-		const toDate = new Date(fromDate.getTime() + 363 * 86400000 + 86399000);
+		// GitHub enforces that `from`..`to` must be <= 1 year. The calendar year exactly — see the
+		// matching comment in `fetchYear` in src/routes/api/github-contrib/+server.ts for why this is
+		// no longer a Monday-aligned 52-week window (it dropped Dec 28–31 every year).
+		const fromDate = new Date(`${year}-01-01T00:00:00Z`);
+		const toDate = new Date(`${year}-12-31T23:59:59Z`);
 
 		const from = fromDate.toISOString();
 		const to = toDate.toISOString();

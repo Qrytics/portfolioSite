@@ -7,12 +7,17 @@
  * Returns fallback values instead of throwing, logs warnings in dev mode.
  */
 
+/**
+ * "Can we touch this storage at all", not "can we write to it". The probe used to be a test write,
+ * so a full quota (which makes `setItem` throw) also disabled every *read* — saved theme and scores
+ * silently fell back to defaults even though they were sitting right there. Reading `length` is
+ * what throws when storage is genuinely blocked (private mode in old Safari, disabled cookies);
+ * writes still get their own try/catch in `setLocalItem` / `setSessionItem`.
+ */
 function isStorageAvailable(type: 'localStorage' | 'sessionStorage'): boolean {
 	try {
 		const storage = window[type];
-		const testKey = '__storage_test__';
-		storage.setItem(testKey, 'test');
-		storage.removeItem(testKey);
+		void storage.length;
 		return true;
 	} catch {
 		return false;

@@ -16,14 +16,32 @@ export const toast = $state<{ message: string | null }>({ message: null });
 
 let timer: ReturnType<typeof setTimeout> | undefined;
 
-/** Replaces any toast already on screen; the previous timer is cancelled, not left to race. */
-export function showToast(message: string, durationMs = 2500) {
+function schedule(durationMs: number) {
 	if (timer !== undefined) clearTimeout(timer);
-	toast.message = message;
 	timer = setTimeout(() => {
 		toast.message = null;
 		timer = undefined;
 	}, durationMs);
+}
+
+/**
+ * Replaces any toast already on screen; the previous timer is cancelled, not left to race.
+ *
+ * Showing the *same* text again (copying the email twice) used to be a no-op for screen readers:
+ * the live region's content never changed, so there was nothing to announce. Clearing it for one
+ * frame first makes the repeat a real change.
+ */
+export function showToast(message: string, durationMs = 2500) {
+	if (toast.message === message && typeof requestAnimationFrame !== 'undefined') {
+		toast.message = null;
+		requestAnimationFrame(() => {
+			toast.message = message;
+			schedule(durationMs);
+		});
+		return;
+	}
+	toast.message = message;
+	schedule(durationMs);
 }
 
 export function dismissToast() {

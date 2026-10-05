@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { profile } from '$lib/data/profile';
-	import { assignAppLocation } from '$lib/utils/internalNav';
+	import { assignAppLocation, assignDocumentLocation } from '$lib/utils/internalNav';
+	import { games } from '$lib/data/games';
 	import { portal } from '$lib/utils/portal';
 	import { focusTrap } from '$lib/utils/focusTrap';
 	import { loadProjectsIndex, type ProjectIndexEntry } from '$lib/utils/projectsIndex';
@@ -54,6 +55,8 @@
 		'projects',
 		'project <n>',
 		'open <slug|n>',
+		'games',
+		'play <game>',
 		'history',
 		'home',
 		'resume',
@@ -123,7 +126,12 @@
 		return `${cwd}/${input}`.replace(/\/+/g, '/');
 	}
 
-	function run(raw: string) {
+	const playableGames = games.filter((g) => g.playUrl !== '#');
+
+	/** Commands that read the project index. */
+	const INDEX_COMMANDS = new Set(['projects', 'project', 'open', 'ls', 'dir']);
+
+	async function run(raw: string) {
 		const trimmed = raw.trim();
 		const { cmd, args } = parseInput(trimmed);
 		lines.push({ type: 'input', text: `${profile.handle}@portfolio:${promptPath()}$ ${trimmed}` });
@@ -131,6 +139,12 @@
 		if (!cmd) {
 			scrollToBottom();
 			return;
+		}
+
+		// The index is fetched when the terminal opens, but a fast typist (or a slow network) could
+		// run `projects` before it landed and get an empty list that looked like "no projects".
+		if (INDEX_COMMANDS.has(cmd) && projects.length === 0) {
+			projects = await loadProjectsIndex();
 		}
 
 		if (trimmed && (history.length === 0 || history[history.length - 1] !== trimmed)) {
@@ -158,6 +172,8 @@
 					'  projects            list projects',
 					'  project <n>         open project by index',
 					'  open <slug|n>       open project by slug/index',
+					'  games               list playable games',
+					'  play <game>         launch a game by name or number',
 					'  github              open GitHub profile',
 					'  resume              open resume page',
 					'  home                go to landing page',
@@ -245,6 +261,26 @@
 					list +
 					'\n\n  Navigate to /projects for the full list or type "project <number>" for details.'
 			});
+		} else if (cmd === 'games') {
+			const list = playableGames
+				.map((g, i) => `  ${String(i + 1).padStart(2, '0')}. ${g.slug.padEnd(18)} ${g.subtitle}`)
+				.join('\n');
+			lines.push({ type: 'output', text: `Games:\n${list}\n\n  Type "play <name>" or "play <number>".` });
+		} else if (cmd === 'play') {
+			const arg = (args[0] ?? '').trim().toLowerCase();
+			const asIndex = Number.parseInt(arg, 10);
+			const game =
+				(Number.isFinite(asIndex) ? playableGames[asIndex - 1] : undefined) ??
+				playableGames.find((g) => g.slug.toLowerCase() === arg || g.title.toLowerCase() === arg);
+			if (!game) {
+				lines.push({ type: 'error', text: `play: no game "${arg}". Try "games".` });
+			} else {
+				lines.push({ type: 'output', text: `Launching ${game.title}…` });
+				open = false;
+				if (game.route) assignAppLocation(game.playUrl);
+				else assignDocumentLocation(game.playUrl);
+				return;
+			}
 		} else if (cmd === 'history') {
 			if (history.length === 0) {
 				lines.push({ type: 'output', text: 'No command history yet.' });
@@ -309,7 +345,7 @@
 
 	function handleKey(e: KeyboardEvent) {
 		if (e.key === 'Enter') {
-			run(inputValue);
+			void run(inputValue);
 			inputValue = '';
 			return;
 		}
@@ -322,7 +358,7 @@
 			scrollToBottom();
 			return;
 		}
-		if (e.key === 'Tab') {
+		if (e.key === 'Tab' && !e.shiftKey) {
 			e.preventDefault();
 			const current = inputValue.trim().toLowerCase();
 			if (!current) {
@@ -400,7 +436,7 @@
 				aria-live="polite"
 				aria-label="Terminal output"
 			>
-				{#each lines as line}
+				{#each lines as line (line)}
 					<div class="line line--{line.type}">
 						{#each line.text.split('\n') as row}
 							<span>{row}</span>
@@ -417,6 +453,7 @@
 					bind:value={inputValue}
 					onkeydown={handleKey}
 					class="terminal__input"
+					data-trap-owns-tab
 					type="text"
 					spellcheck="false"
 					autocomplete="off"

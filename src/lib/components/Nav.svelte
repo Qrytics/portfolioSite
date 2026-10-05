@@ -1,4 +1,6 @@
 <script lang="ts">
+	import { onMount } from 'svelte';
+	import { page } from '$app/state';
 	import { profile } from '$lib/data/profile';
 	import Search from '$lib/components/Search.svelte';
 	import Terminal from '$lib/components/Terminal.svelte';
@@ -42,7 +44,9 @@
 		setLocalItem('theme', theme);
 	}
 
-	$effect(() => {
+	// `onMount`, not `$effect`: `applyTheme(theme)` below reads the `theme` rune, so as an effect this
+	// re-ran on every toggle and re-registered the media listener each time.
+	onMount(() => {
 		const savedTheme = getLocalItem('theme');
 		if (savedTheme === 'dark' || savedTheme === 'light') {
 			theme = savedTheme;
@@ -101,8 +105,8 @@
 
 	$effect(() => {
 		if (!isOverlayOpen) return;
-		lockScroll();
-		return () => unlockScroll();
+		const lock = lockScroll();
+		return () => unlockScroll(lock);
 	});
 
 	// function toggleTheme() { ... }
@@ -113,7 +117,8 @@
 		{ href: '/projects', label: 'projects' },
 		{ href: '/#about-me', label: 'about me' },
 		{ href: '/resume', label: 'resume' },
-		{ href: 'https://mario-belmonte.com/tutoring', label: 'tutoring', external: true }
+		// Relative so the Pi and preview hosts stay on their own host; every host proxies `/tutoring`.
+		{ href: '/tutoring', label: 'tutoring', external: true }
 	];
 
 	function openTerminalFromMenu() {
@@ -196,9 +201,11 @@
 							href={link.href}
 							target={link.external ? '_blank' : undefined}
 							rel={link.external ? 'noopener noreferrer' : undefined}
+							data-sveltekit-reload={link.external ? '' : undefined}
+							aria-current={!link.external && page.url.pathname === link.href ? 'page' : undefined}
 							onclick={(e) => handleNavClick(e, link.href)}
 						>
-							{link.label}
+							{link.label}{#if link.external}<span class="sr-only"> (opens in new tab)</span>{/if}
 						</a>
 					</li>
 				{/each}
