@@ -53,7 +53,8 @@
 		{ href: '/games', title: 'games', keywords: 'play browser toys' },
 		{ href: '/about', title: 'about me', keywords: 'photos bio' },
 		{ href: '/rhythm-games', title: 'rhythm games', keywords: 'osu music videos' },
-		{ href: '/resume', title: 'resume', keywords: 'cv pdf experience' }
+		{ href: '/resume', title: 'resume', keywords: 'cv pdf experience' },
+		{ href: '/certifications', title: 'certifications', keywords: 'certs credentials badges credly microsoft anthropic claude google ibm' }
 	];
 
 	const staticItems: SearchItem[] = [

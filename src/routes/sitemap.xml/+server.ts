@@ -21,6 +21,7 @@ const STATIC_ROUTES: Array<{ path: string; priority: string; changefreq: string 
 	{ path: '/projects', priority: '0.9', changefreq: 'weekly' },
 	{ path: '/about', priority: '0.7', changefreq: 'monthly' },
 	{ path: '/games', priority: '0.7', changefreq: 'monthly' },
+	{ path: '/certifications', priority: '0.6', changefreq: 'monthly' },
 	{ path: '/resume', priority: '0.6', changefreq: 'monthly' },
 	{ path: '/rhythm-games', priority: '0.4', changefreq: 'monthly' },
 	{ path: '/games/typetest', priority: '0.3', changefreq: 'yearly' }

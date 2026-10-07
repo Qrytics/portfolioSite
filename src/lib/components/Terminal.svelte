@@ -62,6 +62,7 @@
 		'history',
 		'home',
 		'resume',
+		'certs',
 		'github',
 		'secrets',
 		'sound <on|off>',
@@ -181,6 +182,7 @@
 					'  play <game>         launch a game by name or number',
 					'  github              open GitHub profile',
 					'  resume              open resume page',
+					'  certs               open certifications',
 					'  home                go to landing page',
 					'',
 					'Shell:',
@@ -336,6 +338,10 @@
 					text: `open: no project found for "${arg}". Try "projects" or "open <number>".`
 				});
 			}
+		} else if (cmd === 'certs' || cmd === 'certifications') {
+			lines.push({ type: 'output', text: 'Opening certifications…' });
+			open = false;
+			assignAppLocation('/certifications');
 		} else if (cmd === 'resume') {
 			lines.push({ type: 'output', text: 'Opening resume…' });
 			open = false;

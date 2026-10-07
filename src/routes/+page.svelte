@@ -16,6 +16,7 @@
 	import Timeline from '$lib/components/Timeline.svelte';
 	import GitHubContribChart from '$lib/components/GitHubContribChart.svelte';
 	import Playground from '$lib/components/toys/Playground.svelte';
+	import CertsTeaser from '$lib/components/certs/CertsTeaser.svelte';
 	import { getSessionItem, removeSessionItem } from '$lib/utils/safeStorage';
 
 	/**
@@ -186,6 +187,7 @@
 	<div class="deferred deferred--timeline">
 		<Timeline />
 	</div>
+	<CertsTeaser />
 	<AboutMeTeaser />
 	<div class="deferred deferred--playground">
 		<Playground />

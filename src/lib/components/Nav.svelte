@@ -209,6 +209,7 @@
 		{ href: '/games', label: 'games' },
 		{ href: '/projects', label: 'projects' },
 		{ href: '/#about-me', label: 'about me' },
+		{ href: '/certifications', label: 'certs' },
 		{ href: '/resume', label: 'resume' },
 		// Relative so the Pi and preview hosts stay on their own host; every host proxies `/tutoring`.
 		{ href: '/tutoring', label: 'tutoring', external: true }

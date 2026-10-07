@@ -72,6 +72,11 @@ const ROUTES: Record<string, { title: string; description: string; ogType?: SeoM
 		title: `${profile.name} — Rhythm Games`,
 		description: 'Clips of me playing rhythm games, and the setups behind them.'
 	},
+	'/certifications': {
+		title: `${profile.name} — Certifications`,
+		description:
+			'Credentials from Anthropic, Google Cloud, IBM, Microsoft, Red Hat and ServiceNow — Claude Certified Architect, Gemini agent development, quantum information and deep learning.'
+	},
 	'/resume': {
 		title: `${profile.name} — Resume`,
 		description: `Resume for ${profile.name}: electrical and computer engineering at Carnegie Mellon, full-stack and embedded work.`
