@@ -36,6 +36,7 @@ Three assertion suites cover the rest (~1000 checks): `npm run verify:seo` reads
 - All site content lives in `src/lib/data/` — edit these files to change portfolio content.
 - `src/lib/data/profile.ts` — GitHub username is parsed **from the URL** at `profile.github` by scripts and server endpoints. Do not change its format.
 - `src/lib/data/projectLanguageBytes.ts` is **auto-generated** by `npm run update:project-language-bytes` (requires `GH_TOKEN`/`GITHUB_TOKEN`). Do not hand-edit it.
+- `src/lib/data/certificationAssets.ts` and `static/certifications/` are **auto-generated** by `npm run update:cert-assets` (official Credly / Microsoft Learn badge art, verify links and dates; also refreshes the AiTutoring twin). Do not hand-edit; credential titles and featured order live in `certifications.ts`, which AiTutoring mirrors.
 - `static/github-contrib.json` and `static/github-recent.json` are **static fallbacks** populated by `scripts/update-github-contrib.mjs` and `scripts/update-github-recent.mjs`. The live API endpoints take precedence at runtime; the static files are the CDN/build fallback.
 - The homepage `topProjectSlugs` allowlist in `src/routes/+page.svelte` controls which projects appear on the landing page — it is separate from the full projects list.
 

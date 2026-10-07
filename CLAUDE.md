@@ -48,6 +48,7 @@ npm run verify:live                       # verify-ui + verify-chart against pro
 
 ```bash
 npm run update:project-language-bytes   # → src/lib/data/projectLanguageBytes.ts   (needs GH_TOKEN)
+npm run update:cert-assets               # → src/lib/data/certificationAssets.ts + static/certifications/ (here and in ../AiTutoring; FFMPEG=… to downscale)
 npm run generate:sounds                 # → static/sounds/*.mp3
 npm run generate:demo-card
 node scripts/update-github-recent.mjs    # → static/github-recent.json  (needs GH_TOKEN)
@@ -118,7 +119,7 @@ Payload validation lives in **`src/lib/utils/contribShape.ts`** — one module, 
 All site content is in `src/lib/data/` — `profile.ts`, `projects.ts`, `games.ts`, `about-photos.ts`, `spotify-favorites.ts`, `typetest-snippets.ts`. Editing these drives the UI; components rarely need touching for content changes.
 
 - `profile.github` must stay a full URL (`https://github.com/<user>`) — scripts and server endpoints regex-parse the username out of it.
-- `projectLanguageBytes.ts`, `static/github-contrib.json`, `static/github-recent.json` are **auto-generated**. Never hand-edit.
+- `projectLanguageBytes.ts`, `certificationAssets.ts`, `static/github-contrib.json`, `static/github-recent.json` are **auto-generated**. Never hand-edit. Credentials themselves (titles, featured order) are hand-written in `certifications.ts`, which has a twin in the AiTutoring repo — change both.
 - New project: add to the `projects` array in `projects.ts` (routing follows automatically via `entries: EntryGenerator` in `projects/[slug]/+page.ts`), then update the `topProjectSlugs` allowlist in `src/routes/+page.svelte` if it should appear on the landing page.
 
 ### Page metadata is centralised — do not add `<svelte:head>` to a route

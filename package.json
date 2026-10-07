@@ -22,7 +22,8 @@
 		"verify:seo": "node scripts/verify-seo.mjs",
 		"verify:live": "VERIFY_URL=https://mario-belmonte.com node scripts/verify-ui.mjs && VERIFY_URL=https://mario-belmonte.com node scripts/verify-chart.mjs",
 		"snapshot:live": "VERIFY_URL=https://mario-belmonte.com node scripts/snapshot-site.mjs",
-		"snapshot:local": "VERIFY_URL=http://localhost:5173 node scripts/snapshot-site.mjs"
+		"snapshot:local": "VERIFY_URL=http://localhost:5173 node scripts/snapshot-site.mjs",
+		"update:cert-assets": "node scripts/update-cert-assets.mjs --twin ../AiTutoring/apps/web"
 	},
 	"engines": {
 		"node": ">=20"
