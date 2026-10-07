@@ -6,6 +6,7 @@
 	import { focusTrap } from '$lib/utils/focusTrap';
 	import { loadProjectsIndex, type ProjectIndexEntry } from '$lib/utils/projectsIndex';
 	import { SECRETS, secrets, loadSecrets, discover, overlays } from '$lib/utils/secrets.svelte';
+	import { setSoundOn, soundPref, loadSoundPref } from '$lib/utils/soundPref.svelte';
 
 	let { open = $bindable(false) } = $props();
 
@@ -63,6 +64,8 @@
 		'resume',
 		'github',
 		'secrets',
+		'sound <on|off>',
+		'playground',
 		'clear',
 		'exit'
 	];
@@ -188,6 +191,8 @@
 					'',
 					'Fun:',
 					'  secrets             your progress hunting this site\'s secrets',
+					'  playground          jump to the toys on the home page',
+					'  sound [on|off]      mute or unmute every sound on the site',
 					'  (some commands are not listed here.)',
 					'',
 					'Use ↑ / ↓ for command history.'
@@ -360,6 +365,21 @@
 			open = false;
 			overlays.matrix = true;
 			discover('matrix');
+			return;
+		} else if (cmd === 'sound' || cmd === 'mute' || cmd === 'unmute') {
+			loadSoundPref();
+			const arg = args[0]?.toLowerCase();
+			const on = cmd === 'mute' ? false : cmd === 'unmute' ? true : arg === 'on' ? true : arg === 'off' ? false : null;
+			if (on === null) {
+				lines.push({ type: 'output', text: `sound is ${soundPref.enabled ? 'on' : 'off'}. usage: sound on | sound off` });
+			} else {
+				setSoundOn(on);
+				lines.push({ type: 'output', text: on ? '🔊 sound on' : '🔇 sound off — every toy is silent now' });
+			}
+		} else if (cmd === 'playground' || cmd === 'toys') {
+			lines.push({ type: 'output', text: 'Opening the playground…' });
+			open = false;
+			assignAppLocation('/#playground');
 			return;
 		} else if (cmd === 'coffee' || cmd === 'brew') {
 			lines.push({

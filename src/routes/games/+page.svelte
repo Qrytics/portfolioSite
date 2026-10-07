@@ -2,6 +2,7 @@
 	import { base } from '$app/paths';
 	import { profile } from '$lib/data/profile';
 	import { games } from '$lib/data/games';
+	import InsertCoin from '$lib/components/toys/InsertCoin.svelte';
 
 	/** Tags shared by at least two games — a single-game tag would be a filter that finds one card. */
 	const filterTags = (() => {
@@ -47,6 +48,8 @@
 					{/each}
 				</div>
 			{/if}
+
+			<InsertCoin />
 
 			<ul class="game-grid">
 				{#each shownGames as game (game.slug)}

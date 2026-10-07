@@ -15,6 +15,7 @@
 	import CurrentlyBuilding from '$lib/components/CurrentlyBuilding.svelte';
 	import Timeline from '$lib/components/Timeline.svelte';
 	import GitHubContribChart from '$lib/components/GitHubContribChart.svelte';
+	import Playground from '$lib/components/toys/Playground.svelte';
 	import { getSessionItem, removeSessionItem } from '$lib/utils/safeStorage';
 
 	/**
@@ -182,6 +183,9 @@
 		<Timeline />
 	</div>
 	<AboutMeTeaser />
+	<div class="deferred deferred--playground">
+		<Playground />
+	</div>
 	<ReviewCta />
 </div>
 
@@ -231,7 +235,16 @@
 		contain-intrinsic-size: auto 1100px;
 	}
 
+	/* Measured: 2048px at 390, 1401px at 800, 1108px at 1440. */
+	.deferred--playground {
+		contain-intrinsic-size: auto 2000px;
+	}
+
 	@media (min-width: 901px) {
+		.deferred--playground {
+			contain-intrinsic-size: auto 1110px;
+		}
+
 		.deferred--timeline {
 			contain-intrinsic-size: auto 620px;
 		}

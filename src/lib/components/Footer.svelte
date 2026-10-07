@@ -5,6 +5,10 @@
 	import { SECRETS, secrets, loadSecrets, discover, nextHint, prefersReducedMotion } from '$lib/utils/secrets.svelte';
 	import { showToast } from '$lib/utils/toast.svelte';
 	import { playSound } from '$lib/utils/sound';
+	import { getLocalItem, setLocalItem } from '$lib/utils/safeStorage';
+	import { loadSoundPref, soundPref, toggleSound } from '$lib/utils/soundPref.svelte';
+	import { sfx } from '$lib/utils/synth';
+	import { burstAt, centerOf } from '$lib/components/toys/particles';
 
 	const year = new Date().getFullYear();
 
@@ -39,7 +43,32 @@
 
 	// Storage is read after mount, so the server-rendered "0" and the hydrated count never disagree
 	// during hydration; the counter is fixed-width so the update doesn't shift anything.
-	onMount(loadSecrets);
+	onMount(() => {
+		loadSecrets();
+		loadSoundPref();
+		highFives = Number(getLocalItem('high-fives')) || 0;
+	});
+
+	/** High-five counter: per-browser, like the secrets. Milestones get a bigger celebration. */
+	let highFives = $state(0);
+
+	function highFive(e: MouseEvent) {
+		highFives++;
+		setLocalItem('high-fives', String(highFives));
+		const milestone = highFives % 10 === 0;
+		sfx.clap();
+		if (milestone) sfx.arpeggio([523.25, 659.25, 783.99, 1046.5], 0.06);
+		burstAt(...centerOf(e.currentTarget as HTMLElement), {
+			count: milestone ? 18 : 7,
+			spread: milestone ? 120 : 60,
+			glyphs: milestone ? ['🙌', '✋', '✨', '🎉'] : ['✋', '✨']
+		});
+		if (milestone) showToast(`${highFives} high fives. we're basically best friends now.`, 3500);
+	}
+
+	function onSoundToggle() {
+		if (toggleSound()) sfx.blip(true);
+	}
 
 	const total = SECRETS.length;
 	const foundCount = $derived(secrets.found.length);
@@ -88,11 +117,19 @@
 	<button class="back-to-top footer-link" type="button" onclick={backToTop}>back to top ↑</button>
 	<!-- The one visible clue that the site has secrets at all. Each tap gives a hint for one not yet
 	     found; the count is the whole game's scoreboard. -->
-	<button type="button" class="secrets-btn" onclick={showHint} aria-label="Secrets found: {foundCount} of {total}. Get a hint.">
-		<span aria-hidden="true">{foundCount === total ? '🏆' : '✦'}</span>
-		{foundCount === 0 ? `psst — this site has ${total} secrets` : `secrets found ${foundCount}/${total}`}
-		<span class="secrets-btn__hint" aria-hidden="true">· hint?</span>
-	</button>
+	<div class="footer__toys">
+		<button type="button" class="high-five" onclick={highFive} aria-label="High five. {highFives} so far">
+			<span class="high-five__hand" aria-hidden="true">✋</span> high five{highFives ? ` · ${highFives}` : ''}
+		</button>
+		<button type="button" class="secrets-btn" onclick={showHint} aria-label="Secrets found: {foundCount} of {total}. Get a hint.">
+			<span aria-hidden="true">{foundCount === total ? '🏆' : '✦'}</span>
+			{foundCount === 0 ? `psst — this site has ${total} secrets` : `secrets found ${foundCount}/${total}`}
+			<span class="secrets-btn__hint" aria-hidden="true">· hint?</span>
+		</button>
+		<button type="button" class="sound-btn" aria-pressed={!soundPref.enabled} onclick={onSoundToggle}>
+			<span aria-hidden="true">{soundPref.enabled ? '🔊' : '🔇'}</span> sound {soundPref.enabled ? 'on' : 'off'}
+		</button>
+	</div>
 </footer>
 
 {#if rocket}
@@ -213,10 +250,72 @@
 		outline-offset: 4px;
 	}
 
-	.secrets-btn {
+	.footer__toys {
 		grid-column: 1 / -1;
-		justify-self: center;
+		display: flex;
+		flex-wrap: wrap;
+		justify-content: center;
+		gap: 0.5rem;
 		margin-top: 0.9rem;
+	}
+
+	.high-five,
+	.sound-btn {
+		display: inline-flex;
+		align-items: center;
+		gap: 0.4rem;
+		min-height: 2.25rem;
+		padding: 0.4rem 0.7rem;
+		border: 1px solid var(--border);
+		background: var(--panel);
+		color: var(--text);
+		font-family: var(--font-mono);
+		font-size: 0.74rem;
+		cursor: pointer;
+		font-variant-numeric: tabular-nums;
+	}
+
+	.high-five:hover,
+	.sound-btn:hover {
+		border-color: color-mix(in srgb, var(--accent) 55%, transparent);
+	}
+
+	.high-five__hand {
+		display: inline-block;
+		transform-origin: 70% 90%;
+		animation: wave 2.4s ease-in-out infinite;
+	}
+
+	.high-five:active .high-five__hand {
+		transform: scale(1.3);
+	}
+
+	@keyframes wave {
+		0%, 70%, 100% { transform: rotate(0); }
+		78% { transform: rotate(-14deg); }
+		86% { transform: rotate(10deg); }
+		94% { transform: rotate(-6deg); }
+	}
+
+	.sound-btn[aria-pressed='true'] {
+		color: var(--muter);
+	}
+
+	@media (pointer: coarse) {
+		.high-five,
+		.sound-btn,
+		.secrets-btn {
+			min-height: 2.75rem;
+		}
+	}
+
+	@media (prefers-reduced-motion: reduce) {
+		.high-five__hand {
+			animation: none;
+		}
+	}
+
+	.secrets-btn {
 		padding: 0.4rem 0.7rem;
 		min-height: 2.25rem;
 		border: 1px dashed var(--border);

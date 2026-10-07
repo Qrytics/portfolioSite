@@ -7,6 +7,8 @@
 	import { assignAppLocation } from '$lib/utils/internalNav';
 	import { lockScroll, unlockScroll } from '$lib/utils/scrollLock';
 	import { getLocalItem, setLocalItem, getSessionItem, setSessionItem } from '$lib/utils/safeStorage';
+	import { loadSoundPref, soundPref, toggleSound } from '$lib/utils/soundPref.svelte';
+	import { sfx } from '$lib/utils/synth';
 
 	const COMPACT_QUERY = '(max-width: 979px)';
 
@@ -141,6 +143,12 @@
 		{ href: '/tutoring', label: 'tutoring', external: true }
 	];
 
+	onMount(loadSoundPref);
+
+	function onSoundToggle() {
+		if (toggleSound()) sfx.blip(true);
+	}
+
 	function openTerminalFromMenu() {
 		navOpen = false;
 		terminalOpen = true;
@@ -189,6 +197,22 @@
 			<div class="terminal-tool">
 				<Terminal bind:open={terminalOpen} />
 			</div>
+			<!-- Site-wide mute for every sound (mp3 and synthesized). Desktop only here; the compact
+			     menu carries the same control below, as it does for the terminal. -->
+			<button
+				type="button"
+				class="sound-toggle"
+				aria-pressed={!soundPref.enabled}
+				aria-label={soundPref.enabled ? 'Mute sounds' : 'Unmute sounds'}
+				title={soundPref.enabled ? 'Mute sounds' : 'Unmute sounds'}
+				onclick={onSoundToggle}
+			>
+				{#if soundPref.enabled}
+					<svg viewBox="0 0 16 16" width="15" height="15" aria-hidden="true"><path d="M2 6h3l4-3v10L5 10H2Z" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round" /><path d="M11.5 5.5a3.5 3.5 0 0 1 0 5M13.5 3.5a6.3 6.3 0 0 1 0 9" fill="none" stroke="currentColor" stroke-width="1.5" /></svg>
+				{:else}
+					<svg viewBox="0 0 16 16" width="15" height="15" aria-hidden="true"><path d="M2 6h3l4-3v10L5 10H2Z" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round" /><path d="M11 6l4 4M15 6l-4 4" stroke="currentColor" stroke-width="1.5" /></svg>
+				{/if}
+			</button>
 			<button
 				type="button"
 				class="theme-toggle"
@@ -250,6 +274,16 @@
 				<li class="site-nav__compact-only">
 					<button type="button" class="site-nav__action" onclick={openTerminalFromMenu}>
 						terminal
+					</button>
+				</li>
+				<li class="site-nav__compact-only">
+					<button
+						type="button"
+						class="site-nav__action site-nav__action--sound"
+						aria-pressed={!soundPref.enabled}
+						onclick={onSoundToggle}
+					>
+						sound: {soundPref.enabled ? 'on' : 'off'}
 					</button>
 				</li>
 			</ul>
@@ -401,6 +435,32 @@
 		line-height: 1.2;
 		cursor: pointer;
 		transition: border-color 0.14s, color 0.14s, transform 0.14s, background-color 0.14s;
+	}
+
+	.sound-toggle {
+		display: inline-grid;
+		place-items: center;
+		min-width: 2.05rem;
+		padding: 0.25rem 0.5rem;
+		border: 1px solid var(--border-2);
+		background: var(--panel-2);
+		color: var(--text);
+		cursor: pointer;
+	}
+
+	.sound-toggle:hover {
+		border-color: color-mix(in srgb, var(--accent) 50%, transparent);
+		color: var(--accent);
+	}
+
+	.sound-toggle[aria-pressed='true'] {
+		color: var(--muter);
+	}
+
+	@media (max-width: 900px) {
+		.sound-toggle {
+			display: none;
+		}
 	}
 
 	.theme-toggle:hover {
@@ -730,6 +790,10 @@
 		.site-nav__action::before {
 			content: '>_ ';
 			opacity: 0.7;
+		}
+
+		.site-nav__action--sound::before {
+			content: '♪ ';
 		}
 	}
 

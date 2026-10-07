@@ -5,6 +5,7 @@
 	import { spotifyFavorites } from '$lib/data/spotify-favorites';
 	import { burstCounter, discover, prefersReducedMotion } from '$lib/utils/secrets.svelte';
 	import { playSound } from '$lib/utils/sound';
+	import { tone } from '$lib/utils/synth';
 
 	/**
 	 * Was 1500 ms. Each tick downloads a full-size photo (23 files, 105-397 KB, ~200 KB average)
@@ -74,6 +75,21 @@
 	 * tabbed onto, the thumbnail is looking at it, and it changed under them indefinitely.
 	 */
 	let rotationHeld = $state(false);
+
+	/** Spotify card toy: a short synth riff and a dancing equalizer. */
+	let vibing = $state(false);
+	let vibeTimer: ReturnType<typeof setTimeout> | undefined;
+	const RIFF = [196, 0, 233.08, 261.63, 0, 293.66, 261.63, 233.08, 196, 0, 174.61, 196];
+
+	function vibeCheck() {
+		RIFF.forEach((f, i) => {
+			if (f) tone(f, { type: 'sawtooth', dur: 0.16, vol: 0.14, delay: i * 0.13 });
+			if (i % 2 === 0) tone(55, { type: 'sine', dur: 0.12, vol: 0.5, slideTo: 40, delay: i * 0.13 });
+		});
+		vibing = true;
+		clearTimeout(vibeTimer);
+		vibeTimer = setTimeout(() => (vibing = false), RIFF.length * 130 + 200);
+	}
 
 	/** Held so unmount can clear it; it used to fire into a destroyed component. */
 	let portraitTimer: ReturnType<typeof setTimeout> | undefined;
@@ -184,6 +200,7 @@
 			clearTimeout(fadeTimeout);
 			clearTimeout(revealTimeout);
 			clearTimeout(portraitTimer);
+			clearTimeout(vibeTimer);
 		};
 	});
 </script>
@@ -323,8 +340,12 @@
 
 				<div class="card card--spotify" role="group" aria-label="Spotify favorites">
 					<div class="card__inner">
-						<div class="title-row">
+						<div class="title-row title-row--spotify">
 							<h3 class="title">spotify</h3>
+							<span class="eq" class:eq--on={vibing} aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></span>
+							<button type="button" class="vibe-btn" aria-pressed={vibing} onclick={vibeCheck}>
+								{vibing ? '♪ vibing…' : '▶ vibe check'}
+							</button>
 						</div>
 
 						<div class="spotify-grid">
@@ -853,6 +874,69 @@
 		from {
 			opacity: 0;
 			transform: translateY(6px);
+		}
+	}
+
+	/* ── Spotify "vibe check" ── */
+	.title-row--spotify {
+		align-items: center;
+	}
+
+	.eq {
+		display: inline-flex;
+		align-items: flex-end;
+		gap: 2px;
+		height: 1rem;
+	}
+
+	.eq i {
+		width: 3px;
+		height: 30%;
+		background: #1db954;
+		transform-origin: bottom;
+	}
+
+	.eq--on i {
+		animation: eq 0.42s ease-in-out infinite alternate;
+	}
+
+	.eq--on i:nth-child(2) { animation-delay: -0.12s; }
+	.eq--on i:nth-child(3) { animation-delay: -0.3s; }
+	.eq--on i:nth-child(4) { animation-delay: -0.2s; }
+	.eq--on i:nth-child(5) { animation-delay: -0.06s; }
+
+	@keyframes eq {
+		from { height: 20%; }
+		to { height: 100%; }
+	}
+
+	.vibe-btn {
+		margin-left: auto;
+		min-height: 2.25rem;
+		padding: 0 0.7rem;
+		border: 1px solid color-mix(in srgb, #1db954 45%, var(--border));
+		background: color-mix(in srgb, #1db954 10%, transparent);
+		color: var(--text);
+		font: inherit;
+		font-size: 0.74rem;
+		cursor: pointer;
+	}
+
+	.vibe-btn:hover,
+	.vibe-btn[aria-pressed='true'] {
+		border-color: #1db954;
+	}
+
+	@media (pointer: coarse) {
+		.vibe-btn {
+			min-height: 2.75rem;
+		}
+	}
+
+	@media (prefers-reduced-motion: reduce) {
+		.eq--on i {
+			animation: none;
+			height: 80%;
 		}
 	}
 </style>

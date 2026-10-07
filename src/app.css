@@ -168,13 +168,13 @@
 }
 
 /* ── Header controls ────────────────────────────────────────── */
-[data-theme='light'] :where(.trigger, .theme-toggle, .site-header__menu) {
+[data-theme='light'] :where(.trigger, .theme-toggle, .sound-toggle, .site-header__menu) {
 	background: var(--panel) !important;
 	border-color: var(--border) !important;
 	color: var(--muted) !important;
 }
 
-[data-theme='light'] :where(.trigger, .theme-toggle):hover {
+[data-theme='light'] :where(.trigger, .theme-toggle, .sound-toggle):hover {
 	background: color-mix(in srgb, var(--accent) 8%, var(--panel)) !important;
 	border-color: color-mix(in srgb, var(--accent) 50%, var(--border)) !important;
 	color: var(--accent-text) !important;
@@ -442,6 +442,7 @@ input {
    ============================================================ */
 @media (pointer: coarse) {
 	.theme-toggle,
+	.sound-toggle,
 	.site-header__menu,
 	.trigger,
 	.modal__clear,
