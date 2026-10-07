@@ -1,6 +1,10 @@
 <script lang="ts">
 	import { profile } from '$lib/data/profile';
 	import { copyEmail } from '$lib/utils/copyEmail';
+	import { onMount } from 'svelte';
+	import { SECRETS, secrets, loadSecrets, discover, nextHint, prefersReducedMotion } from '$lib/utils/secrets.svelte';
+	import { showToast } from '$lib/utils/toast.svelte';
+	import { playSound } from '$lib/utils/sound';
 
 	const year = new Date().getFullYear();
 
@@ -10,12 +14,40 @@
 	 * the option explicitly overrode that reset — so the one control on the page whose entire job is
 	 * a long animated scroll ignored the user's motion preference.
 	 */
-	function backToTop() {
+	/** Secret: the back-to-top button launches an actual rocket from where you tapped it. */
+	let rocket = $state<{ x: number; y: number; key: number } | null>(null);
+	let rocketTimer: ReturnType<typeof setTimeout> | undefined;
+
+	function launchRocket(button: HTMLElement) {
+		if (prefersReducedMotion()) return;
+		const r = button.getBoundingClientRect();
+		rocket = { x: r.left + r.width / 2, y: r.top, key: Date.now() };
+		clearTimeout(rocketTimer);
+		rocketTimer = setTimeout(() => (rocket = null), 1300);
+	}
+
+	function backToTop(e: MouseEvent) {
+		launchRocket(e.currentTarget as HTMLElement);
+		playSound('game-start', 0.5);
+		discover('rocket');
 		window.scrollTo({ top: 0 });
 		// Move focus too. Scrolling alone left keyboard focus on this button at the bottom of the
 		// page, so the next Tab jumped the viewport straight back down. The site title is the first
 		// real control at the top. `preventScroll` so focusing doesn't fight the scroll above.
 		document.querySelector<HTMLElement>('.site-header__title')?.focus({ preventScroll: true });
+	}
+
+	// Storage is read after mount, so the server-rendered "0" and the hydrated count never disagree
+	// during hydration; the counter is fixed-width so the update doesn't shift anything.
+	onMount(loadSecrets);
+
+	const total = SECRETS.length;
+	const foundCount = $derived(secrets.found.length);
+
+	function showHint() {
+		playSound('ui-click', 0.5);
+		const hint = nextHint();
+		showToast(hint ? `hint: ${hint}` : `all ${total} found. there is nothing left to find. probably.`, 5000);
 	}
 </script>
 
@@ -54,7 +86,20 @@
 		{/if}
 	</div>
 	<button class="back-to-top footer-link" type="button" onclick={backToTop}>back to top ↑</button>
+	<!-- The one visible clue that the site has secrets at all. Each tap gives a hint for one not yet
+	     found; the count is the whole game's scoreboard. -->
+	<button type="button" class="secrets-btn" onclick={showHint} aria-label="Secrets found: {foundCount} of {total}. Get a hint.">
+		<span aria-hidden="true">{foundCount === total ? '🏆' : '✦'}</span>
+		{foundCount === 0 ? `psst — this site has ${total} secrets` : `secrets found ${foundCount}/${total}`}
+		<span class="secrets-btn__hint" aria-hidden="true">· hint?</span>
+	</button>
 </footer>
+
+{#if rocket}
+	{#key rocket.key}
+		<span class="rocket" aria-hidden="true" style="left: {rocket.x}px; top: {rocket.y}px">🚀</span>
+	{/key}
+{/if}
 
 <style>
 	.footer {
@@ -166,6 +211,62 @@
 	.back-to-top:focus-visible {
 		outline: 2px solid color-mix(in srgb, var(--accent) 60%, transparent);
 		outline-offset: 4px;
+	}
+
+	.secrets-btn {
+		grid-column: 1 / -1;
+		justify-self: center;
+		margin-top: 0.9rem;
+		padding: 0.4rem 0.7rem;
+		min-height: 2.25rem;
+		border: 1px dashed var(--border);
+		background: none;
+		color: var(--muter);
+		font-family: var(--font-mono);
+		font-size: 0.74rem;
+		letter-spacing: 0.02em;
+		cursor: pointer;
+		font-variant-numeric: tabular-nums;
+	}
+
+	.secrets-btn:hover,
+	.secrets-btn:focus-visible {
+		color: var(--accent-text);
+		border-color: color-mix(in srgb, var(--accent) 55%, transparent);
+	}
+
+	.secrets-btn__hint {
+		opacity: 0.7;
+	}
+
+	.rocket {
+		position: fixed;
+		z-index: 900;
+		font-size: 1.6rem;
+		pointer-events: none;
+		transform: translate(-50%, 0) rotate(-45deg);
+		animation: rocket-launch 1.2s cubic-bezier(0.55, 0, 0.85, 0.35) forwards;
+	}
+
+	@keyframes rocket-launch {
+		0% {
+			transform: translate(-50%, 0) rotate(-45deg) scale(0.8);
+			opacity: 0;
+		}
+		12% {
+			transform: translate(-50%, -10px) rotate(-45deg) scale(1.1);
+			opacity: 1;
+		}
+		20% {
+			transform: translate(calc(-50% - 3px), -14px) rotate(-45deg);
+		}
+		28% {
+			transform: translate(calc(-50% + 3px), -18px) rotate(-45deg);
+		}
+		100% {
+			transform: translate(-50%, -110vh) rotate(-45deg) scale(1.3);
+			opacity: 1;
+		}
 	}
 
 	/* The toast panel moved to `$lib/components/Toast.svelte`, rendered once by the layout. */

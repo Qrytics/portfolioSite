@@ -3,6 +3,7 @@
 	import { profile } from '$lib/data/profile';
 	import { playSound } from '$lib/utils/sound';
 	import { portal } from '$lib/utils/portal';
+	import { discover } from '$lib/utils/secrets.svelte';
 
 	import type { ContributionDay as BaseDay } from '$lib/utils/githubData';
 
@@ -349,9 +350,14 @@
 		};
 	});
 
+	/** Secret: blow up ten different days. A plain Set — it is only counted, never rendered. */
+	const demolished = new Set<string>();
+
 	function explode(date: string, count: number) {
 		if (explosionTimers[date] !== undefined) clearTimeout(explosionTimers[date]);
 		explodedDays.add(date);
+		demolished.add(date);
+		if (demolished.size === 10) discover('demolition');
 
 		const max = maxContribForPeriod;
 		const volume = max > 0 ? Math.min(count / max, 1) : 0.5;

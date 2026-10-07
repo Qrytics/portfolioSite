@@ -5,6 +5,7 @@
 	import { portal } from '$lib/utils/portal';
 	import { focusTrap } from '$lib/utils/focusTrap';
 	import { loadProjectsIndex, type ProjectIndexEntry } from '$lib/utils/projectsIndex';
+	import { SECRETS, secrets, loadSecrets, discover, overlays } from '$lib/utils/secrets.svelte';
 
 	let { open = $bindable(false) } = $props();
 
@@ -61,6 +62,7 @@
 		'home',
 		'resume',
 		'github',
+		'secrets',
 		'clear',
 		'exit'
 	];
@@ -183,6 +185,10 @@
 					'  history             show recent commands',
 					'  clear               clear the terminal',
 					'  exit                close terminal',
+					'',
+					'Fun:',
+					'  secrets             your progress hunting this site\'s secrets',
+					'  (some commands are not listed here.)',
 					'',
 					'Use ↑ / ↓ for command history.'
 				].join('\n')
@@ -329,6 +335,51 @@
 			lines.push({ type: 'output', text: 'Opening resume…' });
 			open = false;
 			assignAppLocation('/resume');
+		} else if (cmd === 'secrets') {
+			loadSecrets();
+			const list = SECRETS.map((sec) => {
+				const got = secrets.found.includes(sec.id);
+				return got ? `  [x] ${sec.name}` : `  [ ] ???  — ${sec.hint}`;
+			}).join('\n');
+			lines.push({
+				type: 'output',
+				text: `Secrets found: ${secrets.found.length}/${SECRETS.length}\n\n${list}`
+			});
+		} else if (cmd === 'sudo' || (cmd === 'rm' && args.includes('-rf'))) {
+			// Hidden: the classic.
+			lines.push({
+				type: 'error',
+				text:
+					cmd === 'sudo'
+						? `[sudo] password for visitor: ********\nvisitor is not in the sudoers file. This incident will be reported.`
+						: `rm: refusing to delete a portfolio that took this long to make.`
+			});
+			discover('sudo');
+		} else if (cmd === 'matrix' || cmd === 'neo') {
+			lines.push({ type: 'output', text: 'Wake up, Neo…  (Esc or click to leave)' });
+			open = false;
+			overlays.matrix = true;
+			discover('matrix');
+			return;
+		} else if (cmd === 'coffee' || cmd === 'brew') {
+			lines.push({
+				type: 'output',
+				text: ['      ( (', '       ) )', '    ........', '    |      |]', '    \\      /', "     `----'", '', 'brewing… ☕ 418: I\'m a teapot, actually.'].join('\n')
+			});
+		} else if (cmd === 'hire' || cmd === 'hire-me' || cmd === 'hireme') {
+			lines.push({
+				type: 'output',
+				text: `Excellent decision.\n  email:    ${profile.email}\n  linkedin: ${profile.linkedin}\n  resume:   run \`resume\``
+			});
+		} else if (cmd === 'vim' || cmd === 'vi' || cmd === 'emacs') {
+			lines.push({
+				type: 'output',
+				text: cmd === 'emacs' ? 'emacs: a great operating system, lacking only a decent editor.' : 'you are now trapped in vim. (type :q — or just keep going, nobody ever escapes)'
+			});
+		} else if (cmd === ':q' || cmd === ':wq' || cmd === ':q!') {
+			lines.push({ type: 'output', text: 'you escaped vim. put that on your resume.' });
+		} else if (cmd === 'hello' || cmd === 'hi' || cmd === 'hey') {
+			lines.push({ type: 'output', text: `hey 👋 thanks for poking around. try \`secrets\`.` });
 		} else if (cmd === 'clear') {
 			lines = [{ type: 'output', text: 'Terminal cleared.' }];
 			scrollToBottom();

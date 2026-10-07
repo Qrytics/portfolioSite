@@ -3,6 +3,8 @@
 	import FunSection from '$lib/components/FunSection.svelte';
 	import { aboutPhotos } from '$lib/data/about-photos';
 	import { spotifyFavorites } from '$lib/data/spotify-favorites';
+	import { burstCounter, discover, prefersReducedMotion } from '$lib/utils/secrets.svelte';
+	import { playSound } from '$lib/utils/sound';
 
 	/**
 	 * Was 1500 ms. Each tick downloads a full-size photo (23 files, 105-397 KB, ~200 KB average)
@@ -75,6 +77,27 @@
 
 	/** Held so unmount can clear it; it used to fire into a destroyed component. */
 	let portraitTimer: ReturnType<typeof setTimeout> | undefined;
+
+	/**
+	 * Secret: six fast taps on the portrait and the "camera" goes off — one soft flash and a caption.
+	 * A single fade, never a repeating flash, so it stays well clear of photosensitivity limits.
+	 */
+	const portraitTaps = burstCounter(6, 3000);
+	let flashKey = $state(0);
+	let cheese = $state(false);
+	let cheeseTimer: ReturnType<typeof setTimeout> | undefined;
+
+	function onPortraitClick() {
+		if (portraitTaps.hit()) {
+			if (!prefersReducedMotion()) flashKey++;
+			cheese = true;
+			clearTimeout(cheeseTimer);
+			cheeseTimer = setTimeout(() => (cheese = false), 2600);
+			playSound('ui-click', 1);
+			discover('portrait');
+		}
+		togglePortrait();
+	}
 
 	function togglePortrait() {
 		if (isPortraitFading) return;
@@ -187,7 +210,7 @@
 				type="button"
 				class="portrait-card"
 				aria-label="Show a different portrait of Mario Belmonte"
-				onclick={togglePortrait}
+				onclick={onPortraitClick}
 				onpointerenter={(event) => {
 					if (event.pointerType === 'mouse') togglePortrait();
 				}}
@@ -200,6 +223,12 @@
 					decoding="async"
 					style={portraitPhoto.style}
 				/>
+				{#if flashKey > 0}
+					{#key flashKey}<span class="portrait__flash" aria-hidden="true"></span>{/key}
+				{/if}
+				{#if cheese}
+					<span class="portrait__caption" aria-hidden="true">📸 ok ok, that's enough photos</span>
+				{/if}
 			</button>
 
 			<div class="card card--bio">
@@ -781,6 +810,50 @@
 	:global([data-theme='light']) .photo-thumbnail {
 		border-color: var(--border);
 		box-shadow: var(--shadow-sm);
+	}
+
+	.portrait-card {
+		position: relative;
+	}
+
+	.portrait__flash {
+		position: absolute;
+		inset: 0;
+		background: #fff;
+		pointer-events: none;
+		animation: portrait-flash 0.7s ease-out forwards;
+	}
+
+	@keyframes portrait-flash {
+		from {
+			opacity: 0.9;
+		}
+		to {
+			opacity: 0;
+		}
+	}
+
+	.portrait__caption {
+		position: absolute;
+		left: 0.5rem;
+		right: 0.5rem;
+		bottom: 0.5rem;
+		padding: 0.4rem 0.55rem;
+		background: color-mix(in srgb, var(--bg) 88%, transparent);
+		border: 1px solid var(--border);
+		color: var(--text);
+		font-family: var(--font-mono);
+		font-size: 0.75rem;
+		text-align: center;
+		pointer-events: none;
+		animation: caption-in 0.25s ease-out;
+	}
+
+	@keyframes caption-in {
+		from {
+			opacity: 0;
+			transform: translateY(6px);
+		}
 	}
 </style>
 

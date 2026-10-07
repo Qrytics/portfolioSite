@@ -2,6 +2,39 @@
 	import { profile } from '$lib/data/profile';
 	import WaveCheckeredBackground from './WaveCheckeredBackground.svelte';
 	import { copyEmail } from '$lib/utils/copyEmail';
+	import { discover, prefersReducedMotion } from '$lib/utils/secrets.svelte';
+	import { playSound } from '$lib/utils/sound';
+
+	/**
+	 * Secret: the headline's letters are loose. A tap blasts them away from the pointer and they
+	 * spring back. Words stay `inline-block` + `nowrap` so the line breaks exactly where plain text
+	 * would; the real text is an sr-only copy, so a screen reader reads one heading, not 50 letters.
+	 */
+	const words = profile.tagline.split(' ').map((word) => [...word]);
+	let blast = $state<Array<{ dx: number; dy: number; rot: number }> | null>(null);
+	let blastTimer: ReturnType<typeof setTimeout> | undefined;
+	let taglineEl = $state<HTMLElement | undefined>(undefined);
+
+	function scatter(e: MouseEvent) {
+		discover('tagline');
+		if (prefersReducedMotion() || !taglineEl) return;
+		playSound('confetti-pop', 0.5);
+		const chars = [...taglineEl.querySelectorAll<HTMLElement>('.ch')];
+		blast = chars.map((el) => {
+			const r = el.getBoundingClientRect();
+			const vx = r.left + r.width / 2 - e.clientX;
+			const vy = r.top + r.height / 2 - e.clientY;
+			const dist = Math.max(24, Math.hypot(vx, vy));
+			const force = Math.min(1, 220 / dist) * (90 + Math.random() * 90);
+			return {
+				dx: (vx / dist) * force,
+				dy: (vy / dist) * force - 20 - Math.random() * 30,
+				rot: (Math.random() - 0.5) * 140
+			};
+		});
+		clearTimeout(blastTimer);
+		blastTimer = setTimeout(() => (blast = null), 520);
+	}
 </script>
 
 <header class="header">
@@ -10,7 +43,21 @@
 	</div>
 
 	<div class="header__content">
-		<h1 class="header__tagline">{profile.tagline}</h1>
+		<!-- svelte-ignore a11y_click_events_have_key_events, a11y_no_noninteractive_element_interactions -->
+		<h1 class="header__tagline" class:header__tagline--blast={blast} bind:this={taglineEl} onclick={scatter}>
+			<span class="sr-only">{profile.tagline}</span>
+			<span aria-hidden="true">
+				{#each words as word, w (w)}
+					{@const offset = words.slice(0, w).reduce((n, x) => n + x.length, 0)}
+					<span class="word">{#each word as ch, c (c)}{@const b = blast?.[offset + c]}<span
+								class="ch"
+								style={b ? `--dx:${b.dx.toFixed(1)}px;--dy:${b.dy.toFixed(1)}px;--rot:${b.rot.toFixed(0)}deg` : undefined}
+								>{ch}</span
+							>{/each}</span
+					>{w < words.length - 1 ? ' ' : ''}
+				{/each}
+			</span>
+		</h1>
 		<p class="header__description">{profile.description}</p>
 		{#if profile.heroCta}
 			<p class="header__cta">{profile.heroCta}</p>
@@ -107,6 +154,29 @@
 		line-height: 1.45;
 		padding-bottom: 16px;
 		text-shadow: 0 0 4px #000, 0 2px 12px #000, 0 0 50px #000;
+	}
+
+	/* Loose letters (see `scatter`). The return trip uses an overshooting curve so they land with a
+	   small bounce; the outbound trip is a fast ease-out. */
+	.header__tagline {
+		cursor: pointer;
+		-webkit-tap-highlight-color: transparent;
+		user-select: none;
+	}
+
+	.word {
+		display: inline-block;
+		white-space: nowrap;
+	}
+
+	.ch {
+		display: inline-block;
+		transition: transform 0.55s cubic-bezier(0.34, 1.56, 0.64, 1);
+	}
+
+	.header__tagline--blast .ch {
+		transform: translate(var(--dx, 0), var(--dy, 0)) rotate(var(--rot, 0));
+		transition: transform 0.22s cubic-bezier(0.16, 1, 0.3, 1);
 	}
 
 	.header__tagline::before {

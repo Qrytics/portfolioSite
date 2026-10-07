@@ -13,6 +13,8 @@
 	import { resetScrollLock } from '$lib/utils/scrollLock';
 	import { playSound } from '$lib/utils/sound';
 	import { setLocalItem, getLocalItem } from '$lib/utils/safeStorage';
+	import Secrets from '$lib/components/Secrets.svelte';
+	import { discover, overlays } from '$lib/utils/secrets.svelte';
 
 	let { children } = $props();
 
@@ -26,7 +28,6 @@
 	 */
 	const seo = $derived(resolveSeo(page.url.pathname, (page.data as { project?: Project }).project));
 
-	let showMatrix = $state(false);
 	let konamiSequence = [
 		'ArrowUp',
 		'ArrowUp',
@@ -68,14 +69,15 @@
 			konamiRecent = [...konamiRecent, key].slice(-konamiSequence.length);
 
 			if (konamiRecent.join() === konamiSequence.join()) {
-				showMatrix = true;
+				overlays.matrix = true;
 				playSound('game-start');
 				konamiRecent = [];
 				setLocalItem('konami-discovered', 'true');
+				discover('matrix');
 			}
 
-			if (e.key === 'Escape' && showMatrix) {
-				showMatrix = false;
+			if (e.key === 'Escape' && overlays.matrix) {
+				overlays.matrix = false;
 			}
 		}
 
@@ -143,6 +145,8 @@
 -->
 <Toast />
 
-{#if showMatrix}
-	<MatrixOverlay onclose={() => (showMatrix = false)} />
+{#if overlays.matrix}
+	<MatrixOverlay onclose={() => (overlays.matrix = false)} />
 {/if}
+
+<Secrets />

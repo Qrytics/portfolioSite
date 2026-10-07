@@ -1,5 +1,7 @@
 <script lang="ts">
 	import { SvelteSet } from 'svelte/reactivity';
+	import { discover } from '$lib/utils/secrets.svelte';
+	import { playSound } from '$lib/utils/sound';
 
 	interface TimelineEvent {
 		year: number;
@@ -75,6 +77,24 @@
 	 * scope and looped to `effect_update_depth_exceeded` on every home-page load.
 	 */
 	const revealed = new SvelteSet<string>();
+
+	/**
+	 * Secret: every dot can be poked. Each poke rings out and ticks a little higher; poke every one
+	 * and the line between them lights up. A decorative toy, not a control — the dots stay out of the
+	 * tab order and the accessibility tree, since a keyboard path to "make a dot ring" adds five stops
+	 * to a timeline for nothing.
+	 */
+	const poked = new SvelteSet<string>();
+	let pinging = $state<string | null>(null);
+	let pingKey = $state(0);
+
+	function poke(label: string) {
+		poked.add(label);
+		pinging = label;
+		pingKey++;
+		playSound('timeline-tick', 0.4 + 0.12 * poked.size);
+		if (poked.size === sortedEvents.length) discover('timeline');
+	}
 	let timelineRef = $state<HTMLElement | undefined>(undefined);
 	let staggerTimers: ReturnType<typeof setTimeout>[] = [];
 
@@ -128,6 +148,8 @@
 					class="event"
 					class:event--accent={event.accent}
 					class:event--revealed={revealed.has(event.label)}
+					class:event--poked={poked.has(event.label)}
+					class:event--charged={poked.size === sortedEvents.length}
 					data-event-label={event.label}
 				>
 					<div class="event__meta">
@@ -137,7 +159,12 @@
 						{/if}
 					</div>
 					<div class="event__connector" aria-hidden="true">
-						<div class="event__dot"></div>
+						<!-- svelte-ignore a11y_click_events_have_key_events, a11y_no_static_element_interactions -->
+						<div class="event__dot" onpointerdown={() => poke(event.label)}>
+							{#if pinging === event.label}
+								{#key pingKey}<span class="event__ping"></span>{/key}
+							{/if}
+						</div>
 						{#if i < sortedEvents.length - 1}
 							<div class="event__line"></div>
 						{/if}
@@ -250,6 +277,51 @@
 		flex-shrink: 0;
 		margin-top: 0.22rem;
 		transition: border-color 0.18s, background 0.18s, transform 0.2s, box-shadow 0.2s;
+	}
+
+	/* A 32px invisible hit area around an 8px dot, so it can be found by a finger. */
+	.event__dot {
+		position: relative;
+		cursor: pointer;
+		-webkit-tap-highlight-color: transparent;
+	}
+
+	.event__dot::before {
+		content: '';
+		position: absolute;
+		inset: -12px;
+	}
+
+	.event--poked .event__dot {
+		border-color: var(--accent);
+		background: var(--accent);
+	}
+
+	.event__ping {
+		position: absolute;
+		inset: -1.5px;
+		border-radius: 50%;
+		border: 1.5px solid var(--accent);
+		pointer-events: none;
+		animation: dot-ping 0.6s ease-out forwards;
+	}
+
+	@keyframes dot-ping {
+		to {
+			transform: scale(4);
+			opacity: 0;
+		}
+	}
+
+	.event--charged .event__line {
+		background: linear-gradient(180deg, var(--accent), color-mix(in srgb, var(--accent) 25%, transparent));
+		box-shadow: 0 0 8px color-mix(in srgb, var(--accent) 45%, transparent);
+	}
+
+	@media (prefers-reduced-motion: reduce) {
+		.event__ping {
+			display: none;
+		}
 	}
 
 	.event:hover .event__dot {
