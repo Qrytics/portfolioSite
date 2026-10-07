@@ -136,7 +136,7 @@
 		html.classList.remove('instant-home-jump-pending');
 	});
 
-	const firstProject = projects[0];
+
 	// Landing page shows only the projects you consider "top projects".
 	// Use an explicit allow-list to make the homepage deterministic.
 	const topProjectSlugs = new Set([
@@ -145,6 +145,10 @@
 		'auto-docker'
 	]);
 	const topProjects = projects.filter((p) => topProjectSlugs.has(p.slug));
+	// The LCP preload must be for the first card this page actually renders. It used `projects[0]` —
+	// the newest project (Moxel), which isn't a top project — so every visitor downloaded a 219KB
+	// image the page never shows, competing for bandwidth with the real LCP (this card's poster).
+	const firstProject = topProjects[0];
 	const firstPreloadImageHref =
 		firstProject?.poster ??
 		(firstProject?.image && !/\.(mp4|webm)(\?|#|$)/i.test(firstProject.image)

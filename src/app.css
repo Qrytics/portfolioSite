@@ -409,6 +409,30 @@ code:not(.tag):not(.badge) {
 	padding: 0.1rem 0.3rem;
 }
 
+/* Theme swap (see `toggleTheme` in Nav.svelte). While the class is on, nothing transitions: the
+   View Transition reveals the new theme as one image instead of ~200–1000 elements each easing on
+   their own clock. Keyframe animations are untouched. */
+.theme-switching,
+.theme-switching *,
+.theme-switching *::before,
+.theme-switching *::after {
+	transition: none !important;
+}
+
+/* The reveal is a clip-path circle animated on the new snapshot from JS; the default crossfade
+   would double-expose the two themes underneath it. */
+::view-transition-old(root),
+::view-transition-new(root) {
+	animation: none;
+	mix-blend-mode: normal;
+}
+
+/* Clicks during the 420ms reveal fall through to the live page, so a second click on the toggle
+   lands (and skips the running reveal) instead of hitting the snapshot overlay. */
+::view-transition {
+	pointer-events: none;
+}
+
 html,
 body,
 a,

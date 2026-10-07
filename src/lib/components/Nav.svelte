@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { onMount } from 'svelte';
+	import { onMount, tick } from 'svelte';
 	import { page } from '$app/state';
 	import { profile } from '$lib/data/profile';
 	import Search from '$lib/components/Search.svelte';
@@ -37,13 +37,84 @@
 		document.documentElement.dataset.theme = nextTheme;
 		document.documentElement.style.colorScheme = nextTheme;
 		const themeColor = document.querySelector('meta[name="theme-color"]');
-		themeColor?.setAttribute('content', nextTheme === 'dark' ? '#0b0e12' : '#FFFFFF');
+		themeColor?.setAttribute('content', nextTheme === 'dark' ? '#0b0e12' : '#f7faf9');
 	}
 
-	function toggleTheme() {
-		theme = isDarkTheme ? 'light' : 'dark';
-		applyTheme(theme);
-		setLocalItem('theme', theme);
+	/*
+	 * Theme swap. Measured before this existed: one click started 218 (`/`) to 1030 (`/projects`)
+	 * separate CSS transitions — the global 140ms rule on every link/button plus 160/180ms component
+	 * ones — costing 150–250ms of style recalculation at phone-class CPU, while plain text and the
+	 * hero canvas changed on the very next frame. So the page changed in pieces, on staggered clocks.
+	 *
+	 * Now the swap is one View Transition: the browser snapshots the old page, the theme flips with
+	 * every per-element transition suppressed (`theme-switching` in app.css), and the new page is
+	 * revealed as a single composited image — a circle growing from the toggle. Without the API, or
+	 * with reduced motion, the swap is instant, still with transitions suppressed so nothing trails.
+	 * A click during a running reveal skips it rather than queueing (the "light switch rave" secret
+	 * needs six fast flips to land).
+	 */
+	let themeTransition: { skipTransition(): void; finished: Promise<void> } | null = null;
+
+	function suppressTransitions(): () => void {
+		const root = document.documentElement;
+		root.classList.add('theme-switching');
+		return () => root.classList.remove('theme-switching');
+	}
+
+	function toggleTheme(e?: MouseEvent) {
+		const next = isDarkTheme ? 'light' : 'dark';
+		setLocalItem('theme', next);
+		const commit = () => {
+			theme = next;
+			applyTheme(next);
+		};
+
+		themeTransition?.skipTransition();
+		const doc = document as Document & {
+			startViewTransition?: (cb: () => void | Promise<void>) => {
+				ready: Promise<void>;
+				finished: Promise<void>;
+				skipTransition(): void;
+			};
+		};
+		const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+		if (!doc.startViewTransition || reduced) {
+			const release = suppressTransitions();
+			commit();
+			// Two frames: the first paints the new theme with transitions off, the second re-enables
+			// them once there is nothing left to transition from.
+			requestAnimationFrame(() => requestAnimationFrame(release));
+			return;
+		}
+
+		const btn = e?.currentTarget as HTMLElement | undefined;
+		const rect = btn?.getBoundingClientRect();
+		const x = rect ? rect.left + rect.width / 2 : window.innerWidth / 2;
+		const y = rect ? rect.top + rect.height / 2 : 0;
+		const radius = Math.hypot(Math.max(x, window.innerWidth - x), Math.max(y, window.innerHeight - y));
+
+		const release = suppressTransitions();
+		const vt = doc.startViewTransition(async () => {
+			commit();
+			await tick();
+		});
+		themeTransition = vt;
+		vt.ready
+			.then(() => {
+				document.documentElement.animate(
+					{ clipPath: [`circle(0px at ${x}px ${y}px)`, `circle(${radius}px at ${x}px ${y}px)`] },
+					{ duration: 420, easing: 'cubic-bezier(0.4, 0, 0.2, 1)', pseudoElement: '::view-transition-new(root)' }
+				);
+			})
+			.catch(() => {});
+		vt.finished.finally(() => {
+			// A rapid re-click skips this transition and starts another; only the latest one may
+			// re-enable transitions, or they would come back mid-reveal.
+			if (themeTransition !== vt) return;
+			themeTransition = null;
+			release();
+		});
 	}
 
 	// `onMount`, not `$effect`: `applyTheme(theme)` below reads the `theme` rune, so as an effect this
