@@ -27,6 +27,9 @@
 		z-index: 1000;
 		/* The wrapper is permanent, so it must never intercept clicks or reserve layout space. */
 		pointer-events: none;
+		/* `max-content`, capped: a fixed box at `left: 50%` otherwise shrink-wraps into the half of
+		   the viewport to its right, so on a phone every toast wrapped onto three lines at ~195px. */
+		width: max-content;
 		max-width: calc(100vw - 2rem);
 	}
 

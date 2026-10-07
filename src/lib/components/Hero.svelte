@@ -8,7 +8,8 @@
 	/**
 	 * Secret: the headline's letters are loose. A tap blasts them away from the pointer and they
 	 * spring back. Words stay `inline-block` + `nowrap` so the line breaks exactly where plain text
-	 * would; the real text is an sr-only copy, so a screen reader reads one heading, not 50 letters.
+	 * would; the <h1>'s `aria-label` carries the name, so a screen reader reads one heading, not 50
+	 * letters.
 	 */
 	const words = profile.tagline.split(' ').map((word) => [...word]);
 	let blast = $state<Array<{ dx: number; dy: number; rot: number }> | null>(null);
@@ -44,9 +45,17 @@
 
 	<div class="header__content">
 		<!-- svelte-ignore a11y_click_events_have_key_events, a11y_no_noninteractive_element_interactions -->
-		<h1 class="header__tagline" class:header__tagline--blast={blast} bind:this={taglineEl} onclick={scatter}>
-			<span class="sr-only">{profile.tagline}</span>
-			<span aria-hidden="true">
+		<!-- The name comes from `aria-label` rather than an sr-only copy: a second copy put the tagline in
+		     the served <h1> twice, so crawlers and text extraction read it doubled. The letter spans
+		     have no whitespace between them, so they still read as whole words. -->
+		<h1
+			class="header__tagline"
+			class:header__tagline--blast={blast}
+			bind:this={taglineEl}
+			onclick={scatter}
+			aria-label={profile.tagline}
+		>
+			<span>
 				{#each words as word, w (w)}
 					{@const offset = words.slice(0, w).reduce((n, x) => n + x.length, 0)}
 					<span class="word">{#each word as ch, c (c)}{@const b = blast?.[offset + c]}<span
