@@ -83,6 +83,10 @@
 			"destination": "https://tutoring.mario-belmonte.com/tutoring/"
 		},
 		{
+			"source": "/tutoring/:path*/",
+			"destination": "https://tutoring.mario-belmonte.com/tutoring/:path*/"
+		},
+		{
 			"source": "/tutoring/:path*",
 			"destination": "https://tutoring.mario-belmonte.com/tutoring/:path*"
 		},

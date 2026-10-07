@@ -124,6 +124,10 @@
 	# `/tutoring` as-is instead works, but the upstream answers it with a 308 to `/tutoring/`
 	# — turning a URL that is a 200 on Vercel today into a client-visible permanent redirect
 	# (measured on both hosts). Reproduce the rewrite rather than inherit the extra round trip.
+	# Trailing-slash subpaths (`/tutoring/book/`, the tutoring app's canonical form since it moved
+	# to `trailingSlash: 'always'`) need no rule here: `/tutoring/*` matches them and the path is
+	# forwarded verbatim. vercel.json needs an explicit `/tutoring/:path*/` rule, because its
+	# `:path*` pattern does not match a trailing slash and the request fell through to this app's 404.
 	handle @tutoring {
 		rewrite @tutoringBare /tutoring/
 		reverse_proxy https://tutoring.mario-belmonte.com {
