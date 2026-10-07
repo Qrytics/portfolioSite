@@ -141,62 +141,6 @@
 		align-self: stretch;
 	}
 
-	@media (max-width: 520px) {
-		.card {
-			grid-template-rows: auto auto auto;
-		}
-
-		.termbar--collapsible {
-			min-height: 2.7rem;
-		}
-
-		.termbar {
-			padding: 0.65rem 0.75rem;
-			gap: 0.55rem;
-		}
-
-		.termbar__title {
-			font-size: 0.84rem;
-		}
-
-		.badge {
-			font-size: 0.7rem;
-			padding: 0.15rem 0.4rem;
-		}
-
-		.content {
-			padding: 0.8rem;
-			gap: 0.6rem;
-		}
-
-		.card__subtitle {
-			font-size: 0.85rem;
-		}
-
-		.card__desc {
-			font-size: 0.88rem;
-			line-height: 1.5;
-		}
-
-		.tech-badges {
-			gap: 0.3rem;
-		}
-
-		.tech-badge {
-			font-size: 0.66rem;
-			padding: 0.15rem 0.35rem;
-		}
-
-		.links {
-			gap: 0.45rem;
-		}
-
-		.btn {
-			font-size: 0.82rem;
-			padding: 0.45rem 0.6rem;
-		}
-	}
-
 	.card:hover {
 		z-index: 2;
 		border-color: color-mix(in srgb, var(--accent) 25%, transparent);
@@ -344,18 +288,6 @@
 		overflow-wrap: anywhere;
 	}
 
-	/* Keep mobile cards light, but clamp rather than hide: hiding left phone visitors with only the
-	   one-line subtitle and no idea what a project does. The full text is one tap away on "details". */
-	@media (max-width: 640px) {
-		.card__desc--desktop-only {
-			display: -webkit-box;
-			-webkit-box-orient: vertical;
-			-webkit-line-clamp: 3;
-			line-clamp: 3;
-			overflow: hidden;
-		}
-	}
-
 	/* Tech badges */
 	.tech-badges {
 		display: flex;
@@ -446,33 +378,103 @@
 		border-color: var(--clr-primary-a30);
 	}
 
+	/*
+	 * Phones. One block, and it has to stay *last*: a media query adds no specificity, so it only
+	 * wins over the base rules above by coming after them. An earlier 520px block sat above the base
+	 * rules and every declaration in it was silently overridden — the "mobile" card was the desktop one.
+	 */
 	@media (max-width: 640px) {
+		.termbar {
+			padding: 0.7rem 0.85rem;
+			gap: 0.6rem;
+			align-items: flex-start;
+		}
+
+		.termbar__chevron {
+			margin-top: 0.3rem;
+		}
+
+		/* Wrap to two lines instead of truncating: the badge used to eat the width, leaving
+		   "Smart Home IoT Das…" as the only clue to what a card is. */
+		.termbar__title {
+			font-size: 0.9rem;
+			line-height: 1.35;
+			white-space: normal;
+			display: -webkit-box;
+			-webkit-box-orient: vertical;
+			-webkit-line-clamp: 2;
+			line-clamp: 2;
+		}
+
+		.badge {
+			font-size: 0.68rem;
+			padding: 0.15rem 0.4rem;
+			margin-top: 0.1rem;
+		}
+
+		.content {
+			padding: 0.9rem 0.85rem 1rem;
+			gap: 0.6rem;
+		}
+
+		.card__dates {
+			font-size: 0.72rem;
+		}
+
+		.card__subtitle {
+			color: var(--text);
+			font-size: 0.9rem;
+			line-height: 1.5;
+		}
+
+		.card__desc {
+			font-size: 0.84rem;
+			line-height: 1.55;
+			color: var(--muted);
+		}
+
+		/* Clamp rather than hide: hiding left phone visitors with only the one-line subtitle and no
+		   idea what a project does. The full text is one tap away on "details". */
+		.card__desc--desktop-only {
+			display: -webkit-box;
+			-webkit-box-orient: vertical;
+			-webkit-line-clamp: 2;
+			line-clamp: 2;
+			overflow: hidden;
+		}
+
+		.tech-badges {
+			gap: 0.3rem;
+			margin-top: 0;
+		}
+
+		.tech-badge {
+			font-size: 0.66rem;
+			padding: 0.14rem 0.38rem;
+		}
+
+		/* An even two-column grid: external links pair up, and anything left over (an odd
+		   "details") spans the row instead of floating at 75% width in the middle. */
 		.links {
-			display: flex;
-			flex-wrap: wrap;
-			justify-content: center;
+			display: grid;
+			grid-template-columns: repeat(2, minmax(0, 1fr));
 			gap: 0.45rem;
+			margin-top: 0.2rem;
 		}
 
-		.btn--external {
-			width: calc(50% - 0.225rem);
-			flex: 0 0 calc(50% - 0.225rem);
+		.btn {
 			justify-content: center;
-			min-height: 2.5rem;
+			min-height: 2.75rem;
+			padding: 0.5rem 0.6rem;
+			font-size: 0.82rem;
 		}
 
-		.btn--details {
-			width: 75%;
-			flex: 0 0 75%;
-			justify-content: center;
-			min-height: 2.5rem;
+		.btn:hover {
+			transform: none;
 		}
 
-		.links .btn:not(.btn--external):not(.btn--details) {
-			width: 75%;
-			flex: 0 0 75%;
-			justify-content: center;
-			min-height: 2.5rem;
+		.btn:last-child:nth-child(odd) {
+			grid-column: 1 / -1;
 		}
 	}
 

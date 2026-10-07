@@ -262,7 +262,7 @@
 			<div class="filter-row">
 				<label class="filter">
 					<span class="sr-only">Filter projects</span>
-					<span class="filter__prompt" aria-hidden="true">⌕</span>
+					<svg class="filter__prompt" viewBox="0 0 16 16" width="15" height="15" aria-hidden="true"><circle cx="7" cy="7" r="4.75" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M10.5 10.5 14 14" stroke="currentColor" stroke-width="1.6" stroke-linecap="square"/></svg>
 					<input
 						class="filter__input"
 						type="search"
@@ -396,6 +396,7 @@
 	}
 
 	.filter__prompt {
+		flex-shrink: 0;
 		color: var(--muter);
 	}
 
@@ -444,6 +445,13 @@
 			scrollbar-width: none;
 			margin-inline: calc(-1 * clamp(1.25rem, 4vw, 3rem));
 			padding-inline: clamp(1.25rem, 4vw, 3rem);
+			/* Fade the trailing edge so the row reads as scrollable rather than cut off. */
+			-webkit-mask-image: linear-gradient(90deg, #000 85%, transparent);
+			mask-image: linear-gradient(90deg, #000 85%, transparent);
+		}
+
+		.tag-row::-webkit-scrollbar {
+			display: none;
 		}
 
 		.tag-chip {
@@ -549,28 +557,28 @@
 		margin-left: auto;
 	}
 
+	/* Phones: sort buttons and "collapse" share one row. They used to wrap onto two, with collapse
+	   alone on the second. The "sort ↑↓" label goes; the group's aria-label already names it. */
 	@media (max-width: 720px) {
 		.sort-row {
-			align-items: flex-start;
-			flex-wrap: wrap;
+			align-items: center;
+			gap: 0.4rem;
 			overflow-x: visible;
-			gap: 0.55rem;
 		}
 
 		.sort-row__left {
-			flex-wrap: wrap;
-			gap: 0.45rem;
+			gap: 0.4rem;
 			min-width: 0;
 		}
 
-		.sort-btn {
-			min-height: 2.35rem;
-			padding: 0.44rem 0.72rem;
-			font-size: 0.8rem;
+		.sort-label {
+			display: none;
 		}
 
-		.collapse-btn {
-			margin-left: 0;
+		.sort-btn {
+			min-height: 2.5rem;
+			padding: 0.44rem 0.65rem;
+			font-size: 0.78rem;
 		}
 	}
 

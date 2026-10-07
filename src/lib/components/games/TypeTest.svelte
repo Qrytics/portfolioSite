@@ -821,13 +821,47 @@
 			padding: 1.25rem;
 		}
 
+		.typetest {
+			padding: 1.25rem 1rem 2rem;
+		}
+
+		.typetest__header {
+			margin-bottom: 1.25rem;
+		}
+
+		.typetest__title {
+			font-size: 1.5rem;
+		}
+
+		.typetest__start {
+			align-items: stretch;
+			gap: 1.5rem;
+			padding: 1.5rem 1rem;
+		}
+
+		/* Three equal segments in one row, not a narrow column of three stacked buttons. */
+		.difficulty-selector {
+			align-items: stretch;
+			gap: 0.75rem;
+		}
+
+		.difficulty-label {
+			text-align: center;
+		}
+
 		.difficulty-buttons {
-			flex-direction: column;
-			width: 100%;
+			display: grid;
+			grid-template-columns: repeat(3, minmax(0, 1fr));
+			gap: 0.4rem;
 		}
 
 		.difficulty-btn {
-			width: 100%;
+			min-height: 2.75rem;
+			padding-inline: 0.5rem;
+		}
+
+		.btn--large {
+			min-height: 3rem;
 		}
 
 		.results__stats {

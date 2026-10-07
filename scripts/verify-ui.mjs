@@ -111,11 +111,12 @@ async function newPage({ viewport = DESKTOP, theme = 'dark', javaScriptEnabled =
 	const themeInSsr = await page.locator('.theme-toggle').count();
 	check(themeInSsr > 0, 'theme control is server-rendered, not mounted client-side', `${themeInSsr} found`);
 
-	// Its glyph comes from CSS keyed on `[data-theme]`, so it must be non-empty before any JS runs.
-	const glyph = await page.$eval('.theme-toggle__icon', (el) =>
-		getComputedStyle(el, '::before').content + '|' + getComputedStyle(el, '::after').content
+	// Both icons are in the markup and CSS keyed on `[data-theme]` shows exactly one, so the right
+	// one must be visible before any JS runs.
+	const shownIcons = await page.$$eval('.theme-toggle__icon', (els) =>
+		els.filter((el) => getComputedStyle(el).display !== 'none').map((el) => el.getAttribute('class'))
 	);
-	check(/[^"|none]/.test(glyph.replace(/none|"/g, '')), 'theme glyph is painted by CSS on first paint', glyph);
+	check(shownIcons.length === 1, 'theme icon is chosen by CSS on first paint', shownIcons.join(', ') || 'none shown');
 
 	await ctx.close();
 }

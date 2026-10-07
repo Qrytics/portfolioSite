@@ -268,6 +268,17 @@
 		opacity: 1;
 	}
 
+	/* On a phone the card is already the frame; a second inset of padding just shrank the artwork. */
+	@media (max-width: 640px) {
+		.media {
+			padding: 0;
+		}
+
+		.media__img {
+			border: 0;
+		}
+	}
+
 	@media (pointer: coarse) {
 		.media__playback {
 			min-width: 2.75rem;

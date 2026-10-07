@@ -27,7 +27,7 @@
 		</div>
 		<div class="header__meta">
 			<a href={profile.github} target="_blank" rel="noopener noreferrer" class="link link__mono">
-				{profile.github.replace('https://', '')}<span class="sr-only"> (opens in new tab)</span>
+				<span class="link__full">{profile.github.replace('https://', '')}</span><span class="link__short">github ↗</span><span class="sr-only"> (opens in new tab)</span>
 			</a>
 			<span class="meta-sep">·</span>
 			<button
@@ -37,11 +37,11 @@
 				aria-label="Copy email address {profile.email}"
 				title="Copy email address"
 			>
-				{profile.email}
+				<span class="link__full">{profile.email}</span><span class="link__short">copy email</span>
 			</button>
 			<span class="meta-sep">·</span>
 			<a href={profile.linkedin} target="_blank" rel="noopener noreferrer" class="link link__mono">
-				{profile.linkedin.replace('https://www.', '')}<span class="sr-only"> (opens in new tab)</span>
+				<span class="link__full">{profile.linkedin.replace('https://www.', '')}</span><span class="link__short">linkedin ↗</span><span class="sr-only"> (opens in new tab)</span>
 			</a>
 		</div>
 	</div>
@@ -123,47 +123,6 @@
 		pointer-events: none;
 	}
 
-	/*
-	 * The two light-mode glows behind the hero text. Both were doing the right thing by accident and
-	 * paying a lot for it.
-	 *
-	 * Their stop lists used to start at `100%` and then step *backwards* (`100%, 90%, 8%, 9%, 10%`). A
-	 * gradient stop smaller than the one before it is clamped up to it, so every stop collapsed to 100%
-	 * and the "radial glow" rendered as a **solid white box**. What actually produced the soft halo was
-	 * the `filter: blur(100px)` feathering that box's edges — which is the most expensive possible way to
-	 * draw a gradient, on the largest element on the page, sitting behind the LCP text, on phones.
-	 *
-	 * Stops are now in ascending order, so the falloff comes from the gradient itself. That leaves the
-	 * blur with nothing to do but soften banding, which needs a fraction of the radius — these are the
-	 * values `app.css` already uses for the same two elements, and these rules only exist to override it.
-	 */
-	:global([data-theme='light']) .header__content::before {
-		width: min(96ch, 94%);
-		height: 82%;
-		background: radial-gradient(
-			ellipse at center,
-			rgb(255, 255, 255) 0%,
-			color-mix(in srgb, #f7fdfb 92%, transparent) 34%,
-			color-mix(in srgb, #e4f7f3 58%, transparent) 58%,
-			color-mix(in srgb, #d2f0ea 22%, transparent) 78%,
-			color-mix(in srgb, #ffffff 0%, transparent) 100%
-		);
-		filter: blur(34px);
-	}
-
-	:global([data-theme='light']) .header__tagline::before {
-		width: calc(100% + 4.25rem);
-		height: calc(100% + 1.5rem);
-		background: radial-gradient(
-			ellipse at center,
-			color-mix(in srgb, #ffffff 98%, transparent) 0%,
-			color-mix(in srgb, #f0fcf8 78%, transparent) 38%,
-			color-mix(in srgb, #dff7f1 32%, transparent) 68%,
-			color-mix(in srgb, #ffffff 0%, transparent) 100%
-		);
-		filter: blur(20px);
-	}
-
 	.header__description {
 		position: relative;
 		margin: 1rem 0 0;
@@ -231,18 +190,6 @@
 		transform: translateY(-1px);
 	}
 
-	:global([data-theme='light']) .hero-action {
-		border-color: color-mix(in srgb, var(--accent) 38%, var(--border));
-		background: color-mix(in srgb, var(--panel) 94%, white 6%);
-		box-shadow: 0 0 0 1px color-mix(in srgb, #ffffff 70%, transparent) inset;
-	}
-
-	:global([data-theme='light']) .hero-action:hover,
-	:global([data-theme='light']) .hero-action:focus-visible {
-		border-color: color-mix(in srgb, var(--accent) 58%, var(--border));
-		background: color-mix(in srgb, var(--panel) 88%, white 12%);
-	}
-
 	.link {
 		color: color-mix(in srgb, var(--accent) 94%, transparent);
 		text-decoration: none;
@@ -261,15 +208,6 @@
 		font-family: var(--font-mono);
 	}
 
-	@media (max-width: 520px) {
-		.meta-sep {
-			display: none;
-		}
-
-		.hero-action {
-			width: min(100%, 18rem);
-		}
-	}
 
 	@media (max-width: 700px) {
 		.header {
@@ -324,6 +262,135 @@
 	.email-copy-btn:focus-visible {
 		outline: 2px solid color-mix(in srgb, var(--accent) 60%, transparent);
 		outline-offset: 4px;
+	}
+
+	/* Short chip labels only exist for phones; the full handles are what desktop shows. */
+	.link__short {
+		display: none;
+	}
+
+	/*
+	 * Phones: the three full URLs stacked as one centred, underlined column per link — a wall of
+	 * text that pushed the first project below the fold. They become one row of equal chips with
+	 * short labels, and the tutoring button spans the same width above them. Must stay after the
+	 * `.link` / `.email-copy-btn` base rules above, which it overrides.
+	 */
+	@media (max-width: 520px) {
+		.meta-sep,
+		.link__full {
+			display: none;
+		}
+
+		.link__short {
+			display: inline;
+		}
+
+		.header__actions,
+		.header__meta {
+			width: 100%;
+			max-width: 22rem;
+		}
+
+		.hero-action {
+			width: 100%;
+			min-height: 2.75rem;
+			font-size: 0.9rem;
+		}
+
+		.header__meta {
+			display: grid;
+			grid-template-columns: repeat(3, minmax(0, 1fr));
+			gap: 0.45rem;
+			margin-top: 0.55rem;
+			font-size: 0.8rem;
+		}
+
+		.header__meta .link {
+			display: grid;
+			place-items: center;
+			min-height: 2.75rem;
+			padding: 0 0.3rem;
+			border: 1px solid var(--border);
+			background: color-mix(in srgb, var(--panel) 80%, transparent);
+			color: var(--text);
+			text-shadow: none;
+			white-space: nowrap;
+			text-decoration: none;
+		}
+	}
+
+	/*
+	 * Light mode, designed rather than patched. Everything that made the dark hero legible — black
+	 * text-shadows, a blurred black blob behind the copy, the canvas's black fade — is switched off
+	 * here instead of being painted over with white glows (which is what used to be stacked up in
+	 * `app.css` and here). The canvas now clears the tiles from behind the text itself and fades into
+	 * the page, so the copy sits on plain paper and needs no help being read.
+	 */
+	:global([data-theme='light']) .header {
+		background: linear-gradient(180deg, color-mix(in srgb, var(--accent) 7%, var(--bg)) 0%, var(--bg) 100%);
+	}
+
+	:global([data-theme='light']) .header__content::before,
+	:global([data-theme='light']) .header__tagline::before {
+		display: none;
+	}
+
+	:global([data-theme='light']) .header__tagline,
+	:global([data-theme='light']) .header__description,
+	:global([data-theme='light']) .header__cta,
+	:global([data-theme='light']) .header__meta {
+		text-shadow: none;
+	}
+
+	:global([data-theme='light']) .header__tagline {
+		color: var(--text);
+		letter-spacing: -0.01em;
+	}
+
+	:global([data-theme='light']) .header__description {
+		color: var(--muted);
+	}
+
+	:global([data-theme='light']) .header__cta {
+		color: var(--text);
+	}
+
+	/* The one primary action gets the one solid fill on the page. */
+	:global([data-theme='light']) .hero-action {
+		border-color: var(--accent-text);
+		background: var(--accent-text);
+		color: #ffffff;
+		box-shadow: 0 1px 2px color-mix(in srgb, var(--accent-text) 30%, transparent),
+			0 6px 18px -6px color-mix(in srgb, var(--accent-text) 55%, transparent);
+	}
+
+	:global([data-theme='light']) .hero-action:hover,
+	:global([data-theme='light']) .hero-action:focus-visible {
+		border-color: var(--clr-primary-a30);
+		background: var(--clr-primary-a30);
+		color: #ffffff;
+	}
+
+	:global([data-theme='light']) .link {
+		color: var(--accent-text);
+		border-bottom-color: color-mix(in srgb, var(--accent-text) 35%, transparent);
+	}
+
+	:global([data-theme='light']) .link:hover {
+		border-bottom-color: var(--accent-text);
+	}
+
+	:global([data-theme='light']) .meta-sep {
+		color: var(--muter);
+	}
+
+	@media (max-width: 520px) {
+		:global([data-theme='light']) .header__meta .link {
+			background: var(--panel);
+			border-color: var(--border);
+			color: var(--text);
+			box-shadow: var(--shadow-sm);
+		}
 	}
 
 	/* The toast panel moved to `$lib/components/Toast.svelte`, rendered once by the layout. */

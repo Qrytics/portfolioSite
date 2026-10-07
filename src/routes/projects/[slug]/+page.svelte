@@ -670,4 +670,63 @@ color: var(--muted);
 font-size: 0.93rem;
 line-height: 1.6;
 }
+
+/* Phones: the shell gutter and the card's own padding stacked to 2.5rem a side, leaving the
+   write-up in a column ~28 characters wide. Kept last so it wins over the base rules on source order. */
+@media (max-width: 640px) {
+	.page {
+		padding-top: 0.5rem;
+	}
+
+	.shell {
+		padding: 1rem;
+	}
+
+	.breadcrumb {
+		margin-bottom: 1rem;
+		flex-wrap: wrap;
+	}
+
+	.termbar {
+		padding: 0.75rem 0.85rem;
+	}
+
+	.content {
+		padding: 1rem 0.9rem 1.1rem;
+		gap: 0.85rem;
+	}
+
+	.subtitle {
+		color: var(--text);
+		font-size: 0.95rem;
+	}
+
+	.desc,
+	.long-desc,
+	.cs-block__text {
+		font-size: 0.9rem;
+		line-height: 1.65;
+	}
+
+	.cs-list li {
+		font-size: 0.88rem;
+	}
+
+	.slides__frame {
+		min-height: 0;
+	}
+
+	.btn:hover {
+		transform: none;
+	}
+
+	.pager {
+		gap: 0.5rem;
+	}
+
+	.pager__link {
+		flex: 1 1 0;
+		max-width: none;
+	}
+}
 </style>

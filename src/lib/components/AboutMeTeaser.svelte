@@ -748,8 +748,9 @@
 			gap: 0.4rem 0.65rem;
 		}
 
+		/* One tile per row: in two columns at phone width the artist name truncated to "Mustard S…". */
 		.spotify-grid {
-			grid-template-columns: 1fr 1fr;
+			grid-template-columns: 1fr;
 		}
 
 		.spotify-tile--compact {
@@ -757,20 +758,29 @@
 			width: auto;
 		}
 
-		.spotify-tile--track {
-			grid-column: 1 / -1;
-		}
-
+		/* A full-width banner rather than an 88px stamp: it is the only preview of the gallery. */
 		.photo-thumbnail {
-			justify-self: center;
-			width: clamp(56px, 28vw, 88px);
-			height: clamp(40px, 20vw, 62px);
+			justify-self: stretch;
+			width: 100%;
+			height: auto;
+			aspect-ratio: 16 / 9;
+			border-radius: 0;
 		}
 
 		.rhythm-icon {
 			width: clamp(82px, 40vw, 140px);
 			justify-self: center;
 		}
+	}
+
+	/* The black drop-shadows that lift these off the dark panel read as grey smudges on white. */
+	:global([data-theme='light']) .rhythm-icon {
+		filter: drop-shadow(0 2px 4px color-mix(in srgb, #14211f 14%, transparent));
+	}
+
+	:global([data-theme='light']) .photo-thumbnail {
+		border-color: var(--border);
+		box-shadow: var(--shadow-sm);
 	}
 </style>
 

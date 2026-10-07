@@ -308,4 +308,59 @@
 		color: var(--muted);
 		line-height: 1.6;
 	}
+
+	/*
+	 * Phones: the 4rem date column plus the connector left the description about 22 characters wide,
+	 * so every entry ran to ten-plus lines. The date moves above the label as a small "2026 · May"
+	 * kicker and the text gets the full width beside the line.
+	 */
+	@media (max-width: 559px) {
+		.timeline {
+			padding: 2rem 1rem;
+		}
+
+		.section-heading {
+			margin-bottom: 1.25rem;
+		}
+
+		.event {
+			grid-template-columns: 0.75rem 1fr;
+			grid-template-areas:
+				'dot meta'
+				'dot body';
+			gap: 0 0.85rem;
+		}
+
+		.event__connector {
+			grid-area: dot;
+			align-self: stretch;
+		}
+
+		.event__meta {
+			grid-area: meta;
+			flex-direction: row;
+			align-items: baseline;
+			gap: 0.4rem;
+			padding-top: 0;
+			margin-bottom: 0.2rem;
+		}
+
+		.event__month::before {
+			content: '· ';
+		}
+
+		.event__dot {
+			margin-top: 0.3rem;
+		}
+
+		.event__body {
+			grid-area: body;
+			padding-bottom: 1.35rem;
+		}
+
+		.event__desc {
+			font-size: 0.85rem;
+			line-height: 1.55;
+		}
+	}
 </style>

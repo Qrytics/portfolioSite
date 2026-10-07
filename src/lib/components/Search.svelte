@@ -186,7 +186,7 @@
 
 <!-- Trigger button -->
 <button type="button" class="trigger" aria-label="search (Ctrl+K)" onclick={toggleOpen}>
-	<span class="trigger__icon" aria-hidden="true">⌕</span>
+	<svg class="trigger__icon" viewBox="0 0 16 16" width="15" height="15" aria-hidden="true"><circle cx="7" cy="7" r="4.75" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M10.5 10.5 14 14" stroke="currentColor" stroke-width="1.6" stroke-linecap="square"/></svg>
 	<span class="trigger__label">search</span>
 </button>
 
@@ -205,7 +205,7 @@
 
 		<div class="modal" role="dialog" aria-modal="true" aria-label="Search the site" use:focusTrap>
 			<div class="modal__bar">
-				<span class="modal__icon" aria-hidden="true">⌕</span>
+				<svg class="modal__icon" viewBox="0 0 16 16" width="15" height="15" aria-hidden="true"><circle cx="7" cy="7" r="4.75" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M10.5 10.5 14 14" stroke="currentColor" stroke-width="1.6" stroke-linecap="square"/></svg>
 				<input
 					bind:this={inputEl}
 					bind:value={query}
@@ -313,12 +313,17 @@
 	}
 
 	.trigger__icon {
-		font-size: 0.9rem;
+		display: block;
+		flex-shrink: 0;
 	}
 
+	/* Icon-only square on phones, sized to match the theme toggle beside it. */
 	@media (max-width: 560px) {
 		.trigger {
-			padding-inline: 0.45rem;
+			justify-content: center;
+			width: 2.75rem;
+			height: 2.75rem;
+			padding: 0;
 		}
 
 		.trigger__label {
@@ -520,6 +525,13 @@
 		color: var(--muter);
 		background: color-mix(in srgb, #ffffff 2%, transparent);
 		flex-shrink: 0;
+	}
+
+	/* Arrow-key and Esc hints mean nothing on a touchscreen with no hardware keyboard. */
+	@media (hover: none) and (pointer: coarse) {
+		.modal__footer {
+			display: none;
+		}
 	}
 
 	kbd {

@@ -304,6 +304,41 @@
 		color: var(--accent);
 	}
 
+	/*
+	 * Phones: one full-width photo per row made this page ~8,800px of scrolling. Every photo already
+	 * opens full size in the lightbox, so here they are square thumbnails, two to a row — including
+	 * the tall and `contain` ones, which only exist to avoid cropping at large sizes.
+	 */
+	@media (max-width: 719px) {
+		.section {
+			padding: 1.25rem 1rem 2rem;
+		}
+
+		.grid {
+			grid-template-columns: repeat(2, minmax(0, 1fr));
+			gap: 0.4rem;
+		}
+
+		.card,
+		.grid-item--tall.card {
+			aspect-ratio: 1 / 1;
+			box-shadow: none;
+		}
+
+		.grid-item--tall .img,
+		.img--contain {
+			height: 100%;
+			max-height: none;
+			object-fit: cover;
+		}
+
+		/* Per-photo `padding` (set inline by `imgStyle`) frames a photo in a large card; in a square
+		   thumbnail it just letterboxes it. `!important` is the only way past an inline style. */
+		.img {
+			padding: 0 !important;
+		}
+	}
+
 	@media (max-width: 640px) {
 		.bottom-row {
 			grid-template-columns: 1fr;

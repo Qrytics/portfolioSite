@@ -200,7 +200,8 @@
 				<!-- Glyph comes from CSS keyed on `[data-theme]`, which the blocking `app.html` script
 				     has already set. Rendering it from the `theme` rune would show the dark-mode sun for
 				     one paint to every light-mode visitor. -->
-				<span class="theme-toggle__icon" aria-hidden="true"></span>
+				<svg class="theme-toggle__icon theme-toggle__icon--sun" viewBox="0 0 16 16" width="15" height="15" aria-hidden="true"><circle cx="8" cy="8" r="3" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M8 1v2M8 13v2M1 8h2M13 8h2M3.05 3.05l1.4 1.4M11.55 11.55l1.4 1.4M3.05 12.95l1.4-1.4M11.55 4.45l1.4-1.4" stroke="currentColor" stroke-width="1.5"/></svg>
+				<svg class="theme-toggle__icon theme-toggle__icon--moon" viewBox="0 0 16 16" width="15" height="15" aria-hidden="true"><path d="M13.5 9.6A5.75 5.75 0 0 1 6.4 2.5a5.75 5.75 0 1 0 7.1 7.1Z" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/></svg>
 			</button>
 		</div>
 
@@ -413,20 +414,21 @@
 
 	.theme-toggle__icon {
 		display: block;
-		line-height: 1;
-		font-size: 0.9rem;
 		opacity: 0.9;
-		transform: translateY(0);
 	}
 
 	/* Sun in dark mode ("switch to light"), moon in light mode. Driven by the attribute the blocking
 	   theme script sets, so it is correct in the first paint rather than after hydration. */
-	.theme-toggle__icon::before {
-		content: '☀';
+	.theme-toggle__icon--moon {
+		display: none;
 	}
 
-	:global([data-theme='light']) .theme-toggle__icon::before {
-		content: '☾';
+	:global([data-theme='light']) .theme-toggle__icon--sun {
+		display: none;
+	}
+
+	:global([data-theme='light']) .theme-toggle__icon--moon {
+		display: block;
 	}
 
 	@media (max-width: 979px) {
@@ -658,15 +660,76 @@
 
 	@media (max-width: 640px) {
 		.site-header__inner {
-			padding: 0.75rem 0.9rem;
+			padding: 0.6rem 1rem;
 		}
 
 		.site-header__title {
 			font-size: 0.95rem;
 		}
 
+		/* All three header controls are the same 2.75rem (44px) tall box, so the bar reads as one row
+		   of buttons rather than a wide box, a narrow box and a bare word. */
+		.theme-toggle {
+			width: 2.75rem;
+			height: 2.75rem;
+			padding: 0;
+		}
+
 		.site-header__menu {
-			font-size: 0.95rem;
+			display: inline-flex;
+			align-items: center;
+			gap: 0.45rem;
+			height: 2.75rem;
+			padding: 0 0.75rem;
+			border: 1px solid var(--border-2);
+			background: var(--panel-2);
+			font-size: 0.88rem;
+		}
+
+		.site-header__menu[aria-expanded='true'] {
+			border-color: color-mix(in srgb, var(--accent) 50%, transparent);
+			color: var(--accent);
+		}
+
+		/* Full-width sheet under the header instead of a small floating box: bigger tap targets,
+		   and it no longer half-covers the hero text it is drawn over. */
+		.site-nav {
+			top: calc(100% + 1px);
+			left: 0;
+			right: 0;
+			min-width: 0;
+			border-left: 0;
+			border-right: 0;
+			box-shadow: 0 18px 40px color-mix(in srgb, #000 45%, transparent);
+		}
+
+		.site-nav ul {
+			padding: 0.35rem 0;
+		}
+
+		.site-nav li + li {
+			border-top: 1px solid var(--border-2);
+		}
+
+		.site-nav a,
+		.site-nav__action {
+			padding: 0.9rem 1.25rem;
+			font-size: 1rem;
+		}
+
+		.site-nav a::after {
+			display: none;
+		}
+
+		.site-nav a[aria-current='page'] {
+			color: var(--accent);
+			background: color-mix(in srgb, var(--accent) 6%, transparent);
+			box-shadow: inset 2px 0 0 var(--accent);
+		}
+
+		.site-nav__action::before {
+			content: '>_ ';
+			opacity: 0.7;
 		}
 	}
 

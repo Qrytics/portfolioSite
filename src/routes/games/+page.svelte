@@ -351,4 +351,60 @@
 		border-color: var(--border-2);
 		cursor: default;
 	}
+
+	/* Phones: tighter gutters, and a full-width play button under the tags instead of one that
+	   wraps to wherever the tag row happens to end. */
+	@media (max-width: 640px) {
+		.section {
+			padding: 1.25rem 1rem 2rem;
+		}
+
+		.subtitle {
+			margin-bottom: 1.75rem;
+			font-size: 0.92rem;
+			line-height: 1.6;
+		}
+
+		.filter-row {
+			flex-wrap: nowrap;
+			overflow-x: auto;
+			scrollbar-width: none;
+			margin-inline: -1rem;
+			padding-inline: 1rem;
+			-webkit-mask-image: linear-gradient(90deg, #000 85%, transparent);
+			mask-image: linear-gradient(90deg, #000 85%, transparent);
+		}
+
+		.filter-row::-webkit-scrollbar {
+			display: none;
+		}
+
+		.chip {
+			flex-shrink: 0;
+			min-height: 2.5rem;
+			padding-inline: 0.85rem;
+		}
+
+		.game-grid {
+			gap: 1rem;
+		}
+
+		.game-card {
+			box-shadow: none;
+		}
+
+		.game-card__body {
+			padding: 0.9rem 0.9rem 1rem;
+		}
+
+		.game-card__footer {
+			flex-direction: column;
+			align-items: stretch;
+			gap: 0.75rem;
+		}
+
+		.play-btn {
+			justify-content: center;
+		}
+	}
 </style>

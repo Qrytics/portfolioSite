@@ -21,7 +21,7 @@
 
 <footer class="footer">
 	<div class="footer__inner">
-		<span>© {year} {profile.name}</span>
+		<span class="footer__copy">© {year} {profile.name}</span>
 		<span class="footer__sep">·</span>
 		<button
 			type="button"
@@ -94,9 +94,29 @@
 			text-align: center;
 		}
 
+		/* Copyright and email each get a line; the short links share one row instead of stacking
+		   into a five-line column. */
 		.footer__inner {
-			flex-direction: column;
-			gap: 0.5rem;
+			display: grid;
+			grid-template-columns: repeat(3, auto);
+			justify-content: center;
+			justify-items: center;
+			gap: 0.5rem 1.4rem;
+			font-size: 0.9rem;
+		}
+
+		.footer__copy,
+		.email-btn {
+			grid-column: 1 / -1;
+		}
+
+		.footer__copy {
+			color: var(--muter);
+			font-size: 0.82rem;
+		}
+
+		.email-btn {
+			margin-bottom: 0.35rem;
 		}
 
 		.footer__sep {
