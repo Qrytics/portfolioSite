@@ -103,8 +103,9 @@
 		The default image was `link_photo.png`: a 1,363,364 B PNG at 2880x1800, declared as 1200x630.
 		Both numbers were wrong, and the size was the expensive kind of wrong — WhatsApp and several
 		other scrapers refuse to fetch a preview image over ~1 MB, so link previews silently failed
-		rather than showing a wrong-sized image. `og.jpg` is the same artwork at 1200x600 and 82,866 B,
-		a 94% reduction, and the declared height is now the height the file actually measures.
+		rather than showing a wrong-sized image. `og.jpg` is now a purpose-made 1200x630 share card
+		(~76 KB), and the declared height is the height the file actually measures — keep `seo.ts` in
+		step if the file is ever regenerated at another size.
 	-->
 	<meta property="og:image" content={seo.image} />
 	<meta property="og:image:type" content={seo.imageType} />

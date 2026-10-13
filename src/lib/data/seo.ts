@@ -23,7 +23,7 @@ import type { Project } from './projects';
  */
 export const SITE_URL = 'https://mario-belmonte.com';
 
-/** 1200x600, 82,866 B. Named separately because its dimensions are known and can be declared. */
+/** 1200x630, 76,280 B. Named separately because its dimensions are known and can be declared. */
 const DEFAULT_OG_IMAGE = '/og.jpg';
 
 export interface SeoMeta {
@@ -46,7 +46,7 @@ const SITE_DESCRIPTION = `${profile.tagline} — ${profile.description}`;
 /** Per-route overrides. Anything absent falls back to the site defaults in `resolveSeo`. */
 const ROUTES: Record<string, { title: string; description: string; ogType?: SeoMeta['ogType'] }> = {
 	'/': {
-		title: `${profile.name} — Portfolio`,
+		title: `${profile.name}'s Portfolio`,
 		description: SITE_DESCRIPTION
 	},
 	'/about': {
@@ -172,7 +172,7 @@ export function resolveSeo(pathname: string, project?: Project): SeoMeta {
 			// Dimensions are only declared for the default image; guessing them for a project poster is
 			// how the previous `1200x630` claim about a 2880x1800 file happened.
 			imageWidth: image ? undefined : 1200,
-			imageHeight: image ? undefined : 600,
+			imageHeight: image ? undefined : 630,
 			ogType: 'article',
 			jsonLd: serializeJsonLd({
 				'@context': 'https://schema.org',
@@ -198,13 +198,13 @@ export function resolveSeo(pathname: string, project?: Project): SeoMeta {
 	const isHome = path === '/';
 
 	return {
-		title: route?.title ?? `${profile.name} — Portfolio`,
+		title: route?.title ?? `${profile.name}'s Portfolio`,
 		description: route?.description ?? SITE_DESCRIPTION,
 		canonical,
 		image: `${SITE_URL}${DEFAULT_OG_IMAGE}`,
 		imageType: imageTypeOf(DEFAULT_OG_IMAGE),
 		imageWidth: 1200,
-		imageHeight: 600,
+		imageHeight: 630,
 		ogType: route?.ogType ?? 'website',
 		// Only the homepage carries the WebSite + Person graph. Repeating it on every route adds bytes
 		// without adding information, and gives crawlers several competing definitions of one entity.
@@ -214,7 +214,7 @@ export function resolveSeo(pathname: string, project?: Project): SeoMeta {
 					'@graph': [
 						{
 							'@type': 'WebSite',
-							name: `${profile.name} — Portfolio`,
+							name: `${profile.name}'s Portfolio`,
 							url: SITE_URL,
 							description: SITE_DESCRIPTION,
 							inLanguage: 'en',
