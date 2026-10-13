@@ -29,6 +29,14 @@
 	const events: TimelineEvent[] = [
 		{
 			year: 2026,
+			month: 'Jul',
+			label: 'Associate Consultant at IBM',
+			description:
+				'Joined IBM as an Associate Consultant after graduating, building up across generative and agentic AI, cloud, data, and quantum computing along the way.',
+			accent: true
+		},
+		{
+			year: 2026,
 			month: 'May',
 			label: 'Graduated from CMU',
 			description:

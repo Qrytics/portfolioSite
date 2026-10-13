@@ -235,7 +235,7 @@
 				<div class="card__inner">
 					<h3 class="bio-heading">Mario Belmonte</h3>
 					<p class="excerpt">
-						<span class="highlight">Electrical and Computer Engineering</span> student at <span class="highlight">Carnegie Mellon</span> with a transition focus into <span class="highlight">Software Engineering</span>. Experienced in building complex systems from the ground up ranging from FPGA-based game development in SystemVerilog to <span class="highlight">full-stack</span> logic design.
+						<span class="highlight">Carnegie Mellon</span> <span class="highlight">Electrical and Computer Engineering</span> graduate, now an <span class="highlight">Associate Consultant at IBM</span> with a focus on <span class="highlight">Software Engineering</span>. Experienced in building complex systems from the ground up ranging from FPGA-based game development in SystemVerilog to <span class="highlight">full-stack</span> logic design.
 					</p>
 					<p class="excerpt">
 						I enjoy solving algorithmic challenges and building scalable software that bridges the gap between low-level hardware and high-level applications. My background in digital design and embedded systems has given me a deep understanding of memory management, concurrency, and performance optimization. Passionate about systems programming, backend development, and building software that demands a high degree of technical precision.
