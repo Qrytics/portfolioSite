@@ -92,7 +92,14 @@
 		const rect = btn?.getBoundingClientRect();
 		const x = rect ? rect.left + rect.width / 2 : window.innerWidth / 2;
 		const y = rect ? rect.top + rect.height / 2 : 0;
-		const radius = Math.hypot(Math.max(x, window.innerWidth - x), Math.max(y, window.innerHeight - y));
+		const w = window.innerWidth;
+		const h = window.innerHeight;
+		// Percentages of the snapshot, not px: under page zoom the pseudo-element's px are scaled a
+		// second time, which pulled the circle's origin up and left of the button. A circle()
+		// radius percentage resolves against hypot(w, h) / √2.
+		const cx = `${(x / w) * 100}%`;
+		const cy = `${(y / h) * 100}%`;
+		const radius = `${(Math.hypot(Math.max(x, w - x), Math.max(y, h - y)) / (Math.hypot(w, h) / Math.SQRT2)) * 100}%`;
 
 		const release = suppressTransitions();
 		const vt = doc.startViewTransition(async () => {
@@ -103,7 +110,7 @@
 		vt.ready
 			.then(() => {
 				document.documentElement.animate(
-					{ clipPath: [`circle(0px at ${x}px ${y}px)`, `circle(${radius}px at ${x}px ${y}px)`] },
+					{ clipPath: [`circle(0% at ${cx} ${cy})`, `circle(${radius} at ${cx} ${cy})`] },
 					{ duration: 420, easing: 'cubic-bezier(0.4, 0, 0.2, 1)', pseudoElement: '::view-transition-new(root)' }
 				);
 			})
