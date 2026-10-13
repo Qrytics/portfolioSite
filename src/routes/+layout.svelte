@@ -10,6 +10,7 @@
 	import ScrollProgress from '$lib/components/ScrollProgress.svelte';
 	import MatrixOverlay from '$lib/components/MatrixOverlay.svelte';
 	import Toast from '$lib/components/Toast.svelte';
+	import Jukebox from '$lib/components/jukebox/Jukebox.svelte';
 	import { resetScrollLock } from '$lib/utils/scrollLock';
 	import { playSound } from '$lib/utils/sound';
 	import { setLocalItem, getLocalItem } from '$lib/utils/safeStorage';
@@ -144,6 +145,9 @@
 	rendered in the identical pixel position.
 -->
 <Toast />
+
+<!-- Here rather than in a page so the music outlives client-side navigation. -->
+<Jukebox />
 
 {#if overlays.matrix}
 	<MatrixOverlay onclose={() => (overlays.matrix = false)} />
