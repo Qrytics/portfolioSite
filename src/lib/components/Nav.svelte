@@ -492,12 +492,27 @@
 		}
 	}
 
-	/* Center tools only on wide desktop where there is guaranteed room. */
+	/* Wide desktop: title | tools | links. The tools used to be absolutely centred at 50%, which
+	   ignores the links beside them — once the link list grew (certs), the two overlapped from 1200px
+	   to ~1340px. In a grid whose side columns are at least their content's width, the tools sit
+	   dead centre whenever there is room and give way, rather than overlap, when there is not. */
 	@media (min-width: 1200px) {
+		.site-header__inner--with-title {
+			display: grid;
+			grid-template-columns: minmax(max-content, 1fr) auto minmax(max-content, 1fr);
+			column-gap: 1.5rem;
+		}
+
+		.site-header__inner--with-title .site-header__title {
+			justify-self: start;
+		}
+
 		.site-header__inner--with-title .site-header__tools {
-			position: absolute;
-			left: 50%;
-			transform: translateX(-50%);
+			justify-self: center;
+		}
+
+		.site-header__inner--with-title .site-nav {
+			justify-self: end;
 		}
 	}
 
