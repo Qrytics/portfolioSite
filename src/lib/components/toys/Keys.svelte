@@ -1,159 +1,403 @@
 <script lang="ts">
+	import { onMount } from 'svelte';
 	import ToyCard from './ToyCard.svelte';
-	import { PENTATONIC, sfx, tone } from '$lib/utils/synth';
+	import { analyser, violin, type Voice } from '$lib/utils/synth';
 
 	/**
-	 * Ten pentatonic keys, so any run of them sounds intentional. Two voices: a bowed violin (seven
-	 * years of lessons) and a plucked chip tune. Drag across the keys to glide.
+	 * Ten pentatonic notes from the violin's open G string up, so any run of them sounds intentional.
+	 * Every note is bowed: it sustains while held, and dragging across the keys shifts pitch legato
+	 * instead of re-bowing. Once the keys have focus, the home row plays them too.
 	 */
-	const NAMES = ['C', 'D', 'E', 'G', 'A', 'C', 'D', 'E', 'G', 'A'];
-	let voice = $state<'violin' | 'chip'>('violin');
-	let active = $state<number | null>(null);
-	let dragging = false;
-	let lastKey = -1;
-	let offTimer: ReturnType<typeof setTimeout> | undefined;
+	const NOTES = [
+		{ name: 'G', oct: 3, f: 196.0, code: 'KeyA', key: 'a' },
+		{ name: 'A', oct: 3, f: 220.0, code: 'KeyS', key: 's' },
+		{ name: 'C', oct: 4, f: 261.63, code: 'KeyD', key: 'd' },
+		{ name: 'D', oct: 4, f: 293.66, code: 'KeyF', key: 'f' },
+		{ name: 'E', oct: 4, f: 329.63, code: 'KeyG', key: 'g' },
+		{ name: 'G', oct: 4, f: 392.0, code: 'KeyH', key: 'h' },
+		{ name: 'A', oct: 4, f: 440.0, code: 'KeyJ', key: 'j' },
+		{ name: 'C', oct: 5, f: 523.25, code: 'KeyK', key: 'k' },
+		{ name: 'D', oct: 5, f: 587.33, code: 'KeyL', key: 'l' },
+		{ name: 'E', oct: 5, f: 659.25, code: 'Semicolon', key: ';' }
+	];
 
-	function play(i: number) {
-		if (voice === 'violin') sfx.violin(PENTATONIC[i]);
-		else tone(PENTATONIC[i] * 2, { type: 'square', dur: 0.14, vol: 0.12 });
-		active = i;
-		lastKey = i;
-		clearTimeout(offTimer);
-		offTimer = setTimeout(() => (active = null), 180);
+	let board = $state<HTMLElement | undefined>();
+	let canvas = $state<HTMLCanvasElement | undefined>();
+	let held = $state<number[]>([]);
+	let last = $state<number | null>(null);
+
+	/** Live strokes: one per pointer (which glides) and one per held key. */
+	const pointers = new Map<number, { voice: Voice; key: number }>();
+	const keyVoices = new Map<string, { voice: Voice; key: number }>();
+	let raf = 0;
+	let quietSince = 0;
+
+	function sync() {
+		held = [...pointers.values(), ...keyVoices.values()].map((s) => s.key);
+		if (held.length) quietSince = 0;
+		else quietSince = performance.now();
+		draw();
 	}
 
 	function keyAt(x: number, y: number): number | null {
 		const el = document.elementFromPoint(x, y)?.closest<HTMLElement>('[data-key]');
-		return el ? Number(el.dataset.key) : null;
+		return el && board?.contains(el) ? Number(el.dataset.key) : null;
 	}
 
-	function down(e: PointerEvent, i: number) {
-		e.preventDefault();
-		dragging = true;
-		play(i);
-	}
-
-	function move(e: PointerEvent) {
-		if (!dragging) return;
+	function onDown(e: PointerEvent) {
 		const i = keyAt(e.clientX, e.clientY);
-		if (i !== null && i !== lastKey) play(i);
+		if (i === null) return;
+		e.preventDefault();
+		board!.focus({ preventScroll: true });
+		board!.setPointerCapture(e.pointerId);
+		const voice = violin(NOTES[i].f);
+		last = i;
+		if (voice) pointers.set(e.pointerId, { voice, key: i });
+		sync();
 	}
 
-	function up() {
-		dragging = false;
-		lastKey = -1;
+	function onMove(e: PointerEvent) {
+		const stroke = pointers.get(e.pointerId);
+		if (!stroke) return;
+		const i = keyAt(e.clientX, e.clientY);
+		if (i === null || i === stroke.key) return;
+		stroke.voice.glide(NOTES[i].f);
+		stroke.key = i;
+		last = i;
+		sync();
 	}
+
+	function onUp(e: PointerEvent) {
+		const stroke = pointers.get(e.pointerId);
+		if (!stroke) return;
+		stroke.voice.release();
+		pointers.delete(e.pointerId);
+		sync();
+	}
+
+	function onKeyDown(e: KeyboardEvent) {
+		if (e.metaKey || e.ctrlKey || e.altKey) return;
+		const i = NOTES.findIndex((n) => n.code === e.code);
+		if (i < 0) return;
+		// Claimed even on repeat, so the pad's page-wide keys never also fire on S.
+		e.preventDefault();
+		if (e.repeat || keyVoices.has(e.code)) return;
+		const voice = violin(NOTES[i].f);
+		last = i;
+		if (voice) keyVoices.set(e.code, { voice, key: i });
+		sync();
+	}
+
+	function onKeyUp(e: KeyboardEvent) {
+		const stroke = keyVoices.get(e.code);
+		if (!stroke) return;
+		stroke.voice.release();
+		keyVoices.delete(e.code);
+		sync();
+	}
+
+	/** Enter/Space on a focused key: one short bow stroke. */
+	function strum(i: number) {
+		const voice = violin(NOTES[i].f);
+		if (!voice) return;
+		const code = `click-${i}`;
+		keyVoices.get(code)?.voice.release();
+		keyVoices.set(code, { voice, key: i });
+		last = i;
+		sync();
+		setTimeout(() => {
+			if (keyVoices.get(code)?.voice !== voice) return;
+			voice.release();
+			keyVoices.delete(code);
+			sync();
+		}, 450);
+	}
+
+	function releaseAll() {
+		for (const s of [...pointers.values(), ...keyVoices.values()]) s.voice.release();
+		pointers.clear();
+		keyVoices.clear();
+		sync();
+	}
+
+	/** The oscilloscope: runs only while a note sounds, plus a moment for the reverb tail. */
+	function draw() {
+		if (!raf && canvas) raf = requestAnimationFrame(frame);
+	}
+
+	let buf: Float32Array<ArrayBuffer> | null = null;
+
+	function frame() {
+		raf = 0;
+		const c = canvas;
+		const g = c?.getContext('2d');
+		if (!c || !g) return;
+		const dpr = window.devicePixelRatio || 1;
+		const w = c.clientWidth;
+		const h = c.clientHeight;
+		if (c.width !== Math.round(w * dpr)) c.width = Math.round(w * dpr);
+		if (c.height !== Math.round(h * dpr)) c.height = Math.round(h * dpr);
+		g.setTransform(dpr, 0, 0, dpr, 0, 0);
+		g.clearRect(0, 0, w, h);
+
+		const styles = getComputedStyle(c);
+		g.strokeStyle = styles.getPropertyValue('--text').trim() || '#ccc';
+		g.globalAlpha = 0.09;
+		g.lineWidth = 1;
+		g.beginPath();
+		for (let x = 0; x <= w; x += w / 8) {
+			g.moveTo(Math.round(x) + 0.5, 0);
+			g.lineTo(Math.round(x) + 0.5, h);
+		}
+		g.moveTo(0, Math.round(h / 2) + 0.5);
+		g.lineTo(w, Math.round(h / 2) + 0.5);
+		g.stroke();
+
+		const an = analyser();
+		g.globalAlpha = 1;
+		g.strokeStyle = styles.getPropertyValue('--accent').trim() || '#36f2c2';
+		g.lineWidth = 1.6;
+		g.beginPath();
+		if (an) {
+			if (!buf || buf.length !== an.fftSize) buf = new Float32Array(an.fftSize);
+			an.getFloatTimeDomainData(buf);
+			// Trigger on a rising zero crossing so the waveform stands still instead of scrolling.
+			let start = 0;
+			for (let i = 1; i < buf.length / 2; i++) {
+				if (buf[i - 1] < 0 && buf[i] >= 0) {
+					start = i;
+					break;
+				}
+			}
+			const span = 900;
+			for (let i = 0; i < span; i++) {
+				const v = buf[start + i] ?? 0;
+				const x = (i / (span - 1)) * w;
+				const y = h / 2 - v * h * 1.4;
+				if (i) g.lineTo(x, y);
+				else g.moveTo(x, y);
+			}
+		} else {
+			g.moveTo(0, h / 2);
+			g.lineTo(w, h / 2);
+		}
+		g.stroke();
+
+		if (held.length || performance.now() - quietSince < 2200) raf = requestAnimationFrame(frame);
+	}
+
+	onMount(() => {
+		draw();
+		return () => {
+			cancelAnimationFrame(raf);
+			releaseAll();
+		};
+	});
+
+	const shown = $derived(last === null ? null : NOTES[last]);
 </script>
 
-<svelte:window onpointerup={up} onpointercancel={up} />
+<svelte:window onblur={releaseAll} />
 
-<ToyCard title="pentatonic keys" cue="drag across">
-	<!-- svelte-ignore a11y_no_static_element_interactions -->
-	<div class="keys" onpointermove={move}>
-		{#each PENTATONIC as _, i (i)}
-			<button
-				type="button"
-				class="key"
-				class:key--on={active === i}
-				data-key={i}
-				aria-label="Play {NAMES[i]}{i < 5 ? 4 : 5}"
-				onpointerdown={(e) => down(e, i)}
-				onclick={(e) => {
-					if (e.detail === 0) play(i);
-				}}
-			>
-				<span class="key__name" aria-hidden="true">{NAMES[i]}</span>
-			</button>
-		{/each}
-	</div>
-	<div class="voices" role="radiogroup" aria-label="Instrument">
-		{#each ['violin', 'chip'] as const as v (v)}
-			<button
-				type="button"
-				role="radio"
-				class="voice"
-				aria-checked={voice === v}
-				onclick={() => {
-					voice = v;
-					play(4);
-				}}
-			>
-				{v === 'violin' ? '🎻 violin' : '👾 chip'}
-			</button>
-		{/each}
+<ToyCard n="05" title="violin" blurb="Bowed, not beeped. Hold a key to sustain; drag across for a legato slide." keys={['a', '…', ';']} wide>
+	<div class="layout">
+		<!-- svelte-ignore a11y_no_noninteractive_tabindex, a11y_no_noninteractive_element_interactions -->
+		<div
+			class="board"
+			role="group"
+			aria-label="Violin keys. With focus here, keys A through semicolon play G3 to E5."
+			tabindex="0"
+			bind:this={board}
+			onpointerdown={onDown}
+			onpointermove={onMove}
+			onpointerup={onUp}
+			onpointercancel={onUp}
+			onkeydown={onKeyDown}
+			onkeyup={onKeyUp}
+			onblur={(e) => {
+				if (!board?.contains(e.relatedTarget as Node)) releaseAll();
+			}}
+		>
+			{#each NOTES as note, i (i)}
+				<button
+					type="button"
+					class="key"
+					class:key--on={held.includes(i)}
+					data-key={i}
+					tabindex="-1"
+					aria-label="{note.name}{note.oct}"
+					onclick={(e) => {
+						if (e.detail === 0) strum(i);
+					}}
+				>
+					<span class="key__led" aria-hidden="true"></span>
+					<span class="key__name" aria-hidden="true">{note.name}<sub>{note.oct}</sub></span>
+					<kbd class="key__kbd" aria-hidden="true">{note.key}</kbd>
+				</button>
+			{/each}
+		</div>
+
+		<div class="readout">
+			<div class="note" aria-live="polite">
+				{#if shown}
+					<span class="note__name">{shown.name}<sub>{shown.oct}</sub></span>
+					<span class="note__hz">{shown.f.toFixed(2)} Hz</span>
+				{:else}
+					<span class="note__name note__name--idle">—</span>
+					<span class="note__hz">press a key</span>
+				{/if}
+			</div>
+			<div class="scope"><canvas bind:this={canvas} aria-hidden="true"></canvas></div>
+		</div>
 	</div>
 </ToyCard>
 
 <style>
-	.keys {
+	.layout {
+		display: grid;
+		grid-template-columns: minmax(0, 1fr);
+		gap: 1rem;
+	}
+
+	@media (min-width: 900px) {
+		.layout {
+			grid-template-columns: minmax(0, 1.7fr) minmax(16rem, 1fr);
+		}
+	}
+
+	.board {
 		display: grid;
 		grid-template-columns: repeat(10, minmax(0, 1fr));
-		gap: 0.2rem;
-		height: 8rem;
+		gap: 3px;
+		height: 10.5rem;
+		padding: 3px;
+		border: 1px solid var(--border);
+		background: color-mix(in srgb, #000 35%, var(--panel-2));
 		touch-action: none;
-	}
-
-	.key {
-		display: flex;
-		align-items: flex-end;
-		justify-content: center;
-		padding-bottom: 0.4rem;
-		border: 1px solid var(--border);
-		border-top: 0;
-		background: linear-gradient(180deg, var(--panel-2), var(--panel));
-		color: var(--muter);
-		font: inherit;
-		font-size: 0.7rem;
-		cursor: pointer;
 		user-select: none;
-		-webkit-tap-highlight-color: transparent;
-		transition: background-color 0.08s, transform 0.08s;
+		outline-offset: 3px;
 	}
 
-	/* Each key gets a step of the hue wheel, so a run up the keyboard is a little rainbow. */
-	.key:nth-child(1) { --h: 160; }
-	.key:nth-child(2) { --h: 180; }
-	.key:nth-child(3) { --h: 200; }
-	.key:nth-child(4) { --h: 230; }
-	.key:nth-child(5) { --h: 265; }
-	.key:nth-child(6) { --h: 300; }
-	.key:nth-child(7) { --h: 330; }
-	.key:nth-child(8) { --h: 10; }
-	.key:nth-child(9) { --h: 35; }
-	.key:nth-child(10) { --h: 50; }
+	:global([data-theme='light']) .board {
+		background: color-mix(in srgb, #14211f 12%, var(--panel-2));
+	}
 
-	/* The idle cue: each key wears its note's colour as a strip along the bottom edge. */
 	.key {
-		box-shadow: inset 0 -0.35rem 0 hsl(var(--h) 75% 55%);
-	}
-
-	.key--on,
-	.key:active {
-		background: hsl(var(--h) 80% 55%);
-		color: #04130f;
-		transform: translateY(2px);
-	}
-
-	.voices {
-		display: flex;
-		gap: 0.4rem;
-		margin-top: auto;
-	}
-
-	.voice {
-		min-height: 2.75rem;
-		padding: 0 0.85rem;
-		border: 1px solid var(--border);
-		background: var(--panel-2);
+		position: relative;
+		display: grid;
+		grid-template-rows: auto 1fr auto;
+		justify-items: center;
+		padding: 0.45rem 0 0.4rem;
+		border: 0;
+		background: linear-gradient(180deg, color-mix(in srgb, var(--text) 4%, var(--panel)), var(--panel));
 		color: var(--muted);
 		font: inherit;
-		font-size: 0.82rem;
 		cursor: pointer;
+		-webkit-tap-highlight-color: transparent;
+		transition: background-color 0.1s;
 	}
 
-	.voice[aria-checked='true'] {
-		border-color: var(--accent);
-		color: var(--accent-text);
-		background: color-mix(in srgb, var(--accent) 10%, var(--panel));
+	.key:hover {
+		background: color-mix(in srgb, var(--text) 7%, var(--panel));
+	}
+
+	.key__led {
+		width: 0.4rem;
+		height: 0.4rem;
+		border-radius: 50%;
+		background: var(--border);
+		transition: background-color 0.08s, box-shadow 0.08s;
+	}
+
+	.key__name {
+		align-self: end;
+		color: var(--text);
+		font-size: 0.82rem;
+		font-weight: 600;
+	}
+
+	.key__name sub {
+		color: var(--muter);
+		font-size: 0.6rem;
+		font-weight: 400;
+	}
+
+	.key__kbd {
+		margin-top: 0.35rem;
+		color: var(--muter);
+		font: inherit;
+		font-size: 0.6rem;
+		text-transform: uppercase;
+	}
+
+	.key--on {
+		background: color-mix(in srgb, var(--accent) 16%, var(--panel));
+	}
+
+	.key--on .key__led {
+		background: var(--accent);
+		box-shadow: 0 0 0.5rem var(--accent);
+	}
+
+	.readout {
+		display: grid;
+		grid-template-rows: auto minmax(0, 1fr);
+		gap: 0.6rem;
+		height: 10.5rem;
+	}
+
+	.note {
+		display: flex;
+		align-items: baseline;
+		justify-content: space-between;
+		gap: 0.75rem;
+	}
+
+	.note__name {
+		color: var(--text);
+		font-size: 1.7rem;
+		font-weight: 600;
+		line-height: 1;
+	}
+
+	.note__name sub {
+		color: var(--muted);
+		font-size: 0.85rem;
+	}
+
+	.note__name--idle {
+		color: var(--muter);
+	}
+
+	.note__hz {
+		color: var(--muted);
+		font-size: 0.76rem;
+		font-variant-numeric: tabular-nums;
+	}
+
+	/* The canvas is sized from its box every frame, so it must not be able to size the box: it sits
+	   absolutely inside a wrapper whose height the grid fixes. */
+	.scope {
+		position: relative;
+		min-height: 0;
+		border: 1px solid var(--border);
+		background: color-mix(in srgb, #000 30%, var(--panel-2));
+	}
+
+	.scope canvas {
+		position: absolute;
+		inset: 0;
+		width: 100%;
+		height: 100%;
+	}
+
+	:global([data-theme='light']) .scope {
+		background: var(--panel-2);
+	}
+
+	@media (max-width: 480px) {
+		.key__kbd {
+			display: none;
+		}
 	}
 </style>

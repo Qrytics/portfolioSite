@@ -21,18 +21,25 @@
 		<header class="head">
 			<div>
 				<h2 class="title" id="playground-title"><span aria-hidden="true">~/</span>playground</h2>
-				<p class="lead">Things I'd build at 2am. Everything here is pressable, and most of it makes noise.</p>
+				<p class="lead">Six small machines, built by hand. All of them are playable; most of them make sound.</p>
 			</div>
 			<button type="button" class="sound" aria-pressed={!soundPref.enabled} onclick={onToggle}>
-				<span aria-hidden="true">{soundPref.enabled ? '🔊' : '🔇'}</span>
+				<svg viewBox="0 0 16 16" width="15" height="15" aria-hidden="true">
+					<path d="M2 6h3l4-3v10L5 10H2Z" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round" />
+					{#if soundPref.enabled}
+						<path d="M11.5 5.5a3.5 3.5 0 0 1 0 5M13.5 3.5a6.3 6.3 0 0 1 0 9" fill="none" stroke="currentColor" stroke-width="1.5" />
+					{:else}
+						<path d="M11 6l4 4M15 6l-4 4" stroke="currentColor" stroke-width="1.5" />
+					{/if}
+				</svg>
 				sound {soundPref.enabled ? 'on' : 'off'}
 			</button>
 		</header>
 
 		<div class="grid">
 			<LedPanel />
-			<RedButton />
 			<DancePad />
+			<RedButton />
 			<LogicGate />
 			<Keys />
 			<Duck />

@@ -12,6 +12,8 @@ import { soundManager } from './sound';
 let ctx: AudioContext | null = null;
 let out: GainNode | null = null;
 let noiseBuf: AudioBuffer | null = null;
+let room: GainNode | null = null;
+let scope: AnalyserNode | null = null;
 
 function audio(): { c: AudioContext; o: GainNode } | null {
 	if (typeof window === 'undefined' || !soundManager.isEnabled()) return null;
@@ -90,6 +92,154 @@ function burst(o: { dur: number; vol: number; type: BiquadFilterType; freq: numb
 	src.stop(t + o.dur + 0.02);
 }
 
+/**
+ * A shared hall: a convolver fed with a synthetic impulse response (decaying stereo noise), so the
+ * violin rings in a room instead of a box. Built once, on the first note that asks for it.
+ */
+function reverb(c: AudioContext, o: GainNode): GainNode {
+	if (room) return room;
+	const len = Math.floor(c.sampleRate * 2.2);
+	const ir = c.createBuffer(2, len, c.sampleRate);
+	for (let ch = 0; ch < 2; ch++) {
+		const d = ir.getChannelData(ch);
+		for (let i = 0; i < len; i++) d[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / len, 3.2);
+	}
+	const conv = c.createConvolver();
+	conv.buffer = ir;
+	const tone = c.createBiquadFilter();
+	tone.type = 'lowpass';
+	tone.frequency.value = 5200;
+	room = c.createGain();
+	room.gain.value = 0.32;
+	room.connect(conv).connect(tone).connect(o);
+	return room;
+}
+
+/** The master bus's analyser, for drawing what is playing. Null until the first sound. */
+export function analyser(): AnalyserNode | null {
+	if (!ctx || !out) return null;
+	if (!scope) {
+		scope = ctx.createAnalyser();
+		scope.fftSize = 2048;
+		out.connect(scope);
+	}
+	return scope;
+}
+
+export interface Voice {
+	/** Slide to a new pitch without re-bowing — a legato shift. */
+	glide(freq: number): void;
+	release(): void;
+}
+
+/**
+ * A bowed violin, sustained until `release()`. Two slightly detuned sawtooths (the bowed string's
+ * stick-slip waveform) through a violin body — resonances near 280 Hz and 450 Hz, the 2.5–3 kHz
+ * "bridge hill", a dip in the nasal band — plus bow hiss and a scratch at the start of the stroke.
+ * Vibrato fades in after the note speaks, the way a player's does; the bow pressure wavers a little.
+ */
+export function violin(freq: number, vol = 0.5): Voice | null {
+	const a = audio();
+	if (!a) return null;
+	const { c, o } = a;
+	const t = c.currentTime;
+	const nodes: AudioScheduledSourceNode[] = [];
+
+	const hp = c.createBiquadFilter();
+	hp.type = 'highpass';
+	hp.frequency.value = 170;
+	const body = [
+		{ type: 'peaking', f: 280, q: 1.4, g: 5 },
+		{ type: 'peaking', f: 460, q: 1.6, g: 3 },
+		{ type: 'peaking', f: 1150, q: 1.2, g: -5 },
+		{ type: 'peaking', f: 2700, q: 1.1, g: 6 },
+		{ type: 'lowpass', f: 7000, q: 0.6, g: 0 }
+	].map((b) => {
+		const f = c.createBiquadFilter();
+		f.type = b.type as BiquadFilterType;
+		f.frequency.value = b.f;
+		f.Q.value = b.q;
+		f.gain.value = b.g;
+		return f;
+	});
+	body.reduce<AudioNode>((prev, f) => prev.connect(f), hp);
+	const tail = body[body.length - 1];
+
+	const amp = c.createGain();
+	amp.gain.setValueAtTime(0, t);
+	amp.gain.setTargetAtTime(vol * 0.85, t, 0.045);
+	amp.gain.setTargetAtTime(vol, t + 0.2, 0.3);
+	tail.connect(amp);
+	amp.connect(o);
+	amp.connect(reverb(c, o));
+
+	const strings = [0, 6].map((cents) => {
+		const s = c.createOscillator();
+		s.type = 'sawtooth';
+		s.frequency.setValueAtTime(freq, t);
+		s.detune.value = cents;
+		const g = c.createGain();
+		g.gain.value = 0.5;
+		s.connect(g).connect(hp);
+		s.start(t);
+		nodes.push(s);
+		return s;
+	});
+
+	const lfo = c.createOscillator();
+	lfo.frequency.value = 5.7;
+	const depth = c.createGain();
+	depth.gain.setValueAtTime(0, t);
+	depth.gain.setTargetAtTime(freq * 0.0065, t + 0.22, 0.18);
+	lfo.connect(depth);
+	for (const s of strings) depth.connect(s.frequency);
+	lfo.start(t);
+	nodes.push(lfo);
+
+	const waver = c.createOscillator();
+	waver.frequency.value = 0.9 + Math.random() * 0.6;
+	const waverDepth = c.createGain();
+	waverDepth.gain.value = vol * 0.06;
+	waver.connect(waverDepth).connect(amp.gain);
+	waver.start(t);
+	nodes.push(waver);
+
+	const hiss = c.createBufferSource();
+	hiss.buffer = noise(c);
+	hiss.loop = true;
+	const hissF = c.createBiquadFilter();
+	hissF.type = 'bandpass';
+	hissF.frequency.value = Math.min(freq * 6, 6000);
+	hissF.Q.value = 0.8;
+	const hissG = c.createGain();
+	hissG.gain.setValueAtTime(vol * 0.35, t);
+	hissG.gain.setTargetAtTime(vol * 0.05, t + 0.03, 0.05);
+	hiss.connect(hissF).connect(hissG).connect(amp);
+	hiss.start(t);
+	nodes.push(hiss);
+
+	let done = false;
+	return {
+		glide(next) {
+			if (done) return;
+			const now = c.currentTime;
+			for (const s of strings) s.frequency.setTargetAtTime(next, now, 0.03);
+			depth.gain.setTargetAtTime(next * 0.0065, now, 0.1);
+			hissF.frequency.setTargetAtTime(Math.min(next * 6, 6000), now, 0.03);
+		},
+		release() {
+			if (done) return;
+			done = true;
+			const now = c.currentTime;
+			amp.gain.cancelScheduledValues(now);
+			amp.gain.setValueAtTime(amp.gain.value, now);
+			amp.gain.setTargetAtTime(0, now, 0.09);
+			waverDepth.gain.setTargetAtTime(0, now, 0.03);
+			for (const n of nodes) n.stop(now + 0.7);
+		}
+	};
+}
+
 /** C major pentatonic, two octaves — any sequence of these sounds fine. */
 export const PENTATONIC = [261.63, 293.66, 329.63, 392.0, 440.0, 523.25, 587.33, 659.25, 783.99, 880.0];
 
@@ -108,7 +258,41 @@ export const sfx = {
 		for (let i = 0; i < 3; i++) burst({ dur: 0.05, vol: 0.38, type: 'bandpass', freq: 1500, delay: i * 0.012 });
 	},
 	tom: () => tone(220, { type: 'sine', dur: 0.24, vol: 0.7, slideTo: 110 }),
-	violin: (freq: number) => tone(freq, { type: 'sawtooth', dur: 0.55, vol: 0.18, attack: 0.06, vibrato: 1 }),
+	violin: (freq: number) => {
+		const v = violin(freq);
+		setTimeout(() => v?.release(), 420);
+	},
+	quack: () => {
+		const a = audio();
+		if (!a) return;
+		const t = a.c.currentTime;
+		const f = a.c.createBiquadFilter();
+		f.type = 'bandpass';
+		f.Q.value = 3.5;
+		f.frequency.setValueAtTime(1300, t);
+		f.frequency.exponentialRampToValueAtTime(800, t + 0.18);
+		const g = a.c.createGain();
+		g.gain.setValueAtTime(0.0001, t);
+		g.gain.exponentialRampToValueAtTime(0.9, t + 0.015);
+		g.gain.exponentialRampToValueAtTime(0.0001, t + 0.2);
+		f.connect(g).connect(a.o);
+		for (const d of [0, 7]) {
+			const o = a.c.createOscillator();
+			o.type = 'sawtooth';
+			o.detune.value = d;
+			o.frequency.setValueAtTime(520, t);
+			o.frequency.exponentialRampToValueAtTime(330, t + 0.18);
+			o.connect(f);
+			o.start(t);
+			o.stop(t + 0.22);
+		}
+	},
+	splash: (size = 1) => {
+		const s = Math.min(1, Math.max(0.2, size));
+		burst({ dur: 0.12 + 0.25 * s, vol: 0.35 * s, type: 'lowpass', freq: 1800 });
+		burst({ dur: 0.08 + 0.12 * s, vol: 0.2 * s, type: 'bandpass', freq: 3200, delay: 0.02 });
+		tone(700, { type: 'sine', dur: 0.09, vol: 0.12 * s, slideTo: 1500, delay: 0.05 });
+	},
 	squeak: () => tone(1250, { type: 'square', dur: 0.12, vol: 0.12, slideTo: 1900 }),
 	boing: () => tone(180, { type: 'sine', dur: 0.25, vol: 0.4, slideTo: 520 }),
 	coin: () => {

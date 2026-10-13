@@ -14,7 +14,7 @@
 		'you are now in the top 1% of button pressers.',
 		'i am telling the duck.',
 		'…',
-		'ok you win. 🎉'
+		'fine. you win.'
 	];
 
 	let presses = $state(0);
@@ -29,7 +29,7 @@
 			burstAt(...centerOf(el), { count: 24, spread: 130 });
 		} else if (presses > LINES.length) {
 			sfx.pop();
-			burstAt(...centerOf(el), { count: 8, spread: 70, glyphs: ['🎉', '✨', '💥'] });
+			burstAt(...centerOf(el), { count: 8, spread: 70 });
 		} else {
 			sfx.buzz();
 		}
@@ -40,7 +40,7 @@
 	}
 </script>
 
-<ToyCard title="do_not_press.exe" cue="don't">
+<ToyCard n="03" title="do not press" blurb="It says so right on the plate.">
 	<div class="wrap">
 		<div class="housing" class:housing--shake={shaking} onanimationend={() => (shaking = false)}>
 			<button type="button" class="big" onclick={press} aria-describedby="dnp-line">

@@ -14,7 +14,7 @@
 	const binary = $derived(bits.map((b) => (b ? '1' : '0')).join(''));
 	const ascii = $derived(value >= 33 && value <= 126 ? `'${String.fromCharCode(value)}'` : '—');
 	const note = $derived(
-		value === 0x4d ? "M — for Mario" : value === 255 ? 'all high. maximum power.' : value === 0 ? 'all low. lights out.' : value === 42 ? 'the answer.' : ''
+		value === 0x4d ? "M, for Mario" : value === 255 ? 'all high. maximum power.' : value === 0 ? 'all low. lights out.' : value === 42 ? 'the answer.' : ''
 	);
 
 	function flip(i: number, e: MouseEvent) {
@@ -56,7 +56,7 @@
 	onDestroy(() => clearInterval(showTimer));
 </script>
 
-<ToyCard title="8-bit register" cue="flip switches" lead>
+<ToyCard n="01" title="8-bit register" blurb="Eight switches, one byte. The readout decodes it as you flip." lead>
 	<div class="panel" bind:this={root}>
 		<div class="leds" aria-hidden="true">
 			{#each bits as on, i (i)}
@@ -87,10 +87,10 @@
 	</p>
 	{#if note}<p class="note">// {note}</p>{/if}
 
-	<div class="row">
-		<button type="button" class="btn" onclick={lightShow}>▶ light show</button>
-		<button type="button" class="btn" onclick={() => setAll(true)}>all on</button>
-		<button type="button" class="btn" onclick={() => setAll(false)}>clear</button>
+	<div class="toy-row">
+		<button type="button" class="toy-btn" onclick={lightShow}>light show</button>
+		<button type="button" class="toy-btn" onclick={() => setAll(true)}>all on</button>
+		<button type="button" class="toy-btn" onclick={() => setAll(false)}>clear</button>
 	</div>
 </ToyCard>
 
@@ -200,30 +200,4 @@
 		font-size: 0.8rem;
 	}
 
-	.row {
-		display: flex;
-		flex-wrap: wrap;
-		gap: 0.45rem;
-		margin-top: auto;
-	}
-
-	.btn {
-		min-height: 2.75rem;
-		padding: 0 0.9rem;
-		border: 1px solid var(--border);
-		background: var(--panel-2);
-		color: var(--text);
-		font: inherit;
-		font-size: 0.82rem;
-		cursor: pointer;
-	}
-
-	.btn:hover {
-		border-color: color-mix(in srgb, var(--accent) 55%, var(--border));
-		color: var(--accent-text);
-	}
-
-	.btn:active {
-		transform: translateY(1px);
-	}
 </style>
