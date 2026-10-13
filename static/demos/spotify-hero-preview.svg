@@ -1,18 +1,93 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="1024" height="576" viewBox="0 0 1024 576">
-  <defs>
-    <pattern id="dotGrid" width="32" height="32" patternUnits="userSpaceOnUse">
-      <circle cx="4" cy="4" r="1.25" fill="#34d399" opacity="0.46"/>
-    </pattern>
-  </defs>
-  <rect width="1024" height="576" fill="#0f1528"/>
-  <rect width="1024" height="576" fill="url(#dotGrid)"/>
-  <rect x="0" y="0" width="4" height="576" fill="#34d399" opacity="0.9"/>
-  <circle cx="956" cy="58" r="90" fill="#34d399" opacity="0.9"/>
-  <circle cx="960" cy="574" r="86" fill="#10b981" opacity="0.88"/>
-  <text x="64" y="166" fill="#f8fafc" font-size="62" font-family="Inter,Segoe UI,Arial,sans-serif" font-weight="600">Spotify Hero</text>
-  <text x="64" y="224" fill="#a7f3d0" font-size="24" font-family="Inter,Segoe UI,Arial,sans-serif" font-weight="400">Live Spotify rhythm challenge companion</text>
-  <line x1="64" y1="252" x2="960" y2="252" stroke="#34d399" stroke-width="2" opacity="0.62"/>
-  <rect x="64" y="270" width="116" height="34" rx="8" fill="#233a31"/><text x="76" y="293" fill="#a7f3d0" font-size="17" font-family="Inter,Segoe UI,Arial,sans-serif" font-weight="500">TypeScript</text>
-  <rect x="188" y="270" width="126" height="34" rx="8" fill="#233a31"/><text x="200" y="293" fill="#a7f3d0" font-size="17" font-family="Inter,Segoe UI,Arial,sans-serif" font-weight="500">Spotify API</text>
-  <text x="64" y="536" fill="#a7f3d0" font-size="20" font-family="Inter,Segoe UI,Arial,sans-serif" font-weight="400">github.com/Qrytics/spotifyHero</text>
+<defs>
+<radialGradient id="glow" cx="0.33" cy="0.95" r="0.75"><stop offset="0" stop-color="#1db954" stop-opacity="0.22"/><stop offset="1" stop-color="#1db954" stop-opacity="0"/></radialGradient>
+<linearGradient id="hw" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#0d1117" stop-opacity="0.2"/><stop offset="1" stop-color="#151a22"/></linearGradient>
+<linearGradient id="fade" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#0b0d12"/><stop offset="0.28" stop-color="#0b0d12" stop-opacity="0"/></linearGradient>
+<linearGradient id="art" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#1db954"/><stop offset="0.55" stop-color="#0e7a5a"/><stop offset="1" stop-color="#1e1b4b"/></linearGradient>
+<radialGradient id="burst22c55e" cx="0.5" cy="0.5" r="0.5"><stop offset="0" stop-color="#22c55e" stop-opacity="0.85"/><stop offset="1" stop-color="#22c55e" stop-opacity="0"/></radialGradient>
+<radialGradient id="burstef4444" cx="0.5" cy="0.5" r="0.5"><stop offset="0" stop-color="#ef4444" stop-opacity="0.85"/><stop offset="1" stop-color="#ef4444" stop-opacity="0"/></radialGradient>
+<radialGradient id="bursteab308" cx="0.5" cy="0.5" r="0.5"><stop offset="0" stop-color="#eab308" stop-opacity="0.85"/><stop offset="1" stop-color="#eab308" stop-opacity="0"/></radialGradient>
+<radialGradient id="burst3b82f6" cx="0.5" cy="0.5" r="0.5"><stop offset="0" stop-color="#3b82f6" stop-opacity="0.85"/><stop offset="1" stop-color="#3b82f6" stop-opacity="0"/></radialGradient>
+</defs>
+<rect width="1024" height="576" fill="#0b0d12"/>
+<rect width="1024" height="576" fill="url(#glow)"/>
+<path d="M296 92 L404 92 L608 486 L92 486 Z" fill="url(#hw)" stroke="#232a35" stroke-width="2"/>
+<line x1="323.0" y1="92" x2="221.0" y2="486" stroke="#232a35" stroke-width="1.5"/>
+<line x1="350.0" y1="92" x2="350.0" y2="486" stroke="#232a35" stroke-width="1.5"/>
+<line x1="377.0" y1="92" x2="479.0" y2="486" stroke="#232a35" stroke-width="1.5"/>
+<line x1="289.9" y1="103.7" x2="410.1" y2="103.7" stroke="#2b3340" stroke-width="0.83" opacity="0.26"/>
+<line x1="277.6" y1="127.5" x2="422.4" y2="127.5" stroke="#2b3340" stroke-width="0.89" opacity="0.30"/>
+<line x1="260.8" y1="159.9" x2="439.2" y2="159.9" stroke="#2b3340" stroke-width="0.97" opacity="0.34"/>
+<line x1="240.3" y1="199.6" x2="459.7" y2="199.6" stroke="#2b3340" stroke-width="1.07" opacity="0.39"/>
+<line x1="216.3" y1="245.8" x2="483.7" y2="245.8" stroke="#2b3340" stroke-width="1.19" opacity="0.45"/>
+<line x1="189.4" y1="297.9" x2="510.6" y2="297.9" stroke="#2b3340" stroke-width="1.32" opacity="0.51"/>
+<line x1="159.5" y1="355.6" x2="540.5" y2="355.6" stroke="#2b3340" stroke-width="1.47" opacity="0.58"/>
+<line x1="127.0" y1="418.3" x2="573.0" y2="418.3" stroke="#2b3340" stroke-width="1.63" opacity="0.66"/>
+<rect x="0" y="0" width="1024" height="576" fill="url(#fade)"/>
+<rect x="284.3" y="120.4" width="26.0" height="6.2" rx="2.6" fill="#22c55e"/>
+<rect x="287.4" y="121.5" width="19.8" height="1.7" rx="0.9" fill="#ffffff" opacity="0.45"/>
+<rect x="355.4" y="143.6" width="30.5" height="7.1" rx="3.0" fill="#eab308"/>
+<rect x="359.0" y="144.9" width="23.2" height="2.0" rx="1.0" fill="#ffffff" opacity="0.45"/>
+<rect x="307.0" y="174.5" width="36.6" height="8.3" rx="3.5" fill="#ef4444"/>
+<rect x="311.4" y="176.0" width="27.8" height="2.3" rx="1.2" fill="#ffffff" opacity="0.45"/>
+<rect x="415.1" y="205.4" width="42.6" height="9.5" rx="4.0" fill="#3b82f6"/>
+<rect x="420.2" y="207.2" width="32.4" height="2.7" rx="1.3" fill="#ffffff" opacity="0.45"/>
+<path d="M238.3 257.5 L267.6 186.6 L277.9 186.6 L252.2 257.5 Z" fill="#22c55e" opacity="0.55"/>
+<rect x="219.4" y="251.8" width="51.7" height="11.3" rx="4.7" fill="#22c55e"/>
+<rect x="225.6" y="253.9" width="39.3" height="3.2" rx="1.6" fill="#ffffff" opacity="0.45"/>
+<rect x="452.0" y="329.1" width="66.8" height="14.3" rx="6.0" fill="#3b82f6"/>
+<rect x="460.0" y="331.7" width="50.8" height="4.0" rx="2.0" fill="#ffffff" opacity="0.45"/>
+<rect x="262.6" y="367.8" width="74.3" height="15.8" rx="6.6" fill="#ef4444"/>
+<rect x="271.5" y="370.6" width="56.5" height="4.4" rx="2.2" fill="#ffffff" opacity="0.45"/>
+<path d="M394.7 419.0 L389.8 371.7 L409.7 371.7 L417.0 419.0 Z" fill="#eab308" opacity="0.55"/>
+<rect x="364.5" y="410.3" width="82.6" height="17.4" rx="7.3" fill="#eab308"/>
+<rect x="374.4" y="413.4" width="62.8" height="4.9" rx="2.4" fill="#ffffff" opacity="0.45"/>
+<line x1="104.2" y1="462.4" x2="595.8" y2="462.4" stroke="#e5e7eb" stroke-width="2.5" opacity="0.7"/>
+<ellipse cx="165.7" cy="462.4" rx="116.7" ry="67.6" fill="url(#burst22c55e)"/>
+<rect x="131.7" y="432.4" width="5" height="5" fill="#22c55e" opacity="0.90" transform="rotate(45 134.2 434.9)"/>
+<rect x="195.7" y="424.4" width="5" height="5" fill="#22c55e" opacity="0.78" transform="rotate(45 198.2 426.9)"/>
+<rect x="159.7" y="412.4" width="5" height="5" fill="#22c55e" opacity="0.66" transform="rotate(45 162.2 414.9)"/>
+<rect x="205.7" y="448.4" width="5" height="5" fill="#22c55e" opacity="0.54" transform="rotate(45 208.2 450.9)"/>
+<rect x="121.7" y="454.4" width="5" height="5" fill="#22c55e" opacity="0.42" transform="rotate(45 124.2 456.9)"/>
+<rect x="119.0" y="451.4" width="93.4" height="22" rx="10" fill="#22c55e" stroke="#22c55e" stroke-width="3"/>
+<text x="165.7" y="508.4" fill="#22c55e" font-size="17" font-weight="700" font-family="Inter,'Segoe UI',Helvetica,Arial,sans-serif" text-anchor="middle">D</text>
+<rect x="241.9" y="451.4" width="93.4" height="22" rx="10" fill="#11151c" stroke="#ef4444" stroke-width="3"/>
+<text x="288.6" y="508.4" fill="#ef4444" font-size="17" font-weight="700" font-family="Inter,'Segoe UI',Helvetica,Arial,sans-serif" text-anchor="middle">F</text>
+<rect x="364.7" y="451.4" width="93.4" height="22" rx="10" fill="#11151c" stroke="#eab308" stroke-width="3"/>
+<text x="411.4" y="508.4" fill="#eab308" font-size="17" font-weight="700" font-family="Inter,'Segoe UI',Helvetica,Arial,sans-serif" text-anchor="middle">J</text>
+<rect x="487.6" y="451.4" width="93.4" height="22" rx="10" fill="#11151c" stroke="#3b82f6" stroke-width="3"/>
+<text x="534.3" y="508.4" fill="#3b82f6" font-size="17" font-weight="700" font-family="Inter,'Segoe UI',Helvetica,Arial,sans-serif" text-anchor="middle">K</text>
+<text x="350" y="300" fill="#f8fafc" font-size="40" font-weight="800" font-family="Inter,'Segoe UI',Helvetica,Arial,sans-serif" text-anchor="middle" letter-spacing="3" opacity="0.95">PERFECT</text>
+<text x="350" y="332" fill="#1db954" font-size="20" font-weight="700" font-family="Inter,'Segoe UI',Helvetica,Arial,sans-serif" text-anchor="middle">142× combo</text>
+<text x="40" y="52" fill="#f8fafc" font-size="26" font-weight="700" font-family="Inter,'Segoe UI',Helvetica,Arial,sans-serif">spotify<tspan fill="#1db954">Hero</tspan></text>
+<rect x="196" y="32" width="66" height="26" rx="13" fill="#1db954"/><text x="229" y="50" fill="#06130b" font-size="13" font-weight="700" font-family="Inter,'Segoe UI',Helvetica,Arial,sans-serif" text-anchor="middle">expert</text>
+<rect x="676" y="32" width="308" height="150" rx="14" fill="#12161d" stroke="#1f2630"/>
+<rect x="694" y="50" width="78" height="78" rx="8" fill="url(#art)"/>
+<circle cx="733" cy="89" r="22" fill="none" stroke="#ffffff" stroke-opacity="0.35" stroke-width="2"/><circle cx="733" cy="89" r="5" fill="#ffffff" opacity="0.6"/>
+<text x="788" y="66" fill="#9ca3af" font-size="12" font-weight="600" font-family="Inter,'Segoe UI',Helvetica,Arial,sans-serif" letter-spacing="1.5">NOW PLAYING</text>
+<text x="788" y="92" fill="#f8fafc" font-size="20" font-weight="700" font-family="Inter,'Segoe UI',Helvetica,Arial,sans-serif">Neon Skyline</text>
+<text x="788" y="114" fill="#9ca3af" font-size="15" font-family="Inter,'Segoe UI',Helvetica,Arial,sans-serif">Demo Artist</text>
+<rect x="694" y="150" width="272" height="5" rx="2.5" fill="#2a313c"/><rect x="694" y="150" width="112" height="5" rx="2.5" fill="#1db954"/><circle cx="806" cy="152.5" r="6" fill="#f8fafc"/>
+<text x="694" y="174" fill="#6b7280" font-size="12" font-family="Inter,'Segoe UI',Helvetica,Arial,sans-serif">1:12</text><text x="966" y="174" fill="#6b7280" font-size="12" font-family="Inter,'Segoe UI',Helvetica,Arial,sans-serif" text-anchor="end">3:04</text>
+<rect x="676" y="198" width="308" height="186" rx="14" fill="#12161d" stroke="#1f2630"/>
+<text x="694" y="230" fill="#f8fafc" font-size="17" font-weight="700" font-family="Inter,'Segoe UI',Helvetica,Arial,sans-serif">Run Stats</text>
+<text x="694" y="268" fill="#9ca3af" font-size="15" font-family="Inter,'Segoe UI',Helvetica,Arial,sans-serif">Score</text>
+<text x="966" y="268" fill="#f8fafc" font-size="19" font-weight="700" font-family="Inter,'Segoe UI',Helvetica,Arial,sans-serif" text-anchor="end">128,450</text>
+<text x="694" y="308" fill="#9ca3af" font-size="15" font-family="Inter,'Segoe UI',Helvetica,Arial,sans-serif">Accuracy</text>
+<text x="966" y="308" fill="#1db954" font-size="19" font-weight="700" font-family="Inter,'Segoe UI',Helvetica,Arial,sans-serif" text-anchor="end">97.8%</text>
+<text x="694" y="348" fill="#9ca3af" font-size="15" font-family="Inter,'Segoe UI',Helvetica,Arial,sans-serif">Max Combo</text>
+<text x="966" y="348" fill="#f8fafc" font-size="19" font-weight="700" font-family="Inter,'Segoe UI',Helvetica,Arial,sans-serif" text-anchor="end">142</text>
+<rect x="694" y="358" width="272" height="8" rx="4" fill="#2a313c"/><rect x="694" y="358" width="266" height="8" rx="4" fill="#1db954"/>
+<rect x="676" y="400" width="308" height="144" rx="14" fill="#12161d" stroke="#1f2630"/>
+<text x="694" y="432" fill="#f8fafc" font-size="17" font-weight="700" font-family="Inter,'Segoe UI',Helvetica,Arial,sans-serif">Top Players</text>
+<text x="694" y="464" fill="#6b7280" font-size="14" font-family="Inter,'Segoe UI',Helvetica,Arial,sans-serif">1</text>
+<text x="716" y="464" fill="#e5e7eb" font-size="15" font-weight="500" font-family="Inter,'Segoe UI',Helvetica,Arial,sans-serif">qrytics</text>
+<text x="966" y="464" fill="#9ca3af" font-size="14" font-family="Inter,'Segoe UI',Helvetica,Arial,sans-serif" text-anchor="end">131,920</text>
+<rect x="686" y="472" width="292" height="25" rx="6" fill="#1db954" fill-opacity="0.12"/>
+<text x="694" y="490" fill="#6b7280" font-size="14" font-family="Inter,'Segoe UI',Helvetica,Arial,sans-serif">2</text>
+<text x="716" y="490" fill="#1db954" font-size="15" font-weight="700" font-family="Inter,'Segoe UI',Helvetica,Arial,sans-serif">you</text>
+<text x="966" y="490" fill="#9ca3af" font-size="14" font-family="Inter,'Segoe UI',Helvetica,Arial,sans-serif" text-anchor="end">128,450</text>
+<text x="694" y="516" fill="#6b7280" font-size="14" font-family="Inter,'Segoe UI',Helvetica,Arial,sans-serif">3</text>
+<text x="716" y="516" fill="#e5e7eb" font-size="15" font-weight="500" font-family="Inter,'Segoe UI',Helvetica,Arial,sans-serif">basslane</text>
+<text x="966" y="516" fill="#9ca3af" font-size="14" font-family="Inter,'Segoe UI',Helvetica,Arial,sans-serif" text-anchor="end">119,300</text>
 </svg>
