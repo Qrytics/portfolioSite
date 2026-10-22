@@ -1,6 +1,6 @@
 <script lang="ts">
-	import { getRandomSnippet, ZenSnippetDeck, type Snippet } from '$lib/data/typetest-snippets';
-	import { tick } from 'svelte';
+	import { getRandomSnippet, snippets, ZenSnippetDeck, type Snippet } from '$lib/data/typetest-snippets';
+	import { onDestroy, onMount, tick } from 'svelte';
 	import { playSound, soundManager } from '$lib/utils/sound';
 	import { getLocalItem, setLocalItem } from '$lib/utils/safeStorage';
 
@@ -95,20 +95,47 @@
 
 	const leaderboard = $derived([...scores].sort((a, b) => b.wpm - a.wpm).slice(0, 10));
 
+	function sanitizeScore(item: unknown): Score | null {
+		if (!item || typeof item !== 'object') return null;
+		const s = item as Record<string, unknown>;
+		const wpm = typeof s.wpm === 'number' && Number.isFinite(s.wpm) && s.wpm >= 0 ? Math.round(s.wpm) : 0;
+		const accuracy =
+			typeof s.accuracy === 'number' && Number.isFinite(s.accuracy)
+				? Math.max(0, Math.min(100, Math.round(s.accuracy)))
+				: 100;
+		const duration =
+			typeof s.duration === 'number' && Number.isFinite(s.duration) && s.duration >= 0 ? s.duration : 0;
+		const difficulty: Difficulty =
+			s.difficulty === 'easy' || s.difficulty === 'hard' ? s.difficulty : 'medium';
+		const date = typeof s.date === 'string' && s.date ? s.date : new Date(0).toISOString();
+		const snippet = typeof s.snippet === 'string' ? s.snippet : '';
+		return { wpm, accuracy, duration, difficulty, date, snippet };
+	}
+
 	function readScores(): Score[] {
 		const stored = getLocalItem('typetest-scores');
 		if (!stored) return [];
 		try {
 			const parsed: unknown = JSON.parse(stored);
-			return Array.isArray(parsed) ? (parsed as Score[]) : [];
+			if (!Array.isArray(parsed)) return [];
+			const clean: Score[] = [];
+			for (const item of parsed) {
+				const sanitized = sanitizeScore(item);
+				if (sanitized) clean.push(sanitized);
+			}
+			return clean;
 		} catch {
 			return [];
 		}
 	}
 
-	$effect(() => {
+	onMount(() => {
 		scores = readScores();
 		soundOn = soundManager.isEnabled();
+	});
+
+	onDestroy(() => {
+		clearTimers();
 	});
 
 	function toggleSound() {
@@ -161,10 +188,6 @@
 		}
 	});
 
-	$effect(() => {
-		return clearTimers;
-	});
-
 	function startGame() {
 		clearTimers();
 
@@ -186,7 +209,7 @@
 			return;
 		}
 
-		snippet = getRandomSnippet(difficulty);
+		snippet = getRandomSnippet(difficulty) ?? snippets[0];
 		userInput = '';
 		mistakes = [];
 		startTime = null;
@@ -206,6 +229,19 @@
 				focusTimer = setTimeout(() => inputRef?.focus(), 50);
 			}
 		}, 1000);
+	}
+
+	function handleWindowKeyDown(e: KeyboardEvent) {
+		if (e.key === 'Escape') {
+			if (gameState === 'playing' || gameState === 'countdown') {
+				e.preventDefault();
+				if (mode === 'zen' && zenStats.patternsCompleted > 0) {
+					finishZen();
+				} else {
+					reset();
+				}
+			}
+		}
 	}
 
 	function handleKeyDown(e: KeyboardEvent) {
@@ -292,6 +328,8 @@
 	}
 </script>
 
+<svelte:window onkeydown={handleWindowKeyDown} />
+
 <div class="typetest">
 	<div class="typetest__header">
 		<h1 class="typetest__title">Type Speed Test</h1>
@@ -347,9 +385,6 @@
 						{/each}
 					</div>
 				</div>
-				<button bind:this={startBtn} type="button" class="btn btn--primary btn--large" onclick={startGame}>
-					Start Test
-				</button>
 			{:else}
 				<div class="zen-intro">
 					<p class="zen-intro__title">Endless Coding Patterns</p>
@@ -361,10 +396,11 @@
 						No timer countdown or pressure. Explore common architectural and algorithmic patterns while mastering programming muscle memory.
 					</p>
 				</div>
-				<button bind:this={startBtn} type="button" class="btn btn--primary btn--large" onclick={startGame}>
-					Start Zen Mode
-				</button>
 			{/if}
+
+			<button bind:this={startBtn} type="button" class="btn btn--primary btn--large" onclick={startGame}>
+				{mode === 'zen' ? 'Start Zen Mode' : 'Start Test'}
+			</button>
 		</div>
 	{/if}
 
@@ -534,7 +570,7 @@
 				<button type="button" class="leaderboard__clear" onclick={clearScores}>clear</button>
 			</div>
 			<div class="leaderboard__list">
-				{#each leaderboard as score, i (score.date + score.wpm)}
+				{#each leaderboard as score, i (`${score.date}-${score.wpm}-${i}`)}
 					<div class="leaderboard__item" class:leaderboard__item--new={score.date === latestScoreDate}>
 						<span class="leaderboard__rank">#{i + 1}</span>
 						<span class="leaderboard__wpm">{score.wpm} WPM</span>

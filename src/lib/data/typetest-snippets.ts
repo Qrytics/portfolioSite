@@ -791,6 +791,7 @@ export function getSnippetsByDifficulty(difficulty: 'easy' | 'medium' | 'hard' |
 
 export function getRandomSnippet(difficulty?: 'easy' | 'medium' | 'hard' | 'zen'): Snippet {
 	const pool = difficulty ? getSnippetsByDifficulty(difficulty) : snippets;
+	if (!pool || pool.length === 0) return snippets[0];
 	return pool[Math.floor(Math.random() * pool.length)];
 }
 
