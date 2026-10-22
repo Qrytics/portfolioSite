@@ -138,6 +138,11 @@ export interface Voice {
  * "bridge hill", a dip in the nasal band — plus bow hiss and a scratch at the start of the stroke.
  * Vibrato fades in after the note speaks, the way a player's does; the bow pressure wavers a little.
  */
+export function unlockAudio(): AudioContext | null {
+	const a = audio();
+	return a ? a.c : null;
+}
+
 export function violin(freq: number, vol = 0.5): Voice | null {
 	const a = audio();
 	if (!a) return null;
@@ -232,10 +237,17 @@ export function violin(freq: number, vol = 0.5): Voice | null {
 			done = true;
 			const now = c.currentTime;
 			amp.gain.cancelScheduledValues(now);
-			amp.gain.setValueAtTime(amp.gain.value, now);
-			amp.gain.setTargetAtTime(0, now, 0.09);
+			const currentVal = amp.gain.value > 0.01 ? amp.gain.value : vol * 0.6;
+			amp.gain.setValueAtTime(currentVal, now);
+			amp.gain.setTargetAtTime(0, now, 0.1);
 			waverDepth.gain.setTargetAtTime(0, now, 0.03);
-			for (const n of nodes) n.stop(now + 0.7);
+			for (const n of nodes) {
+				try {
+					n.stop(now + 0.7);
+				} catch {
+					// Ignored if already stopped
+				}
+			}
 		}
 	};
 }

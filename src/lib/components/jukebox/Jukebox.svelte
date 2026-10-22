@@ -23,6 +23,7 @@
 		load(url: string, opts: Record<string, unknown>): void;
 		toggle(): void;
 		pause(): void;
+		play(): void;
 		setVolume(v: number): void;
 	};
 	type SoundCloud = {
@@ -88,31 +89,65 @@
 		widget?.setVolume(soundPref.enabled ? Math.round(volume * volume * 100) : 0);
 	}
 
+	function togglePlay() {
+		if (!widget || !current) return;
+		if (playing) {
+			widget.pause();
+			paused = true;
+		} else {
+			widget.play();
+			paused = false;
+			stalled = false;
+			applyVolume();
+		}
+	}
+
 	/** `auto`: picked by the shuffle, not clicked — a track that won't start is skipped, not waited on. */
 	async function play(t: Track, auto = false) {
 		if (!t.url || broken.has(t.id)) return;
-		if (current?.id === t.id && widget) return widget.toggle();
+		if (current?.id === t.id && widget) {
+			togglePlay();
+			return;
+		}
 		current = t;
+		paused = true; // reset until playback is confirmed
 		failed = false;
 		stalled = false;
 		clearTimeout(stallTimer);
-		// Not started after a few seconds: SoundCloud's stream sometimes 404s, so reload the track
-		// once. Still nothing: a shuffled track is skipped; a clicked one asks for a press of the
-		// player's own play button, which also covers a browser that held autoplay back.
+
+		// Autoplay recovery timer: on mobile or strict browsers, autoplay without user interaction
+		// may be held back. If paused after a few seconds, retry load once, then mark stalled so
+		// the user can tap Play. Never mark tracks broken from autoplay blocks.
 		stallTimer = setTimeout(() => {
 			if (!paused || current?.id !== t.id || !t.url) return;
-			widget?.load(t.url, { ...PLAYER_OPTS, callback: applyVolume });
+			widget?.load(t.url, {
+				...PLAYER_OPTS,
+				callback: () => {
+					applyVolume();
+					if (!auto) widget?.play();
+				}
+			});
 			stallTimer = setTimeout(() => {
 				if (!paused || current?.id !== t.id) return;
-				if (auto) {
-					broken.add(t.id);
-					shuffle();
-				} else stalled = true;
-			}, 4000);
-		}, 4500);
+				stalled = true;
+			}, 3500);
+		}, 4000);
 
 		if (widget) {
-			widget.load(t.url, { ...PLAYER_OPTS, callback: applyVolume });
+			widget.load(t.url, {
+				...PLAYER_OPTS,
+				callback: () => {
+					applyVolume();
+					if (!auto) widget?.play();
+				}
+			});
+			if (!auto) {
+				try {
+					widget.play();
+				} catch {
+					// Ignored if widget not fully ready; callback will trigger it.
+				}
+			}
 			return;
 		}
 		// First disc: render the iframe while this click's user activation is fresh, so the
@@ -126,7 +161,10 @@
 		}
 		widget = SC.Widget(frame);
 		const E = SC.Widget.Events;
-		widget.bind(E.READY, applyVolume);
+		widget.bind(E.READY, () => {
+			applyVolume();
+			if (!auto) widget?.play();
+		});
 		widget.bind(E.PLAY, () => {
 			paused = false;
 			stalled = false;
@@ -136,7 +174,8 @@
 		widget.bind(E.FINISH, () => shuffle());
 		widget.bind(E.ERROR, () => {
 			if (current) broken.add(current.id);
-			shuffle();
+			if (!auto) shuffle();
+			else eject();
 		});
 	}
 
@@ -197,6 +236,7 @@
 
 	onMount(() => {
 		loadSoundPref();
+		void loadApi().catch(() => {});
 		const saved = Number(getLocalItem('jukebox-volume'));
 		if (Number.isFinite(saved) && saved >= 0 && saved <= 1 && getLocalItem('jukebox-volume') !== null) volume = saved;
 		return () => {
@@ -233,7 +273,9 @@
 					aria-label={empty ? 'Empty disc slot' : `${current?.id === t.id && playing ? 'Pause' : 'Play'} ${trackName(t)}`}
 					aria-disabled={empty}
 					onclick={() => play(t)}
-					onpointerenter={() => (tip = i)}
+					onpointerenter={(e) => {
+						if (e.pointerType !== 'touch') tip = i;
+					}}
 					onpointerleave={() => (tip = null)}
 					onfocus={() => (tip = i)}
 					onblur={() => (tip = null)}
@@ -266,22 +308,29 @@
 				<a href={current.url} target="_blank" rel="noopener noreferrer">SoundCloud ↗</a>
 			</p>
 		{/if}
-		{#if stalled}<p class="credit credit--hint">Press ▶ in the player below to start.</p>{/if}
+		{#if stalled}
+			<p class="credit credit--hint">Tap <strong>Play</strong> or ▶ in the player below to start.</p>
+		{/if}
 		{#if frameSrc}
-			<div class="sc" class:sc--idle={!current}>
+			<div class="sc" class:sc--idle={!current} class:sc--stalled={stalled}>
 				<iframe
 					bind:this={frame}
 					title="SoundCloud player"
 					src={frameSrc}
 					allow="autoplay; encrypted-media"
 					width="100%"
-					height="20"
+					height={stalled ? '80' : '20'}
 					scrolling="no"
 				></iframe>
 			</div>
 		{/if}
 
 		<div class="controls">
+			{#if current}
+				<button type="button" class="mc-btn mc-btn--play" onclick={togglePlay}>
+					{playing ? 'Pause' : 'Play'}
+				</button>
+			{/if}
 			<button type="button" class="mc-btn" disabled={!playable.length} onclick={shuffle}>Shuffle</button>
 			<button type="button" class="mc-btn" disabled={!current} onclick={eject}>Eject</button>
 		</div>
@@ -356,7 +405,23 @@
 		-webkit-tap-highlight-color: transparent;
 	}
 
-	.jb:hover .block,
+	@media (hover: hover) {
+		.jb:hover .block {
+			transform: scale(1);
+			transition: transform 0.9s var(--spring);
+		}
+
+		.jb:hover .panel {
+			opacity: 1;
+			visibility: visible;
+			transform: none;
+			transition:
+				opacity 0.2s ease 0.12s,
+				transform 0.5s var(--spring) 0.12s,
+				visibility 0s;
+		}
+	}
+
 	.jb:has(:focus-visible) .block,
 	.jb--open .block {
 		transform: scale(1);
@@ -456,7 +521,6 @@
 		height: 14px;
 	}
 
-	.jb:hover .panel,
 	.jb:has(:focus-visible) .panel,
 	.jb--open .panel {
 		opacity: 1;
@@ -613,10 +677,17 @@
 		margin: 0 0 6px;
 		box-shadow: 0 0 0 1px #000000;
 		background: #ffffff;
+		transition: height 0.25s ease;
+	}
+
+	.sc--stalled {
+		height: 84px;
 	}
 
 	.sc iframe {
 		display: block;
+		width: 100%;
+		height: 100%;
 		border: 0;
 	}
 
@@ -646,9 +717,19 @@
 
 	.controls {
 		display: grid;
-		grid-template-columns: 1fr 1fr;
+		grid-template-columns: repeat(auto-fit, minmax(0, 1fr));
 		gap: 4px;
 		margin-bottom: 4px;
+	}
+
+	.mc-btn--play {
+		background: #4a752c;
+		color: #eaffd0;
+	}
+
+	.mc-btn--play:hover {
+		background: #5b9036;
+		color: #ffffff;
 	}
 
 	.mc-btn,

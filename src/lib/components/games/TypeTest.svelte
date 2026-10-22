@@ -1,10 +1,11 @@
 <script lang="ts">
-	import { getRandomSnippet, type Snippet } from '$lib/data/typetest-snippets';
+	import { getRandomSnippet, ZenSnippetDeck, type Snippet } from '$lib/data/typetest-snippets';
 	import { tick } from 'svelte';
 	import { playSound, soundManager } from '$lib/utils/sound';
 	import { getLocalItem, setLocalItem } from '$lib/utils/safeStorage';
 
 	type Difficulty = 'easy' | 'medium' | 'hard';
+	type Mode = 'timed' | 'zen';
 	type GameState = 'idle' | 'countdown' | 'playing' | 'finished';
 
 	interface Score {
@@ -16,6 +17,7 @@
 		date: string;
 	}
 
+	let mode = $state<Mode>('timed');
 	let gameState = $state<GameState>('idle');
 	let difficulty = $state<Difficulty>('medium');
 	let snippet = $state<Snippet | null>(null);
@@ -29,6 +31,15 @@
 	let soundOn = $state(true);
 	/** `date` of the score just saved, so the leaderboard can mark it. */
 	let latestScoreDate = $state<string | null>(null);
+
+	// Endless Zen Mode state and non-repeating shuffle queue
+	const zenDeck = new ZenSnippetDeck();
+	let zenStats = $state({
+		patternsCompleted: 0,
+		totalChars: 0,
+		startTime: 0,
+		mistakesCount: 0
+	});
 
 	let startBtn = $state<HTMLButtonElement | undefined>(undefined);
 	let countdownEl = $state<HTMLDivElement | undefined>(undefined);
@@ -59,17 +70,25 @@
 	});
 
 	/**
-	 * Net WPM: correct characters only (5 chars = 1 word). This used to divide the *snippet* length,
-	 * so a run full of uncorrected typos scored exactly the same as a clean one.
+	 * Net WPM: correct characters only (5 chars = 1 word).
+	 * In Zen mode, includes all characters typed across completed patterns in the session.
 	 */
 	const wpm = $derived.by(() => {
-		if (!startTime || !endTime || !snippet) return 0;
-		const minutes = (endTime - startTime) / 60000;
-		if (minutes <= 0) return 0;
-		return Math.round(correctChars / 5 / minutes);
+		if (!startTime) return 0;
+		const now = endTime ?? Date.now();
+		const minutes = (now - startTime) / 60000;
+		if (minutes <= 0.05) return 0;
+		const chars = mode === 'zen' ? zenStats.totalChars + correctChars : correctChars;
+		return Math.round(chars / 5 / minutes);
 	});
 
 	const accuracy = $derived.by(() => {
+		if (mode === 'zen') {
+			const totalAttempted = zenStats.totalChars + userInput.length;
+			if (!totalAttempted) return 100;
+			const totalCorrect = zenStats.totalChars + correctChars;
+			return Math.max(0, Math.min(100, Math.round((totalCorrect / (totalAttempted + zenStats.mistakesCount)) * 100)));
+		}
 		if (!userInput.length) return 100;
 		return Math.round((correctChars / userInput.length) * 100);
 	});
@@ -87,11 +106,6 @@
 		}
 	}
 
-	/**
-	 * `localStorage` is not reactive, so the old `$derived.by(() => getLocalItem(...))` computed
-	 * once and never again — a fresh score only showed up after a full page reload. Read it into
-	 * `$state` on mount instead; `saveScore` then writes to both the store and this array.
-	 */
 	$effect(() => {
 		scores = readScores();
 		soundOn = soundManager.isEnabled();
@@ -101,10 +115,6 @@
 		soundOn = soundManager.toggle();
 	}
 
-	/**
-	 * Each state swap removes the control that had focus (Start, the input, Try Again), which dropped
-	 * keyboard and screen-reader users back to `<body>`. Move focus to whatever now leads the panel.
-	 */
 	async function focusFor(state: GameState) {
 		await tick();
 		if (state === 'idle') startBtn?.focus();
@@ -112,26 +122,69 @@
 		else if (state === 'finished') resultsHeading?.focus();
 	}
 
+	function advanceZen() {
+		if (!snippet) return;
+		playSound('typing-complete');
+		zenStats.patternsCompleted += 1;
+		zenStats.totalChars += snippet.text.length;
+		snippet = zenDeck.next();
+		userInput = '';
+		mistakes = [];
+		void tick().then(() => inputRef?.focus());
+	}
+
+	function skipZen() {
+		if (mode !== 'zen') return;
+		snippet = zenDeck.next();
+		userInput = '';
+		mistakes = [];
+		void tick().then(() => inputRef?.focus());
+	}
+
+	function finishZen() {
+		endTime = Date.now();
+		gameState = 'finished';
+		void focusFor('finished');
+	}
+
 	$effect(() => {
 		if (isComplete && gameState === 'playing') {
-			endTime = Date.now();
-			gameState = 'finished';
-			playSound('typing-complete');
-			saveScore();
-			void focusFor('finished');
+			if (mode === 'zen') {
+				advanceZen();
+			} else {
+				endTime = Date.now();
+				gameState = 'finished';
+				playSound('typing-complete');
+				saveScore();
+				void focusFor('finished');
+			}
 		}
 	});
 
-	// Timers outlive the component otherwise: leaving the page mid-countdown left an interval
-	// ticking against a destroyed component, and the focus timeout fired into nothing.
 	$effect(() => {
 		return clearTimers;
 	});
 
 	function startGame() {
-		// Clear first: two live intervals both decrement `countdown`, so it steps straight past 0
-		// and the exit guard never matches again — the old code could leave one running forever.
 		clearTimers();
+
+		if (mode === 'zen') {
+			snippet = zenDeck.next();
+			userInput = '';
+			mistakes = [];
+			startTime = Date.now();
+			endTime = null;
+			zenStats = {
+				patternsCompleted: 0,
+				totalChars: 0,
+				startTime: Date.now(),
+				mistakesCount: 0
+			};
+			gameState = 'playing';
+			playSound('game-start');
+			focusTimer = setTimeout(() => inputRef?.focus(), 50);
+			return;
+		}
 
 		snippet = getRandomSnippet(difficulty);
 		userInput = '';
@@ -146,7 +199,6 @@
 			countdown--;
 			playSound('ui-click', 0.6);
 
-			// `<= 0`, not `=== 0`: an overshoot must still terminate the interval.
 			if (countdown <= 0) {
 				clearTimers();
 				gameState = 'playing';
@@ -156,19 +208,22 @@
 		}, 1000);
 	}
 
-	/**
-	 * Tab is deliberately *not* swallowed any more. No snippet contains a tab character, so trapping it
-	 * bought nothing and left keyboard users stuck in the input until they finished the test. Escape
-	 * is the explicit way out.
-	 */
 	function handleKeyDown(e: KeyboardEvent) {
-		if (e.key === 'Escape' && (gameState === 'playing' || gameState === 'countdown')) {
+		if (e.key === 'Escape') {
+			if (gameState === 'playing' || gameState === 'countdown') {
+				e.preventDefault();
+				if (mode === 'zen' && zenStats.patternsCompleted > 0) {
+					finishZen();
+				} else {
+					reset();
+				}
+			}
+		} else if (e.key === 'Tab' && mode === 'zen') {
 			e.preventDefault();
-			reset();
+			skipZen();
 		}
 	}
 
-	/** Pasting (or dropping) the snippet in would "win" instantly. */
 	function blockPaste(e: Event) {
 		e.preventDefault();
 	}
@@ -179,8 +234,6 @@
 		const target = e.target as HTMLTextAreaElement;
 		const newValue = target.value;
 
-		// The clock starts on the first character actually typed. It used to start on keydown, so
-		// pressing Shift (or any modifier) to think about the first capital letter cost time.
 		if (!startTime && newValue.length > 0) {
 			startTime = Date.now();
 		}
@@ -193,6 +246,7 @@
 			} else {
 				if (!mistakes.includes(newCharIndex)) {
 					mistakes = [...mistakes, newCharIndex];
+					if (mode === 'zen') zenStats.mistakesCount++;
 				}
 			}
 		}
@@ -201,7 +255,7 @@
 	}
 
 	function saveScore() {
-		if (!snippet || wpm === 0) return;
+		if (!snippet || wpm === 0 || mode === 'zen') return;
 
 		const newScore: Score = {
 			wpm,
@@ -212,7 +266,6 @@
 			date: new Date().toISOString()
 		};
 
-		// Re-read rather than trusting the in-memory copy, so a score set in another tab survives.
 		const next = [...readScores(), newScore].sort((a, b) => b.wpm - a.wpm).slice(0, 50);
 
 		setLocalItem('typetest-scores', JSON.stringify(next));
@@ -256,28 +309,62 @@
 
 	{#if gameState === 'idle'}
 		<div class="typetest__start">
-			<!-- A `<label>` with no control is invisible to assistive tech. These are three mutually
-			     exclusive toggles, so the group gets the accessible name and each button reports its
-			     own pressed state. -->
-			<div class="difficulty-selector" role="group" aria-labelledby="difficulty-label">
-				<span class="difficulty-label" id="difficulty-label">Difficulty:</span>
-				<div class="difficulty-buttons">
-					{#each ['easy', 'medium', 'hard'] as const as level (level)}
-						<button
-							type="button"
-							class="difficulty-btn"
-							class:difficulty-btn--active={difficulty === level}
-							aria-pressed={difficulty === level}
-							onclick={() => (difficulty = level)}
-						>
-							{level[0].toUpperCase() + level.slice(1)}
-						</button>
-					{/each}
-				</div>
+			<div class="mode-selector" role="group" aria-label="Game Mode">
+				<button
+					type="button"
+					class="mode-btn"
+					class:mode-btn--active={mode === 'timed'}
+					aria-pressed={mode === 'timed'}
+					onclick={() => (mode = 'timed')}
+				>
+					⏱ Timed Test
+				</button>
+				<button
+					type="button"
+					class="mode-btn"
+					class:mode-btn--active={mode === 'zen'}
+					aria-pressed={mode === 'zen'}
+					onclick={() => (mode = 'zen')}
+				>
+					☯ Endless Zen Mode
+				</button>
 			</div>
-			<button bind:this={startBtn} type="button" class="btn btn--primary btn--large" onclick={startGame}>
-				Start Test
-			</button>
+
+			{#if mode === 'timed'}
+				<div class="difficulty-selector" role="group" aria-labelledby="difficulty-label">
+					<span class="difficulty-label" id="difficulty-label">Difficulty:</span>
+					<div class="difficulty-buttons">
+						{#each ['easy', 'medium', 'hard'] as const as level (level)}
+							<button
+								type="button"
+								class="difficulty-btn"
+								class:difficulty-btn--active={difficulty === level}
+								aria-pressed={difficulty === level}
+								onclick={() => (difficulty = level)}
+							>
+								{level[0].toUpperCase() + level.slice(1)}
+							</button>
+						{/each}
+					</div>
+				</div>
+				<button bind:this={startBtn} type="button" class="btn btn--primary btn--large" onclick={startGame}>
+					Start Test
+				</button>
+			{:else}
+				<div class="zen-intro">
+					<p class="zen-intro__title">Endless Coding Patterns</p>
+					<p class="zen-intro__text">
+						Type endlessly through real production patterns across <strong>Python</strong>, <strong>TypeScript</strong>,
+						<strong>Go</strong>, <strong>Rust</strong>, and <strong>SQL</strong>.
+					</p>
+					<p class="zen-intro__sub">
+						No timer countdown or pressure. Explore common architectural and algorithmic patterns while mastering programming muscle memory.
+					</p>
+				</div>
+				<button bind:this={startBtn} type="button" class="btn btn--primary btn--large" onclick={startGame}>
+					Start Zen Mode
+				</button>
+			{/if}
 		</div>
 	{/if}
 
@@ -290,8 +377,27 @@
 
 	{#if gameState === 'playing' && snippet}
 		<div class="typetest__game">
-			<!-- Per-character spans are read one letter at a time by a screen reader, so they are hidden
-			     and the snippet is exposed once as plain text instead. -->
+			{#if mode === 'zen' && snippet.filename}
+				<div class="file-header">
+					<div class="file-header__top">
+						<span class="file-header__tab">
+							<span class="file-header__icon" aria-hidden="true">📄</span>
+							<span class="file-header__filename">{snippet.filename}</span>
+						</span>
+						<span class="file-header__lang">{snippet.language}</span>
+					</div>
+					{#if snippet.pattern}
+						<div class="file-header__meta">
+							<span class="pattern-badge">Pattern</span>
+							<strong class="pattern-title">{snippet.pattern}</strong>
+							{#if snippet.description}
+								<span class="pattern-desc">— {snippet.description}</span>
+							{/if}
+						</div>
+					{/if}
+				</div>
+			{/if}
+
 			<p class="sr-only" id="typetest-snippet-text">Type this: {snippet.text}</p>
 			<div class="typetest__snippet" aria-hidden="true">
 				{#each snippet.text as char, i (i)}
@@ -301,14 +407,11 @@
 						class:char--incorrect={i < userInput.length && userInput[i] !== char}
 						class:char--current={i === userInput.length}
 					>
-						{char === '\n' ? '↵\n' : char === ' ' ? '·' : char}
+						{char === '\n' ? '↵\n' : char === ' ' ? ' ' : char}
 					</span>
 				{/each}
 			</div>
 
-			<!-- A textarea, not `<input type="text">`: several snippets span lines, and a text input
-			     strips line breaks from its value, so the newline in those snippets could never be typed
-			     and every multi-line run finished with forced mistakes. -->
 			<textarea
 				bind:this={inputRef}
 				rows="3"
@@ -327,51 +430,104 @@
 				maxlength={snippet.text.length}
 			></textarea>
 
-			<div class="typetest__stats">
-				<div class="stat">
-					<span class="stat__value">{Math.round((userInput.length / snippet.text.length) * 100)}%</span>
-					<span class="stat__label">Progress</span>
+			{#if mode === 'zen'}
+				<div class="typetest__stats">
+					<div class="stat">
+						<span class="stat__value">{zenStats.patternsCompleted}</span>
+						<span class="stat__label">Patterns Mastered</span>
+					</div>
+					<div class="stat">
+						<span class="stat__value">{zenStats.totalChars + correctChars}</span>
+						<span class="stat__label">Chars Typed</span>
+					</div>
+					<div class="stat">
+						<span class="stat__value">{wpm}</span>
+						<span class="stat__label">Session WPM</span>
+					</div>
+					<div class="stat">
+						<span class="stat__value">{accuracy}%</span>
+						<span class="stat__label">Accuracy</span>
+					</div>
 				</div>
-				<div class="stat">
-					<span class="stat__value">{accuracy}%</span>
-					<span class="stat__label">Accuracy</span>
+				<div class="typetest__zen-controls">
+					<button type="button" class="btn btn--ghost" onclick={skipZen}>Next Pattern → <span class="hint">(Tab)</span></button>
+					<button type="button" class="btn btn--primary" onclick={finishZen}>Finish Session</button>
+					<button type="button" class="btn btn--ghost" onclick={reset}>Menu <span class="hint">(Esc)</span></button>
 				</div>
-			</div>
-			<div class="typetest__quit">
-				<button type="button" class="btn btn--ghost" onclick={reset}>quit <span class="hint">(Esc)</span></button>
-			</div>
+			{:else}
+				<div class="typetest__stats">
+					<div class="stat">
+						<span class="stat__value">{Math.round((userInput.length / snippet.text.length) * 100)}%</span>
+						<span class="stat__label">Progress</span>
+					</div>
+					<div class="stat">
+						<span class="stat__value">{accuracy}%</span>
+						<span class="stat__label">Accuracy</span>
+					</div>
+				</div>
+				<div class="typetest__quit">
+					<button type="button" class="btn btn--ghost" onclick={reset}>quit <span class="hint">(Esc)</span></button>
+				</div>
+			{/if}
 		</div>
 	{/if}
 
 	{#if gameState === 'finished' && snippet}
 		<div class="typetest__results" aria-live="polite">
-			<h2 class="results__title" bind:this={resultsHeading} tabindex="-1">Test Complete!</h2>
-			<div class="results__stats">
-				<div class="result-stat result-stat--primary">
-					<span class="result-stat__value">{wpm}</span>
-					<span class="result-stat__label">WPM</span>
+			{#if mode === 'zen'}
+				<h2 class="results__title" bind:this={resultsHeading} tabindex="-1">Zen Session Complete!</h2>
+				<p class="results__subtitle">Great practice! You worked through real software design patterns:</p>
+				<div class="results__stats">
+					<div class="result-stat result-stat--primary">
+						<span class="result-stat__value">{zenStats.patternsCompleted}</span>
+						<span class="result-stat__label">Patterns Mastered</span>
+					</div>
+					<div class="result-stat">
+						<span class="result-stat__value">{zenStats.totalChars + correctChars}</span>
+						<span class="result-stat__label">Characters Typed</span>
+					</div>
+					<div class="result-stat">
+						<span class="result-stat__value">{wpm}</span>
+						<span class="result-stat__label">Average WPM</span>
+					</div>
+					<div class="result-stat">
+						<span class="result-stat__value">{accuracy}%</span>
+						<span class="result-stat__label">Accuracy</span>
+					</div>
 				</div>
-				<div class="result-stat">
-					<span class="result-stat__value">{accuracy}%</span>
-					<span class="result-stat__label">Accuracy</span>
+				<div class="results__actions">
+					<button type="button" class="btn btn--primary" onclick={startGame}>Keep Typing (Zen)</button>
+					<button type="button" class="btn btn--ghost" onclick={reset}>Return to Menu</button>
 				</div>
-				<div class="result-stat">
-					<span class="result-stat__value">{endTime && startTime ? ((endTime - startTime) / 1000).toFixed(1) : 0}s</span>
-					<span class="result-stat__label">Time</span>
+			{:else}
+				<h2 class="results__title" bind:this={resultsHeading} tabindex="-1">Test Complete!</h2>
+				<div class="results__stats">
+					<div class="result-stat result-stat--primary">
+						<span class="result-stat__value">{wpm}</span>
+						<span class="result-stat__label">WPM</span>
+					</div>
+					<div class="result-stat">
+						<span class="result-stat__value">{accuracy}%</span>
+						<span class="result-stat__label">Accuracy</span>
+					</div>
+					<div class="result-stat">
+						<span class="result-stat__value">{endTime && startTime ? ((endTime - startTime) / 1000).toFixed(1) : 0}s</span>
+						<span class="result-stat__label">Time</span>
+					</div>
+					<div class="result-stat">
+						<span class="result-stat__value">{mistakes.length}</span>
+						<span class="result-stat__label">{mistakes.length === 1 ? 'Mistake' : 'Mistakes'}</span>
+					</div>
 				</div>
-				<div class="result-stat">
-					<span class="result-stat__value">{mistakes.length}</span>
-					<span class="result-stat__label">{mistakes.length === 1 ? 'Mistake' : 'Mistakes'}</span>
+				<div class="results__actions">
+					<button type="button" class="btn btn--primary" onclick={startGame}>Try Again</button>
+					<button type="button" class="btn btn--ghost" onclick={reset}>Change Difficulty</button>
 				</div>
-			</div>
-			<div class="results__actions">
-				<button type="button" class="btn btn--primary" onclick={startGame}>Try Again</button>
-				<button type="button" class="btn btn--ghost" onclick={reset}>Change Difficulty</button>
-			</div>
+			{/if}
 		</div>
 	{/if}
 
-	{#if leaderboard.length > 0}
+	{#if leaderboard.length > 0 && mode === 'timed'}
 		<div class="typetest__leaderboard">
 			<div class="leaderboard__head">
 				<h2 class="leaderboard__title">Leaderboard (Top 10)</h2>
@@ -434,6 +590,63 @@
 		padding: 3rem 1rem;
 		border: 1px solid var(--border);
 		background: var(--panel);
+	}
+
+	.mode-selector {
+		display: flex;
+		gap: 0.75rem;
+		flex-wrap: wrap;
+		justify-content: center;
+	}
+
+	.mode-btn {
+		padding: 0.65rem 1.4rem;
+		border: 1px solid var(--border-2);
+		background: color-mix(in srgb, var(--text) 3%, transparent);
+		color: var(--muted);
+		font-family: var(--font-mono);
+		font-size: 0.9rem;
+		cursor: pointer;
+		transition: all 0.2s;
+	}
+
+	.mode-btn:hover {
+		border-color: var(--accent);
+		color: var(--text);
+	}
+
+	.mode-btn--active {
+		border-color: var(--accent);
+		background: color-mix(in srgb, var(--accent) 12%, transparent);
+		color: var(--accent);
+		font-weight: 600;
+	}
+
+	.zen-intro {
+		text-align: center;
+		max-width: 34rem;
+		line-height: 1.6;
+		padding: 0 1rem;
+	}
+
+	.zen-intro__title {
+		margin: 0 0 0.6rem;
+		font-family: var(--font-mono);
+		font-size: 1.05rem;
+		font-weight: 600;
+		color: var(--accent);
+	}
+
+	.zen-intro__text {
+		margin: 0 0 0.5rem;
+		font-size: 0.92rem;
+		color: var(--text);
+	}
+
+	.zen-intro__sub {
+		margin: 0;
+		font-size: 0.85rem;
+		color: var(--muted);
 	}
 
 	.difficulty-selector {
@@ -545,7 +758,79 @@
 	.typetest__game {
 		display: flex;
 		flex-direction: column;
-		gap: 1.5rem;
+		gap: 1.25rem;
+	}
+
+	/* Mock code file header */
+	.file-header {
+		display: flex;
+		flex-direction: column;
+		gap: 0.45rem;
+		padding: 0.75rem 1rem;
+		border: 1px solid var(--border);
+		background: var(--panel-2);
+		font-family: var(--font-mono);
+	}
+
+	.file-header__top {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		gap: 0.5rem;
+	}
+
+	.file-header__tab {
+		display: inline-flex;
+		align-items: center;
+		gap: 0.45rem;
+		font-size: 0.9rem;
+	}
+
+	.file-header__icon {
+		font-size: 0.95rem;
+	}
+
+	.file-header__filename {
+		color: var(--text);
+		font-weight: 600;
+	}
+
+	.file-header__lang {
+		padding: 0.15rem 0.5rem;
+		border: 1px solid var(--border-2);
+		background: color-mix(in srgb, var(--text) 4%, transparent);
+		color: var(--accent);
+		font-size: 0.72rem;
+		text-transform: uppercase;
+		letter-spacing: 0.05em;
+	}
+
+	.file-header__meta {
+		display: flex;
+		flex-wrap: wrap;
+		align-items: baseline;
+		gap: 0.45rem;
+		font-size: 0.82rem;
+		line-height: 1.4;
+	}
+
+	.pattern-badge {
+		padding: 0.1rem 0.35rem;
+		background: color-mix(in srgb, var(--accent) 15%, transparent);
+		border: 1px solid color-mix(in srgb, var(--accent) 30%, transparent);
+		color: var(--accent);
+		font-size: 0.65rem;
+		text-transform: uppercase;
+		letter-spacing: 0.05em;
+	}
+
+	.pattern-title {
+		color: var(--text);
+		font-weight: 600;
+	}
+
+	.pattern-desc {
+		color: var(--muted);
 	}
 
 	.typetest__snippet {
@@ -636,6 +921,14 @@
 		letter-spacing: 0.1em;
 	}
 
+	.typetest__zen-controls {
+		display: flex;
+		justify-content: center;
+		gap: 0.75rem;
+		flex-wrap: wrap;
+		margin-top: 0.5rem;
+	}
+
 	.typetest__results {
 		text-align: center;
 		padding: 3rem 1rem;
@@ -644,10 +937,16 @@
 	}
 
 	.results__title {
-		margin: 0 0 2rem;
+		margin: 0 0 0.5rem;
 		font-family: var(--font-mono);
 		font-size: 1.5rem;
 		color: var(--accent);
+	}
+
+	.results__subtitle {
+		margin: 0 0 2rem;
+		font-size: 0.9rem;
+		color: var(--muted);
 	}
 
 	.results__stats {
@@ -839,7 +1138,15 @@
 			padding: 1.5rem 1rem;
 		}
 
-		/* Three equal segments in one row, not a narrow column of three stacked buttons. */
+		.mode-selector {
+			flex-direction: column;
+		}
+
+		.mode-btn {
+			min-height: 2.75rem;
+			text-align: center;
+		}
+
 		.difficulty-selector {
 			align-items: stretch;
 			gap: 0.75rem;
@@ -893,7 +1200,8 @@
 	:global([data-theme='light']) .leaderboard__title,
 	:global([data-theme='light']) .results__title,
 	:global([data-theme='light']) .typetest .btn--primary,
-	:global([data-theme='light']) .difficulty-btn--active {
+	:global([data-theme='light']) .difficulty-btn--active,
+	:global([data-theme='light']) .mode-btn--active {
 		color: var(--accent-text);
 	}
 

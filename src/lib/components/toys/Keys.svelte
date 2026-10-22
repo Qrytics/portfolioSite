@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
 	import ToyCard from './ToyCard.svelte';
-	import { analyser, violin, type Voice } from '$lib/utils/synth';
+	import { analyser, unlockAudio, violin, type Voice } from '$lib/utils/synth';
 
 	/**
 	 * Ten pentatonic notes from the violin's open G string up, so any run of them sounds intentional.
@@ -27,7 +27,7 @@
 	let last = $state<number | null>(null);
 
 	/** Live strokes: one per pointer (which glides) and one per held key. */
-	const pointers = new Map<number, { voice: Voice; key: number }>();
+	const pointers = new Map<number, { voice: Voice; key: number; startTime: number }>();
 	const keyVoices = new Map<string, { voice: Voice; key: number }>();
 	let raf = 0;
 	let quietSince = 0;
@@ -39,27 +39,39 @@
 		draw();
 	}
 
+	function targetKey(target: EventTarget | null): number | null {
+		const el = (target as HTMLElement | null)?.closest<HTMLElement>('[data-key]');
+		return el && board?.contains(el) ? Number(el.dataset.key) : null;
+	}
+
 	function keyAt(x: number, y: number): number | null {
 		const el = document.elementFromPoint(x, y)?.closest<HTMLElement>('[data-key]');
 		return el && board?.contains(el) ? Number(el.dataset.key) : null;
 	}
 
+	const MIN_HOLD_MS = 280;
+
 	function onDown(e: PointerEvent) {
-		const i = keyAt(e.clientX, e.clientY);
+		unlockAudio();
+		const i = targetKey(e.target) ?? keyAt(e.clientX, e.clientY);
 		if (i === null) return;
 		e.preventDefault();
-		board!.focus({ preventScroll: true });
-		board!.setPointerCapture(e.pointerId);
+		try {
+			board?.focus({ preventScroll: true });
+		} catch {}
+		try {
+			board?.setPointerCapture(e.pointerId);
+		} catch {}
 		const voice = violin(NOTES[i].f);
 		last = i;
-		if (voice) pointers.set(e.pointerId, { voice, key: i });
+		if (voice) pointers.set(e.pointerId, { voice, key: i, startTime: performance.now() });
 		sync();
 	}
 
 	function onMove(e: PointerEvent) {
 		const stroke = pointers.get(e.pointerId);
 		if (!stroke) return;
-		const i = keyAt(e.clientX, e.clientY);
+		const i = targetKey(e.target) ?? keyAt(e.clientX, e.clientY);
 		if (i === null || i === stroke.key) return;
 		stroke.voice.glide(NOTES[i].f);
 		stroke.key = i;
@@ -70,18 +82,30 @@
 	function onUp(e: PointerEvent) {
 		const stroke = pointers.get(e.pointerId);
 		if (!stroke) return;
-		stroke.voice.release();
 		pointers.delete(e.pointerId);
-		sync();
+		const elapsed = performance.now() - stroke.startTime;
+		const remaining = Math.max(0, MIN_HOLD_MS - elapsed);
+		if (remaining > 0) {
+			setTimeout(() => {
+				stroke.voice.release();
+				sync();
+			}, remaining);
+		} else {
+			stroke.voice.release();
+			sync();
+		}
 	}
 
 	function onKeyDown(e: KeyboardEvent) {
 		if (e.metaKey || e.ctrlKey || e.altKey) return;
-		const i = NOTES.findIndex((n) => n.code === e.code);
+		const codeMatch = (n: (typeof NOTES)[number]) =>
+			n.code === e.code || n.key.toLowerCase() === e.key.toLowerCase();
+		const i = NOTES.findIndex(codeMatch);
 		if (i < 0) return;
 		// Claimed even on repeat, so the pad's page-wide keys never also fire on S.
 		e.preventDefault();
 		if (e.repeat || keyVoices.has(e.code)) return;
+		unlockAudio();
 		const voice = violin(NOTES[i].f);
 		last = i;
 		if (voice) keyVoices.set(e.code, { voice, key: i });
@@ -226,8 +250,8 @@
 					data-key={i}
 					tabindex="-1"
 					aria-label="{note.name}{note.oct}"
-					onclick={(e) => {
-						if (e.detail === 0) strum(i);
+					onclick={() => {
+						if (!held.includes(i)) strum(i);
 					}}
 				>
 					<span class="key__led" aria-hidden="true"></span>
@@ -293,6 +317,7 @@
 		color: var(--muted);
 		font: inherit;
 		cursor: pointer;
+		touch-action: none;
 		-webkit-tap-highlight-color: transparent;
 		transition: background-color 0.1s;
 	}
