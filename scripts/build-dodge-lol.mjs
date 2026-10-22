@@ -39,6 +39,7 @@ function patchBuiltAssetPaths(distDir) {
 		const js = readFileSync(jsPath, 'utf8')
 			.replaceAll("url('/cursor.svg')", `url('${BASE_PATH}cursor.svg')`)
 			.replaceAll("url('/cursor-click.svg')", `url('${BASE_PATH}cursor-click.svg')`)
+			.replaceAll("url('/cursor-attack.svg')", `url('${BASE_PATH}cursor-attack.svg')`)
 			.replaceAll("src:'/Wind_Wall_Panic.mp3'", `src:'${BASE_PATH}Wind_Wall_Panic.mp3'`)
 			.replaceAll('src:"/Wind_Wall_Panic.mp3"', `src:"${BASE_PATH}Wind_Wall_Panic.mp3"`)
 			.replaceAll("src:`/Wind_Wall_Panic.mp3`", `src:\`${BASE_PATH}Wind_Wall_Panic.mp3\``);

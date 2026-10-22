@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32">
+  <defs>
+    <filter id="shadow" x="-30%" y="-30%" width="170%" height="170%">
+      <feDropShadow dx="1" dy="1.5" stdDeviation="1.2" flood-color="#000000" flood-opacity="0.95"/>
+    </filter>
+    <linearGradient id="redBorder" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#fecaca"/>
+      <stop offset="30%" stop-color="#ef4444"/>
+      <stop offset="70%" stop-color="#b91c1c"/>
+      <stop offset="100%" stop-color="#7f1d1d"/>
+    </linearGradient>
+    <linearGradient id="redCore" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#450a0a"/>
+      <stop offset="60%" stop-color="#1c0707"/>
+      <stop offset="100%" stop-color="#000000"/>
+    </linearGradient>
+  </defs>
+  <!-- Red League Attack Target Pointer without tail -->
+  <polygon points="2,2 24,15 14,16 9,25" fill="url(#redBorder)" filter="url(#shadow)"/>
+  <polygon points="4,5 20,14 13,15 9,22" fill="url(#redCore)"/>
+  <circle cx="10.5" cy="12.5" r="2" fill="#f87171"/>
+</svg>
