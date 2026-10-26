@@ -39,7 +39,10 @@
 	"redirects": [
 		{ "source": "/Moxel", "destination": "/Moxel/", "permanent": true },
 		{ "source": "/moxel", "destination": "/Moxel/", "permanent": true },
-		{ "source": "/moxel/", "destination": "/Moxel/", "permanent": true }
+		{ "source": "/moxel/", "destination": "/Moxel/", "permanent": true },
+		{ "source": "/games/caseGamba", "destination": "/games/caseGamba/", "permanent": true },
+		{ "source": "/games/casegamba", "destination": "/games/caseGamba/", "permanent": true },
+		{ "source": "/games/casegamba/", "destination": "/games/caseGamba/", "permanent": true }
 	],
 	"rewrites": [
 		{

@@ -153,6 +153,9 @@
 	@moxelBare path_regexp ^/(Moxel|moxel/?)$
 	redir @moxelBare /Moxel/ 308
 
+	@caseGambaBare path_regexp ^/games/(caseGamba|casegamba/?)$
+	redir @caseGambaBare /games/caseGamba/ 308
+
 	#    Live-session signaling relay (services/moxel-signal, its own compose service). It only
 	#    forwards WebRTC handshakes; artwork goes browser-to-browser and never reaches the Pi. Caddy
 	#    proxies WebSocket upgrades transparently. Exact path, not a prefix, so nothing else under
