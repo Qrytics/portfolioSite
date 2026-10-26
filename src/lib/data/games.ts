@@ -21,6 +21,16 @@ export interface Game {
 
 export const games: Game[] = [
 	{
+		slug: 'caseGamba',
+		title: 'caseGamba',
+		subtitle: 'Overwatch-style lootbox unboxing simulator with escalating tiers.',
+		description:
+			'Crack open lootboxes featuring cinematic Overwatch-inspired wind-ups, light columns, and sound design. Collect 1,000 figure variants across 10 escalating crate tiers, customize your avatar with 11 equipment slots, sell duplicates for coins, and bounce in Doodle Jump to prevent softlocks.',
+		preview: '/games/caseGamba-preview.svg',
+		playUrl: '/games/caseGamba/',
+		tags: ['lootbox', 'gacha', 'customization', 'arcade']
+	},
+	{
 		slug: 'typetest',
 		title: 'Type Speed Test',
 		subtitle: 'How fast can you type real code?',
