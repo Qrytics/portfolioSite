@@ -75,7 +75,7 @@
 
 	.grid {
 		display: grid;
-		grid-template-columns: 1fr;
+		grid-template-columns: minmax(0, 1fr);
 		gap: 1rem;
 		align-items: stretch;
 	}
@@ -94,6 +94,11 @@
 	}
 
 	@media (min-width: 1100px) {
+		/* The lead project is twice the area of its siblings. */
+		.grid > :global(:first-child) {
+			grid-column: span 2;
+			grid-row: span 2;
+		}
 		.grid {
 			grid-template-columns: repeat(3, minmax(0, 1fr));
 			gap: 1.25rem;

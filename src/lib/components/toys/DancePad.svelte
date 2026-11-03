@@ -176,7 +176,7 @@
 		background:
 			linear-gradient(135deg, transparent 48.5%, color-mix(in srgb, var(--text) 8%, transparent) 49.5% 50.5%, transparent 51.5%),
 			linear-gradient(45deg, transparent 48.5%, color-mix(in srgb, var(--text) 8%, transparent) 49.5% 50.5%, transparent 51.5%),
-			color-mix(in srgb, #000 30%, var(--panel-2));
+			color-mix(in srgb, var(--ink-black) 30%, var(--panel-2));
 	}
 
 	:global([data-theme='light']) .pad {
@@ -228,8 +228,7 @@
 		bottom: 0.1rem;
 		color: var(--muter);
 		font: inherit;
-		font-size: 0.55rem;
-		text-transform: uppercase;
+		font-size: 0.75rem;
 	}
 
 	.arrow:hover {
@@ -262,7 +261,7 @@
 		display: inline-block;
 		font-size: 1.15rem;
 		font-weight: 700;
-		letter-spacing: 0.08em;
+		letter-spacing: 0;
 		animation: judge 0.45s ease-out both;
 	}
 
@@ -286,7 +285,7 @@
 
 	.combo {
 		color: var(--muted);
-		font-size: 0.78rem;
+		font-size: 0.75rem;
 	}
 
 	.combo b {
@@ -299,7 +298,7 @@
 
 	.best {
 		color: var(--muter);
-		font-size: 0.72rem;
+		font-size: 0.75rem;
 		font-variant-numeric: tabular-nums;
 	}
 
@@ -309,7 +308,7 @@
 		gap: 0.35rem;
 		margin-top: 0.35rem;
 		color: var(--muter);
-		font-size: 0.68rem;
+		font-size: 0.75rem;
 	}
 
 	.live i {

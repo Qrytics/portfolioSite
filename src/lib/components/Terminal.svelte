@@ -553,10 +553,10 @@
 		gap: 0.4rem;
 		padding: 0.25rem 0.55rem;
 		border: 1px solid var(--border-2);
-		background: color-mix(in srgb, #ffffff 3%, transparent);
-		color: color-mix(in srgb, var(--text) 72%, transparent);
+		background: color-mix(in srgb, var(--paper-white) 3%, transparent);
+		color: var(--muter);
 		font-family: var(--font-mono);
-		font-size: 0.82rem;
+		font-size: 0.875rem;
 		cursor: pointer;
 		transition: background 0.14s, border-color 0.14s, color 0.14s;
 		border-radius: 0;
@@ -583,12 +583,12 @@
 		z-index: 7000;
 		/* Darker scrim in place of a full-viewport blur on phones; blur restored at desktop widths
 		   below, where the GPU cost of re-compositing the page behind it is affordable. */
-		background: color-mix(in srgb, #000 70%, transparent);
+		background: color-mix(in srgb, var(--ink-black) 70%, transparent);
 	}
 
 	@media (min-width: 901px) {
 		.backdrop {
-			background: color-mix(in srgb, #000 55%, transparent);
+			background: color-mix(in srgb, var(--ink-black) 55%, transparent);
 			backdrop-filter: blur(4px);
 			-webkit-backdrop-filter: blur(4px);
 		}
@@ -608,7 +608,7 @@
 		border: 1px solid var(--border);
 		background: #060a0e;
 		font-family: var(--font-mono);
-		font-size: 0.88rem;
+		font-size: 0.875rem;
 		overflow: hidden;
 	}
 
@@ -618,22 +618,22 @@
 		align-items: center;
 		justify-content: space-between;
 		padding: 0.45rem 0.75rem;
-		background: color-mix(in srgb, #ffffff 4%, transparent);
+		background: color-mix(in srgb, var(--paper-white) 4%, transparent);
 		border-bottom: 1px solid var(--border-2);
 		flex-shrink: 0;
 	}
 
 	.terminal__title {
-		font-size: 0.78rem;
+		font-size: 0.75rem;
 		color: var(--muted);
-		letter-spacing: 0.04em;
+		letter-spacing: 0;
 	}
 
 	.terminal__close {
 		background: none;
 		border: none;
 		color: var(--muter);
-		font-size: 0.85rem;
+		font-size: 0.875rem;
 		cursor: pointer;
 		padding: 0.1rem 0.25rem;
 		font-family: inherit;
@@ -670,7 +670,7 @@
 	}
 
 	.line--input span {
-		color: color-mix(in srgb, var(--text) 58%, transparent);
+		color: var(--muter);
 	}
 
 	.line--output span {
@@ -691,14 +691,14 @@
 		gap: 0.5rem;
 		padding: 0.6rem 0.75rem;
 		border-top: 1px solid var(--border-2);
-		background: color-mix(in srgb, #ffffff 2%, transparent);
+		background: color-mix(in srgb, var(--paper-white) 2%, transparent);
 		flex-shrink: 0;
 	}
 
 	.terminal__prompt {
 		color: var(--accent);
 		font-weight: 700;
-		font-size: 0.92rem;
+		font-size: 0.875rem;
 		flex-shrink: 0;
 	}
 

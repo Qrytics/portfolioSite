@@ -298,10 +298,10 @@
 		gap: 0.4rem;
 		padding: 0.25rem 0.55rem;
 		border: 1px solid var(--border-2);
-		background: color-mix(in srgb, #ffffff 3%, transparent);
-		color: color-mix(in srgb, var(--text) 72%, transparent);
+		background: color-mix(in srgb, var(--paper-white) 3%, transparent);
+		color: var(--muter);
 		font-family: var(--font-mono);
-		font-size: 0.82rem;
+		font-size: 0.875rem;
 		cursor: pointer;
 		transition: background 0.14s, border-color 0.14s, color 0.14s;
 		border-radius: 0;
@@ -339,12 +339,12 @@
 		/* A darker scrim instead of a full-viewport blur. `backdrop-filter` over the whole page is the
 		   single most expensive thing a phone GPU can be asked to composite, and at 66% opacity the
 		   blur was barely perceptible anyway. Re-enabled at desktop widths below. */
-		background: color-mix(in srgb, #000 74%, transparent);
+		background: color-mix(in srgb, var(--ink-black) 74%, transparent);
 	}
 
 	@media (min-width: 901px) {
 		.backdrop {
-			background: color-mix(in srgb, #000 66%, transparent);
+			background: color-mix(in srgb, var(--ink-black) 66%, transparent);
 			backdrop-filter: blur(4px);
 			-webkit-backdrop-filter: blur(4px);
 		}
@@ -409,7 +409,7 @@
 		background: none;
 		border: none;
 		color: var(--muter);
-		font-size: 0.82rem;
+		font-size: 0.875rem;
 		cursor: pointer;
 		padding: 0.1rem 0.2rem;
 		font-family: inherit;
@@ -425,10 +425,10 @@
 	.modal__close {
 		flex-shrink: 0;
 		border: 1px solid var(--border-2);
-		background: color-mix(in srgb, #ffffff 4%, transparent);
+		background: color-mix(in srgb, var(--paper-white) 4%, transparent);
 		color: var(--muter);
 		font-family: var(--font-mono);
-		font-size: 0.7rem;
+		font-size: 0.75rem;
 		line-height: 1;
 		padding: 0.3rem 0.4rem;
 		cursor: pointer;
@@ -459,7 +459,7 @@
 		padding: 0.55rem 0.85rem;
 		min-height: 2.75rem;
 		display: grid;
-		grid-template-columns: 1fr auto;
+		grid-template-columns: minmax(0, 1fr) auto;
 		grid-template-rows: auto auto;
 		align-content: center;
 		gap: 0.25rem 0.5rem;
@@ -474,7 +474,7 @@
 	}
 
 	.result__title {
-		font-size: 0.88rem;
+		font-size: 0.875rem;
 		color: color-mix(in srgb, var(--text) 95%, transparent);
 		font-weight: 600;
 		grid-column: 1;
@@ -498,17 +498,17 @@
 	}
 
 	.tag {
-		font-size: 0.7rem;
+		font-size: 0.75rem;
 		color: var(--muted);
 		border: 1px solid var(--border-2);
 		padding: 0.1rem 0.35rem;
-		background: color-mix(in srgb, #ffffff 3%, transparent);
+		background: color-mix(in srgb, var(--paper-white) 3%, transparent);
 	}
 
 	.empty,
 	.hint {
 		padding: 1.25rem 0.85rem;
-		font-size: 0.88rem;
+		font-size: 0.875rem;
 		color: var(--muted);
 		text-align: center;
 	}
@@ -522,9 +522,9 @@
 		gap: 1rem;
 		padding: 0.5rem 0.85rem;
 		border-top: 1px solid var(--border-2);
-		font-size: 0.72rem;
+		font-size: 0.75rem;
 		color: var(--muter);
-		background: color-mix(in srgb, #ffffff 2%, transparent);
+		background: color-mix(in srgb, var(--paper-white) 2%, transparent);
 		flex-shrink: 0;
 	}
 
@@ -539,8 +539,8 @@
 		font-family: var(--font-mono);
 		padding: 0.1rem 0.3rem;
 		border: 1px solid var(--border-2);
-		background: color-mix(in srgb, #ffffff 4%, transparent);
-		font-size: 0.7rem;
+		background: color-mix(in srgb, var(--paper-white) 4%, transparent);
+		font-size: 0.75rem;
 	}
 
 </style>

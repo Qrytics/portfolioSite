@@ -100,16 +100,15 @@
 
 	.feat__ribbon {
 		color: var(--gold);
-		font-size: 0.68rem;
+		font-size: 0.75rem;
 		font-weight: 700;
-		letter-spacing: 0.14em;
-		text-transform: uppercase;
+		letter-spacing: 0;
 	}
 
 	.feat__title {
 		margin: 0;
 		color: var(--text);
-		font-size: 0.92rem;
+		font-size: 0.875rem;
 		line-height: 1.35;
 	}
 
@@ -125,7 +124,7 @@
 	.feat__meta {
 		margin: 0;
 		color: var(--muter);
-		font-size: 0.74rem;
+		font-size: 0.75rem;
 	}
 
 	.featured--compact .feat {
@@ -154,11 +153,11 @@
 		}
 
 		.feat__title {
-			font-size: 0.8rem;
+			font-size: 0.75rem;
 		}
 
 		.feat__meta {
-			font-size: 0.68rem;
+			font-size: 0.75rem;
 		}
 	}
 </style>

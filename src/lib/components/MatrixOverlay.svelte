@@ -198,7 +198,7 @@
 		display: flex;
 		align-items: center;
 		justify-content: center;
-		background: #000;
+		background: var(--ink-black);
 	}
 
 	.matrix-canvas {
@@ -224,7 +224,7 @@
 		z-index: 1;
 		text-align: center;
 		padding: 2rem;
-		background: color-mix(in srgb, #000 80%, transparent);
+		background: color-mix(in srgb, var(--ink-black) 80%, transparent);
 		border: 2px solid var(--accent);
 		box-shadow: 0 0 20px color-mix(in srgb, var(--accent) 50%, transparent);
 		max-width: 500px;
@@ -241,7 +241,7 @@
 	.matrix-subtitle {
 		margin: 0 0 1.5rem;
 		font-family: var(--font-mono);
-		font-size: 0.9rem;
+		font-size: 0.875rem;
 		color: color-mix(in srgb, var(--text) 85%, transparent);
 	}
 
@@ -251,7 +251,7 @@
 		background: color-mix(in srgb, var(--accent) 10%, transparent);
 		color: var(--accent);
 		font-family: var(--font-mono);
-		font-size: 0.85rem;
+		font-size: 0.875rem;
 		cursor: pointer;
 		transition: all 0.2s;
 	}

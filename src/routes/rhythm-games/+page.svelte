@@ -128,15 +128,14 @@
 	.section-title {
 		margin: 0 0 1rem;
 		font-family: var(--font-mono);
-		font-size: 0.82rem;
-		letter-spacing: 0.1em;
-		text-transform: uppercase;
+		font-size: 0.875rem;
+		letter-spacing: 0;
 		color: var(--muter);
 	}
 
 	.video-grid {
 		display: grid;
-		grid-template-columns: 1fr;
+		grid-template-columns: minmax(0, 1fr);
 		gap: 1.25rem;
 	}
 
@@ -179,7 +178,7 @@
 
 	.bottom-row {
 		display: grid;
-		grid-template-columns: 1fr auto 1fr;
+		grid-template-columns: minmax(0, 1fr) auto 1fr;
 		align-items: center;
 		gap: 1rem;
 		margin-top: 1.5rem;
@@ -191,10 +190,10 @@
 
 	.back-link a {
 		font-family: var(--font-mono);
-		font-size: 0.82rem;
+		font-size: 0.875rem;
 		color: var(--muter);
 		text-decoration: none;
-		letter-spacing: 0.04em;
+		letter-spacing: 0;
 		transition: color 0.14s;
 	}
 
@@ -204,7 +203,7 @@
 
 	@media (max-width: 640px) {
 		.bottom-row {
-			grid-template-columns: 1fr;
+			grid-template-columns: minmax(0, 1fr);
 		}
 
 		.back-link {

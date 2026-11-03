@@ -180,7 +180,7 @@
 
 	.chip {
 		font-family: var(--font-mono);
-		font-size: 0.76rem;
+		font-size: 0.75rem;
 		min-height: 2rem;
 		padding: 0.3rem 0.65rem;
 		border: 1px solid var(--border-2);
@@ -208,7 +208,7 @@
 		padding: 0;
 		display: grid;
 		gap: 1.5rem;
-		grid-template-columns: 1fr;
+		grid-template-columns: minmax(0, 1fr);
 	}
 
 	@media (min-width: 720px) {
@@ -283,13 +283,13 @@
 	.game-card__subtitle {
 		margin: 0;
 		font-family: var(--font-mono);
-		font-size: 0.78rem;
+		font-size: 0.75rem;
 		color: var(--accent);
 	}
 
 	.game-card__desc {
 		margin: 0;
-		font-size: 0.85rem;
+		font-size: 0.875rem;
 		color: var(--muted);
 		line-height: 1.65;
 	}
@@ -315,7 +315,7 @@
 
 	.tag {
 		font-family: var(--font-mono);
-		font-size: 0.7rem;
+		font-size: 0.75rem;
 		color: var(--muter);
 		border: 1px solid var(--border-2);
 		padding: 0.15rem 0.45rem;
@@ -328,7 +328,7 @@
 		display: inline-flex;
 		align-items: center;
 		font-family: var(--font-mono);
-		font-size: 0.82rem;
+		font-size: 0.875rem;
 		color: var(--accent);
 		border: 1px solid var(--accent);
 		padding: 0.3rem 0.75rem;
@@ -361,7 +361,7 @@
 
 		.subtitle {
 			margin-bottom: 1.75rem;
-			font-size: 0.92rem;
+			font-size: 0.875rem;
 			line-height: 1.6;
 		}
 
@@ -371,8 +371,8 @@
 			scrollbar-width: none;
 			margin-inline: -1rem;
 			padding-inline: 1rem;
-			-webkit-mask-image: linear-gradient(90deg, #000 85%, transparent);
-			mask-image: linear-gradient(90deg, #000 85%, transparent);
+			-webkit-mask-image: linear-gradient(90deg, var(--ink-black) 85%, transparent);
+			mask-image: linear-gradient(90deg, var(--ink-black) 85%, transparent);
 		}
 
 		.filter-row::-webkit-scrollbar {

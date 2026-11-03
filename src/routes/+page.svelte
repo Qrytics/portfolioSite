@@ -201,7 +201,7 @@
 		margin: -0.5rem auto 0;
 		padding: 0 clamp(1.25rem, 4vw, 3rem) 1rem;
 		text-align: right;
-		font-size: 0.86rem;
+		font-size: 0.875rem;
 	}
 
 	.all-projects a {

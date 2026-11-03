@@ -43,7 +43,7 @@
 		white-space: normal;
 		overflow-wrap: anywhere;
 		font-family: var(--font-mono);
-		font-size: 0.9rem;
+		font-size: 0.875rem;
 		animation: toast-in 0.2s ease-out;
 	}
 

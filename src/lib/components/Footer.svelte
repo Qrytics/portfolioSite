@@ -83,7 +83,6 @@
 <footer class="footer">
 	<div class="footer__inner">
 		<span class="footer__copy">© {year} {profile.name}</span>
-		<span class="footer__sep">·</span>
 		<button
 			type="button"
 			class="email-btn footer-link"
@@ -93,22 +92,18 @@
 		>
 			{profile.email}
 		</button>
-		<span class="footer__sep">·</span>
 		<a href={profile.github} target="_blank" rel="noopener noreferrer" class="footer-link">
 			github<span class="sr-only"> (opens in new tab)</span>
 		</a>
-		<span class="footer__sep">·</span>
 		<a href={profile.linkedin} target="_blank" rel="noopener noreferrer" class="footer-link">
 			linkedin<span class="sr-only"> (opens in new tab)</span>
 		</a>
-		<span class="footer__sep">·</span>
 		<!-- `rel="external"`: /tutoring is a proxy rewrite, not a route — it tells the prerender crawler
 		     not to follow it (it would 404 the build) and the client router not to handle it. -->
 		<a href="/tutoring" target="_blank" rel="external noopener noreferrer" class="footer-link">
 			tutoring<span class="sr-only"> (opens in new tab)</span>
 		</a>
 		{#if profile.twitter}
-			<span class="footer__sep">·</span>
 			<a href={profile.twitter} target="_blank" rel="noopener noreferrer" class="footer-link">
 				twitter<span class="sr-only"> (opens in new tab)</span>
 			</a>
@@ -119,7 +114,7 @@
 	     found; the count is the whole game's scoreboard. -->
 	<div class="footer__toys">
 		<button type="button" class="high-five" onclick={highFive} aria-label="High five. {highFives} so far">
-			<span class="high-five__hand" aria-hidden="true">✋</span> high five{highFives ? ` · ${highFives}` : ''}
+			<span class="high-five__hand" aria-hidden="true">✋</span> high five{highFives ? ` ${highFives}` : ''}
 		</button>
 		<button type="button" class="secrets-btn" onclick={showHint} aria-label="Secrets found: {foundCount} of {total}. Get a hint.">
 			<span aria-hidden="true">{foundCount === total ? '🏆' : '✦'}</span>
@@ -158,15 +153,12 @@
 		align-items: center;
 		justify-content: center;
 		color: var(--muted);
-		font-size: 0.95rem;
+		font-size: 0.875rem;
 		max-width: 86rem;
 		margin: 0 auto;
 		font-family: var(--font-mono);
 	}
 
-	.footer__sep {
-		color: color-mix(in srgb, var(--text) 38%, transparent);
-	}
 
 	@media (max-width: 64rem) {
 		.footer {
@@ -184,7 +176,7 @@
 			justify-content: center;
 			justify-items: center;
 			gap: 0.5rem 1.4rem;
-			font-size: 0.9rem;
+			font-size: 0.875rem;
 		}
 
 		.footer__copy,
@@ -194,16 +186,13 @@
 
 		.footer__copy {
 			color: var(--muter);
-			font-size: 0.82rem;
+			font-size: 0.875rem;
 		}
 
 		.email-btn {
 			margin-bottom: 0.35rem;
 		}
 
-		.footer__sep {
-			display: none;
-		}
 
 		.back-to-top {
 			position: static;
@@ -213,7 +202,7 @@
 	}
 
 	.footer-link {
-		color: color-mix(in srgb, var(--accent) 92%, transparent);
+		color: var(--accent-text);
 		text-decoration: none;
 		border-bottom: 1px solid color-mix(in srgb, var(--accent) 30%, transparent);
 		transition: border-color 0.14s ease, color 0.14s ease;
@@ -270,7 +259,7 @@
 		background: var(--panel);
 		color: var(--text);
 		font-family: var(--font-mono);
-		font-size: 0.74rem;
+		font-size: 0.75rem;
 		cursor: pointer;
 		font-variant-numeric: tabular-nums;
 	}
@@ -322,7 +311,7 @@
 		background: none;
 		color: var(--muter);
 		font-family: var(--font-mono);
-		font-size: 0.74rem;
+		font-size: 0.75rem;
 		letter-spacing: 0.02em;
 		cursor: pointer;
 		font-variant-numeric: tabular-nums;

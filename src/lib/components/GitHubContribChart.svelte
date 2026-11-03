@@ -832,7 +832,7 @@
 
 	.termbar__prompt {
 		font-family: var(--font-mono);
-		font-size: 0.85rem;
+		font-size: 0.875rem;
 		color: var(--accent);
 		font-weight: 700;
 		flex-shrink: 0;
@@ -840,9 +840,9 @@
 
 	.termbar__label {
 		font-family: var(--font-mono);
-		font-size: 0.82rem;
+		font-size: 0.875rem;
 		color: var(--text);
-		letter-spacing: 0.04em;
+		letter-spacing: 0;
 		text-decoration: none;
 		white-space: nowrap;
 		overflow: hidden;
@@ -858,7 +858,7 @@
 
 	.termbar__meta {
 		font-family: var(--font-mono);
-		font-size: 0.78rem;
+		font-size: 0.75rem;
 		color: var(--muted);
 		flex-shrink: 0;
 		white-space: nowrap;
@@ -921,8 +921,8 @@
 
 	.months__label {
 		height: 1rem;
-		font-size: 0.72rem;
-		color: color-mix(in srgb, var(--text) 68%, transparent);
+		font-size: 0.75rem;
+		color: var(--muter);
 		text-align: left;
 		vertical-align: bottom;
 		font-weight: 400;
@@ -932,9 +932,9 @@
 
 	.weekdays__label {
 		width: 2rem;
-		font-size: 0.72rem;
+		font-size: 0.75rem;
 		font-weight: 400;
-		color: color-mix(in srgb, var(--text) 68%, transparent);
+		color: var(--muter);
 		text-align: left;
 		vertical-align: middle;
 		white-space: nowrap;
@@ -1019,7 +1019,7 @@
 		opacity: 0;
 		padding: 0.28rem 0.45rem;
 		font-family: var(--font-mono);
-		font-size: 0.68rem;
+		font-size: 0.75rem;
 		line-height: 1.2;
 		white-space: nowrap;
 		color: var(--text);
@@ -1126,8 +1126,8 @@
 
 	.bar__tick {
 		font-family: var(--font-mono);
-		font-size: 0.62rem;
-		color: color-mix(in srgb, var(--text) 60%, transparent);
+		font-size: 0.75rem;
+		color: var(--muter);
 	}
 
 	.bar--active .bar__tick {
@@ -1137,7 +1137,7 @@
 	.bars__readout {
 		margin: 0;
 		font-family: var(--font-mono);
-		font-size: 0.72rem;
+		font-size: 0.75rem;
 		color: var(--muted);
 		min-height: 1.1em;
 	}
@@ -1150,7 +1150,7 @@
 	.disclose {
 		justify-self: start;
 		font-family: var(--font-mono);
-		font-size: 0.72rem;
+		font-size: 0.75rem;
 		color: var(--muted);
 		background: transparent;
 		border: 1px solid var(--border-2);
@@ -1188,8 +1188,8 @@
 
 	.legend__label {
 		font-family: var(--font-mono);
-		font-size: 0.78rem;
-		color: color-mix(in srgb, var(--text) 68%, transparent);
+		font-size: 0.75rem;
+		color: var(--muter);
 	}
 
 	.legend__squares {
@@ -1227,8 +1227,8 @@
 
 	.year {
 		font-family: var(--font-mono);
-		font-size: 0.76rem;
-		color: color-mix(in srgb, var(--text) 68%, transparent);
+		font-size: 0.75rem;
+		color: var(--muter);
 		padding: 0.22rem 0.45rem;
 		border: 1px solid var(--border-2);
 		background: transparent;

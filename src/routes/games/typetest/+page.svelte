@@ -23,7 +23,7 @@
 		max-width: 800px;
 		margin: 0 auto;
 		padding: 0 1rem;
-		font-size: 0.82rem;
+		font-size: 0.875rem;
 	}
 
 	.back a {

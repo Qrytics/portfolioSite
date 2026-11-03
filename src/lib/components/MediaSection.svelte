@@ -182,7 +182,7 @@
 	.media {
 		padding: 0.9rem;
 		border-bottom: 1px solid var(--border-2);
-		background: color-mix(in srgb, #000 12%, transparent);
+		background: color-mix(in srgb, var(--ink-black) 12%, transparent);
 	}
 
 	.media__frame {
@@ -232,12 +232,12 @@
 		min-height: 0;
 		border: 1px dashed color-mix(in srgb, var(--text) 18%, transparent);
 		background: linear-gradient(180deg, color-mix(in srgb, var(--accent) 6%, transparent), transparent 70%), color-mix(in srgb, var(--text) 3%, transparent);
-		color: color-mix(in srgb, var(--text) 72%, transparent);
+		color: var(--muter);
 		font-family: var(--font-mono);
 	}
 
 	.media__placeholderText {
-		font-size: 0.9rem;
+		font-size: 0.875rem;
 		letter-spacing: 0.02em;
 		text-align: center;
 		padding: 0 0.75rem;
@@ -257,7 +257,7 @@
 		background: color-mix(in srgb, var(--bg) 78%, transparent);
 		color: var(--text);
 		font-family: var(--font-mono);
-		font-size: 0.7rem;
+		font-size: 0.75rem;
 		cursor: pointer;
 		opacity: 0.75;
 		transition: opacity 0.14s;

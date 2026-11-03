@@ -124,8 +124,8 @@
 		position: relative;
 		z-index: 1;
 		border: 1px solid var(--border);
-		background: linear-gradient(180deg, color-mix(in srgb, #ffffff 3%, transparent), transparent 52%), var(--panel);
-		box-shadow: 0 10px 26px color-mix(in srgb, #000000 40%, transparent);
+		background: linear-gradient(180deg, color-mix(in srgb, var(--paper-white) 3%, transparent), transparent 52%), var(--panel);
+		box-shadow: 0 10px 26px color-mix(in srgb, var(--ink-black) 40%, transparent);
 		overflow: hidden;
 		min-width: 0;
 		height: 100%;
@@ -144,7 +144,7 @@
 	.card:hover {
 		z-index: 2;
 		border-color: color-mix(in srgb, var(--accent) 25%, transparent);
-		box-shadow: 0 14px 36px color-mix(in srgb, #000000 50%, transparent);
+		box-shadow: 0 14px 36px color-mix(in srgb, var(--ink-black) 50%, transparent);
 	}
 
 	/* Termbar */
@@ -155,7 +155,7 @@
 		gap: 0.85rem;
 		padding: 0.75rem 0.9rem;
 		border-bottom: 1px solid var(--border-2);
-		background: color-mix(in srgb, #000000 22%, transparent);
+		background: color-mix(in srgb, var(--ink-black) 22%, transparent);
 		min-width: 0;
 	}
 
@@ -180,7 +180,7 @@
 
 	.termbar__chevron {
 		flex: 0 0 auto;
-		font-size: 0.8rem;
+		font-size: 0.75rem;
 		line-height: 1;
 		color: var(--accent);
 		transition: transform 0.14s ease;
@@ -197,7 +197,7 @@
 
 	.termbar__title {
 		margin: 0;
-		font-size: 0.92rem;
+		font-size: 0.875rem;
 		letter-spacing: 0.02em;
 		color: color-mix(in srgb, var(--text) 90%, transparent);
 		white-space: nowrap;
@@ -210,11 +210,11 @@
 
 	/* Source badge */
 	.badge {
-		font-size: 0.78rem;
+		font-size: 0.75rem;
 		color: var(--muted);
 		border: 1px solid var(--border-2);
 		padding: 0.2rem 0.55rem;
-		background: color-mix(in srgb, #ffffff 3%, transparent);
+		background: color-mix(in srgb, var(--paper-white) 3%, transparent);
 		text-transform: lowercase;
 		white-space: nowrap;
 		flex-shrink: 0;
@@ -222,14 +222,14 @@
 
 	.badge[data-type='open-source'] {
 		border-color: color-mix(in srgb, var(--accent) 25%, transparent);
-		color: color-mix(in srgb, var(--accent) 92%, transparent);
+		color: var(--accent-text);
 		background: color-mix(in srgb, var(--accent) 5%, transparent);
 	}
 
 	.badge[data-type='closed-source'] {
 		border-color: color-mix(in srgb, var(--accent-2) 22%, transparent);
-		color: color-mix(in srgb, var(--accent-2) 92%, transparent);
-		background: color-mix(in srgb, var(--accent-2) 5%, transparent);
+		color: var(--accent-2-text);
+		background: var(--panel);
 	}
 
 	.badge[data-type='community / ecosystem'] {
@@ -267,7 +267,7 @@
 	.card__subtitle {
 		margin: 0;
 		color: var(--muted);
-		font-size: 0.92rem;
+		font-size: 0.875rem;
 		line-height: 1.45;
 		overflow-wrap: anywhere;
 	}
@@ -275,8 +275,8 @@
 	.card__dates {
 		margin: 0;
 		font-family: var(--font-mono);
-		font-size: 0.78rem;
-		color: color-mix(in srgb, var(--text) 65%, transparent);
+		font-size: 0.75rem;
+		color: var(--muter);
 		letter-spacing: 0.02em;
 	}
 
@@ -284,7 +284,7 @@
 		margin: 0;
 		color: color-mix(in srgb, var(--text) 85%, transparent);
 		line-height: 1.6;
-		font-size: 0.97rem;
+		font-size: 0.875rem;
 		overflow-wrap: anywhere;
 	}
 
@@ -297,12 +297,12 @@
 	}
 
 	.tech-badge {
-		font-size: 0.72rem;
+		font-size: 0.75rem;
 		font-weight: 500;
 		color: var(--muted);
 		border: 1px solid var(--border-2);
 		padding: 0.18rem 0.45rem;
-		background: color-mix(in srgb, #ffffff 3%, transparent);
+		background: color-mix(in srgb, var(--paper-white) 3%, transparent);
 		text-transform: lowercase;
 		letter-spacing: 0.02em;
 	}
@@ -334,7 +334,7 @@
 		padding: 0.55rem 0.75rem;
 		border: 1px solid var(--border);
 		text-decoration: none;
-		font-size: 0.9rem;
+		font-size: 0.875rem;
 		line-height: 1;
 		transition: transform 0.14s ease, background-color 0.14s ease, border-color 0.14s ease, color 0.14s ease;
 		font-family: var(--font-mono);
@@ -347,7 +347,7 @@
 	.btn--primary {
 		border-color: color-mix(in srgb, var(--accent) 32%, transparent);
 		background: color-mix(in srgb, var(--accent) 9%, transparent);
-		color: color-mix(in srgb, var(--accent) 95%, transparent);
+		color: var(--accent-text);
 	}
 
 	.btn--primary:hover {
@@ -356,13 +356,13 @@
 	}
 
 	.btn--ghost {
-		background: color-mix(in srgb, #ffffff 3%, transparent);
+		background: color-mix(in srgb, var(--paper-white) 3%, transparent);
 		color: color-mix(in srgb, var(--text) 85%, transparent);
 		border-color: color-mix(in srgb, var(--text) 14%, transparent);
 	}
 
 	.btn--ghost:hover {
-		background: color-mix(in srgb, #ffffff 6%, transparent);
+		background: color-mix(in srgb, var(--paper-white) 6%, transparent);
 		border-color: color-mix(in srgb, var(--text) 20%, transparent);
 	}
 
@@ -397,7 +397,7 @@
 		/* Wrap to two lines instead of truncating: the badge used to eat the width, leaving
 		   "Smart Home IoT Das…" as the only clue to what a card is. */
 		.termbar__title {
-			font-size: 0.9rem;
+			font-size: 0.875rem;
 			line-height: 1.35;
 			white-space: normal;
 			display: -webkit-box;
@@ -407,7 +407,7 @@
 		}
 
 		.badge {
-			font-size: 0.68rem;
+			font-size: 0.75rem;
 			padding: 0.15rem 0.4rem;
 			margin-top: 0.1rem;
 		}
@@ -418,17 +418,17 @@
 		}
 
 		.card__dates {
-			font-size: 0.72rem;
+			font-size: 0.75rem;
 		}
 
 		.card__subtitle {
 			color: var(--text);
-			font-size: 0.9rem;
+			font-size: 0.875rem;
 			line-height: 1.5;
 		}
 
 		.card__desc {
-			font-size: 0.84rem;
+			font-size: 0.875rem;
 			line-height: 1.55;
 			color: var(--muted);
 		}
@@ -449,7 +449,7 @@
 		}
 
 		.tech-badge {
-			font-size: 0.66rem;
+			font-size: 0.75rem;
 			padding: 0.14rem 0.38rem;
 		}
 
@@ -466,7 +466,7 @@
 			justify-content: center;
 			min-height: 2.75rem;
 			padding: 0.5rem 0.6rem;
-			font-size: 0.82rem;
+			font-size: 0.875rem;
 		}
 
 		.btn:hover {

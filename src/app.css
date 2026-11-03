@@ -1,11 +1,15 @@
+/* Hallmark · shape: landing page · genre: modern-minimal · theme: custom (bench) · paper: bone #e4e1d9 · accent: teal #0b6e6a + vermilion #b83f12 · display: Martian Mono · body: Martian Mono
+ * nav: sticky header, anchors · signature: a ruler readout under the hero showing years of work and project count · states: hover, focus-visible, active, disabled, loading, empty, error
+ * axes: bone/mono/teal · posture: restrained · contrast: pass
+ * Light instrument panel: hairlines and tonal fills, square, 12/14/17/20/24/50 scale, 4px spacing. Dark theme = the bench's dark wells. */
 /* ============================================================
    CSS Custom Properties — thavlik.dev-inspired Design System
    ============================================================ */
 :root {
 	/* Background layers */
-	--bg: #0b0e12;
-	--panel: #0f141b;
-	--panel-2: #0c1016;
+	--bg: #0b1a1b;
+	--panel: #10201f;
+	--panel-2: #0b1a1b;
 
 	/* Borders */
 	--border: rgba(222, 232, 255, 0.14);
@@ -17,14 +21,24 @@
 	--muter: rgba(243, 246, 255, 0.52);
 
 	/* Accent colors — change --accent to your brand color */
-	--accent: #36f2c2;
-	--accent-2: #f6c177;
+	--accent: #3fb8b0;
+	--accent-2: #e8845a;
 	/* --accent as *text*. Same value in dark mode; in light mode #0d9488 is only ~3.7:1 on white
 	   (WCAG AA wants 4.5:1 for body text), so links and tags use a darker teal of the same hue there
 	   while fills and borders keep --accent. */
 	--accent-text: var(--accent);
 	/* Focus ring: ≥3:1 against the page in both themes (WCAG 2.4.11). */
 	--focus-ring: color-mix(in srgb, var(--accent) 80%, transparent);
+	--accent-2-text: #e8845a;
+	--well: #0b1220; /* code wells stay dark in both themes */
+	--well-ink: #e2e8f0;
+	--well-line: #1e293b;
+	--scrim: rgba(0, 0, 0, 0.55);
+	--thumb: rgba(222, 232, 255, 0.15);
+	--thumb-hover: rgba(222, 232, 255, 0.3);
+	--drop: 0 24px 60px -20px rgba(0, 0, 0, 0.6);
+	--paper-white: #f7f5ef; /* never pure white: tinted toward bone */
+	--ink-black: #0b0c0d;
 	--hot: #ff5b57;
 	--warm: #febc2e;
 	--cool: #28c840;
@@ -33,7 +47,7 @@
 	--shadow: 0 14px 40px rgba(0, 0, 0, 0.55);
 
 	/* Typography — all monospace like thavlik.dev */
-	--font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace;
+	--font-mono: 'Martian Mono Variable', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace;
 }
 
 /* ============================================================
@@ -64,21 +78,30 @@
 	--clr-primary-a40: #3c4d4a;
 	--clr-primary-a50: #14211f;
 
-	--bg: #f7faf9;
-	--panel: #ffffff;
-	--panel-2: #f1f6f5;
-	--border: #dde6e4;
-	--border-2: #e8efed;
+	--bg: #e4e1d9;
+	--panel: #f2efe8;
+	--panel-2: #ebe8e0;
+	--border: #c9c5ba;
+	--border-2: #d8d4c9;
 
 	/* Ink → slate → grey. All ≥ 4.5:1 on both --bg and --panel. */
-	--text: #14211f;
-	--muted: #3c4d4a;
-	--muter: #5b6c69;
+	--text: #17181a;
+	--muted: #3d3f42;
+	--muter: #5a5c5f;
 
-	--accent: #0d9488;
-	--accent-2: #b45309;
-	--accent-text: #0f766e;
-	--focus-ring: #0f766e;
+	--accent: #0b6e6a;
+	--accent-2: #b83f12;
+	--accent-text: #0b6e6a;
+	/* Status colours re-tuned for paper: the dark-mode values are under 2:1 on bone. */
+	--accent-2-text: #b83f12;
+	--scrim: rgba(23, 24, 26, 0.28);
+	--thumb: rgba(23, 24, 26, 0.22);
+	--thumb-hover: rgba(23, 24, 26, 0.38);
+	--drop: 0 24px 60px -20px rgba(23, 24, 26, 0.35);
+	--hot: #b3261e;
+	--warm: #7f5200;
+	--cool: #1e6b3a;
+	--focus-ring: #0b6e6a;
 
 	--shadow: 0 1px 2px rgba(20, 33, 31, 0.05), 0 8px 24px -12px rgba(20, 33, 31, 0.12);
 	--shadow-sm: 0 1px 2px rgba(20, 33, 31, 0.06);
@@ -145,7 +168,7 @@
 }
 
 [data-theme='light'] :where(.modal, .terminal) {
-	box-shadow: 0 24px 60px -20px rgba(20, 33, 31, 0.35) !important;
+	box-shadow: var(--drop) !important;
 }
 
 [data-theme='light'] :where(.modal__footer, kbd) {
@@ -155,7 +178,7 @@
 }
 
 [data-theme='light'] :where(.backdrop, .nav-backdrop) {
-	background: rgba(20, 33, 31, 0.28) !important;
+	background: var(--scrim) !important;
 }
 
 [data-theme='light'] :where(.result--selected .result__btn, .result__btn:hover) {
@@ -192,13 +215,12 @@
 	color: var(--muted) !important;
 }
 
-/* Keep the per-kind hue as a cue — darker shades of the dark-mode palette, so they pass on white. */
-[data-theme='light'] .tech-badge[data-kind='language'] { color: #1d4ed8 !important; border-color: #bfdbfe !important; background: #eff6ff !important; }
-[data-theme='light'] .tech-badge[data-kind='framework'] { color: #0f766e !important; border-color: #99f6e4 !important; background: #f0fdfa !important; }
-[data-theme='light'] .tech-badge[data-kind='api'] { color: #92400e !important; border-color: #fde68a !important; background: #fffbeb !important; }
-[data-theme='light'] .tech-badge[data-kind='service'] { color: #7e22ce !important; border-color: #e9d5ff !important; background: #faf5ff !important; }
-[data-theme='light'] .tech-badge[data-kind='protocol'] { color: #be185d !important; border-color: #fbcfe8 !important; background: #fdf2f8 !important; }
-[data-theme='light'] .tech-badge[data-kind='tool'] { color: #4d7c0f !important; border-color: #d9f99d !important; background: #f7fee7 !important; }
+/* Tag kinds map onto the bench palette: teal, vermilion, ink. Hue carries no meaning beyond that. */
+[data-theme='light'] .tech-badge {
+	color: color-mix(in srgb, var(--tag-fg) 78%, var(--text)) !important;
+	border-color: color-mix(in srgb, var(--tag-c) 45%, var(--border)) !important;
+	background: color-mix(in srgb, var(--tag-c) 8%, var(--panel)) !important;
+}
 
 [data-theme='light'] .badge[data-type='open-source'] {
 	background: color-mix(in srgb, var(--accent) 8%, var(--panel)) !important;
@@ -241,12 +263,6 @@
 	border-color: var(--accent) !important;
 }
 
-[data-theme='light'] .tech-badge[data-tech='next.js'] {
-	background: #f1f5f9 !important;
-	border-color: #cbd5e1 !important;
-	color: #0f172a !important;
-}
-
 /* ============================================================
    Reset & Base
    ============================================================ */
@@ -271,13 +287,7 @@ html {
    Keep class management in JS, but never hard-hide main content from CSS. */
 
 body {
-	background: linear-gradient(
-			180deg,
-			rgba(54, 242, 194, 0.08),
-			transparent 36%
-		),
-		linear-gradient(0deg, rgba(246, 193, 119, 0.06), transparent 30%),
-		var(--bg);
+	background: var(--bg);
 	color: var(--text);
 	font-family: var(--font-mono);
 	font-size: 16px;
@@ -301,31 +311,6 @@ li {
 	overflow-wrap: anywhere;
 }
 
-/* CSS grid overlay */
-body::before {
-	content: '';
-	position: fixed;
-	inset: 0;
-	pointer-events: none;
-	z-index: 0;
-	background-image:
-		linear-gradient(rgba(255, 255, 255, 0.035) 1px, transparent 1px),
-		linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
-	background-size: 56px 56px;
-	opacity: 0.35;
-	-webkit-mask-image: radial-gradient(closest-side, rgba(0, 0, 0, 0.75), transparent 70%);
-	mask-image: radial-gradient(closest-side, rgba(0, 0, 0, 0.75), transparent 70%);
-}
-
-[data-theme='light'] body::before {
-	background-image:
-		linear-gradient(rgba(15, 23, 42, 0.04) 1px, transparent 1px),
-		linear-gradient(90deg, rgba(15, 23, 42, 0.04) 1px, transparent 1px);
-	opacity: 0.16;
-	-webkit-mask-image: radial-gradient(closest-side, rgba(0, 0, 0, 0.18), transparent 72%);
-	mask-image: radial-gradient(closest-side, rgba(0, 0, 0, 0.18), transparent 72%);
-}
-
 /* ============================================================
    Selection
    ============================================================ */
@@ -346,19 +331,11 @@ body::before {
 }
 
 ::-webkit-scrollbar-thumb {
-	background: rgba(222, 232, 255, 0.15);
+	background: var(--thumb);
 }
 
 ::-webkit-scrollbar-thumb:hover {
-	background: rgba(222, 232, 255, 0.3);
-}
-
-[data-theme='light'] ::-webkit-scrollbar-thumb {
-	background: rgba(20, 33, 31, 0.22);
-}
-
-[data-theme='light'] ::-webkit-scrollbar-thumb:hover {
-	background: rgba(20, 33, 31, 0.38);
+	background: var(--thumb-hover);
 }
 
 /* ============================================================
@@ -395,9 +372,9 @@ code, pre {
 /* Keep code surfaces in a developer-tool dark style in both themes. */
 pre,
 code:not(.tag):not(.badge) {
-	background: #0b1220;
-	color: #e2e8f0;
-	border: 1px solid #1e293b;
+	background: var(--well);
+	color: var(--well-ink);
+	border: 1px solid var(--well-line);
 }
 
 pre {
@@ -452,13 +429,13 @@ input {
    deliberately keeps its single teal pill style (the `.tech-badge` override above), so these are
    only read in dark mode.
    ============================================================ */
-[data-kind='language'] { --tag-c: #3b82f6; --tag-fg: #93c5fd; }
-[data-kind='framework'] { --tag-c: #14b8a6; --tag-fg: #99f6e4; }
-[data-kind='api'] { --tag-c: #f59e0b; --tag-fg: #fcd34d; }
-[data-kind='service'] { --tag-c: #a855f7; --tag-fg: #e9d5ff; }
-[data-kind='protocol'] { --tag-c: #ec4899; --tag-fg: #fbcfe8; }
-[data-kind='tool'] { --tag-c: #84cc16; --tag-fg: #d9f99d; }
-[data-kind='other'] { --tag-c: #94a3b8; --tag-fg: #cbd5e1; }
+[data-kind='language'] { --tag-c: var(--accent); --tag-fg: var(--accent-text); }
+[data-kind='framework'] { --tag-c: var(--accent); --tag-fg: var(--accent-text); }
+[data-kind='api'] { --tag-c: var(--accent-2); --tag-fg: var(--accent-2-text); }
+[data-kind='service'] { --tag-c: var(--accent-2); --tag-fg: var(--accent-2-text); }
+[data-kind='protocol'] { --tag-c: var(--text); --tag-fg: var(--text); }
+[data-kind='tool'] { --tag-c: var(--text); --tag-fg: var(--text); }
+[data-kind='other'] { --tag-c: var(--muter); --tag-fg: var(--muted); }
 
 /* ============================================================
    Touch targets — 44x44 CSS px on coarse pointers (WCAG 2.5.5 / Apple HIG). Unlayered globals, so
@@ -504,13 +481,6 @@ input {
 	   it, so every in-page anchor still animated the viewport for people who asked it not to. */
 	html {
 		scroll-behavior: auto;
-	}
-}
-
-@media (max-width: 900px) {
-	/* Disable expensive full-page grid overlay on smaller devices for smoother scrolling. */
-	body::before {
-		display: none;
 	}
 }
 

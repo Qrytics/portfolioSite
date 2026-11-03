@@ -126,7 +126,7 @@
 		position: fixed;
 		inset: 0;
 		z-index: 1100;
-		background: color-mix(in srgb, #000 90%, transparent);
+		background: color-mix(in srgb, var(--ink-black) 90%, transparent);
 	}
 
 	.lightbox {
@@ -157,7 +157,7 @@
 
 	.lightbox__count {
 		font-family: var(--font-mono);
-		font-size: 0.82rem;
+		font-size: 0.875rem;
 		color: #e2e8f0;
 	}
 
@@ -167,17 +167,17 @@
 		max-height: 100%;
 		min-height: 0;
 		object-fit: contain;
-		border: 1px solid color-mix(in srgb, #fff 14%, transparent);
+		border: 1px solid color-mix(in srgb, var(--paper-white) 14%, transparent);
 	}
 
 	.lightbox__btn {
 		min-height: 2.75rem;
 		padding: 0 0.9rem;
-		border: 1px solid color-mix(in srgb, #fff 22%, transparent);
+		border: 1px solid color-mix(in srgb, var(--paper-white) 22%, transparent);
 		background: color-mix(in srgb, #0b0e12 70%, transparent);
 		color: #e2e8f0;
 		font-family: var(--font-mono);
-		font-size: 0.82rem;
+		font-size: 0.875rem;
 		cursor: pointer;
 	}
 
@@ -281,7 +281,7 @@
 
 	.bottom-row {
 		display: grid;
-		grid-template-columns: 1fr auto 1fr;
+		grid-template-columns: minmax(0, 1fr) auto 1fr;
 		align-items: center;
 		gap: 1rem;
 		margin-top: 1.5rem;
@@ -293,10 +293,10 @@
 
 	.back-link a {
 		font-family: var(--font-mono);
-		font-size: 0.82rem;
+		font-size: 0.875rem;
 		color: var(--muter);
 		text-decoration: none;
-		letter-spacing: 0.04em;
+		letter-spacing: 0;
 		transition: color 0.14s;
 	}
 
@@ -341,7 +341,7 @@
 
 	@media (max-width: 640px) {
 		.bottom-row {
-			grid-template-columns: 1fr;
+			grid-template-columns: minmax(0, 1fr);
 		}
 
 		.bottom-row .back-link {

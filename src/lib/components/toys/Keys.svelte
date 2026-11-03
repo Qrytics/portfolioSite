@@ -296,7 +296,7 @@
 		height: 10.5rem;
 		padding: 3px;
 		border: 1px solid var(--border);
-		background: color-mix(in srgb, #000 35%, var(--panel-2));
+		background: color-mix(in srgb, var(--ink-black) 35%, var(--panel-2));
 		touch-action: none;
 		user-select: none;
 		outline-offset: 3px;
@@ -337,13 +337,13 @@
 	.key__name {
 		align-self: end;
 		color: var(--text);
-		font-size: 0.82rem;
+		font-size: 0.875rem;
 		font-weight: 600;
 	}
 
 	.key__name sub {
 		color: var(--muter);
-		font-size: 0.6rem;
+		font-size: 0.75rem;
 		font-weight: 400;
 	}
 
@@ -351,8 +351,7 @@
 		margin-top: 0.35rem;
 		color: var(--muter);
 		font: inherit;
-		font-size: 0.6rem;
-		text-transform: uppercase;
+		font-size: 0.75rem;
 	}
 
 	.key--on {
@@ -387,7 +386,7 @@
 
 	.note__name sub {
 		color: var(--muted);
-		font-size: 0.85rem;
+		font-size: 0.875rem;
 	}
 
 	.note__name--idle {
@@ -396,7 +395,7 @@
 
 	.note__hz {
 		color: var(--muted);
-		font-size: 0.76rem;
+		font-size: 0.75rem;
 		font-variant-numeric: tabular-nums;
 	}
 
@@ -406,7 +405,7 @@
 		position: relative;
 		min-height: 0;
 		border: 1px solid var(--border);
-		background: color-mix(in srgb, #000 30%, var(--panel-2));
+		background: color-mix(in srgb, var(--ink-black) 30%, var(--panel-2));
 	}
 
 	.scope canvas {

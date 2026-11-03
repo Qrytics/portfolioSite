@@ -1,4 +1,5 @@
 <script lang="ts">
+	import '@fontsource-variable/martian-mono/wdth.css';
 	import '../app.css';
 	import { afterNavigate, beforeNavigate } from '$app/navigation';
 	import { onMount } from 'svelte';
