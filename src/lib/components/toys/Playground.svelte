@@ -81,7 +81,7 @@
 	.lead {
 		margin-top: 0.35rem;
 		color: var(--muted);
-		font-size: 0.9rem;
+		font-size: 0.9375rem;
 	}
 
 	.sound {
@@ -95,7 +95,7 @@
 		background: var(--panel);
 		color: var(--text);
 		font: inherit;
-		font-size: 0.82rem;
+		font-size: 0.9375rem;
 		cursor: pointer;
 	}
 
@@ -105,7 +105,7 @@
 
 	.grid {
 		display: grid;
-		grid-template-columns: 1fr;
+		grid-template-columns: minmax(0, 1fr);
 		gap: 1rem;
 	}
 

@@ -175,7 +175,7 @@ source ↗
 <!-- One button even when both fields are set (they used to render as two identical "Visit Site"
      buttons). `data-sveltekit-reload` because a relative `siteUrl` (Moxel's `/Moxel/`) is a vendored
      build, not a route of this app. -->
-<a href={siteHref} target="_blank" rel="noopener noreferrer" class="btn btn--primary" data-sveltekit-reload>Visit Site ↗<span class="sr-only"> (opens in new tab)</span></a>
+<a href={siteHref} target="_blank" rel="external noopener noreferrer" class="btn btn--primary" data-sveltekit-reload>Visit Site ↗<span class="sr-only"> (opens in new tab)</span></a>
 {/if}
 {#if project.demo}
 {#if /(\.mp4|\.webm|\.ogg)(\?|#|$)/i.test(project.demo) || youTubeId}
@@ -266,7 +266,7 @@ justify-content: space-between;
 gap: 1rem;
 margin-bottom: 1.25rem;
 font-family: var(--font-mono);
-font-size: 0.82rem;
+font-size: 0.875rem;
 }
 
 .pager__link {
@@ -274,15 +274,15 @@ display: flex;
 flex-direction: column;
 gap: 0.2rem;
 max-width: 48%;
-padding: 0.6rem 0.8rem;
-border: 1px solid var(--border-2);
-background: var(--panel);
+padding: 0.6rem 0;
 text-decoration: none;
 min-height: 2.75rem;
 }
 
-.pager__link:hover {
-border-color: color-mix(in srgb, var(--accent) 45%, transparent);
+/* No box: the title picks up the accent colour on hover instead. */
+.pager__link:hover .pager__title,
+.pager__link:focus-visible .pager__title {
+color: var(--accent);
 }
 
 .pager__link--next {
@@ -292,7 +292,7 @@ text-align: right;
 
 .pager__dir {
 color: var(--muter);
-font-size: 0.74rem;
+font-size: 0.75rem;
 }
 
 .pager__title {
@@ -313,13 +313,13 @@ padding: clamp(1.25rem, 4vw, 3rem);
 
 .breadcrumb {
 font-family: var(--font-mono);
-font-size: 0.78rem;
+font-size: 0.75rem;
 color: var(--muter);
 display: flex;
 align-items: center;
 gap: 0.4rem;
 margin-bottom: 1.75rem;
-letter-spacing: 0.04em;
+letter-spacing: 0;
 }
 
 .breadcrumb a {
@@ -366,7 +366,7 @@ font-weight: 700;
 }
 
 .badge {
-font-size: 0.78rem;
+font-size: 0.75rem;
 color: var(--muted);
 border: 1px solid var(--border-2);
 padding: 0.2rem 0.55rem;
@@ -376,7 +376,7 @@ white-space: nowrap;
 flex-shrink: 0;
 }
 
-.badge[data-type='open-source'] { border-color: color-mix(in srgb, var(--accent) 25%, transparent); color: color-mix(in srgb, var(--accent) 92%, transparent); background: color-mix(in srgb, var(--accent) 5%, transparent); }
+.badge[data-type='open-source'] { border-color: color-mix(in srgb, var(--accent) 25%, transparent); color: var(--accent-text); background: color-mix(in srgb, var(--accent) 5%, transparent); }
 .badge[data-type='closed-source'] { border-color: color-mix(in srgb, var(--accent-2) 22%, transparent); color: color-mix(in srgb, var(--accent-2) 92%, transparent); background: color-mix(in srgb, var(--accent-2) 5%, transparent); }
 
 .content {
@@ -394,7 +394,7 @@ flex-wrap: wrap;
 
 .year {
 font-family: var(--font-mono);
-font-size: 0.8rem;
+font-size: 0.75rem;
 color: var(--muter);
 }
 
@@ -443,9 +443,8 @@ padding-top: 0.75rem;
 .resources__title {
 margin: 0 0 0.35rem;
 font-family: var(--font-mono);
-font-size: 0.8rem;
-letter-spacing: 0.08em;
-text-transform: uppercase;
+font-size: 0.75rem;
+letter-spacing: 0;
 color: var(--muted);
 }
 
@@ -456,7 +455,7 @@ gap: 0.4rem;
 }
 
 .tech-badge {
-font-size: 0.72rem;
+font-size: 0.75rem;
 font-weight: 500;
 color: var(--muted);
 border: 1px solid var(--border-2);
@@ -481,12 +480,12 @@ line-height: 1.5;
 margin: 0;
 color: var(--muted);
 line-height: 1.7;
-font-size: 0.97rem;
+font-size: 0.875rem;
 }
 
 .long-desc {
 color: var(--muted);
-font-size: 0.95rem;
+font-size: 0.875rem;
 line-height: 1.8;
 white-space: pre-wrap;
 padding-top: 0.5rem;
@@ -496,7 +495,7 @@ border-top: 1px solid var(--border-2);
 .note {
 margin: 0;
 color: var(--accent-2);
-font-size: 0.92rem;
+font-size: 0.875rem;
 font-family: var(--font-mono);
 }
 
@@ -514,7 +513,7 @@ gap: 0.5rem;
 padding: 0.55rem 0.75rem;
 border: 1px solid var(--border);
 text-decoration: none;
-font-size: 0.9rem;
+font-size: 0.875rem;
 line-height: 1;
 transition: transform 0.14s ease, background-color 0.14s ease, border-color 0.14s ease, color 0.14s ease;
 font-family: var(--font-mono);
@@ -578,7 +577,7 @@ border-color: var(--border-2);
 	margin: 0.15rem 0 0;
 	width: 100%;
 	color: var(--muter);
-	font-size: 0.8rem;
+	font-size: 0.75rem;
 	font-family: var(--font-mono);
 }
 
@@ -608,16 +607,24 @@ border-color: var(--border-2);
 }
 
 .back-link a {
+display: inline-flex;
+align-items: center;
+min-height: 2.75rem;
+padding: 0 0.8rem;
+border: 1px solid var(--border-2);
+background: var(--panel);
 font-family: var(--font-mono);
-font-size: 0.82rem;
+font-size: 0.875rem;
 color: var(--muter);
 text-decoration: none;
-letter-spacing: 0.04em;
-transition: color 0.14s;
+letter-spacing: 0;
+transition: color 0.14s, border-color 0.14s;
 }
 
-.back-link a:hover {
+.back-link a:hover,
+.back-link a:focus-visible {
 color: var(--accent);
+border-color: color-mix(in srgb, var(--accent) 45%, transparent);
 }
 
 /* ── Case Study ── */
@@ -630,10 +637,9 @@ gap: 1.1rem;
 
 .case-study__heading {
 margin: 0 0 0.25rem;
-font-size: 0.78rem;
+font-size: 0.75rem;
 font-family: var(--font-mono);
-letter-spacing: 0.1em;
-text-transform: uppercase;
+letter-spacing: 0;
 color: var(--accent);
 }
 
@@ -644,17 +650,16 @@ gap: 0.45rem;
 
 .cs-block__title {
 margin: 0;
-font-size: 0.78rem;
+font-size: 0.75rem;
 font-family: var(--font-mono);
-letter-spacing: 0.08em;
-text-transform: uppercase;
+letter-spacing: 0;
 color: var(--muter);
 }
 
 .cs-block__text {
 margin: 0;
 color: var(--text);
-font-size: 0.95rem;
+font-size: 0.875rem;
 line-height: 1.7;
 }
 
@@ -667,7 +672,7 @@ gap: 0.3rem;
 
 .cs-list li {
 color: var(--muted);
-font-size: 0.93rem;
+font-size: 0.875rem;
 line-height: 1.6;
 }
 
@@ -698,18 +703,18 @@ line-height: 1.6;
 
 	.subtitle {
 		color: var(--text);
-		font-size: 0.95rem;
+		font-size: 0.875rem;
 	}
 
 	.desc,
 	.long-desc,
 	.cs-block__text {
-		font-size: 0.9rem;
+		font-size: 0.875rem;
 		line-height: 1.65;
 	}
 
 	.cs-list li {
-		font-size: 0.88rem;
+		font-size: 0.875rem;
 	}
 
 	.slides__frame {

@@ -200,9 +200,8 @@
 	.section-heading {
 		margin: 0 0 2rem;
 		font-family: var(--font-mono);
-		font-size: 0.78rem;
-		letter-spacing: 0.1em;
-		text-transform: uppercase;
+		font-size: 0.75rem;
+		letter-spacing: 0;
 		color: var(--accent);
 	}
 
@@ -224,8 +223,8 @@
 	   invisible timeline. Browsers without `scripting` support skip this and just show it. */
 	@media (scripting: enabled) {
 		.event:not(.event--revealed) {
-			opacity: 0;
-			transform: translateX(-20px);
+			opacity: 0.55;
+			transform: translateX(-12px);
 		}
 	}
 
@@ -257,7 +256,7 @@
 
 	.event__year {
 		font-family: var(--font-mono);
-		font-size: 0.8rem;
+		font-size: 0.75rem;
 		color: var(--muted);
 		line-height: 1.2;
 		font-weight: 600;
@@ -265,7 +264,7 @@
 
 	.event__month {
 		font-family: var(--font-mono);
-		font-size: 0.72rem;
+		font-size: 0.75rem;
 		color: var(--muter);
 		line-height: 1.2;
 	}
@@ -372,7 +371,7 @@
 	.event__label {
 		margin: 0 0 0.3rem;
 		font-family: var(--font-mono);
-		font-size: 0.88rem;
+		font-size: 0.875rem;
 		color: color-mix(in srgb, var(--text) 95%, transparent);
 		line-height: 1.4;
 		font-weight: 600;
@@ -384,7 +383,7 @@
 
 	.event__desc {
 		margin: 0;
-		font-size: 0.88rem;
+		font-size: 0.875rem;
 		color: var(--muted);
 		line-height: 1.6;
 	}
@@ -439,7 +438,7 @@
 		}
 
 		.event__desc {
-			font-size: 0.85rem;
+			font-size: 0.875rem;
 			line-height: 1.55;
 		}
 	}

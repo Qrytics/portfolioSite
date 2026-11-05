@@ -42,9 +42,8 @@
 	.certs__title {
 		margin: 0;
 		color: var(--accent);
-		font-size: 0.78rem;
-		letter-spacing: 0.1em;
-		text-transform: uppercase;
+		font-size: 0.75rem;
+		letter-spacing: 0;
 	}
 
 	:global([data-theme='light']) .certs__title {
@@ -55,7 +54,7 @@
 		display: inline-flex;
 		align-items: center;
 		min-height: 2.75rem;
-		font-size: 0.86rem;
+		font-size: 0.875rem;
 		text-decoration: none;
 	}
 
@@ -66,7 +65,7 @@
 	.certs__more {
 		margin: 1rem 0 0;
 		color: var(--muter);
-		font-size: 0.82rem;
+		font-size: 0.875rem;
 		line-height: 1.7;
 	}
 

@@ -204,8 +204,8 @@
 	:global([data-theme='light']) .bg__canvas {
 		opacity: 1;
 		mix-blend-mode: normal;
-		-webkit-mask-image: radial-gradient(ellipse 58% 62% at 50% 46%, transparent 30%, #000 92%);
-		mask-image: radial-gradient(ellipse 58% 62% at 50% 46%, transparent 30%, #000 92%);
+		-webkit-mask-image: radial-gradient(ellipse 58% 62% at 50% 46%, transparent 30%, var(--ink-black) 92%);
+		mask-image: radial-gradient(ellipse 58% 62% at 50% 46%, transparent 30%, var(--ink-black) 92%);
 	}
 
 	.bg__canvas {

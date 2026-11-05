@@ -375,7 +375,7 @@
 		position: fixed;
 		inset: 0;
 		z-index: 99;
-		background: color-mix(in srgb, #000 55%, transparent);
+		background: color-mix(in srgb, var(--ink-black) 55%, transparent);
 		backdrop-filter: blur(4px);
 		/* Button reset: this is a real <button> now, so the UA border/padding/appearance go. */
 		appearance: none;
@@ -394,7 +394,7 @@
 	@media (max-width: 900px) {
 		.nav-backdrop {
 			backdrop-filter: none;
-			background: color-mix(in srgb, #000 68%, transparent);
+			background: color-mix(in srgb, var(--ink-black) 68%, transparent);
 		}
 	}
 
@@ -522,10 +522,10 @@
 		padding: 0.25rem 0.55rem;
 		min-width: 2.05rem;
 		border: 1px solid var(--border-2);
-		background: linear-gradient(180deg, color-mix(in srgb, #ffffff 4.5%, transparent), color-mix(in srgb, #ffffff 1%, transparent)), var(--panel-2);
+		background: linear-gradient(180deg, color-mix(in srgb, var(--paper-white) 4.5%, transparent), color-mix(in srgb, var(--paper-white) 1%, transparent)), var(--panel-2);
 		color: var(--text);
 		font-family: var(--font-mono);
-		font-size: 0.82rem;
+		font-size: 0.875rem;
 		line-height: 1.2;
 		cursor: pointer;
 		transition: border-color 0.14s, color 0.14s, transform 0.14s, background-color 0.14s;
@@ -647,7 +647,7 @@
 		color: var(--text);
 		padding: 0.2rem 0;
 		font-family: var(--font-mono);
-		font-size: 0.95rem;
+		font-size: 0.875rem;
 		line-height: 1.4;
 		text-decoration: none;
 		transition: color 0.18s;
@@ -693,7 +693,7 @@
 		padding: 0.2rem 0;
 		color: var(--accent);
 		font-family: var(--font-mono);
-		font-size: 0.95rem;
+		font-size: 0.875rem;
 		line-height: 1.4;
 		cursor: pointer;
 		text-align: left;
@@ -818,7 +818,7 @@
 		}
 
 		.site-header__title {
-			font-size: 0.95rem;
+			font-size: 0.875rem;
 		}
 
 		/* All three header controls are the same 2.75rem (44px) tall box, so the bar reads as one row
@@ -837,7 +837,7 @@
 			padding: 0 0.75rem;
 			border: 1px solid var(--border-2);
 			background: var(--panel-2);
-			font-size: 0.88rem;
+			font-size: 0.875rem;
 		}
 
 		.site-header__menu[aria-expanded='true'] {
@@ -854,7 +854,7 @@
 			min-width: 0;
 			border-left: 0;
 			border-right: 0;
-			box-shadow: 0 18px 40px color-mix(in srgb, #000 45%, transparent);
+			box-shadow: 0 18px 40px color-mix(in srgb, var(--ink-black) 45%, transparent);
 		}
 
 		.site-nav ul {

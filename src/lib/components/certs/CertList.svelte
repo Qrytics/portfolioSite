@@ -77,7 +77,7 @@
 		background: var(--panel);
 		color: var(--muted);
 		font: inherit;
-		font-size: 0.8rem;
+		font-size: 0.75rem;
 		cursor: pointer;
 	}
 
@@ -101,7 +101,7 @@
 
 	.chip__n {
 		color: var(--muter);
-		font-size: 0.72rem;
+		font-size: 0.75rem;
 	}
 
 	.group + .group {
@@ -114,7 +114,7 @@
 		gap: 0.6rem;
 		margin: 0 0 0.75rem;
 		color: var(--text);
-		font-size: 0.95rem;
+		font-size: 0.875rem;
 		letter-spacing: 0.02em;
 	}
 
@@ -128,7 +128,7 @@
 		padding: 0.05rem 0.45rem;
 		border: 1px solid var(--border-2);
 		color: var(--muter);
-		font-size: 0.72rem;
+		font-size: 0.75rem;
 		font-weight: 400;
 	}
 
@@ -168,7 +168,7 @@
 
 	.item__title {
 		color: var(--text);
-		font-size: 0.84rem;
+		font-size: 0.875rem;
 		line-height: 1.35;
 		text-decoration: none;
 	}
@@ -179,7 +179,7 @@
 
 	.item__meta {
 		color: var(--muter);
-		font-size: 0.72rem;
+		font-size: 0.75rem;
 	}
 
 	.more {
@@ -190,7 +190,7 @@
 		background: transparent;
 		color: var(--accent-text);
 		font: inherit;
-		font-size: 0.82rem;
+		font-size: 0.875rem;
 		cursor: pointer;
 	}
 
@@ -205,8 +205,8 @@
 			scrollbar-width: none;
 			margin-inline: -1rem;
 			padding-inline: 1rem;
-			-webkit-mask-image: linear-gradient(90deg, #000 85%, transparent);
-			mask-image: linear-gradient(90deg, #000 85%, transparent);
+			-webkit-mask-image: linear-gradient(90deg, var(--ink-black) 85%, transparent);
+			mask-image: linear-gradient(90deg, var(--ink-black) 85%, transparent);
 		}
 
 		.filters::-webkit-scrollbar {

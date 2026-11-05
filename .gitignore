@@ -33,3 +33,6 @@ vite.config.ts.timestamp-*
 
 # Screenshot output from scripts/snapshot-site.mjs
 .snapshots/
+
+# Hand-edited head frames: the generated preview page is rebuilt from the text files
+/scripts/head-frames/preview.html

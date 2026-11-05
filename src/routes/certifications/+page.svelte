@@ -54,14 +54,13 @@
 	.kicker {
 		margin: 2.75rem 0 1rem;
 		color: var(--accent-text);
-		font-size: 0.78rem;
-		letter-spacing: 0.12em;
-		text-transform: uppercase;
+		font-size: 0.75rem;
+		letter-spacing: 0;
 	}
 
 	.back {
 		margin-top: 2.5rem;
-		font-size: 0.82rem;
+		font-size: 0.875rem;
 	}
 
 	.back a {
@@ -79,7 +78,7 @@
 		}
 
 		.subtitle {
-			font-size: 0.92rem;
+			font-size: 0.875rem;
 			line-height: 1.6;
 		}
 	}

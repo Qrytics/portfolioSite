@@ -123,7 +123,7 @@
 
 	.card {
 		border: 1px solid var(--border);
-		background: linear-gradient(180deg, color-mix(in srgb, #ffffff 2.5%, transparent), transparent 60%), var(--panel);
+		background: linear-gradient(180deg, color-mix(in srgb, var(--paper-white) 2.5%, transparent), transparent 60%), var(--panel);
 		overflow: hidden;
 	}
 
@@ -133,21 +133,21 @@
 		gap: 0.55rem;
 		padding: 0.6rem 0.9rem;
 		border-bottom: 1px solid var(--border-2);
-		background: color-mix(in srgb, #000000 22%, transparent);
+		background: color-mix(in srgb, var(--ink-black) 22%, transparent);
 	}
 
 	.termbar__prompt {
 		font-family: var(--font-mono);
-		font-size: 0.85rem;
+		font-size: 0.875rem;
 		color: var(--accent);
 		font-weight: 700;
 	}
 
 	.termbar__label {
 		font-family: var(--font-mono);
-		font-size: 0.82rem;
+		font-size: 0.875rem;
 		color: var(--text);
-		letter-spacing: 0.04em;
+		letter-spacing: 0;
 		text-decoration: none;
 	}
 
@@ -169,7 +169,7 @@
 		align-items: flex-start;
 		gap: 0.55rem;
 		font-family: var(--font-mono);
-		font-size: 0.93rem;
+		font-size: 0.875rem;
 		color: color-mix(in srgb, var(--text) 90%, transparent);
 		line-height: 1.5;
 	}
@@ -197,7 +197,7 @@
 
 	.list__item--stale {
 		color: var(--muted);
-		font-size: 0.85rem;
+		font-size: 0.875rem;
 	}
 
 	.repo {
@@ -214,14 +214,14 @@
 	}
 
 	.repo__meta {
-		font-size: 0.78rem;
-		color: color-mix(in srgb, var(--text) 58%, transparent);
+		font-size: 0.75rem;
+		color: var(--muter);
 		flex-shrink: 0;
 	}
 
 	.repo__desc {
 		color: var(--muted);
-		font-size: 0.88rem;
+		font-size: 0.875rem;
 		line-height: 1.55;
 		overflow-wrap: anywhere;
 	}

@@ -20,14 +20,13 @@
 		'Health and fitness',
 		'Competitive gaming and strategic thinking',
 		'Dance and self-expression',
-		'Building weird side projects',
-		'Continuous learning and self-improvement'
+		'Building weird side projects'
 	];
 
 	const funFacts = [
 		'I played the violin and drums for 7 years',
 		'I push past my comfort zone regularly',
-		'I am obsessed with the rhythm dance game PUMP IT UP'
+		'I am obsessed with rhythm games!'
 	];
 </script>
 
@@ -101,12 +100,12 @@
 	.grid {
 		display: grid;
 		gap: 1rem;
-		grid-template-columns: 1fr;
+		grid-template-columns: minmax(0, 1fr);
 	}
 
 	.card {
 		border: 1px solid var(--border);
-		background: linear-gradient(180deg, color-mix(in srgb, #ffffff 2.5%, transparent), transparent 60%), var(--panel);
+		background: linear-gradient(180deg, color-mix(in srgb, var(--paper-white) 2.5%, transparent), transparent 60%), var(--panel);
 		padding: 1.1rem;
 		display: grid;
 		gap: 0.75rem;
@@ -127,9 +126,8 @@
 	.card__title {
 		margin: 0;
 		font-family: var(--font-mono);
-		font-size: 0.82rem;
-		letter-spacing: 0.08em;
-		text-transform: uppercase;
+		font-size: 0.9375rem;
+		letter-spacing: 0;
 		color: var(--accent);
 	}
 
@@ -146,7 +144,7 @@
 		align-items: baseline;
 		gap: 0.5rem;
 		font-family: var(--font-mono);
-		font-size: 0.88rem;
+		font-size: 0.9375rem;
 		color: color-mix(in srgb, var(--text) 85%, transparent);
 		line-height: 1.5;
 	}
@@ -159,7 +157,7 @@
 	.flip-hint {
 		margin-top: -0.35rem;
 		color: var(--muter);
-		font-size: 0.74rem;
+		font-size: 0.8125rem;
 	}
 
 	.flips {
@@ -218,7 +216,7 @@
 
 	.flip__num {
 		color: var(--muter);
-		font-size: 0.7rem;
+		font-size: 0.8125rem;
 	}
 
 	.flip__q {
@@ -232,7 +230,7 @@
 		transform: rotateY(180deg);
 		background: var(--panel);
 		color: var(--text);
-		font-size: 0.74rem;
+		font-size: 0.8125rem;
 		line-height: 1.45;
 		text-align: center;
 	}
@@ -243,7 +241,7 @@
 		}
 
 		.flip__back {
-			font-size: 0.7rem;
+			font-size: 0.8125rem;
 		}
 	}
 

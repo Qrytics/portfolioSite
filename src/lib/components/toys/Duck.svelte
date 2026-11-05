@@ -698,7 +698,7 @@
 		border: 1px solid var(--border);
 		background:
 			radial-gradient(120% 90% at 50% 0%, color-mix(in srgb, var(--accent) 7%, transparent), transparent 70%),
-			color-mix(in srgb, #000 22%, var(--panel-2));
+			color-mix(in srgb, var(--ink-black) 22%, var(--panel-2));
 		touch-action: none;
 		user-select: none;
 		cursor: crosshair;
@@ -706,7 +706,7 @@
 
 	:global([data-theme='light']) .pond {
 		background:
-			radial-gradient(120% 90% at 50% 0%, color-mix(in srgb, #ffffff 70%, transparent), transparent 70%),
+			radial-gradient(120% 90% at 50% 0%, color-mix(in srgb, var(--paper-white) 70%, transparent), transparent 70%),
 			color-mix(in srgb, #9fd3ff 25%, var(--panel-2));
 	}
 
@@ -731,7 +731,7 @@
 	}
 
 	:global([data-theme='light']) .water--back {
-		fill: color-mix(in srgb, #3b82f6 35%, #ffffff);
+		fill: color-mix(in srgb, #3b82f6 35%, var(--paper-white));
 	}
 
 	:global([data-theme='light']) .water-top {
@@ -781,11 +781,11 @@
 	}
 
 	.glint {
-		fill: #ffffff;
+		fill: var(--paper-white);
 	}
 
 	.sclera {
-		fill: #ffffff;
+		fill: var(--paper-white);
 		stroke: #141a1f;
 		stroke-width: 1;
 	}
@@ -829,7 +829,7 @@
 		background: var(--panel);
 		box-shadow: var(--shadow);
 		color: var(--text);
-		font-size: 0.72rem;
+		font-size: 0.8125rem;
 		line-height: 1.4;
 		pointer-events: none;
 	}
@@ -854,7 +854,7 @@
 	.stats {
 		margin-left: auto;
 		color: var(--muter);
-		font-size: 0.74rem;
+		font-size: 0.8125rem;
 	}
 
 	.stats b {

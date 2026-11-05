@@ -418,7 +418,7 @@
 
 	.termbar__title {
 		margin: 0;
-		font-size: 0.92rem;
+		font-size: 0.9375rem;
 		letter-spacing: 0.02em;
 		color: color-mix(in srgb, var(--text) 90%, transparent);
 		font-weight: 600;
@@ -428,14 +428,14 @@
 
 	.bio-row {
 		display: grid;
-		grid-template-columns: 1fr;
+		grid-template-columns: minmax(0, 1fr);
 		gap: 1rem;
 		align-items: stretch;
 	}
 
 	.about-lower {
 		display: grid;
-		grid-template-columns: 1fr;
+		grid-template-columns: minmax(0, 1fr);
 		gap: 1rem;
 		align-items: start;
 	}
@@ -451,7 +451,7 @@
 
 	.side-grid {
 		display: grid;
-		grid-template-columns: 1fr;
+		grid-template-columns: minmax(0, 1fr);
 		gap: 1rem;
 		margin-top: 1rem;
 	}
@@ -511,7 +511,7 @@
 		width: 100%;
 		text-decoration: none;
 		border: 1px solid var(--border);
-		background: linear-gradient(180deg, color-mix(in srgb, #ffffff 3%, transparent), transparent 52%), var(--panel);
+		background: linear-gradient(180deg, color-mix(in srgb, var(--paper-white) 3%, transparent), transparent 52%), var(--panel);
 		box-shadow: var(--shadow);
 		transition: border-color 0.16s ease;
 	}
@@ -544,7 +544,7 @@
 		text-align: inherit;
 		cursor: pointer;
 		border: 1px solid var(--border);
-		background: linear-gradient(180deg, color-mix(in srgb, #ffffff 3%, transparent), transparent 52%), var(--panel);
+		background: linear-gradient(180deg, color-mix(in srgb, var(--paper-white) 3%, transparent), transparent 52%), var(--panel);
 		box-shadow: var(--shadow);
 		overflow: hidden;
 	}
@@ -591,7 +591,7 @@
 		border: 1px solid color-mix(in srgb, var(--accent) 24%, transparent);
 		border-radius: 10px;
 		background: color-mix(in srgb, var(--panel) 82%, var(--bg) 18%);
-		box-shadow: 0 10px 22px color-mix(in srgb, #000000 30%, transparent);
+		box-shadow: 0 10px 22px color-mix(in srgb, var(--ink-black) 30%, transparent);
 		opacity: 1;
 		transition: opacity 0.25s ease;
 	}
@@ -605,18 +605,17 @@
 		height: auto;
 		justify-self: end;
 		align-self: center;
-		filter: drop-shadow(0 8px 18px color-mix(in srgb, #000000 26%, transparent));
+		filter: drop-shadow(0 8px 18px color-mix(in srgb, var(--ink-black) 26%, transparent));
 	}
 
 	.title {
 		margin: 0;
 		font-family: var(--font-mono);
-		font-size: 0.82rem;
-		letter-spacing: 0.04em;
+		font-size: 0.9375rem;
+		letter-spacing: 0;
 		line-height: 1.1;
 		color: var(--text);
 		font-weight: 600;
-		text-transform: uppercase;
 	}
 
 	.bio-heading {
@@ -624,7 +623,7 @@
 		font-size: clamp(1.25rem, 2.5vw, 1.7rem);
 		line-height: 1.2;
 		letter-spacing: 0.01em;
-		/* Was a hardcoded `#fff` with no light-mode override, i.e. white text on a light panel —
+		/* Was a hardcoded `var(--paper-white)` with no light-mode override, i.e. white text on a light panel —
 		   the name was effectively invisible with the theme toggled. `--text` is near-white in dark
 		   mode, so this is a no-op there and a fix in light mode. */
 		color: var(--text);
@@ -646,7 +645,7 @@
 		margin: 0;
 		/* `0.88rem` = the 14.08px this used to hardcode, but it now scales with the user's root font
 		   size instead of pinning body copy to one pixel value. */
-		font-size: 0.88rem;
+		font-size: 0.9375rem;
 		color: var(--muted);
 		line-height: 1.65;
 		max-width: 95ch;
@@ -654,16 +653,16 @@
 
 	.cta {
 		font-family: var(--font-mono);
-		font-size: 0.82rem;
+		font-size: 0.9375rem;
 		font-weight: 400;
-		color: color-mix(in srgb, var(--accent) 92%, transparent);
+		color: var(--accent-text);
 		margin-top: 0;
 		line-height: 1.1;
 	}
 
 	.spotify-grid {
 		display: grid;
-		grid-template-columns: 1fr;
+		grid-template-columns: minmax(0, 1fr);
 		gap: 0.55rem;
 	}
 
@@ -676,7 +675,7 @@
 
 	.spotify-tile {
 		display: grid;
-		grid-template-columns: 40px 1fr;
+		grid-template-columns: 40px minmax(0, 1fr);
 		align-items: center;
 		gap: 0.65rem;
 		padding: 0.55rem 0.7rem;
@@ -718,7 +717,7 @@
 
 	.spotify-tile__label {
 		font-family: var(--font-mono);
-		font-size: 0.84rem;
+		font-size: 0.9375rem;
 		color: var(--text);
 		line-height: 1.2;
 		white-space: nowrap;
@@ -728,7 +727,7 @@
 
 	.spotify-tile__sub {
 		font-family: var(--font-mono);
-		font-size: 0.74rem;
+		font-size: 0.8125rem;
 		color: var(--muted);
 		line-height: 1.2;
 	}
@@ -749,7 +748,7 @@
 	}
 
 	.highlight {
-		color: color-mix(in srgb, var(--accent) 95%, transparent);
+		color: var(--accent-text);
 	}
 
 	@media (max-width: 640px) {
@@ -781,7 +780,7 @@
 		}
 
 		.card__inner--media {
-			grid-template-columns: 1fr;
+			grid-template-columns: minmax(0, 1fr);
 			row-gap: 0.7rem;
 		}
 
@@ -792,7 +791,7 @@
 
 		/* One tile per row: in two columns at phone width the artist name truncated to "Mustard S…". */
 		.spotify-grid {
-			grid-template-columns: 1fr;
+			grid-template-columns: minmax(0, 1fr);
 		}
 
 		.spotify-tile--compact {
@@ -832,7 +831,7 @@
 	.portrait__flash {
 		position: absolute;
 		inset: 0;
-		background: #fff;
+		background: var(--paper-white);
 		pointer-events: none;
 		animation: portrait-flash 0.7s ease-out forwards;
 	}
@@ -856,7 +855,7 @@
 		border: 1px solid var(--border);
 		color: var(--text);
 		font-family: var(--font-mono);
-		font-size: 0.75rem;
+		font-size: 0.8125rem;
 		text-align: center;
 		pointer-events: none;
 		animation: caption-in 0.25s ease-out;

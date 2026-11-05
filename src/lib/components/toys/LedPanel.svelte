@@ -101,7 +101,7 @@
 		padding: 0.9rem;
 		border: 1px solid var(--border-2);
 		background: color-mix(in srgb, #0b3d2e 55%, var(--panel-2));
-		background-image: radial-gradient(color-mix(in srgb, #ffffff 14%, transparent) 1px, transparent 1px);
+		background-image: radial-gradient(color-mix(in srgb, var(--paper-white) 14%, transparent) 1px, transparent 1px);
 		background-size: 12px 12px;
 	}
 
@@ -122,7 +122,7 @@
 		width: 1.15rem;
 		height: 1.15rem;
 		border-radius: 50%;
-		border: 1px solid color-mix(in srgb, #000 40%, transparent);
+		border: 1px solid color-mix(in srgb, var(--ink-black) 40%, transparent);
 		background: color-mix(in srgb, var(--hot) 22%, #2a0f0f);
 		transition: background-color 0.08s, box-shadow 0.08s;
 	}
@@ -140,7 +140,7 @@
 		max-width: 2.75rem;
 		min-height: 3.6rem;
 		padding: 0.3rem 0;
-		border: 1px solid color-mix(in srgb, #000 35%, var(--border));
+		border: 1px solid color-mix(in srgb, var(--ink-black) 35%, var(--border));
 		background: color-mix(in srgb, var(--panel) 75%, transparent);
 		cursor: pointer;
 	}
@@ -173,7 +173,7 @@
 
 	.switch__label {
 		color: var(--muter);
-		font-size: 0.62rem;
+		font-size: 0.8125rem;
 	}
 
 	.switch:active {
@@ -184,7 +184,7 @@
 		display: flex;
 		flex-wrap: wrap;
 		gap: 0.3rem 1.2rem;
-		font-size: 0.84rem;
+		font-size: 0.9375rem;
 		color: var(--text);
 		font-variant-numeric: tabular-nums;
 	}
@@ -197,7 +197,7 @@
 	.note {
 		margin-top: -0.4rem;
 		color: var(--accent-text);
-		font-size: 0.8rem;
+		font-size: 0.8125rem;
 	}
 
 </style>

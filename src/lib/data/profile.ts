@@ -21,7 +21,7 @@ export interface SkillGroup {
 export const profile: Profile = {
 	name: 'Mario A. Belmonte',
 	handle: 'mario-belmonte',
-	tagline: 'Electrical & Computer Engineer | Full-Stack Developer',
+	tagline: 'Electrical & Software Engineer',
 	description:
 		'Carnegie Mellon ECE alum and Associate Consultant at IBM, self-taught in software engineering and full-stack development.',
 	heroCta: "Interested in hardware-software stacks or general system design? Let's\u00A0talk.",

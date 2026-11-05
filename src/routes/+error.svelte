@@ -72,7 +72,7 @@
 		padding: 0.6rem 0.9rem;
 		border-bottom: 1px solid var(--border-2);
 		background: var(--panel-2);
-		font-size: 0.8rem;
+		font-size: 0.75rem;
 		color: var(--muted);
 	}
 
@@ -90,7 +90,7 @@
 	.prompt {
 		margin: 0 0 0.6rem;
 		color: var(--muter);
-		font-size: 0.85rem;
+		font-size: 0.875rem;
 		overflow-wrap: anywhere;
 	}
 
@@ -123,7 +123,7 @@
 		display: inline-block;
 		padding: 0.55rem 0;
 		font-family: var(--font-mono);
-		font-size: 0.9rem;
+		font-size: 0.875rem;
 		color: var(--accent-text);
 		text-decoration: none;
 	}

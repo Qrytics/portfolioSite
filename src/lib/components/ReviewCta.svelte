@@ -27,11 +27,11 @@
 		align-items: center;
 		padding: 0.6rem 1.25rem;
 		font-family: var(--font-mono);
-		font-size: 0.92rem;
-		color: color-mix(in srgb, var(--accent) 92%, transparent);
+		font-size: 0.9375rem;
+		color: var(--accent-text);
 		text-decoration: none;
 		border: 1px solid color-mix(in srgb, var(--accent) 32%, transparent);
-		background: color-mix(in srgb, var(--accent) 9%, transparent);
+		background: var(--panel);
 		transition: background 0.14s ease, border-color 0.14s ease, color 0.14s ease;
 	}
 

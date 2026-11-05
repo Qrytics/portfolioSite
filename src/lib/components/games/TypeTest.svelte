@@ -614,7 +614,7 @@
 	.typetest__subtitle {
 		margin: 0;
 		font-family: var(--font-mono);
-		font-size: 0.9rem;
+		font-size: 0.875rem;
 		color: var(--muted);
 	}
 
@@ -641,7 +641,7 @@
 		background: color-mix(in srgb, var(--text) 3%, transparent);
 		color: var(--muted);
 		font-family: var(--font-mono);
-		font-size: 0.9rem;
+		font-size: 0.875rem;
 		cursor: pointer;
 		transition: all 0.2s;
 	}
@@ -675,13 +675,13 @@
 
 	.zen-intro__text {
 		margin: 0 0 0.5rem;
-		font-size: 0.92rem;
+		font-size: 0.875rem;
 		color: var(--text);
 	}
 
 	.zen-intro__sub {
 		margin: 0;
-		font-size: 0.85rem;
+		font-size: 0.875rem;
 		color: var(--muted);
 	}
 
@@ -694,10 +694,9 @@
 
 	.difficulty-label {
 		font-family: var(--font-mono);
-		font-size: 0.85rem;
+		font-size: 0.875rem;
 		color: var(--muted);
-		text-transform: uppercase;
-		letter-spacing: 0.1em;
+		letter-spacing: 0;
 	}
 
 	.difficulty-buttons {
@@ -711,7 +710,7 @@
 		background: color-mix(in srgb, var(--text) 3%, transparent);
 		color: var(--text);
 		font-family: var(--font-mono);
-		font-size: 0.85rem;
+		font-size: 0.875rem;
 		cursor: pointer;
 		transition: all 0.2s;
 	}
@@ -733,7 +732,7 @@
 		background: color-mix(in srgb, var(--text) 3%, transparent);
 		color: var(--text);
 		font-family: var(--font-mono);
-		font-size: 0.9rem;
+		font-size: 0.875rem;
 		cursor: pointer;
 		transition: all 0.2s;
 	}
@@ -741,7 +740,7 @@
 	.btn--primary {
 		border-color: color-mix(in srgb, var(--accent) 32%, transparent);
 		background: color-mix(in srgb, var(--accent) 9%, transparent);
-		color: color-mix(in srgb, var(--accent) 95%, transparent);
+		color: var(--accent-text);
 	}
 
 	.btn--primary:hover {
@@ -819,11 +818,11 @@
 		display: inline-flex;
 		align-items: center;
 		gap: 0.45rem;
-		font-size: 0.9rem;
+		font-size: 0.875rem;
 	}
 
 	.file-header__icon {
-		font-size: 0.95rem;
+		font-size: 0.875rem;
 	}
 
 	.file-header__filename {
@@ -836,9 +835,8 @@
 		border: 1px solid var(--border-2);
 		background: color-mix(in srgb, var(--text) 4%, transparent);
 		color: var(--accent);
-		font-size: 0.72rem;
-		text-transform: uppercase;
-		letter-spacing: 0.05em;
+		font-size: 0.75rem;
+		letter-spacing: 0;
 	}
 
 	.file-header__meta {
@@ -846,7 +844,7 @@
 		flex-wrap: wrap;
 		align-items: baseline;
 		gap: 0.45rem;
-		font-size: 0.82rem;
+		font-size: 0.875rem;
 		line-height: 1.4;
 	}
 
@@ -855,9 +853,8 @@
 		background: color-mix(in srgb, var(--accent) 15%, transparent);
 		border: 1px solid color-mix(in srgb, var(--accent) 30%, transparent);
 		color: var(--accent);
-		font-size: 0.65rem;
-		text-transform: uppercase;
-		letter-spacing: 0.05em;
+		font-size: 0.75rem;
+		letter-spacing: 0;
 	}
 
 	.pattern-title {
@@ -953,8 +950,7 @@
 		font-family: var(--font-mono);
 		font-size: 0.75rem;
 		color: var(--muted);
-		text-transform: uppercase;
-		letter-spacing: 0.1em;
+		letter-spacing: 0;
 	}
 
 	.typetest__zen-controls {
@@ -981,7 +977,7 @@
 
 	.results__subtitle {
 		margin: 0 0 2rem;
-		font-size: 0.9rem;
+		font-size: 0.875rem;
 		color: var(--muted);
 	}
 
@@ -1015,10 +1011,9 @@
 	.result-stat__label {
 		display: block;
 		font-family: var(--font-mono);
-		font-size: 0.8rem;
+		font-size: 0.75rem;
 		color: var(--muted);
-		text-transform: uppercase;
-		letter-spacing: 0.1em;
+		letter-spacing: 0;
 	}
 
 	.results__actions {
@@ -1037,8 +1032,7 @@
 		font-family: var(--font-mono);
 		font-size: 1rem;
 		color: var(--accent);
-		text-transform: uppercase;
-		letter-spacing: 0.1em;
+		letter-spacing: 0;
 	}
 
 	.leaderboard__list {
@@ -1056,7 +1050,7 @@
 		background: color-mix(in srgb, var(--text) 2%, transparent);
 		align-items: center;
 		font-family: var(--font-mono);
-		font-size: 0.85rem;
+		font-size: 0.875rem;
 	}
 
 	.leaderboard__rank {
@@ -1078,8 +1072,7 @@
 		border: 1px solid color-mix(in srgb, var(--diff) 30%, transparent);
 		color: var(--diff);
 		background: color-mix(in srgb, var(--diff) 6%, transparent);
-		font-size: 0.7rem;
-		text-transform: uppercase;
+		font-size: 0.75rem;
 	}
 
 	.leaderboard__item--new {
@@ -1152,7 +1145,7 @@
 
 	@media (max-width: 640px) {
 		.typetest__snippet {
-			font-size: 0.95rem;
+			font-size: 0.875rem;
 			padding: 1.25rem;
 		}
 
@@ -1208,12 +1201,12 @@
 		}
 
 		.results__stats {
-			grid-template-columns: 1fr;
+			grid-template-columns: minmax(0, 1fr);
 		}
 
 		.leaderboard__item {
 			grid-template-columns: 2.5rem 1fr auto;
-			font-size: 0.8rem;
+			font-size: 0.75rem;
 		}
 
 		.leaderboard__accuracy {

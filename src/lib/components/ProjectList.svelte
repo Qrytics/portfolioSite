@@ -6,12 +6,15 @@
 	let {
 		items = allProjects,
 		compactBottom = false,
+		balanceLead = false,
 		collapsedMode = false,
 		expandedSlugs = [],
 		onToggleExpand
 	}: {
 		items?: Project[];
 		compactBottom?: boolean;
+		/** Home-page featured trio: lead card beside two shortened cards, all ending on one line. */
+		balanceLead?: boolean;
 		collapsedMode?: boolean;
 		expandedSlugs?: string[];
 		onToggleExpand?: (slug: string) => void;
@@ -41,7 +44,7 @@
 			media query instead of `colCount = $state(1)` measured in an effect, which also removes the
 			one-column flash desktop visitors saw before hydration corrected it.
 		-->
-		<div class="grid" class:grid--start={useColumnLayout}>
+		<div class="grid" class:grid--start={useColumnLayout} class:grid--lead={balanceLead}>
 			{#each items as project (project.slug)}
 				<ProjectCard
 					{project}
@@ -75,7 +78,7 @@
 
 	.grid {
 		display: grid;
-		grid-template-columns: 1fr;
+		grid-template-columns: minmax(0, 1fr);
 		gap: 1rem;
 		align-items: stretch;
 	}
@@ -94,6 +97,51 @@
 	}
 
 	@media (min-width: 1100px) {
+		/* Featured trio (home page only; /projects keeps equal cards). The lead project is twice
+		   the area of its siblings. The two cards beside the lead are shortened so the column
+		   ends where the lead ends, and the lead's image absorbs whatever height is left, so
+		   nothing is blank and all three bottom edges sit on one line. */
+		.grid--lead > :global(article:first-child) {
+			grid-column: span 2;
+			grid-row: span 2;
+			height: 100%;
+			align-self: stretch;
+			grid-template-rows: auto 1fr auto;
+		}
+		.grid--lead > :global(article:first-child .media) {
+			display: flex;
+			min-height: 0;
+		}
+		.grid--lead > :global(article:first-child .media__frame) {
+			flex: 1;
+			aspect-ratio: auto !important;
+			min-height: 14rem;
+		}
+		/* Absolutely positioned so the image's natural size cannot prop the row open. */
+		.grid--lead > :global(article:first-child .media__img) {
+			position: absolute;
+			inset: 0;
+		}
+
+		.grid--lead > :global(article:not(:first-child) .media__frame) {
+			aspect-ratio: 383 / 120 !important;
+		}
+		.grid--lead > :global(article:not(:first-child) .media__img) {
+			object-fit: cover;
+			object-position: top center;
+		}
+		/* The subtitle already says what the project is; the long description is one click away
+		   on the detail page. */
+		.grid--lead > :global(article:not(:first-child) .card__desc) {
+			display: none;
+		}
+		.grid--lead > :global(article:not(:first-child) .card__subtitle) {
+			display: -webkit-box;
+			-webkit-box-orient: vertical;
+			-webkit-line-clamp: 2;
+			line-clamp: 2;
+			overflow: hidden;
+		}
 		.grid {
 			grid-template-columns: repeat(3, minmax(0, 1fr));
 			gap: 1.25rem;

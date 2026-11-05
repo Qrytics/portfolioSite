@@ -143,7 +143,7 @@
 	}
 
 	.stop-hi {
-		stop-color: color-mix(in srgb, var(--tint) 62%, #ffffff 8%);
+		stop-color: color-mix(in srgb, var(--tint) 62%, var(--paper-white) 8%);
 	}
 
 	.stop-lo {
@@ -151,7 +151,7 @@
 	}
 
 	.rim-a {
-		stop-color: color-mix(in srgb, var(--tint) 80%, #ffffff);
+		stop-color: color-mix(in srgb, var(--tint) 80%, var(--paper-white));
 	}
 
 	.rim-b {
@@ -168,23 +168,23 @@
 
 	.bevel {
 		fill: none;
-		stroke: color-mix(in srgb, #ffffff 22%, transparent);
+		stroke: color-mix(in srgb, var(--paper-white) 22%, transparent);
 		stroke-width: 1.2;
 	}
 
 	.glyph {
 		fill: none;
-		stroke: #ffffff;
+		stroke: var(--paper-white);
 		stroke-width: 1.7;
 	}
 
 	.glyph .fill {
-		fill: #ffffff;
+		fill: var(--paper-white);
 		stroke: none;
 	}
 
 	.code {
-		fill: #ffffff;
+		fill: var(--paper-white);
 		font-family: var(--font-mono);
 		font-size: 15px;
 		font-weight: 700;
@@ -218,8 +218,8 @@
 	.badge__rays {
 		inset: -30%;
 		background: repeating-conic-gradient(from 0deg, color-mix(in srgb, var(--gold) 30%, transparent) 0deg 5deg, transparent 5deg 22deg);
-		-webkit-mask-image: radial-gradient(circle, #000 18%, transparent 66%);
-		mask-image: radial-gradient(circle, #000 18%, transparent 66%);
+		-webkit-mask-image: radial-gradient(circle, var(--ink-black) 18%, transparent 66%);
+		mask-image: radial-gradient(circle, var(--ink-black) 18%, transparent 66%);
 		opacity: 0.55;
 		animation: rays 26s linear infinite;
 	}

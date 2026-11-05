@@ -65,10 +65,10 @@
 		min-height: 2.75rem;
 		padding: 0 1rem;
 		border: 1px solid color-mix(in srgb, var(--accent) 40%, transparent);
-		background: color-mix(in srgb, var(--accent) 9%, transparent);
+		background: var(--panel);
 		color: var(--accent-text);
 		font-family: var(--font-mono);
-		font-size: 0.86rem;
+		font-size: 0.875rem;
 		text-decoration: none;
 	}
 
@@ -115,7 +115,7 @@
 		margin: 0;
 		color: var(--muted);
 		line-height: 1.6;
-		font-size: 0.95rem;
+		font-size: 0.875rem;
 	}
 
 	.subtitle a {

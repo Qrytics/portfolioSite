@@ -47,7 +47,7 @@
 				<span class="big__cap"></span>
 				<span class="sr-only">Do not press</span>
 			</button>
-			<span class="plate" aria-hidden="true">DO NOT PRESS</span>
+			<span class="plate" aria-hidden="true">Do not press</span>
 		</div>
 		<p class="line" id="dnp-line" aria-live="polite">{line}</p>
 		{#if presses > 0}<p class="count">presses: {presses}</p>{/if}
@@ -106,7 +106,7 @@
 		inset: 0.3rem;
 		border-radius: 50%;
 		background: radial-gradient(circle at 35% 30%, #ff8a87, var(--hot) 45%, #a3201c);
-		box-shadow: 0 0.45rem 0 #7a1512, 0 0.6rem 1rem color-mix(in srgb, #000 40%, transparent);
+		box-shadow: 0 0.45rem 0 #7a1512, 0 0.6rem 1rem color-mix(in srgb, var(--ink-black) 40%, transparent);
 		transform: translateY(-0.3rem);
 		transition: transform 0.06s, box-shadow 0.06s;
 	}
@@ -124,21 +124,21 @@
 		padding: 0.15rem 0.5rem;
 		background: #14211f;
 		color: #ffd166;
-		font-size: 0.66rem;
+		font-size: 0.8125rem;
 		font-weight: 700;
-		letter-spacing: 0.14em;
+		letter-spacing: 0;
 	}
 
 	.line {
 		min-height: 2.6em;
 		max-width: 22ch;
 		color: var(--text);
-		font-size: 0.86rem;
+		font-size: 0.9375rem;
 	}
 
 	.count {
 		color: var(--muter);
-		font-size: 0.74rem;
+		font-size: 0.8125rem;
 	}
 
 	@media (prefers-reduced-motion: reduce) {

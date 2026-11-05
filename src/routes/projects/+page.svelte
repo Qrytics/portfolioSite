@@ -415,7 +415,7 @@
 
 	.count {
 		margin: 0;
-		font-size: 0.8rem;
+		font-size: 0.75rem;
 		color: var(--muter);
 	}
 
@@ -446,8 +446,8 @@
 			margin-inline: calc(-1 * clamp(1.25rem, 4vw, 3rem));
 			padding-inline: clamp(1.25rem, 4vw, 3rem);
 			/* Fade the trailing edge so the row reads as scrollable rather than cut off. */
-			-webkit-mask-image: linear-gradient(90deg, #000 85%, transparent);
-			mask-image: linear-gradient(90deg, #000 85%, transparent);
+			-webkit-mask-image: linear-gradient(90deg, var(--ink-black) 85%, transparent);
+			mask-image: linear-gradient(90deg, var(--ink-black) 85%, transparent);
 		}
 
 		.tag-row::-webkit-scrollbar {
@@ -461,7 +461,7 @@
 
 	.tag-chip {
 		font-family: var(--font-mono);
-		font-size: 0.74rem;
+		font-size: 0.75rem;
 		text-transform: lowercase;
 		min-height: 2rem;
 		padding: 0.3rem 0.6rem;
@@ -513,7 +513,7 @@
 
 	.sort-label {
 		font-family: var(--font-mono);
-		font-size: 0.78rem;
+		font-size: 0.75rem;
 		letter-spacing: 0.03em;
 		text-transform: lowercase;
 		color: var(--muter);
@@ -526,7 +526,7 @@
 		align-items: center;
 		justify-content: center;
 		font-family: var(--font-mono);
-		font-size: 0.78rem;
+		font-size: 0.75rem;
 		line-height: 1;
 		letter-spacing: 0.03em;
 		text-transform: lowercase;
@@ -578,7 +578,7 @@
 		.sort-btn {
 			min-height: 2.5rem;
 			padding: 0.44rem 0.65rem;
-			font-size: 0.78rem;
+			font-size: 0.75rem;
 		}
 	}
 

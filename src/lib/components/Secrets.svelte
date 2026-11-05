@@ -149,7 +149,7 @@
 		pointer-events: none;
 		transform: translate(-50%, -150%);
 		font-family: var(--font-mono);
-		font-size: 0.95rem;
+		font-size: 0.875rem;
 		font-weight: 700;
 		color: var(--accent-text);
 		text-shadow: 0 1px 0 var(--bg), 0 0 6px var(--bg);
