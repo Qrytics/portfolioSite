@@ -104,7 +104,7 @@
 					</a>
 				{/if}
 				{#if project.siteUrl || project.projectPageUrl}
-					<a href={project.siteUrl ?? project.projectPageUrl} target="_blank" rel="noopener noreferrer" class="btn btn--primary btn--external" data-sveltekit-reload>
+					<a href={project.siteUrl ?? project.projectPageUrl} target="_blank" rel="external noopener noreferrer" class="btn btn--primary btn--external" data-sveltekit-reload>
 						Visit Site ↗<span class="sr-only"> for {project.title} (opens in new tab)</span>
 					</a>
 				{/if}

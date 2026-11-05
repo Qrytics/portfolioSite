@@ -418,7 +418,7 @@
 
 	.termbar__title {
 		margin: 0;
-		font-size: 0.875rem;
+		font-size: 0.9375rem;
 		letter-spacing: 0.02em;
 		color: color-mix(in srgb, var(--text) 90%, transparent);
 		font-weight: 600;
@@ -611,7 +611,7 @@
 	.title {
 		margin: 0;
 		font-family: var(--font-mono);
-		font-size: 0.875rem;
+		font-size: 0.9375rem;
 		letter-spacing: 0;
 		line-height: 1.1;
 		color: var(--text);
@@ -645,7 +645,7 @@
 		margin: 0;
 		/* `0.88rem` = the 14.08px this used to hardcode, but it now scales with the user's root font
 		   size instead of pinning body copy to one pixel value. */
-		font-size: 0.875rem;
+		font-size: 0.9375rem;
 		color: var(--muted);
 		line-height: 1.65;
 		max-width: 95ch;
@@ -653,7 +653,7 @@
 
 	.cta {
 		font-family: var(--font-mono);
-		font-size: 0.875rem;
+		font-size: 0.9375rem;
 		font-weight: 400;
 		color: var(--accent-text);
 		margin-top: 0;
@@ -717,7 +717,7 @@
 
 	.spotify-tile__label {
 		font-family: var(--font-mono);
-		font-size: 0.875rem;
+		font-size: 0.9375rem;
 		color: var(--text);
 		line-height: 1.2;
 		white-space: nowrap;
@@ -727,7 +727,7 @@
 
 	.spotify-tile__sub {
 		font-family: var(--font-mono);
-		font-size: 0.75rem;
+		font-size: 0.8125rem;
 		color: var(--muted);
 		line-height: 1.2;
 	}
@@ -855,7 +855,7 @@
 		border: 1px solid var(--border);
 		color: var(--text);
 		font-family: var(--font-mono);
-		font-size: 0.75rem;
+		font-size: 0.8125rem;
 		text-align: center;
 		pointer-events: none;
 		animation: caption-in 0.25s ease-out;

@@ -285,7 +285,7 @@
 			{/each}
 			{#if tip !== null}
 				{@const t = tracks[tip]}
-				<div class="tooltip" style="--col: {tip % 4}; --row: {Math.floor(tip / 4)}" aria-hidden="true">
+				<div class="tooltip" class:tooltip--edge={tip % 4 === 0} style="--col: {tip % 4}; --row: {Math.floor(tip / 4)}" aria-hidden="true">
 					<span class="tooltip__name">Music Disc</span>
 					<span class="tooltip__desc">{t.url ? trackName(t) : `${trackName(t)} — not on SoundCloud yet`}</span>
 					{#if t.uploader}<span class="tooltip__src">SoundCloud · {t.uploader}</span>{/if}
@@ -625,6 +625,13 @@
 		line-height: 1.25;
 		pointer-events: none;
 		transform: translate(-30%, -100%);
+	}
+
+	/* The first disc in a row sits against the screen edge, where centring the tip on it would push
+	   it off-screen. Line it up with the slot grid's left edge instead. */
+	.tooltip--edge {
+		left: 0;
+		transform: translate(0, -100%);
 	}
 
 	.tooltip__name {

@@ -1,4 +1,4 @@
-/* Hallmark · shape: landing page · genre: modern-minimal · theme: custom (bench) · paper: bone #e4e1d9 · accent: teal #0b6e6a + vermilion #b83f12 · display: Martian Mono · body: Martian Mono
+/* Hallmark · shape: landing page · genre: modern-minimal · theme: custom (bench) · paper: white #ffffff on #f7faf9 · accent: teal #0b6e6a + vermilion #b83f12 · display: Martian Mono · body: Martian Mono
  * nav: sticky header, anchors · signature: a ruler readout under the hero showing years of work and project count · states: hover, focus-visible, active, disabled, loading, empty, error
  * axes: bone/mono/teal · posture: restrained · contrast: pass
  * Light instrument panel: hairlines and tonal fills, square, 12/14/17/20/24/50 scale, 4px spacing. Dark theme = the bench's dark wells. */
@@ -37,7 +37,7 @@
 	--thumb: rgba(222, 232, 255, 0.15);
 	--thumb-hover: rgba(222, 232, 255, 0.3);
 	--drop: 0 24px 60px -20px rgba(0, 0, 0, 0.6);
-	--paper-white: #f7f5ef; /* never pure white: tinted toward bone */
+	--paper-white: #ffffff;
 	--ink-black: #0b0c0d;
 	--hot: #ff5b57;
 	--warm: #febc2e;
@@ -47,7 +47,8 @@
 	--shadow: 0 14px 40px rgba(0, 0, 0, 0.55);
 
 	/* Typography — all monospace like thavlik.dev */
-	--font-mono: 'Martian Mono Variable', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace;
+	--font-mono: 'JetBrains Mono Variable', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace;
+		--font-text: var(--font-mono);
 }
 
 /* ============================================================
@@ -78,11 +79,11 @@
 	--clr-primary-a40: #3c4d4a;
 	--clr-primary-a50: #14211f;
 
-	--bg: #e4e1d9;
-	--panel: #f2efe8;
-	--panel-2: #ebe8e0;
-	--border: #c9c5ba;
-	--border-2: #d8d4c9;
+	--bg: #f7faf9;
+	--panel: #ffffff;
+	--panel-2: #f1f6f5;
+	--border: #dde6e4;
+	--border-2: #e8efed;
 
 	/* Ink → slate → grey. All ≥ 4.5:1 on both --bg and --panel. */
 	--text: #17181a;

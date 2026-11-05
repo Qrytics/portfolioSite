@@ -79,14 +79,14 @@
 	.toy__n {
 		padding-top: 0.1rem;
 		color: var(--muter);
-		font-size: 0.75rem;
+		font-size: 0.8125rem;
 		font-variant-numeric: tabular-nums;
 		letter-spacing: 0;
 	}
 
 	.toy__title {
 		color: var(--text);
-		font-size: 0.875rem;
+		font-size: 0.9375rem;
 		font-weight: 600;
 		letter-spacing: 0.01em;
 	}
@@ -94,7 +94,7 @@
 	.toy__blurb {
 		margin-top: 0.2rem;
 		color: var(--muted);
-		font-size: 0.75rem;
+		font-size: 0.8125rem;
 		line-height: 1.45;
 	}
 
@@ -117,7 +117,7 @@
 		background: var(--panel-2);
 		color: var(--muted);
 		font: inherit;
-		font-size: 0.75rem;
+		font-size: 0.8125rem;
 	}
 
 	.toy__body {
@@ -140,7 +140,7 @@
 		background: var(--panel-2);
 		color: var(--text);
 		font: inherit;
-		font-size: 0.75rem;
+		font-size: 0.8125rem;
 		cursor: pointer;
 		transition: border-color 0.12s, color 0.12s, background-color 0.12s;
 	}

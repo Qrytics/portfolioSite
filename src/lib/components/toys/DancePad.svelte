@@ -228,7 +228,7 @@
 		bottom: 0.1rem;
 		color: var(--muter);
 		font: inherit;
-		font-size: 0.75rem;
+		font-size: 0.8125rem;
 	}
 
 	.arrow:hover {
@@ -285,7 +285,7 @@
 
 	.combo {
 		color: var(--muted);
-		font-size: 0.75rem;
+		font-size: 0.8125rem;
 	}
 
 	.combo b {
@@ -298,7 +298,7 @@
 
 	.best {
 		color: var(--muter);
-		font-size: 0.75rem;
+		font-size: 0.8125rem;
 		font-variant-numeric: tabular-nums;
 	}
 
@@ -308,7 +308,7 @@
 		gap: 0.35rem;
 		margin-top: 0.35rem;
 		color: var(--muter);
-		font-size: 0.75rem;
+		font-size: 0.8125rem;
 	}
 
 	.live i {

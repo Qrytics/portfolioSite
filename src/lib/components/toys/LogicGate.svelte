@@ -456,7 +456,7 @@
 
 	.node text {
 		dominant-baseline: middle;
-		font-size: 12px;
+		font-size: 13px;
 	}
 
 	.node__name {
@@ -513,7 +513,7 @@
 
 	.gate__kind {
 		fill: var(--text);
-		font-size: 12px;
+		font-size: 13px;
 		font-weight: 700;
 		text-anchor: middle;
 		dominant-baseline: middle;
@@ -522,7 +522,7 @@
 
 	.gate__id {
 		fill: var(--muter);
-		font-size: 12px;
+		font-size: 13px;
 	}
 
 	.gate--out .gate__id {
@@ -552,7 +552,7 @@
 
 	.lamp__label {
 		fill: var(--muted);
-		font-size: 12px;
+		font-size: 13px;
 		text-anchor: middle;
 	}
 
@@ -564,7 +564,7 @@
 
 	.expr {
 		color: var(--text);
-		font-size: 0.75rem;
+		font-size: 0.8125rem;
 		line-height: 1.5;
 		overflow-wrap: anywhere;
 	}
@@ -576,7 +576,7 @@
 	.tt {
 		width: 100%;
 		border-collapse: collapse;
-		font-size: 0.75rem;
+		font-size: 0.8125rem;
 		font-variant-numeric: tabular-nums;
 		text-align: center;
 	}
@@ -631,7 +631,7 @@
 		display: flex;
 		align-items: center;
 		gap: 0.3rem;
-		font-size: 0.75rem;
+		font-size: 0.8125rem;
 	}
 
 	.row__id {
@@ -651,7 +651,7 @@
 		background: var(--panel-2);
 		color: var(--text);
 		font: inherit;
-		font-size: 0.75rem;
+		font-size: 0.8125rem;
 		cursor: pointer;
 	}
 
@@ -687,7 +687,7 @@
 		align-items: center;
 		gap: 0.35rem;
 		color: var(--muted);
-		font-size: 0.75rem;
+		font-size: 0.8125rem;
 	}
 
 	.presets {

@@ -81,7 +81,7 @@
 	.lead {
 		margin-top: 0.35rem;
 		color: var(--muted);
-		font-size: 0.875rem;
+		font-size: 0.9375rem;
 	}
 
 	.sound {
@@ -95,7 +95,7 @@
 		background: var(--panel);
 		color: var(--text);
 		font: inherit;
-		font-size: 0.875rem;
+		font-size: 0.9375rem;
 		cursor: pointer;
 	}
 

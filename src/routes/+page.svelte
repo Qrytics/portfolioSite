@@ -168,7 +168,7 @@
 <div class="page">
 	<Hero />
 	<section id="top-projects" aria-label="Projects">
-		<ProjectList items={topProjects} compactBottom />
+		<ProjectList items={topProjects} compactBottom balanceLead />
 		<!-- The top three are a curated slice of ~40; without this the only way to the rest was the nav. -->
 		<p class="all-projects"><a href="/projects">view all {projects.length} projects →</a></p>
 	</section>

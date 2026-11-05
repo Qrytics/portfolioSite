@@ -124,7 +124,7 @@
 		padding: 0.15rem 0.5rem;
 		background: #14211f;
 		color: #ffd166;
-		font-size: 0.75rem;
+		font-size: 0.8125rem;
 		font-weight: 700;
 		letter-spacing: 0;
 	}
@@ -133,12 +133,12 @@
 		min-height: 2.6em;
 		max-width: 22ch;
 		color: var(--text);
-		font-size: 0.875rem;
+		font-size: 0.9375rem;
 	}
 
 	.count {
 		color: var(--muter);
-		font-size: 0.75rem;
+		font-size: 0.8125rem;
 	}
 
 	@media (prefers-reduced-motion: reduce) {

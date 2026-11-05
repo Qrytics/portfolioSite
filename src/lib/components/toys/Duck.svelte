@@ -829,7 +829,7 @@
 		background: var(--panel);
 		box-shadow: var(--shadow);
 		color: var(--text);
-		font-size: 0.75rem;
+		font-size: 0.8125rem;
 		line-height: 1.4;
 		pointer-events: none;
 	}
@@ -854,7 +854,7 @@
 	.stats {
 		margin-left: auto;
 		color: var(--muter);
-		font-size: 0.75rem;
+		font-size: 0.8125rem;
 	}
 
 	.stats b {

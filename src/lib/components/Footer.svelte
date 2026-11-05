@@ -153,7 +153,7 @@
 		align-items: center;
 		justify-content: center;
 		color: var(--muted);
-		font-size: 0.875rem;
+		font-size: 0.9375rem;
 		max-width: 86rem;
 		margin: 0 auto;
 		font-family: var(--font-mono);
@@ -176,7 +176,7 @@
 			justify-content: center;
 			justify-items: center;
 			gap: 0.5rem 1.4rem;
-			font-size: 0.875rem;
+			font-size: 0.9375rem;
 		}
 
 		.footer__copy,
@@ -186,7 +186,7 @@
 
 		.footer__copy {
 			color: var(--muter);
-			font-size: 0.875rem;
+			font-size: 0.9375rem;
 		}
 
 		.email-btn {
@@ -259,7 +259,7 @@
 		background: var(--panel);
 		color: var(--text);
 		font-family: var(--font-mono);
-		font-size: 0.75rem;
+		font-size: 0.8125rem;
 		cursor: pointer;
 		font-variant-numeric: tabular-nums;
 	}
@@ -311,7 +311,7 @@
 		background: none;
 		color: var(--muter);
 		font-family: var(--font-mono);
-		font-size: 0.75rem;
+		font-size: 0.8125rem;
 		letter-spacing: 0.02em;
 		cursor: pointer;
 		font-variant-numeric: tabular-nums;

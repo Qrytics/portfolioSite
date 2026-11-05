@@ -337,13 +337,13 @@
 	.key__name {
 		align-self: end;
 		color: var(--text);
-		font-size: 0.875rem;
+		font-size: 0.9375rem;
 		font-weight: 600;
 	}
 
 	.key__name sub {
 		color: var(--muter);
-		font-size: 0.75rem;
+		font-size: 0.8125rem;
 		font-weight: 400;
 	}
 
@@ -351,7 +351,7 @@
 		margin-top: 0.35rem;
 		color: var(--muter);
 		font: inherit;
-		font-size: 0.75rem;
+		font-size: 0.8125rem;
 	}
 
 	.key--on {
@@ -386,7 +386,7 @@
 
 	.note__name sub {
 		color: var(--muted);
-		font-size: 0.875rem;
+		font-size: 0.9375rem;
 	}
 
 	.note__name--idle {
@@ -395,7 +395,7 @@
 
 	.note__hz {
 		color: var(--muted);
-		font-size: 0.75rem;
+		font-size: 0.8125rem;
 		font-variant-numeric: tabular-nums;
 	}
 

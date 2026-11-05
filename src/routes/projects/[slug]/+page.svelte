@@ -175,7 +175,7 @@ source ↗
 <!-- One button even when both fields are set (they used to render as two identical "Visit Site"
      buttons). `data-sveltekit-reload` because a relative `siteUrl` (Moxel's `/Moxel/`) is a vendored
      build, not a route of this app. -->
-<a href={siteHref} target="_blank" rel="noopener noreferrer" class="btn btn--primary" data-sveltekit-reload>Visit Site ↗<span class="sr-only"> (opens in new tab)</span></a>
+<a href={siteHref} target="_blank" rel="external noopener noreferrer" class="btn btn--primary" data-sveltekit-reload>Visit Site ↗<span class="sr-only"> (opens in new tab)</span></a>
 {/if}
 {#if project.demo}
 {#if /(\.mp4|\.webm|\.ogg)(\?|#|$)/i.test(project.demo) || youTubeId}
@@ -274,15 +274,15 @@ display: flex;
 flex-direction: column;
 gap: 0.2rem;
 max-width: 48%;
-padding: 0.6rem 0.8rem;
-border: 1px solid var(--border-2);
-background: var(--panel);
+padding: 0.6rem 0;
 text-decoration: none;
 min-height: 2.75rem;
 }
 
-.pager__link:hover {
-border-color: color-mix(in srgb, var(--accent) 45%, transparent);
+/* No box: the title picks up the accent colour on hover instead. */
+.pager__link:hover .pager__title,
+.pager__link:focus-visible .pager__title {
+color: var(--accent);
 }
 
 .pager__link--next {
@@ -607,16 +607,24 @@ border-color: var(--border-2);
 }
 
 .back-link a {
+display: inline-flex;
+align-items: center;
+min-height: 2.75rem;
+padding: 0 0.8rem;
+border: 1px solid var(--border-2);
+background: var(--panel);
 font-family: var(--font-mono);
 font-size: 0.875rem;
 color: var(--muter);
 text-decoration: none;
 letter-spacing: 0;
-transition: color 0.14s;
+transition: color 0.14s, border-color 0.14s;
 }
 
-.back-link a:hover {
+.back-link a:hover,
+.back-link a:focus-visible {
 color: var(--accent);
+border-color: color-mix(in srgb, var(--accent) 45%, transparent);
 }
 
 /* ── Case Study ── */

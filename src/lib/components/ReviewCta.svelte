@@ -27,7 +27,7 @@
 		align-items: center;
 		padding: 0.6rem 1.25rem;
 		font-family: var(--font-mono);
-		font-size: 0.875rem;
+		font-size: 0.9375rem;
 		color: var(--accent-text);
 		text-decoration: none;
 		border: 1px solid color-mix(in srgb, var(--accent) 32%, transparent);

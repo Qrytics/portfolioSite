@@ -173,7 +173,7 @@
 
 	.switch__label {
 		color: var(--muter);
-		font-size: 0.75rem;
+		font-size: 0.8125rem;
 	}
 
 	.switch:active {
@@ -184,7 +184,7 @@
 		display: flex;
 		flex-wrap: wrap;
 		gap: 0.3rem 1.2rem;
-		font-size: 0.875rem;
+		font-size: 0.9375rem;
 		color: var(--text);
 		font-variant-numeric: tabular-nums;
 	}
@@ -197,7 +197,7 @@
 	.note {
 		margin-top: -0.4rem;
 		color: var(--accent-text);
-		font-size: 0.75rem;
+		font-size: 0.8125rem;
 	}
 
 </style>
