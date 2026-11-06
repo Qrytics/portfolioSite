@@ -267,7 +267,16 @@
 	}
 </script>
 
-<svelte:window onkeydown={(e) => { if (e.key === 'Escape' && zoomed) zoomOut(); }} />
+<svelte:window
+	onkeydown={(e) => { if (e.key === 'Escape' && zoomed) zoomOut(); }}
+	onclick={(e) => {
+		// Zoomed in: a click anywhere that is not a tick (or the "all years" button, which zooms out
+		// itself) zooms back out. The click that zoomed in lands on a tick, so it is ignored too.
+		if (!zoomed) return;
+		if ((e.target as Element | null)?.closest?.('.ruler__hit, .ruler__back')) return;
+		zoomOut();
+	}}
+/>
 
 <header class="header">
 	<div class="hero-background" aria-hidden="true">
@@ -384,7 +393,7 @@
 								<a
 									class="ruler__hit"
 									href="/projects/{p.slug}"
-									style="left:{x}%; width:min(44px, {100 / n}%)"
+									style="left:{x}%; --fit:{100 / n}%"
 									aria-label="{p.title}, started {monthTitle(focus)}"
 									onclick={(e) => onProjectClick(e, p, x)}
 									onpointerenter={hoverTip(p.title, x)}
@@ -798,6 +807,17 @@
 		background: none;
 		cursor: pointer;
 		-webkit-tap-highlight-color: transparent;
+	}
+	/* Project ticks inside a zoomed month. A finger needs the full 44px column; a mouse does not, and
+	   a column that wide would make "click anywhere that is not a tick" open a project instead of
+	   zooming out whenever the click lands within ~20px of a stick. */
+	a.ruler__hit {
+		width: min(44px, var(--fit, 44px));
+	}
+	@media (hover: hover) and (pointer: fine) {
+		a.ruler__hit {
+			width: min(22px, var(--fit, 22px));
+		}
 	}
 	.ruler__hit::before {
 		content: '';
