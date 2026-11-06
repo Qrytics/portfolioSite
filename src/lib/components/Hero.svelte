@@ -4,7 +4,7 @@
 	import { copyEmail } from '$lib/utils/copyEmail';
 	import { discover, prefersReducedMotion } from '$lib/utils/secrets.svelte';
 	import { playSound } from '$lib/utils/sound';
-	import { projects } from '$lib/data/projects';
+	import { projects, type Project } from '$lib/data/projects';
 	import { headRest } from '$lib/data/headRest';
 	import { createSpin, frameIndexForAngle } from '$lib/utils/spin';
 
@@ -104,15 +104,135 @@
 		};
 	});
 
-	/** Signature: a ruler of every project by start date. Real data, no invented numbers. */
+	/**
+	 * Signature: a ruler of every project by start date. Real data, no invented numbers.
+	 *
+	 * One tick per month that has projects (18 started in a single month, so a tick per project would
+	 * be a smear). Hovering a tick names the month; clicking zooms the ruler into that month, where
+	 * each project gets its own tick, named on hover and linking to its page. Projects only record a
+	 * start *month*, so inside a zoomed month the ticks are evenly spaced, not placed by day.
+	 */
 	const MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
-	const stamps = projects.map((p) => p.startYear + MONTHS.indexOf(p.startMonth) / 12);
-	const first = Math.floor(Math.min(...stamps));
-	const lastYear = Math.floor(Math.max(...stamps));
+	const MONTH_NAMES = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+	type Group = { key: number; year: number; month: number; v: number; items: Project[] };
+	const groups: Group[] = (() => {
+		const byMonth = new Map<number, Group>();
+		for (const p of projects) {
+			const month = MONTHS.indexOf(p.startMonth);
+			const key = p.startYear * 12 + month;
+			let g = byMonth.get(key);
+			if (!g) byMonth.set(key, (g = { key, year: p.startYear, month, v: p.startYear + month / 12, items: [] }));
+			g.items.unshift(p); // the list is newest-first; the ruler reads oldest-first
+		}
+		return [...byMonth.values()].sort((a, b) => a.key - b.key);
+	})();
+	const first = Math.floor(groups[0].v);
+	const lastYear = Math.floor(groups[groups.length - 1].v);
 	const last = lastYear + 1; // scale end; the label below uses lastYear
 	const span = last - first;
 	const ticks = Array.from({ length: span + 1 }, (_, i) => first + i);
-	const pct = (v: number) => ((v - first) / span) * 100;
+
+	// ---- Zoom. `t` runs 0 (all years) to 1 (one month fills the ruler).
+	const ONE_MONTH = 1 / 12;
+	const ZOOM_MS = 700;
+	let focus = $state<Group | null>(null);
+	let zoomed = $state(false);
+	let t = $state(0);
+	let zoomRaf = 0;
+	let backBtn = $state<HTMLButtonElement | undefined>(undefined);
+	let rulerEl = $state<HTMLElement | undefined>(undefined);
+	let markEls = $state<Record<number, HTMLElement | undefined>>({});
+
+	// Zoom about a fixed point at constant speed: the visible width shrinks geometrically, and the
+	// left edge moves so that at t = 1 it sits exactly on the chosen month.
+	const width = $derived(focus ? span * Math.pow(ONE_MONTH / span, t) : span);
+	const lo = $derived(focus ? first + (focus.v - first) * ((span - width) / (span - ONE_MONTH)) : first);
+	const hi = $derived(lo + width);
+	const pos = (v: number) => ((v - lo) / (hi - lo)) * 100;
+	const smooth = (x: number, a: number, b: number) => {
+		const k = Math.min(1, Math.max(0, (x - a) / (b - a)));
+		return k * k * (3 - 2 * k);
+	};
+	const overviewOpacity = $derived(1 - smooth(t, 0, 0.45));
+	const zoomOpacity = $derived(smooth(t, 0.5, 1));
+	// A tick's clickable column is never wider than the gap to its nearest neighbour, or neighbouring
+	// columns overlap and the later one swallows clicks meant for the earlier (adjacent months are
+	// only ~17px apart at the full-width scale).
+	const hitPct = (i: number) => {
+		const g = groups[i];
+		const gap = Math.min(groups[i - 1] ? g.v - groups[i - 1].v : Infinity, groups[i + 1] ? groups[i + 1].v - g.v : Infinity);
+		return Math.min(100, (gap / span) * 100);
+	};
+	const monthTitle = (g: Group) => `${MONTH_NAMES[g.month]} ${g.year}`;
+	const countLabel = (n: number) => `${n} project${n === 1 ? '' : 's'}`;
+	const nextMonth = (g: Group) => (g.month === 11 ? `${MONTHS[0]} ${g.year + 1}` : `${MONTHS[g.month + 1]} ${g.year}`);
+
+	function animateTo(target: number, done?: () => void) {
+		cancelAnimationFrame(zoomRaf);
+		if (prefersReducedMotion()) {
+			t = target;
+			done?.();
+			return;
+		}
+		const from = t;
+		const began = performance.now();
+		const ease = (k: number) => (k < 0.5 ? 4 * k * k * k : 1 - Math.pow(-2 * k + 2, 3) / 2);
+		const tick = (now: number) => {
+			const k = Math.min(1, (now - began) / (ZOOM_MS * Math.abs(target - from)));
+			t = from + (target - from) * ease(k);
+			if (k < 1) zoomRaf = requestAnimationFrame(tick);
+			else {
+				t = target;
+				done?.();
+			}
+		};
+		zoomRaf = requestAnimationFrame(tick);
+	}
+
+	// Keyboard users keep their place: focus follows the zoom instead of vanishing with the control.
+	const keepFocus = () => !document.activeElement || document.activeElement === document.body || !!rulerEl?.contains(document.activeElement);
+	function zoomIn(g: Group) {
+		hideTip();
+		focus = g;
+		zoomed = true;
+		animateTo(1, () => {
+			if (keepFocus()) backBtn?.focus({ preventScroll: true });
+		});
+	}
+	function zoomOut() {
+		const g = focus;
+		hideTip();
+		zoomed = false;
+		animateTo(0, () => {
+			const refocus = keepFocus();
+			focus = null;
+			if (g && refocus) markEls[g.key]?.focus({ preventScroll: true });
+		});
+	}
+
+	// ---- The small label that fades in above a hovered tick.
+	let tipOn = $state(false);
+	let tipText = $state('');
+	let tipX = $state(50);
+	let selectedSlug = $state<string | null>(null);
+	function showTip(text: string, x: number) {
+		tipText = text;
+		tipX = x;
+		tipOn = true;
+	}
+	function hideTip() {
+		tipOn = false;
+	}
+	const hoverTip = (text: string, x: number) => (e: PointerEvent) => {
+		if (e.pointerType !== 'touch') showTip(text, x);
+	};
+	// Touch has no hover: the first tap on a project tick names it, the second opens it.
+	function onProjectClick(e: MouseEvent, p: Project, x: number) {
+		if (!matchMedia('(hover: none)').matches || selectedSlug === p.slug) return;
+		e.preventDefault();
+		selectedSlug = p.slug;
+		showTip(p.title, x);
+	}
 
 	/**
 	 * Secret: the headline's letters are loose. A tap blasts them away from the pointer and they
@@ -146,6 +266,8 @@
 		blastTimer = setTimeout(() => (blast = null), 520);
 	}
 </script>
+
+<svelte:window onkeydown={(e) => { if (e.key === 'Escape' && zoomed) zoomOut(); }} />
 
 <header class="header">
 	<div class="hero-background" aria-hidden="true">
@@ -221,16 +343,71 @@
 				<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path fill="currentColor" d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z" /></svg>
 			</a>
 		</div>
-		<figure class="ruler" aria-label="{projects.length} projects by start date, {first} to {lastYear}">
+		<figure class="ruler" aria-label="{projects.length} projects by start date, {first} to {lastYear}" bind:this={rulerEl}>
 			<div class="ruler__read">
-				<span class="ruler__figure">{projects.length}</span>
-				<span class="ruler__unit">projects, {first}–{lastYear}</span>
+				<span class="ruler__figure">{zoomed && focus ? focus.items.length : projects.length}</span>
+				<span class="ruler__unit">projects, {zoomed && focus ? monthTitle(focus) : `${first}–${lastYear}`}</span>
+				<button type="button" class="ruler__back" onclick={zoomOut} disabled={!zoomed} bind:this={backBtn}>← all years</button>
 			</div>
-			<div class="ruler__scale" aria-hidden="true">
-				{#each stamps as v, i (i)}<span class="ruler__mark" style="left:{pct(v)}%"></span>{/each}
-				{#each ticks as t (t)}<span class="ruler__tick" style="left:{pct(t)}%"><i>{t}</i></span>{/each}
+			<div class="ruler__scale">
+				<div class="ruler__layer">
+					{#each ticks as y (y)}
+						<span class="ruler__tick" aria-hidden="true" style="left:{pos(y)}%; opacity:{overviewOpacity}"><i>{y}</i></span>
+					{/each}
+					{#if focus}
+						<span class="ruler__tick ruler__tick--edge" aria-hidden="true" style="left:0%; opacity:{zoomOpacity}"><i>{MONTHS[focus.month]} {focus.year}</i></span>
+						<span class="ruler__tick ruler__tick--edge" aria-hidden="true" style="left:100%; opacity:{zoomOpacity}"><i>{nextMonth(focus)}</i></span>
+					{/if}
+
+					<div class="ruler__marks" inert={t > 0.2} style="opacity:{overviewOpacity}">
+						{#each groups as g, gi (g.key)}
+							<button
+								type="button"
+								class="ruler__hit"
+								style="left:{pos(g.v)}%; width:min(32px, {hitPct(gi)}%)"
+								aria-label="{monthTitle(g)}, {countLabel(g.items.length)}. Zoom in."
+								bind:this={markEls[g.key]}
+								onclick={() => zoomIn(g)}
+								onpointerenter={hoverTip(`${monthTitle(g)} · ${countLabel(g.items.length)}`, pos(g.v))}
+								onfocus={() => showTip(`${monthTitle(g)} · ${countLabel(g.items.length)}`, pos(g.v))}
+								onpointerleave={hideTip}
+								onblur={hideTip}
+							></button>
+						{/each}
+					</div>
+
+					{#if focus}
+						{@const n = focus.items.length}
+						<div class="ruler__marks" inert={t < 0.9} style="opacity:{zoomOpacity}">
+							{#each focus.items as p, i (p.slug)}
+								{@const x = pos(focus.v + ((i + 0.5) / n) * ONE_MONTH)}
+								<a
+									class="ruler__hit"
+									href="/projects/{p.slug}"
+									style="left:{x}%; width:min(44px, {100 / n}%)"
+									aria-label="{p.title}, started {monthTitle(focus)}"
+									onclick={(e) => onProjectClick(e, p, x)}
+									onpointerenter={hoverTip(p.title, x)}
+									onfocus={() => showTip(p.title, x)}
+									onpointerleave={hideTip}
+									onblur={hideTip}
+								></a>
+							{/each}
+						</div>
+					{/if}
+				</div>
+				<div
+					class="ruler__tip"
+					class:ruler__tip--on={tipOn}
+					class:ruler__tip--left={tipX < 22}
+					class:ruler__tip--right={tipX > 78}
+					style="left:{tipX}%"
+					aria-hidden="true"
+				>{tipText}</div>
 			</div>
+			<span class="sr-only" aria-live="polite">{zoomed && focus ? `Showing ${countLabel(focus.items.length)} from ${monthTitle(focus)}` : 'Showing all years'}</span>
 		</figure>
+
 
 		<div
 			class="hero-head"
@@ -578,19 +755,17 @@
 		margin: 0 1.5rem 0 0.5rem;
 		border-bottom: 1px solid var(--text);
 	}
-	.ruler__mark {
+	.ruler__layer {
 		position: absolute;
-		bottom: 0;
-		width: 2px;
-		height: 1.25rem;
-		margin-left: -1px;
-		background: var(--accent-2);
+		inset: 0;
 	}
+	/* Year labels and the month edges while zoomed. */
 	.ruler__tick {
 		position: absolute;
 		bottom: -1.5rem;
 		height: 0.75rem;
 		border-left: 1px solid var(--text);
+		pointer-events: none;
 	}
 	.ruler__tick i {
 		position: absolute;
@@ -600,6 +775,91 @@
 		font-size: 0.75rem;
 		font-variant-numeric: tabular-nums;
 		color: var(--muted);
+		white-space: nowrap;
+	}
+	.ruler__tick--edge i {
+		left: 0;
+		transform: translateX(-50%);
+	}
+	.ruler__marks {
+		position: absolute;
+		inset: 0;
+	}
+	/* The red lines. Each is a wide, invisible target with a thin line drawn inside it: a 2px line is
+	   nearly impossible to hit, but a ~16px column around it is easy and does not change how it looks. */
+	.ruler__hit {
+		position: absolute;
+		bottom: 0;
+		width: 32px; /* overridden inline per tick, see hitPct() */
+		height: 100%;
+		transform: translateX(-50%);
+		padding: 0;
+		border: 0;
+		background: none;
+		cursor: pointer;
+		-webkit-tap-highlight-color: transparent;
+	}
+	.ruler__hit::before {
+		content: '';
+		position: absolute;
+		left: 50%;
+		bottom: 0;
+		width: 2px;
+		height: 1.25rem;
+		margin-left: -1px;
+		background: var(--accent-2);
+		transition: height 0.16s ease, background-color 0.16s ease, box-shadow 0.16s ease;
+	}
+	.ruler__hit:hover::before,
+	.ruler__hit:focus-visible::before {
+		height: 2rem;
+		background: color-mix(in srgb, var(--accent-2) 55%, #fff);
+		box-shadow: 0 0 6px 1px color-mix(in srgb, var(--accent-2) 70%, transparent);
+	}
+	.ruler__hit:focus-visible {
+		outline: 2px solid var(--focus-ring);
+		outline-offset: -2px;
+	}
+	/* The small label that fades in above the line. */
+	.ruler__tip {
+		position: absolute;
+		bottom: calc(100% + 0.5rem);
+		transform: translateX(-50%) translateY(4px);
+		padding: 0.15rem 0.4rem;
+		background: var(--panel);
+		border: 1px solid var(--border);
+		color: var(--text);
+		font-size: 0.75rem;
+		line-height: 1.3;
+		white-space: nowrap;
+		pointer-events: none;
+		opacity: 0;
+		transition: opacity 0.16s ease, transform 0.16s ease;
+		z-index: 3;
+	}
+	.ruler__tip--left { transform: translateX(0) translateY(4px); }
+	.ruler__tip--right { transform: translateX(-100%) translateY(4px); }
+	.ruler__tip--on { opacity: 1; transform: translateX(-50%) translateY(0); }
+	.ruler__tip--left.ruler__tip--on { transform: translateX(0) translateY(0); }
+	.ruler__tip--right.ruler__tip--on { transform: translateX(-100%) translateY(0); }
+	.ruler__back {
+		margin-top: 0.35rem;
+		padding: 0;
+		border: 0;
+		background: none;
+		color: var(--accent-text);
+		font: inherit;
+		font-size: 0.75rem;
+		cursor: pointer;
+		text-align: left;
+		opacity: 0;
+		visibility: hidden;
+		transition: opacity 0.2s ease;
+	}
+	.ruler__back:not(:disabled) { opacity: 1; visibility: visible; }
+	.ruler__back:hover { text-decoration: underline; }
+	@media (prefers-reduced-motion: reduce) {
+		.ruler__tip, .ruler__hit::before, .ruler__back { transition: none; }
 	}
 	.ruler { padding-bottom: 1.5rem; }
 	@media (max-width: 700px) {
