@@ -306,7 +306,9 @@ padding-top: 1.5rem;
 }
 
 .shell {
-max-width: 56rem;
+/* Same width as the /projects grid and the home page (86rem). It was 56rem, which left the card
+   800px wide on a 1440px screen with ~320px of empty page on each side. */
+max-width: 86rem;
 margin: 0 auto;
 padding: clamp(1.25rem, 4vw, 3rem);
 }
